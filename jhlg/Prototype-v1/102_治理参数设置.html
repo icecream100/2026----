@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>参数设置 - 金华理工物联网平台</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-text">物联网平台</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-group-title">设备空间管理</div>
+                <a href="101_基础设备目录管理.html" class="nav-item">
+                    <span>📚</span> 基础目录
+                </a>
+                <a href="101_标签管理.html" class="nav-item">
+                    <span>🏷️</span> 标签管理
+                </a>
+                <a href="101_地图广场.html" class="nav-item">
+                    <span>🗺️</span> 地图广场
+                </a>
+                <a href="101_地图管理.html" class="nav-item">
+                    <span>⚙️</span> 地图配置
+                </a>
+
+                <div class="nav-group-title">设备治理</div>
+                <a href="102_治理任务.html" class="nav-item">
+                    <span>📋</span> 治理任务
+                </a>
+                <a href="102_治理参数设置.html" class="nav-item active">
+                    <span>⚙️</span> 参数设置
+                </a>
+
+                <div class="nav-group-title">物联网设备管理</div>
+                <a href="103_平台设备管理.html" class="nav-item">
+                    <span>🖥️</span> 平台管理
+                </a>
+                <a href="103_平台通道管理.html" class="nav-item">
+                    <span>📡</span> 通道管理
+                </a>
+                <a href="103_设备分组管理.html" class="nav-item">
+                    <span>📂</span> 设备分组
+                </a>
+
+                <div class="nav-group-title">视频权限管理</div>
+                <a href="104_直接共享.html" class="nav-item">
+                    <span>📱</span> 应用管理
+                </a>
+                <!-- <span>🎨</span> 应用编排 (Coming Soon) -->
+                <a href="104_代理共享.html" class="nav-item">
+                    <span>🔗</span> 上级平台
+                </a>
+
+                <div class="nav-group-title">权限审批管理</div>
+                <a href="105_需求登记.html" class="nav-item">
+                    <span>📝</span> 需求登记
+                </a>
+                <a href="105_需求审批.html" class="nav-item">
+                    <span>⚖️</span> 需求审批
+                </a>
+                <a href="105_授权管理.html" class="nav-item">
+                    <span>🛑</span> 授权管理
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-bar">
+                <h2 class="page-title">参数设置</h2>
+                <div class="user-profile">
+                    <span>管理员</span>
+                    <div class="avatar"></div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="glass-panel">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>参数名称</th>
+                                <th>参数键名</th>
+                                <th>枚举值</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>场所类型</td>
+                                <td>place_type</td>
+                                <td>教学区域、公共区域、办公区域、宿舍区域...</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;"
+                                        onclick="openConfigModal('场所类型')">配置</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>管理单位</td>
+                                <td>manage_unit</td>
+                                <td>保卫处、教务处、后勤处、学生处...</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;"
+                                        onclick="openConfigModal('管理单位')">配置</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>地理区域</td>
+                                <td>geo_area</td>
+                                <td>东校区、西校区、北校区...</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;"
+                                        onclick="openConfigModal('地理区域')">配置</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>监控方向</td>
+                                <td>monitor_direction</td>
+                                <td>东、南、西、北、主要出入口...</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;"
+                                        onclick="openConfigModal('监控方向')">配置</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>室内外</td>
+                                <td>indoor_outdoor</td>
+                                <td>室内、室外</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;"
+                                        onclick="openConfigModal('室内外')">配置</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Modal -->
+    <div class="modal-overlay" id="configModal">
+        <div class="modal-content" style="width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="configTitle">配置参数 - 场所类型</h3>
+                <button class="modal-close" onclick="closeConfigModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-label" style="margin-bottom: 12px;">枚举值列表 (最多20个)</div>
+                <div id="enumList" style="max-height: 300px; overflow-y: auto;">
+                    <!-- Enum Items -->
+                </div>
+                <button class="btn btn-secondary" style="width: 100%; margin-top: 12px; border-style: dashed;"
+                    onclick="addEnumItem()">+ 新增枚举值</button>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeConfigModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Initial data for demo
+        const demoData = {
+            '场所类型': ['教学区域', '公共区域', '办公区域', '宿舍区域'],
+            '管理单位': ['保卫处', '教务处', '后勤处'],
+            // ...
+        }
+
+        function openConfigModal(title) {
+            document.getElementById('configTitle').innerText = '配置参数 - ' + title;
+            const container = document.getElementById('enumList');
+            container.innerHTML = '';
+
+            const values = demoData[title] || ['默认值1', '默认值2'];
+            values.forEach(val => addEnumItem(val));
+
+            document.getElementById('configModal').classList.add('active');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModal').classList.remove('active');
+        }
+
+        function addEnumItem(value = '') {
+            const container = document.getElementById('enumList');
+            const div = document.createElement('div');
+            div.className = 'input-group';
+            div.style.marginBottom = '8px';
+            div.style.display = 'flex';
+            div.style.gap = '8px';
+
+            div.innerHTML = `
+                <input type="text" class="glass-input" value="${value}" placeholder="请输入枚举值">
+                <button class="btn btn-secondary" style="color: var(--danger); border-color: var(--danger); padding: 0 10px;" onclick="removeEnumItem(this)">删除</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeEnumItem(btn) {
+            const container = document.getElementById('enumList');
+            if (container.children.length <= 1) {
+                showToast('至少保留一个枚举值', 'warning');
+                return;
+            }
+            btn.parentElement.remove();
+        }
+
+        function saveConfig() {
+            // Validate duplicates
+            const inputs = document.querySelectorAll('#enumList input');
+            const values = new Set();
+            for (let input of inputs) {
+                if (values.has(input.value)) {
+                    showToast('枚举值不可重复', 'error');
+                    return;
+                }
+                values.add(input.value);
+            }
+
+            closeConfigModal();
+            showToast('参数配置保存成功', 'success');
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地图广场 - 金华理工物联网平台</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Map specific full-screen layout override */
+        body,
+        .app-container {
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-content {
+            position: relative;
+        }
+
+        /* Full screen map area */
+        .map-wrapper {
+            position: absolute;
+            top: 64px;
+            /* Below top bar */
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #e2e8f0;
+            /* Map Placeholder Color */
+            z-index: 1;
+        }
+
+        /* Floating Controls */
+        .map-float-panel {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            width: 320px;
+            bottom: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .map-tools {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tool-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text-secondary);
+            transition: 0.2s;
+        }
+
+        .tool-btn:hover {
+            color: var(--primary);
+            background: #f8fafc;
+        }
+
+        .tool-btn.active {
+            color: white;
+            background: var(--primary);
+        }
+
+        /* Left Panel Content */
+        .panel-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .device-card {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .device-card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-color: var(--primary);
+        }
+
+        .device-thumb {
+            width: 80px;
+            height: 45px;
+            background: #333;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .device-info h4 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--text-main);
+        }
+
+        .device-info p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* Scope Switcher */
+        .scope-switch {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 4px;
+            padding: 2px;
+            margin-bottom: 12px;
+        }
+
+        .scope-btn {
+            flex: 1;
+            text-align: center;
+            padding: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            color: var(--text-secondary);
+        }
+
+        .scope-btn.active {
+            background: white;
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Map Marker Detail Overlay */
+        .map-marker-popup {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -150%);
+            /* Above center */
+            width: 280px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            z-index: 20;
+            display: none;
+            /* Hidden by default */
+        }
+
+        .marker-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .marker-close {
+            cursor: pointer;
+            font-size: 18px;
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-text">物联网平台</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-group-title">设备空间管理</div>
+                <a href="101_基础设备目录管理.html" class="nav-item">
+                    <span>📚</span> 基础目录
+                </a>
+                <a href="101_标签管理.html" class="nav-item">
+                    <span>🏷️</span> 标签管理
+                </a>
+                <a href="101_地图广场.html" class="nav-item active">
+                    <span>🗺️</span> 地图广场
+                </a>
+                <a href="101_地图管理.html" class="nav-item">
+                    <span>⚙️</span> 地图配置
+                </a>
+
+                <div class="nav-group-title">设备治理</div>
+                <a href="102_治理任务.html" class="nav-item">
+                    <span>📋</span> 治理任务
+                </a>
+                <a href="102_治理参数设置.html" class="nav-item">
+                    <span>⚙️</span> 参数设置
+                </a>
+
+                <div class="nav-group-title">物联网设备管理</div>
+                <a href="103_平台设备管理.html" class="nav-item">
+                    <span>🖥️</span> 平台管理
+                </a>
+                <a href="103_平台通道管理.html" class="nav-item">
+                    <span>📡</span> 通道管理
+                </a>
+                <a href="103_设备分组管理.html" class="nav-item">
+                    <span>📂</span> 设备分组
+                </a>
+
+                <div class="nav-group-title">视频权限管理</div>
+                <a href="104_直接共享.html" class="nav-item">
+                    <span>📱</span> 应用管理
+                </a>
+                <!-- <span>🎨</span> 应用编排 (Coming Soon) -->
+                <a href="104_代理共享.html" class="nav-item">
+                    <span>🔗</span> 上级平台
+                </a>
+
+                <div class="nav-group-title">权限审批管理</div>
+                <a href="105_需求登记.html" class="nav-item">
+                    <span>📝</span> 需求登记
+                </a>
+                <a href="105_需求审批.html" class="nav-item">
+                    <span>⚖️</span> 需求审批
+                </a>
+                <a href="105_授权管理.html" class="nav-item">
+                    <span>🛑</span> 授权管理
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-bar">
+                <h2 class="page-title">地图广场</h2>
+                <div class="user-profile">
+                    <span>管理员</span>
+                    <div class="avatar"></div>
+                </div>
+            </header>
+
+            <!-- Map Area -->
+            <div class="map-wrapper" id="mapContainer">
+                <!-- Placeholder for map rendering -->
+                <div
+                    style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 24px; font-weight: bold; background: url('https://a.amap.com/jsapi_demos/static/demo-center/images/map-grid.png');">
+                    MAP RENDERING AREA
+
+                    <!-- Simulating a Marker -->
+                    <div style="position: absolute; top: 40%; left: 60%; cursor: pointer;" onclick="showMarkerDetail()">
+                        <div style="font-size: 32px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">📹</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marker Detail Popup -->
+            <div class="map-marker-popup" id="markerDetail">
+                <div class="marker-header">
+                    <h4 style="margin:0; font-size: 14px;">教学楼A-1F-大厅全景</h4>
+                    <span class="marker-close" onclick="closeMarkerDetail()">×</span>
+                </div>
+                <div style="padding: 12px 16px;">
+                    <div
+                        style="height: 120px; background: #000; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; border-radius: 4px;">
+                        实时视频预览
+                    </div>
+                    <div style="font-size: 12px; color: #666; line-height: 20px;">
+                        <div>设备编码：330702000...</div>
+                        <div>所属区域：教学楼A区</div>
+                        <div>状态：<span style="color: #10b981;">在线</span></div>
+                    </div>
+                    <div style="margin-top: 12px; text-align: right;">
+                        <button class="btn btn-primary" style="padding: 4px 12px; font-size: 12px;">查看回放</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Left Floating Panel -->
+            <div class="map-float-panel">
+                <div class="panel-header">
+                    <!-- Scope Switcher -->
+                    <div class="scope-switch">
+                        <div class="scope-btn active" onclick="switchScope(this)">当前租户</div>
+                        <div class="scope-btn" onclick="switchScope(this)">全部数据</div>
+                    </div>
+
+                    <!-- Search Box -->
+                    <div style="position: relative;">
+                        <input type="text" class="glass-input" placeholder="搜索设备/地点...">
+                        <span style="position: absolute; right: 10px; top: 9px; color: #999;">🔍</span>
+                    </div>
+
+                    <!-- Filters -->
+                    <div style="margin-top: 12px; display: flex; gap: 8px;">
+                        <select class="glass-input" style="padding: 4px 8px; font-size: 12px; height: 30px;">
+                            <option>全部类型</option>
+                            <option>枪机</option>
+                            <option>球机</option>
+                        </select>
+                        <select class="glass-input" style="padding: 4px 8px; font-size: 12px; height: 30px;">
+                            <option>在线状态</option>
+                            <option>在线</option>
+                            <option>离线</option>
+                        </select>
+                    </div>
+
+                    <!-- Favorites Toggle -->
+                    <div
+                        style="margin-top: 12px; display: flex; align-items: center; font-size: 12px; color: var(--text-secondary); cursor: pointer;">
+                        <input type="checkbox" id="favToggle" style="margin-right: 6px;">
+                        <label for="favToggle" style="cursor: pointer;">只看我的收藏</label>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="device-card" onclick="showMarkerDetail()">
+                        <div class="device-thumb"></div>
+                        <div class="device-info">
+                            <h4>教学楼A-1F-大厅全景</h4>
+                            <p>33070200001310000001</p>
+                            <p><span style="color: #10b981;">● 在线</span> | 枪机</p>
+                        </div>
+                    </div>
+                    <div class="device-card">
+                        <div class="device-thumb"></div>
+                        <div class="device-info">
+                            <h4>教学楼A-1F-东门球机</h4>
+                            <p>33070200001310000002</p>
+                            <p><span style="color: #10b981;">● 在线</span> | 球机</p>
+                        </div>
+                    </div>
+                    <div class="device-card">
+                        <div class="device-thumb" style="background: #e2e2e2;"></div>
+                        <div class="device-info">
+                            <h4>图书馆-正门人脸抓拍</h4>
+                            <p>33070200001310000035</p>
+                            <p><span style="color: #ef4444;">● 离线</span> | 抓拍机</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    style="padding: 12px; border-top: 1px solid var(--border-color); font-size: 12px; color: #999; text-align: center;">
+                    共找到 356 个设备
+                </div>
+            </div>
+
+            <!-- Right Toolbar -->
+            <div class="map-tools">
+                <div class="tool-btn" title="框选" onclick="toggleTool(this)">⛶</div>
+                <div class="tool-btn" title="测距" onclick="toggleTool(this)">📏</div>
+                <div class="tool-btn" title="图层" onclick="toggleTool(this)">📚</div>
+                <div class="tool-btn" title="定位" onclick="showToast('已定位到当前位置')">📍</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function switchScope(el) {
+            document.querySelectorAll('.scope-btn').forEach(btn => btn.classList.remove('active'));
+            el.classList.add('active');
+            showToast('数据范围已切换');
+        }
+
+        function toggleTool(el) {
+            el.classList.toggle('active');
+            if (el.classList.contains('active')) {
+                showToast('工具已激活');
+            }
+        }
+
+        function showMarkerDetail() {
+            document.getElementById('markerDetail').style.display = 'block';
+        }
+
+        function closeMarkerDetail() {
+            document.getElementById('markerDetail').style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

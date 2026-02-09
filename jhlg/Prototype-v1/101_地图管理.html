@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地图配置 - 金华理工物联网平台</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .map-preview {
+            width: 100%;
+            height: 200px;
+            background: #eee;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            margin-top: 12px;
+            border: 1px dashed #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-text">物联网平台</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-group-title">设备空间管理</div>
+                <a href="101_基础设备目录管理.html" class="nav-item">
+                    <span>📚</span> 基础目录
+                </a>
+                <a href="101_标签管理.html" class="nav-item">
+                    <span>🏷️</span> 标签管理
+                </a>
+                <a href="101_地图广场.html" class="nav-item">
+                    <span>🗺️</span> 地图广场
+                </a>
+                <a href="101_地图管理.html" class="nav-item active">
+                    <span>⚙️</span> 地图配置
+                </a>
+
+                <div class="nav-group-title">设备治理</div>
+                <a href="102_治理任务.html" class="nav-item">
+                    <span>📋</span> 治理任务
+                </a>
+                <a href="102_治理参数设置.html" class="nav-item">
+                    <span>⚙️</span> 参数设置
+                </a>
+
+                <div class="nav-group-title">物联网设备管理</div>
+                <a href="103_平台设备管理.html" class="nav-item">
+                    <span>🖥️</span> 平台管理
+                </a>
+                <a href="103_平台通道管理.html" class="nav-item">
+                    <span>📡</span> 通道管理
+                </a>
+                <a href="103_设备分组管理.html" class="nav-item">
+                    <span>📂</span> 设备分组
+                </a>
+
+                <div class="nav-group-title">视频权限管理</div>
+                <a href="104_直接共享.html" class="nav-item">
+                    <span>📱</span> 应用管理
+                </a>
+                <!-- <span>🎨</span> 应用编排 (Coming Soon) -->
+                <a href="104_代理共享.html" class="nav-item">
+                    <span>🔗</span> 上级平台
+                </a>
+
+                <div class="nav-group-title">权限审批管理</div>
+                <a href="105_需求登记.html" class="nav-item">
+                    <span>📝</span> 需求登记
+                </a>
+                <a href="105_需求审批.html" class="nav-item">
+                    <span>⚖️</span> 需求审批
+                </a>
+                <a href="105_授权管理.html" class="nav-item">
+                    <span>🛑</span> 授权管理
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-bar">
+                <h2 class="page-title">地图配置</h2>
+                <div class="user-profile">
+                    <span>管理员</span>
+                    <div class="avatar"></div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Filters -->
+                <div class="filter-bar">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label class="input-label">地图名称</label>
+                        <input type="text" class="glass-input" placeholder="请输入地图名称">
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <label class="input-label">行政区划</label>
+                        <select class="glass-input">
+                            <option value="">全部区域</option>
+                            <option value="330700">金华市</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: flex-end; gap: 8px;">
+                        <button class="btn btn-primary" onclick="searchData()">查询</button>
+                    </div>
+                    <div style="flex: 1; display: flex; justify-content: flex-end; align-items: flex-end;">
+                        <button class="btn btn-primary" onclick="openMapModal()">+ 新增地图</button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="glass-panel">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>地图名称</th>
+                                <th>行政区划</th>
+                                <th>关联目录</th>
+                                <th>关联设备数</th>
+                                <th>状态</th>
+                                <th>创建人</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>金华理工主校区</td>
+                                <td>浙江省/金华市/婺城区</td>
+                                <td>金华理工学院</td>
+                                <td>156</td>
+                                <td><span class="status-tag status-success">启用</span></td>
+                                <td>admin</td>
+                                <td>2025-10-12 10:00:00</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="openMapModal(true)">编辑</button>
+                                    <button class="btn btn-secondary"
+                                        style="padding: 4px 8px; font-size: 12px; color: var(--danger); border-color: var(--danger);"
+                                        onclick="deleteMap()">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>教学楼A区详图</td>
+                                <td>浙江省/金华市/婺城区</td>
+                                <td>教学楼A区</td>
+                                <td>45</td>
+                                <td><span class="status-tag status-warning">草稿</span></td>
+                                <td>zhangsan</td>
+                                <td>2025-10-15 14:30:00</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="openMapModal(true)">编辑</button>
+                                    <button class="btn btn-secondary"
+                                        style="padding: 4px 8px; font-size: 12px; color: var(--danger); border-color: var(--danger);"
+                                        onclick="deleteMap()">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Edit Modal -->
+    <div class="modal-overlay" id="mapModal">
+        <div class="modal-content" style="width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="mapModalTitle">新增地图</h3>
+                <button class="modal-close" onclick="closeMapModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="input-group">
+                        <label class="input-label"><span style="color:red">*</span> 地图名称</label>
+                        <input type="text" class="glass-input" placeholder="请输入地图名称">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label"><span style="color:red">*</span> 关联目录</label>
+                        <select class="glass-input">
+                            <option>请选择目录</option>
+                            <option>金华理工学院</option>
+                            <option>教学楼A区</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" style="grid-column: span 2;">
+                        <label class="input-label">行政区划</label>
+                        <div style="display: flex; gap: 10px;">
+                            <select class="glass-input">
+                                <option>浙江省</option>
+                            </select>
+                            <select class="glass-input">
+                                <option>金华市</option>
+                            </select>
+                            <select class="glass-input">
+                                <option>婺城区</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group" style="grid-column: span 2;">
+                        <label class="input-label">地图中心点 (经纬度)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" class="glass-input" placeholder="经度" value="119.64">
+                            <input type="text" class="glass-input" placeholder="纬度" value="29.07">
+                            <button class="btn btn-secondary">📍 拾取坐标</button>
+                        </div>
+                        <div class="map-preview">
+                            地图预览区域（集成高德/百度地图SDK）
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">默认缩放级别</label>
+                        <input type="number" class="glass-input" value="16" min="1" max="20">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">状态</label>
+                        <div style="display: flex; gap: 16px; align-items: center; height: 38px;">
+                            <label><input type="radio" name="status" checked> 启用</label>
+                            <label><input type="radio" name="status"> 禁用</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeMapModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveMap()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-content" style="width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">删除地图</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除该地图配置吗？此操作不可恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function searchData() {
+            showToast('数据已刷新');
+        }
+
+        function openMapModal(isEdit = false) {
+            const title = document.getElementById('mapModalTitle');
+            title.innerText = isEdit ? '编辑地图' : '新增地图';
+            document.getElementById('mapModal').classList.add('active');
+        }
+
+        function closeMapModal() {
+            document.getElementById('mapModal').classList.remove('active');
+        }
+
+        function saveMap() {
+            closeMapModal();
+            showToast('地图配置保存成功', 'success');
+        }
+
+        function deleteMap() {
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+
+        function confirmDelete() {
+            closeDeleteModal();
+            showToast('地图已删除', 'success');
+        }
+    </script>
+</body>
+
+</html>

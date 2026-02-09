@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>直接共享管理 - 金华理工物联网平台</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-text">物联网平台</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-group-title">设备空间管理</div>
+                <a href="101_基础设备目录管理.html" class="nav-item">
+                    <span>📚</span> 基础目录
+                </a>
+                <a href="101_标签管理.html" class="nav-item">
+                    <span>🏷️</span> 标签管理
+                </a>
+                <a href="101_地图广场.html" class="nav-item">
+                    <span>🗺️</span> 地图广场
+                </a>
+                <a href="101_地图管理.html" class="nav-item">
+                    <span>⚙️</span> 地图配置
+                </a>
+
+                <div class="nav-group-title">设备治理</div>
+                <a href="102_治理任务.html" class="nav-item">
+                    <span>📋</span> 治理任务
+                </a>
+                <a href="102_治理参数设置.html" class="nav-item">
+                    <span>⚙️</span> 参数设置
+                </a>
+
+                <div class="nav-group-title">物联网设备管理</div>
+                <a href="103_平台设备管理.html" class="nav-item">
+                    <span>🖥️</span> 平台管理
+                </a>
+                <a href="103_平台通道管理.html" class="nav-item">
+                    <span>📡</span> 通道管理
+                </a>
+                <a href="103_设备分组管理.html" class="nav-item">
+                    <span>📂</span> 设备分组
+                </a>
+
+                <div class="nav-group-title">视频权限管理</div>
+                <a href="104_直接共享.html" class="nav-item active">
+                    <span>📹</span> 直接共享
+                </a>
+                <a href="104_代理共享.html" class="nav-item">
+                    <span>🔗</span> 代理共享
+                </a>
+
+                <div class="nav-group-title">权限审批管理</div>
+                <a href="105_需求登记.html" class="nav-item">
+                    <span>📝</span> 需求登记
+                </a>
+                <a href="105_需求审批.html" class="nav-item">
+                    <span>⚖️</span> 需求审批
+                </a>
+                <a href="105_授权管理.html" class="nav-item">
+                    <span>🛑</span> 授权管理
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-bar">
+                <h2 class="page-title">直接共享管理</h2>
+                <div class="user-profile">
+                    <span>管理员</span>
+                    <div class="avatar"></div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Two-column layout -->
+                <div class="layout-grid">
+                    <!-- Left: Directory Tree -->
+                    <div class="tree-panel">
+                        <div class="tree-search-box">
+                            <input type="text" class="glass-input" placeholder="搜索目录...">
+                            <span class="tree-search-icon">🔍</span>
+                        </div>
+                        <div class="tree-content">
+                            <div class="tree-node active" onclick="selectTreeNode(this, '金华理工学院')">
+                                📂 金华理工学院 (128)
+                            </div>
+                            <div class="tree-node" onclick="selectTreeNode(this, '教学楼A区')">
+                                📂 教学楼A区 (45)
+                            </div>
+                            <div class="tree-node child" onclick="selectTreeNode(this, '一楼大厅')">
+                                📁 一楼大厅 (10)
+                            </div>
+                            <div class="tree-node child" onclick="selectTreeNode(this, '二楼教室')">
+                                📁 二楼教室 (35)
+                            </div>
+                            <div class="tree-node" onclick="selectTreeNode(this, '行政楼')">
+                                📂 行政楼 (20)
+                            </div>
+                            <div class="tree-node" onclick="selectTreeNode(this, '图书馆')">
+                                📂 图书馆 (30)
+                            </div>
+                            <div class="tree-node" onclick="selectTreeNode(this, '体育馆')">
+                                📂 体育馆 (23)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Device List -->
+                    <div class="content-panel" style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Filters -->
+                        <div class="filter-bar">
+                            <div style="flex: 1; min-width: 180px;">
+                                <label class="input-label">设备名称</label>
+                                <input type="text" class="glass-input" placeholder="请输入设备名称">
+                            </div>
+                            <div style="width: 140px;">
+                                <label class="input-label">在线状态</label>
+                                <select class="glass-input">
+                                    <option value="">全部</option>
+                                    <option value="1">在线</option>
+                                    <option value="0">离线</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; align-items: flex-end; gap: 8px;">
+                                <button class="btn btn-primary" onclick="searchData()">查询</button>
+                                <button class="btn btn-secondary">重置</button>
+                            </div>
+                            <div style="flex: 1; display: flex; justify-content: flex-end; align-items: flex-end;">
+                                <button class="btn btn-secondary" onclick="exportData()">📥 批量导出</button>
+                            </div>
+                        </div>
+
+                        <!-- Device Table -->
+                        <div class="glass-panel"
+                            style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
+                            <div style="flex: 1; overflow-y: auto;">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 40px;"><input type="checkbox"
+                                                    onclick="toggleSelectAll(this)"></th>
+                                            <th>设备名称</th>
+                                            <th>平台编码</th>
+                                            <th>在线状态</th>
+                                            <th style="min-width: 280px;">视频流地址</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><input type="checkbox"></td>
+                                            <td>教学楼A-1F-大厅全景</td>
+                                            <td>33010000001320000001</td>
+                                            <td><span class="status-tag status-success">在线</span></td>
+                                            <td>
+                                                <code class="stream-url">rtsp://192.168.1.101:554/stream1</code>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-secondary"
+                                                    style="padding: 4px 8px; font-size: 12px;"
+                                                    onclick="copyUrl('rtsp://192.168.1.101:554/stream1')">📋 复制</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><input type="checkbox"></td>
+                                            <td>图书馆-正门人脸抓拍</td>
+                                            <td>33010000001320000002</td>
+                                            <td><span class="status-tag status-success">在线</span></td>
+                                            <td>
+                                                <code class="stream-url">rtsp://192.168.1.102:554/stream1</code>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-secondary"
+                                                    style="padding: 4px 8px; font-size: 12px;"
+                                                    onclick="copyUrl('rtsp://192.168.1.102:554/stream1')">📋 复制</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><input type="checkbox"></td>
+                                            <td>行政楼-走廊监控01</td>
+                                            <td>33010000001320000003</td>
+                                            <td><span class="status-tag status-neutral">离线</span></td>
+                                            <td>
+                                                <code class="stream-url">rtsp://192.168.1.103:554/stream1</code>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-secondary"
+                                                    style="padding: 4px 8px; font-size: 12px;"
+                                                    onclick="copyUrl('rtsp://192.168.1.103:554/stream1')">📋 复制</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><input type="checkbox"></td>
+                                            <td>北门-车辆识别入口</td>
+                                            <td>33010000001320000004</td>
+                                            <td><span class="status-tag status-success">在线</span></td>
+                                            <td>
+                                                <code class="stream-url">rtsp://192.168.1.104:554/stream1</code>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-secondary"
+                                                    style="padding: 4px 8px; font-size: 12px;"
+                                                    onclick="copyUrl('rtsp://192.168.1.104:554/stream1')">📋 复制</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><input type="checkbox"></td>
+                                            <td>食堂-入口通道</td>
+                                            <td>33010000001320000005</td>
+                                            <td><span class="status-tag status-success">在线</span></td>
+                                            <td>
+                                                <code class="stream-url">rtsp://192.168.1.105:554/stream1</code>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-secondary"
+                                                    style="padding: 4px 8px; font-size: 12px;"
+                                                    onclick="copyUrl('rtsp://192.168.1.105:554/stream1')">📋 复制</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- Pagination -->
+                            <div
+                                style="padding: 12px 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #666;">
+                                <span>共 128 条</span>
+                                <div style="display: flex; gap: 4px;">
+                                    <button class="btn btn-secondary" style="padding: 4px 10px;">上一页</button>
+                                    <button class="btn btn-primary" style="padding: 4px 10px;">1</button>
+                                    <button class="btn btn-secondary" style="padding: 4px 10px;">2</button>
+                                    <button class="btn btn-secondary" style="padding: 4px 10px;">3</button>
+                                    <button class="btn btn-secondary" style="padding: 4px 10px;">下一页</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function searchData() {
+            showToast('数据已刷新');
+        }
+
+        function exportData() {
+            showToast('正在导出流地址列表...', 'success');
+        }
+
+        function copyUrl(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('已复制到剪贴板', 'success');
+            }).catch(() => {
+                showToast('复制失败', 'danger');
+            });
+        }
+
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+        }
+
+        function selectTreeNode(element, name) {
+            document.querySelectorAll('.tree-node').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            showToast(`已选择：${name}`);
+        }
+    </script>
+    <style>
+        .stream-url {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: #475569;
+            word-break: break-all;
+        }
+
+        .tree-node.child {
+            padding-left: 28px;
+        }
+    </style>
+</body>
+
+</html>

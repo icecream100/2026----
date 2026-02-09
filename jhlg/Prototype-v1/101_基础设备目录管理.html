@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基础目录管理 - 金华理工物联网平台</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: calc(100vh - 64px - 48px);
+        }
+
+        /* Device Name Override within Table */
+        .device-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .device-icon {
+            color: var(--text-muted);
+        }
+
+        /* Source Dot Colors */
+        .source-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .source-other {
+            background-color: var(--warning);
+        }
+
+        .source-manual {
+            background-color: var(--success);
+        }
+
+        .source-iot {
+            background-color: #8b5cf6;
+            /* Purple for IoT */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-text">物联网平台</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-group-title">设备空间管理</div>
+                <a href="101_基础设备目录管理.html" class="nav-item active">
+                    <span>📚</span> 基础目录
+                </a>
+                <a href="101_标签管理.html" class="nav-item">
+                    <span>🏷️</span> 标签管理
+                </a>
+                <a href="101_地图广场.html" class="nav-item">
+                    <span>🗺️</span> 地图广场
+                </a>
+                <a href="101_地图管理.html" class="nav-item">
+                    <span>⚙️</span> 地图配置
+                </a>
+
+                <div class="nav-group-title">设备治理</div>
+                <a href="102_治理任务.html" class="nav-item">
+                    <span>📋</span> 治理任务
+                </a>
+                <a href="102_治理参数设置.html" class="nav-item">
+                    <span>⚙️</span> 参数设置
+                </a>
+
+                <div class="nav-group-title">物联网设备管理</div>
+                <a href="103_平台设备管理.html" class="nav-item">
+                    <span>🖥️</span> 平台管理
+                </a>
+                <a href="103_平台通道管理.html" class="nav-item">
+                    <span>📡</span> 通道管理
+                </a>
+                <a href="103_设备分组管理.html" class="nav-item">
+                    <span>📂</span> 设备分组
+                </a>
+
+                <div class="nav-group-title">视频权限管理</div>
+                <a href="104_直接共享.html" class="nav-item">
+                    <span>📱</span> 应用管理
+                </a>
+                <!-- <span>🎨</span> 应用编排 (Coming Soon) -->
+                <a href="104_代理共享.html" class="nav-item">
+                    <span>🔗</span> 上级平台
+                </a>
+
+                <div class="nav-group-title">权限审批管理</div>
+                <a href="105_需求登记.html" class="nav-item">
+                    <span>📝</span> 需求登记
+                </a>
+                <a href="105_需求审批.html" class="nav-item">
+                    <span>⚖️</span> 需求审批
+                </a>
+                <a href="105_授权管理.html" class="nav-item">
+                    <span>🛑</span> 授权管理
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <h2 class="page-title">基础目录管理</h2>
+                <div class="user-profile">
+                    <span>管理员</span>
+                    <div class="avatar"></div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="content-area">
+                <div class="layout-grid">
+                    <!-- Org Tree -->
+                    <div class="tree-panel">
+                        <div class="tree-search-box">
+                            <input type="text" class="glass-input" placeholder="搜索组织...">
+                            <span class="tree-search-icon">🔍</span>
+                        </div>
+
+                        <!-- Static Tree Data -->
+                        <div class="tree-content">
+                            <div class="tree-node active">
+                                <span class="source-dot source-other"></span> 📂 金华理工学院
+                                (120/120)
+                            </div>
+                            <div class="tree-node">
+                                <span class="source-dot source-other"></span> 📂 教学楼A区
+                                (45/45)
+                                <div class="tree-node">
+                                    <span class="source-dot source-other"></span> 📁 一楼大厅
+                                    (10/10)
+                                </div>
+                                <div class="tree-node">
+                                    <span class="source-dot source-other"></span> 📁 二楼教室
+                                    (35/35)
+                                </div>
+                            </div>
+                            <div class="tree-node">
+                                <span class="source-dot source-manual"></span> 📂 行政楼
+                                (20/20)
+                            </div>
+                            <div class="tree-node">
+                                <span class="source-dot source-iot"></span> 📂 物联网设备 (56/56)
+                            </div>
+                            <div class="tree-node">
+                                <span class="source-dot source-manual"></span> 📂 图书馆
+                                (30/30)
+                            </div>
+                            <div class="tree-node">
+                                <span class="source-dot source-manual"></span> 📂 体育馆
+                                (25/25)
+                            </div>
+                        </div>
+
+                        <div
+                            style="padding: 12px; border-top: 1px solid var(--border-color); text-align: center; display: flex; flex-direction: column; gap: 8px;">
+                            <button class="btn btn-secondary w-full" onclick="showToast('目录已重置')">重置目录树</button>
+                            <button class="btn btn-secondary w-full" onclick="confirmResetDeviceData()"
+                                style="color: var(--danger); border-color: var(--border-color);">一键重置设备数据</button>
+                        </div>
+                    </div>
+
+                    <!-- List Content -->
+                    <div class="content-panel">
+                        <!-- Filters -->
+                        <div class="filter-bar">
+                            <div style="flex: 1; max-width: 240px;">
+                                <label class="input-label">搜索设备</label>
+                                <input type="text" class="glass-input" placeholder="名称/平台编码/通道编码/共享编码">
+                            </div>
+                            <div style="flex: 1; max-width: 140px;">
+                                <label class="input-label">在线状态</label>
+                                <select class="glass-input">
+                                    <option>全部</option>
+                                    <option>在线</option>
+                                    <option>离线</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; max-width: 160px;">
+                                <label class="input-label">下级平台</label>
+                                <select class="glass-input">
+                                    <option>全部</option>
+                                    <option>省教育厅监管平台</option>
+                                    <option>市公安局汇聚平台</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; max-width: 120px;">
+                                <label class="input-label">有无坐标</label>
+                                <select class="glass-input">
+                                    <option>全部</option>
+                                    <option>有</option>
+                                    <option>无</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; align-items: flex-end; gap: 8px;">
+                                <button class="btn btn-primary" onclick="searchData()">查询</button>
+                                <button class="btn btn-secondary">重置</button>
+                            </div>
+                            <div
+                                style="flex: 1; display: flex; justify-content: flex-end; align-items: flex-end; gap: 8px;">
+                                <button class="btn btn-secondary">📥 导出</button>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="glass-panel" style="overflow-x: auto;">
+                            <table class="data-table" style="min-width: 1200px;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 200px;">设备名称</th>
+                                        <th>归属组织</th>
+                                        <th>归属组织编码</th>
+                                        <th>下级平台</th>
+                                        <th>平台编码/设备标识</th>
+                                        <th>通道编码</th>
+                                        <th>共享编码</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td title="IoT-环境传感器-01">
+                                            <div class="device-name-cell text-truncate" style="max-width: 180px;">
+                                                <span class="device-icon">🌡️</span>
+                                                IoT-环境传感器-01
+                                            </div>
+                                        </td>
+                                        <td>物联网设备</td>
+                                        <td>ORG_IOT_001</td>
+                                        <td>-</td>
+                                        <td>SN:IOT20260206001</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                                onclick="openDetailModal()">详情</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td title="教学楼A-1F-大厅全景">
+                                            <div class="device-name-cell text-truncate" style="max-width: 180px;">
+                                                <span class="device-icon">📹</span>
+                                                教学楼A-1F-大厅全景
+                                            </div>
+                                        </td>
+                                        <td>一楼大厅</td>
+                                        <td>ORG001001</td>
+                                        <td>省教育厅监管平台</td>
+                                        <td>33070200001310000001</td>
+                                        <td>33070200001310000001</td>
+                                        <td>34020000013100000001</td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                                onclick="openDetailModal()">详情</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td title="教学楼A-1F-东门球机 (特别长的一段名字测试用)">
+                                            <div class="device-name-cell text-truncate" style="max-width: 180px;">
+                                                <span class="device-icon">📹</span>
+                                                教学楼A-1F-东门球机 (特别长的一段名字测试用)
+                                            </div>
+                                        </td>
+                                        <td>一楼大厅</td>
+                                        <td>ORG001001</td>
+                                        <td>省教育厅监管平台</td>
+                                        <td>33070200001310000002</td>
+                                        <td>33070200001310000002</td>
+                                        <td>34020000013100000002</td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                                onclick="openDetailModal()">详情</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td title="图书馆-正门人脸抓拍">
+                                            <div class="device-name-cell text-truncate" style="max-width: 180px;">
+                                                <span class="device-icon">📷</span>
+                                                图书馆-正门人脸抓拍
+                                            </div>
+                                        </td>
+                                        <td>图书馆</td>
+                                        <td>ORG002005</td>
+                                        <td>市公安局汇聚平台</td>
+                                        <td>33070200001310000035</td>
+                                        <td>33070200001310000035</td>
+                                        <td>34020000013100000035</td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                                onclick="openDetailModal()">详情</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Details Modal Label Update -->
+                        <div class="section-container" style="margin-bottom: 24px; display: none;">
+                            <!-- Hidden template for update logic reference -->
+                            <label class="input-label">平台编码/设备标识</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal needs direct update -->
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-content"
+            style="width: 1000px; max-height: 90vh; display: flex; flex-direction: column; padding: 0;">
+            <div class="modal-header"
+                style="padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 class="modal-title">设备详情</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" style="padding: 24px; overflow-y: auto; background-color: #f8fafc;">
+
+                <!-- Section 1: Basic Information (Read-only) -->
+                <div class="section-container" style="margin-bottom: 24px;">
+                    <h4 class="section-title">基础信息</h4>
+                    <div class="info-grid readonly-grid">
+                        <div class="input-group">
+                            <label class="input-label">设备原始名称</label>
+                            <div class="readonly-value">大华枪机通道</div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">平台名称</label>
+                            <div class="readonly-value">武汉大华枪机</div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">平台编码/设备标识</label>
+                            <div class="readonly-value">99080300001320000005</div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">通道编码</label>
+                            <div class="readonly-value">99080300001310000501</div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">共享编码</label>
+                            <div class="readonly-value">34020000013100000034</div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">视频通道编码</label>
+                            <div class="readonly-value">33070200001310000502</div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">设备类型</label>
+                            <div class="readonly-value">枪机</div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">设备厂商</label>
+                            <div class="readonly-value">大华 (Dahua)</div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">联网属性</label>
+                            <div class="readonly-value">直连设备</div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">原始经度</label>
+                            <div class="readonly-value">--</div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">原始纬度</label>
+                            <div class="readonly-value">--</div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">在线状态</label>
+                            <div class="readonly-value">在线</div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">应用场景</label>
+                            <div class="readonly-value">治安</div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">监控方位</label>
+                            <div class="readonly-value">东向</div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">室内/室外</label>
+                            <div class="readonly-value">室内</div>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">上级平台</label>
+                            <div class="readonly-value">--</div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">管理单位</label>
+                            <div class="readonly-value">金华理工保卫处</div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">能力等级</label>
+                            <div class="readonly-value">5级</div>
+                        </div>
+
+                        <div class="input-group" style="grid-column: span 3;">
+                            <label class="input-label">行政区划</label>
+                            <div class="readonly-value">浙江省 / 金华市 / 婺城区</div>
+                        </div>
+
+                        <div class="input-group" style="grid-column: span 3;">
+                            <label class="input-label">详细地址</label>
+                            <div class="readonly-value">金华市婺城区环城南路99号金华理工学院教学楼A区1楼</div>
+                        </div>
+
+                        <div class="input-group" style="grid-column: span 3;">
+                            <label class="input-label">注册应用</label>
+                            <div class="readonly-value tags-container">
+                                <span class="app-tag">智慧社区</span>
+                                <span class="app-tag">智慧安检一体</span>
+                                <span class="app-tag">大数据组应用</span>
+                                <span class="app-tag">+ 3 ...</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group" style="grid-column: span 3;">
+                            <label class="input-label">设备标签</label>
+                            <div class="readonly-value">重点区域, 室内, 人流密集</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Management Information (Editable) -->
+                <div class="section-container bg-white"
+                    style="padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h4 class="section-title" style="margin:0">管理信息</h4>
+                    </div>
+
+                    <form id="manageForm" class="view-mode">
+                        <div class="info-grid editable-grid">
+
+                            <!-- Name Row -->
+                            <div class="input-group">
+                                <label class="input-label"><span style="color:red">*</span>
+                                    设备名称</label>
+                                <div class="input-wrapper">
+                                    <input type="text" class="form-input" value="八楼大华枪机" id="cameraName" disabled>
+                                    <div class="input-actions">
+                                        <i class="icon-close" onclick="clearInput('cameraName')">×</i>
+                                        <i class="icon-reset" onclick="resetInput('cameraName', '八楼大华枪机')">↺</i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">经度</label>
+                                <div class="input-wrapper">
+                                    <input type="number" step="0.000001" class="form-input" value="117.052867"
+                                        id="longitude" disabled>
+                                    <div class="input-actions">
+                                        <i class="icon-close" onclick="clearInput('longitude')">×</i>
+                                        <i class="icon-reset" onclick="resetInput('longitude', '117.052867')">↺</i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">纬度</label>
+                                <div class="input-wrapper">
+                                    <input type="number" step="0.000001" class="form-input" value="39.242255"
+                                        id="latitude" disabled>
+                                    <div class="input-actions">
+                                        <i class="icon-close" onclick="clearInput('latitude')">×</i>
+                                        <i class="icon-reset" onclick="resetInput('latitude', '39.242255')">↺</i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Row 2: Selects -->
+                            <div class="input-group">
+                                <label class="input-label">枪球机</label>
+                                <div class="input-wrapper">
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择枪球机</option>
+                                        <option value="1">枪机</option>
+                                        <option value="2">球机</option>
+                                    </select>
+                                    <div class="input-actions">
+                                        <i class="icon-reset" onclick="showToast('已重置')">↺</i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">设备厂商</label>
+                                <div class="input-wrapper">
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择设备厂商</option>
+                                        <option value="dahua">大华</option>
+                                        <option value="hikvision">海康威视</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">联网属性</label>
+                                <div class="input-wrapper">
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择联网属性</option>
+                                        <option value="1">直连</option>
+                                        <option value="2">平台接入</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Row 3: Admin Division -->
+                            <div class="input-group" style="grid-column: span 3;">
+                                <label class="input-label">行政区划</label>
+                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择省</option>
+                                        <option value="330000">浙江省</option>
+                                    </select>
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择市</option>
+                                        <option value="330700">金华市</option>
+                                    </select>
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择县</option>
+                                        <option value="330702">婺城区</option>
+                                    </select>
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择镇</option>
+                                        <option value="">--</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Row 4: Place Type, Management Unit, Capability Level -->
+                            <div class="input-group">
+                                <label class="input-label">场所类型</label>
+                                <div class="input-wrapper">
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择场所类型</option>
+                                        <option value="public">公共场所</option>
+                                        <option value="road">道路卡口</option>
+                                        <option value="school">校园安全</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">管理单位</label>
+                                <div class="input-wrapper">
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择管理单位</option>
+                                        <option value="dept1">保卫处</option>
+                                        <option value="dept2">行政部</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">能力级别</label>
+                                <div class="input-wrapper">
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择能力级别</option>
+                                        <option value="1">1级</option>
+                                        <option value="2">2级</option>
+                                        <option value="3">3级</option>
+                                        <option value="4">4级</option>
+                                        <option value="5" selected>5级</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Row 5: Monitoring Direction, Indoor/Outdoor, Theme -->
+                            <div class="input-group">
+                                <label class="input-label">监控方向</label>
+                                <div class="input-wrapper">
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择监控方向</option>
+                                        <option value="E" selected>东</option>
+                                        <option value="S">南</option>
+                                        <option value="W">西</option>
+                                        <option value="N">北</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">室内外</label>
+                                <div class="input-wrapper">
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择室内外</option>
+                                        <option value="indoor" selected>室内</option>
+                                        <option value="outdoor">室外</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">主题分类</label>
+                                <div class="input-wrapper">
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择主题分类</option>
+                                        <option value="security">治安防控</option>
+                                        <option value="traffic">交通管理</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Row 6: Geo Region, Eagle Eye -->
+                            <div class="input-group">
+                                <label class="input-label">地理区域</label>
+                                <div class="input-wrapper">
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择地理区域</option>
+                                        <option value="area1">重点区域</option>
+                                        <option value="area2">普通区域</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">是否鹰眼设备</label>
+                                <div class="input-wrapper">
+                                    <select class="form-select" disabled>
+                                        <option value="">请选择</option>
+                                        <option value="0" selected>非鹰眼设备</option>
+                                        <option value="1">是</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="input-group"></div> <!-- Spacer -->
+
+                            <!-- Address -->
+                            <div class="input-group" style="grid-column: span 3;">
+                                <label class="input-label">安装地址</label>
+                                <div class="input-wrapper">
+                                    <input type="text" class="form-input" placeholder="请输入详细地址" id="installAddress"
+                                        disabled>
+                                    <div class="input-actions">
+                                        <i class="icon-close" onclick="clearInput('installAddress')">×</i>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal-footer"
+                style="padding: 16px 24px; border-top: 1px solid #e2e8f0; background: white; text-align: right;">
+                <div id="viewFooter">
+                    <button class="btn btn-secondary" onclick="closeModal()">关闭</button>
+                    <button class="btn btn-primary" onclick="toggleEditMode(true)"
+                        style="margin-left: 12px;">编辑</button>
+                </div>
+                <div id="editFooter" style="display: none;">
+                    <button class="btn btn-secondary" onclick="toggleEditMode(false)">取消</button>
+                    <button class="btn btn-primary" onclick="saveDetail()" style="margin-left: 12px;">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Reset Modal (New) -->
+    <div class="modal-overlay" id="confirmDataResetModal">
+        <div class="modal-content" style="width: 450px;">
+            <div class="modal-header">
+                <h3 class="modal-title">⚠️ 重置设备数据</h3>
+                <button class="modal-close" onclick="closeConfirmResetDeviceData()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-main); margin-bottom: 12px; font-weight: 500;">
+                    确定要重置【一键重置】组织下的设备数据吗？
+                </p>
+                <div
+                    style="background: #fff1f2; color: #b91c1c; padding: 12px; border-radius: 4px; font-size: 13px; line-height: 1.6;">
+                    重置后，您手动修改的设备名称、经纬度信息将丢失，并恢复为下级平台推送的原始数据，且无法恢复。
+                </div>
+                <div style="margin-top: 16px; font-size: 13px; color: var(--text-secondary);">
+                    预计影响 <strong>126</strong> 个设备
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeConfirmResetDeviceData()">取消</button>
+                <button class="btn btn-primary" onclick="executeDataReset()">确定重置</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* New Modal Styles */
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #334155;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px 24px;
+        }
+
+        .readonly-value {
+            color: #64748b;
+            font-size: 14px;
+            padding: 8px 12px;
+            background: #f1f5f9;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            /* Match input height */
+            min-height: 38px;
+            display: flex;
+            /* Vertically center text */
+            align-items: center;
+        }
+
+        .section-container.bg-white {
+            background: white;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 14px;
+            height: 38px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            border-color: var(--primary);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        /* Show delete/reset icons inside input */
+        .input-actions {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+            /* Hidden by default */
+            gap: 6px;
+            color: #94a3b8;
+        }
+
+        /* Show actions when editing */
+        .is-editing .input-actions {
+            display: flex;
+        }
+
+        .input-actions i {
+            cursor: pointer;
+            font-style: normal;
+        }
+
+        .input-actions i:hover {
+            color: var(--primary);
+        }
+
+        /* Disabled input styling to look cleaner in view mode */
+        .form-input[disabled],
+        .form-select[disabled] {
+            background-color: #f8fafc;
+            color: #64748b;
+            cursor: default;
+            border-color: transparent;
+        }
+
+        .app-tag {
+            display: inline-block;
+            background: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            color: #475569;
+        }
+    </style>
+
+    <script src="script.js"></script>
+    <script>
+        function searchData() {
+            showToast('数据已刷新');
+        }
+
+        function openDetailModal() {
+            toggleEditMode(false); // Reset to view mode
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        function toggleEditMode(isEdit) {
+            const form = document.getElementById('manageForm');
+            const viewFooter = document.getElementById('viewFooter');
+            const editFooter = document.getElementById('editFooter');
+
+            if (isEdit) {
+                form.classList.add('is-editing');
+                viewFooter.style.display = 'none';
+                editFooter.style.display = 'block';
+
+                // Enable inputs
+                const inputs = form.querySelectorAll('input, select');
+                inputs.forEach(el => el.removeAttribute('disabled'));
+            } else {
+                form.classList.remove('is-editing');
+                viewFooter.style.display = 'block';
+                editFooter.style.display = 'none';
+
+                // Disable inputs
+                const inputs = form.querySelectorAll('input, select');
+                inputs.forEach(el => el.setAttribute('disabled', 'true'));
+            }
+        }
+
+        function clearInput(id) {
+            document.getElementById(id).value = '';
+        }
+
+        function resetInput(id, val) {
+            document.getElementById(id).value = val;
+            showToast('已重置');
+        }
+
+        function saveDetail() {
+            // Validation logic
+            const lat = document.getElementById('latitude').value;
+            const lng = document.getElementById('longitude').value;
+
+            if (lat && (lat < -90 || lat > 90)) {
+                showToast('纬度必须在 -90 到 90 之间', 'warning');
+                return;
+            }
+            if (lng && (lng < -180 || lng > 180)) {
+                showToast('经度必须在 -180 到 180 之间', 'warning');
+                return;
+            }
+
+            // Close and show success
+            closeModal();
+            showToast('设备信息更新成功', 'success');
+        }
+
+        // New Confirmation Modal Logic
+        function confirmResetDeviceData() {
+            document.getElementById('confirmDataResetModal').classList.add('active');
+        }
+
+        function closeConfirmResetDeviceData() {
+            document.getElementById('confirmDataResetModal').classList.remove('active');
+        }
+
+        function executeDataReset() {
+            closeConfirmResetDeviceData();
+            showToast('设备数据重置成功', 'success');
+        }
+    </script>
+</body>
+
+</html>

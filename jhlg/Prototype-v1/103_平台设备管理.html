@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平台管理 - 金华理工物联网平台</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-text">物联网平台</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-group-title">设备空间管理</div>
+                <a href="101_基础设备目录管理.html" class="nav-item">
+                    <span>📚</span> 基础目录
+                </a>
+                <a href="101_标签管理.html" class="nav-item">
+                    <span>🏷️</span> 标签管理
+                </a>
+                <a href="101_地图广场.html" class="nav-item">
+                    <span>🗺️</span> 地图广场
+                </a>
+                <a href="101_地图管理.html" class="nav-item">
+                    <span>⚙️</span> 地图配置
+                </a>
+
+                <div class="nav-group-title">设备治理</div>
+                <a href="102_治理任务.html" class="nav-item">
+                    <span>📋</span> 治理任务
+                </a>
+                <a href="102_治理参数设置.html" class="nav-item">
+                    <span>⚙️</span> 参数设置
+                </a>
+
+                <div class="nav-group-title">物联网设备管理</div>
+                <a href="103_平台设备管理.html" class="nav-item active">
+                    <span>🖥️</span> 平台管理
+                </a>
+                <a href="103_平台通道管理.html" class="nav-item">
+                    <span>📡</span> 通道管理
+                </a>
+                <a href="103_设备分组管理.html" class="nav-item">
+                    <span>📂</span> 设备分组
+                </a>
+
+                <div class="nav-group-title">视频权限管理</div>
+                <a href="104_直接共享.html" class="nav-item">
+                    <span>📱</span> 应用管理
+                </a>
+                <!-- <span>🎨</span> 应用编排 (Coming Soon) -->
+                <a href="104_代理共享.html" class="nav-item">
+                    <span>🔗</span> 上级平台
+                </a>
+
+                <div class="nav-group-title">权限审批管理</div>
+                <a href="105_需求登记.html" class="nav-item">
+                    <span>📝</span> 需求登记
+                </a>
+                <a href="105_需求审批.html" class="nav-item">
+                    <span>⚖️</span> 需求审批
+                </a>
+                <a href="105_授权管理.html" class="nav-item">
+                    <span>🛑</span> 授权管理
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-bar">
+                <h2 class="page-title">平台管理</h2>
+                <div class="user-profile">
+                    <span>管理员</span>
+                    <div class="avatar"></div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Data Filter -->
+                <div class="filter-bar">
+                    <div style="flex: 1; min-width: 180px;">
+                        <label class="input-label">平台编码</label>
+                        <input type="text" class="glass-input" placeholder="请输入平台编码">
+                    </div>
+                    <div style="flex: 1; min-width: 180px;">
+                        <label class="input-label">平台名称</label>
+                        <input type="text" class="glass-input" placeholder="请输入平台名称">
+                    </div>
+                    <div style="flex: 1; min-width: 160px;">
+                        <label class="input-label">平台类型</label>
+                        <select class="glass-input">
+                            <option value="">全部类型</option>
+                            <option value="gb28181">国标GB28181</option>
+                            <option value="dahua_icc">大华ICC</option>
+                            <option value="hik_isc">海康ISC</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: flex-end; gap: 8px;">
+                        <button class="btn btn-primary" onclick="searchData()">查询</button>
+                        <button class="btn btn-secondary">重置</button>
+                    </div>
+                    <div style="flex: 1; display: flex; justify-content: flex-end; align-items: flex-end;">
+                        <button class="btn btn-primary" onclick="openPlatformModal()">+ 新增平台</button>
+                    </div>
+                </div>
+
+                <!-- Platform List -->
+                <div class="glass-panel">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>平台名称</th>
+                                <th>平台标识</th>
+                                <th>平台类型</th>
+                                <th>平台IP/端口</th>
+                                <th>认证状态</th>
+                                <th>接入状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>大华ICC视频云</td>
+                                <td>33010000002100000001</td>
+                                <td>大华ICC</td>
+                                <td>192.168.1.100 : 8080</td>
+                                <td><span class="status-tag status-success">在线</span></td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked onchange="toggleStatus(this)">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="openPlatformModal(true)">编辑</button>
+                                    <button class="btn btn-secondary"
+                                        style="padding: 4px 8px; font-size: 12px; color: var(--danger); border-color: var(--danger);"
+                                        onclick="deletePlatform()">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>海康ISC安防平台</td>
+                                <td>33010000002100000002</td>
+                                <td>海康ISC</td>
+                                <td>192.168.1.200 : 80</td>
+                                <td><span class="status-tag status-danger">认证失败</span></td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked onchange="toggleStatus(this)">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="openPlatformModal(true)">编辑</button>
+                                    <button class="btn btn-secondary"
+                                        style="padding: 4px 8px; font-size: 12px; color: var(--danger); border-color: var(--danger);"
+                                        onclick="deletePlatform()">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>老旧国标NVR网关</td>
+                                <td>33070200002000000001</td>
+                                <td>国标GB28181</td>
+                                <td>10.10.10.5 : 5060</td>
+                                <td><span class="status-tag status-warning">未激活</span></td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" onchange="toggleStatus(this)">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="openPlatformModal(true)">编辑</button>
+                                    <button class="btn btn-secondary"
+                                        style="padding: 4px 8px; font-size: 12px; color: var(--danger); border-color: var(--danger);"
+                                        onclick="deletePlatform()">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Platform Modal -->
+    <div class="modal-overlay" id="platformModal">
+        <div class="modal-content" style="width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="platformModalTitle">新增接入平台</h3>
+                <button class="modal-close" onclick="closePlatformModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="input-group">
+                        <label class="input-label"><span style="color:red">*</span> 平台名称</label>
+                        <input type="text" class="glass-input" placeholder="请输入平台名称">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label"><span style="color:red">*</span> 平台类型</label>
+                        <select class="glass-input">
+                            <option value="gb28181">国标GB28181</option>
+                            <option value="dahua_icc">大华ICC</option>
+                            <option value="hik_isc">海康ISC</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label"><span style="color:red">*</span> 平台IP</label>
+                        <input type="text" class="glass-input" placeholder="IPv4/IPv6">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label"><span style="color:red">*</span> 端口</label>
+                        <input type="number" class="glass-input" placeholder="服务/信令端口">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label"><span style="color:red">*</span> 平台标识 (国标码)</label>
+                        <input type="text" class="glass-input" placeholder="20位编码">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label"><span style="color:red">*</span> 认证密码</label>
+                        <input type="password" class="glass-input" value="123456">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">HTTP端口</label>
+                        <input type="number" class="glass-input">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">HTTPS端口</label>
+                        <input type="number" class="glass-input">
+                    </div>
+
+                    <div class="input-group" style="grid-column: span 2;">
+                        <label class="input-label">其他选项</label>
+                        <div style="display: flex; gap: 20px;">
+                            <label style="display: flex; align-items: center; gap: 6px;">
+                                <input type="checkbox" checked> 开启HTTPS
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px;">
+                                <input type="checkbox" checked> 目录订阅/自动同步
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePlatformModal()">取消</button>
+                <button class="btn btn-primary" onclick="savePlatform()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Fallback or Override for local file:// execution where module scripts might fail
+        // and to provide missing showConfirm functionality.
+
+        // 1. Ensure showToast exists (if script.js failed to load)
+        if (typeof showToast !== 'function') {
+            window.showToast = function (message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `glass-panel toast toast-${type}`;
+                toast.style.cssText = `
+                    position: fixed; top: 20px; right: 20px; 
+                    padding: 12px 24px; border-radius: 8px;
+                    background: rgba(15, 23, 42, 0.9);
+                    border: 1px solid var(--glass-border);
+                    color: white; font-size: 14px;
+                    transform: translateY(-20px); opacity: 0;
+                    transition: all 0.3s ease; z-index: 2000;
+                    display: flex; align-items: center; gap: 8px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                `;
+                let icon = '✓';
+                if (type === 'error') icon = '✕';
+                if (type === 'warning') icon = '!';
+                toast.innerHTML = `<span style="color: var(--${type}); font-weight:bold;">${icon}</span> ${message}`;
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.transform = 'translateY(0)';
+                    toast.style.opacity = '1';
+                }, 10);
+                setTimeout(() => {
+                    toast.style.transform = 'translateY(-20px)';
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            };
+        }
+
+        // 2. Implement showConfirm (Missing in script.js completely based on file read)
+        if (typeof showConfirm !== 'function') {
+            window.showConfirm = function (message, onConfirm) {
+                // Use a simple native confirm for robustness in local file mode
+                // Or create a custom modal if we want to match style. 
+                // Let's build a custom one to match the '08_device_group' style described in testing.
+
+                // Remove existing confirm modal if any
+                const existing = document.getElementById('custom-confirm-modal');
+                if (existing) existing.remove();
+
+                const modalHtml = `
+                <div class="modal-overlay active" id="custom-confirm-modal" style="z-index: 3000;">
+                    <div class="modal-content" style="width: 400px;">
+                        <div class="modal-header">
+                            <h3 class="modal-title">确认操作</h3>
+                            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <p style="color: var(--text-secondary); margin: 20px 0;">${message}</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">取消</button>
+                            <button class="btn btn-primary" id="confirm-btn-action" style="background: var(--danger); border-color: var(--danger);">确认删除</button>
+                        </div>
+                    </div>
+                </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+                document.getElementById('confirm-btn-action').onclick = function () {
+                    document.getElementById('custom-confirm-modal').remove();
+                    if (onConfirm) onConfirm();
+                };
+            };
+        }
+
+        function searchData() {
+            showToast('数据已刷新');
+        }
+
+        function openPlatformModal(isEdit = false) {
+            document.getElementById('platformModalTitle').innerText = isEdit ? '编辑接入平台' : '新增接入平台';
+            document.getElementById('platformModal').classList.add('active');
+        }
+
+        function closePlatformModal() {
+            document.getElementById('platformModal').classList.remove('active');
+        }
+
+        function savePlatform() {
+            closePlatformModal();
+            showToast('平台信息保存成功', 'success');
+        }
+
+        function toggleStatus(checkbox) {
+            const status = checkbox.checked ? '启用' : '禁用';
+            showToast('平台已' + status);
+        }
+
+        function deletePlatform() {
+            showConfirm('确定要删除该平台吗？删除后将无法恢复。', () => {
+                showToast('平台已删除', 'success');
+            });
+        }
+    </script>
+    <style>
+        /* Simple Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--success);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(16px);
+        }
+    </style>
+</body>
+
+</html>

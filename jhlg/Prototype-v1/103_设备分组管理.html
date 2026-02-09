@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备分组 - 金华理工物联网平台</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-text">物联网平台</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-group-title">设备空间管理</div>
+                <a href="101_基础设备目录管理.html" class="nav-item">
+                    <span>📚</span> 基础目录
+                </a>
+                <a href="101_标签管理.html" class="nav-item">
+                    <span>🏷️</span> 标签管理
+                </a>
+                <a href="101_地图广场.html" class="nav-item">
+                    <span>🗺️</span> 地图广场
+                </a>
+                <a href="101_地图管理.html" class="nav-item">
+                    <span>⚙️</span> 地图配置
+                </a>
+
+                <div class="nav-group-title">设备治理</div>
+                <a href="102_治理任务.html" class="nav-item">
+                    <span>📋</span> 治理任务
+                </a>
+                <a href="102_治理参数设置.html" class="nav-item">
+                    <span>⚙️</span> 参数设置
+                </a>
+
+                <div class="nav-group-title">物联网设备管理</div>
+                <a href="103_平台设备管理.html" class="nav-item">
+                    <span>🖥️</span> 平台管理
+                </a>
+                <a href="103_平台通道管理.html" class="nav-item">
+                    <span>📡</span> 通道管理
+                </a>
+                <a href="103_设备分组管理.html" class="nav-item active">
+                    <span>📂</span> 设备分组
+                </a>
+
+                <div class="nav-group-title">视频权限管理</div>
+                <a href="104_直接共享.html" class="nav-item">
+                    <span>📱</span> 应用管理
+                </a>
+                <!-- <span>🎨</span> 应用编排 (Coming Soon) -->
+                <a href="104_代理共享.html" class="nav-item">
+                    <span>🔗</span> 上级平台
+                </a>
+
+                <div class="nav-group-title">权限审批管理</div>
+                <a href="105_需求登记.html" class="nav-item">
+                    <span>📝</span> 需求登记
+                </a>
+                <a href="105_需求审批.html" class="nav-item">
+                    <span>⚖️</span> 需求审批
+                </a>
+                <a href="105_授权管理.html" class="nav-item">
+                    <span>🛑</span> 授权管理
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-bar">
+                <h2 class="page-title">设备分组</h2>
+                <div class="user-profile">
+                    <span>管理员</span>
+                    <div class="avatar"></div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Group List View -->
+                <div id="groupListView">
+                    <!-- Filters -->
+                    <div class="filter-bar">
+                        <div style="flex: 1; min-width: 200px;">
+                            <label class="input-label">分组ID</label>
+                            <input type="text" class="glass-input" placeholder="精确搜索">
+                        </div>
+                        <div style="flex: 1; min-width: 200px;">
+                            <label class="input-label">分组名称</label>
+                            <input type="text" class="glass-input" placeholder="模糊搜索">
+                        </div>
+                        <div style="display: flex; align-items: flex-end; gap: 8px;">
+                            <button class="btn btn-primary" onclick="searchData()">查询</button>
+                            <button class="btn btn-secondary" onclick="resetSearch()">重置</button>
+                        </div>
+                        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: flex-end;">
+                            <button class="btn btn-primary" onclick="openGroupModal()">+ 新增分组</button>
+                        </div>
+                    </div>
+
+                    <!-- Group List -->
+                    <div class="glass-panel">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>分组ID</th>
+                                    <th>分组名称</th>
+                                    <th>设备数量</th>
+                                    <th>说明</th>
+                                    <th>创建时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1001</td>
+                                    <td>重点监控通道</td>
+                                    <td>35</td>
+                                    <td>校区主出入口及周界</td>
+                                    <td>2025-10-10 09:00:00</td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                            onclick="showGroupDetail(1001, '重点监控通道')">详情</button>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                            onclick="openGroupModal(true)">编辑</button>
+                                        <button class="btn btn-secondary"
+                                            style="padding: 4px 8px; font-size: 12px; color: var(--danger); border-color: var(--danger);"
+                                            onclick="deleteGroup()">删除</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>1002</td>
+                                    <td>高空抛物设备</td>
+                                    <td>12</td>
+                                    <td>宿舍楼外立面监控</td>
+                                    <td>2025-10-12 14:30:00</td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                            onclick="showGroupDetail(1002, '高空抛物设备')">详情</button>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                            onclick="openGroupModal(true)">编辑</button>
+                                        <button class="btn btn-secondary"
+                                            style="padding: 4px 8px; font-size: 12px; color: var(--danger); border-color: var(--danger);"
+                                            onclick="deleteGroup()">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Group Detail View (Hidden by default) -->
+                <div id="groupDetailView" style="display: none;">
+                    <!-- Detail Header -->
+                    <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 16px;">
+                        <button class="btn btn-secondary" onclick="hideGroupDetail()">← 返回</button>
+                        <h3 style="margin: 0;">分组详情: <span id="detailGroupName">重点监控通道</span></h3>
+                        <div class="status-tag status-success" style="font-size: 12px;">ID: <span id="detailGroupId">1001</span></div>
+                    </div>
+
+                    <!-- Info Overview -->
+                    <div style="display: flex; gap: 16px; margin-bottom: 16px;">
+                        <div class="glass-panel" style="flex: 1; padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <div style="color: #666; font-size: 12px;">设备总数</div>
+                                <div style="font-size: 24px; font-weight: bold;">35</div>
+                            </div>
+                            <div style="font-size: 24px;">📦</div>
+                        </div>
+                        <div class="glass-panel" style="flex: 1; padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <div style="color: #666; font-size: 12px;">在线设备</div>
+                                <div style="font-size: 24px; font-weight: bold; color: var(--success);">32</div>
+                            </div>
+                            <div style="font-size: 24px;">🟢</div>
+                        </div>
+                        <div class="glass-panel" style="flex: 2;"></div>
+                    </div>
+
+                    <!-- Device List in Group -->
+                     <div class="glass-panel">
+                        <div class="filter-bar" style="border-bottom: 1px solid #eee; margin-bottom: 0; padding-bottom: 16px;">
+                            <div style="flex: 1; min-width: 150px;">
+                                <label class="input-label">设备名称</label>
+                                <input type="text" class="glass-input" placeholder="模糊搜索">
+                            </div>
+                             <div style="flex: 1; min-width: 150px;">
+                                <label class="input-label">产品名称</label>
+                                <input type="text" class="glass-input" placeholder="模糊搜索">
+                            </div>
+                            <div style="display: flex; align-items: flex-end; gap: 8px;">
+                                <button class="btn btn-primary" onclick="searchData()">查询</button>
+                                <button class="btn btn-secondary" onclick="resetSearch()">重置</button>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 12px; display: flex; gap: 8px;">
+                             <button class="btn btn-primary" onclick="openAddDeviceModal()">+ 加入设备</button>
+                             <button class="btn btn-secondary" style="color: var(--danger); border-color: var(--danger);" onclick="batchRemoveDevices()">批量移除</button>
+                        </div>
+
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;"><input type="checkbox"></th>
+                                    <th>设备ID</th>
+                                    <th>设备名称</th>
+                                    <th>产品名称</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>DEV_001</td>
+                                    <td>南门抓拍机01</td>
+                                    <td>海康威视IPC</td>
+                                    <td><span class="status-tag status-success">在线</span></td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; color: var(--danger); border-color: var(--danger);" onclick="removeDevice()">移除</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>DEV_002</td>
+                                    <td>南门抓拍机02</td>
+                                    <td>海康威视IPC</td>
+                                    <td><span class="status-tag status-warning">离线</span></td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; color: var(--danger); border-color: var(--danger);" onclick="removeDevice()">移除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Group Modal -->
+    <div class="modal-overlay" id="groupModal">
+        <div class="modal-content" style="width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="groupModalTitle">新增分组</h3>
+                <button class="modal-close" onclick="closeGroupModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label class="input-label"><span style="color:red">*</span> 分组名称</label>
+                    <input type="text" class="glass-input" placeholder="请输入分组名称（不可重复）">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">说明</label>
+                    <textarea class="glass-input" rows="4" placeholder="请输入备注信息"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeGroupModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveGroup()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Device Modal -->
+    <div class="modal-overlay" id="addDeviceModal">
+        <div class="modal-content" style="width: 800px; max-width: 90vw;">
+            <div class="modal-header">
+                <h3 class="modal-title">加入设备</h3>
+                <button class="modal-close" onclick="closeAddDeviceModal()">×</button>
+            </div>
+            <div class="modal-body" style="display: flex; gap: 16px; height: 500px;">
+                <!-- Left: Device Selection -->
+                <div style="flex: 1; display: flex; flex-direction: column; border: 1px solid #eee; border-radius: 4px;">
+                    <div style="padding: 12px; border-bottom: 1px solid #eee; background: #f8fafc;">
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <select class="glass-input" style="flex: 1;">
+                                <option>所有产品</option>
+                                <option>海康威视IPC</option>
+                                <option>大华门禁</option>
+                            </select>
+                        </div>
+                        <input type="text" class="glass-input" placeholder="搜索设备名称" style="width: 100%;">
+                    </div>
+                    <div style="flex: 1; overflow-y: auto; padding: 8px;">
+                        <!-- Mock Device List -->
+                        <div class="device-item" onclick="toggleDeviceSelection(this, 'DEV_003', '东门人脸机01')" style="padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" style="pointer-events: none;">
+                            <div>
+                                <div style="font-weight: bold; font-size: 14px;">东门人脸机01</div>
+                                <div style="font-size: 12px; color: #666;">大华门禁 | DEV_003</div>
+                            </div>
+                        </div>
+                        <div class="device-item" onclick="toggleDeviceSelection(this, 'DEV_004', '东门人脸机02')" style="padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" style="pointer-events: none;">
+                            <div>
+                                <div style="font-weight: bold; font-size: 14px;">东门人脸机02</div>
+                                <div style="font-size: 12px; color: #666;">大华门禁 | DEV_004</div>
+                            </div>
+                        </div>
+                        <div class="device-item" onclick="toggleDeviceSelection(this, 'DEV_005', '西门道闸')" style="padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" style="pointer-events: none;">
+                            <div>
+                                <div style="font-weight: bold; font-size: 14px;">西门道闸</div>
+                                <div style="font-size: 12px; color: #666;">捷顺道闸 | DEV_005</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Selected Devices -->
+                <div style="flex: 1; display: flex; flex-direction: column; border: 1px solid #eee; border-radius: 4px;">
+                    <div style="padding: 12px; border-bottom: 1px solid #eee; background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: bold;">已选设备 (<span id="selectedCount">0</span>)</span>
+                        <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 12px;" onclick="clearSelection()">清空</button>
+                    </div>
+                    <div id="selectedDeviceList" style="flex: 1; overflow-y: auto; padding: 8px;">
+                        <!-- Selected items will be added here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddDeviceModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveAddedDevices()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // --- Global Search/Reset ---
+        function searchData() {
+            showToast('数据已刷新');
+        }
+
+        function resetSearch() {
+            const inputs = document.querySelectorAll('.filter-bar input');
+            inputs.forEach(input => input.value = '');
+            showToast('搜索条件已重置');
+        }
+
+        // --- Group Modal ---
+        function openGroupModal(isEdit = false) {
+            document.getElementById('groupModalTitle').innerText = isEdit ? '编辑分组' : '新增分组';
+            document.getElementById('groupModal').classList.add('active');
+        }
+
+        function closeGroupModal() {
+            document.getElementById('groupModal').classList.remove('active');
+        }
+
+        function saveGroup() {
+            closeGroupModal();
+            showToast('分组信息保存成功', 'success');
+        }
+
+        function deleteGroup() {
+            // Logic: if associated devices > 0, prevent delete
+            // For demo, we assume ID 1001 has devices
+            const hasDevices = Math.random() > 0.5; 
+
+            if (hasDevices) {
+                showToast('该分组下存在关联设备，请先移除设备', 'error');
+            } else {
+                showConfirm('确定要删除该分组吗？', () => {
+                    showToast('分组已删除', 'success');
+                });
+            }
+        }
+
+        // --- Detail View ---
+        function showGroupDetail(id, name) {
+            document.getElementById('groupListView').style.display = 'none';
+            document.getElementById('groupDetailView').style.display = 'block';
+            document.getElementById('detailGroupId').innerText = id;
+            document.getElementById('detailGroupName').innerText = name;
+        }
+
+        function hideGroupDetail() {
+            document.getElementById('groupDetailView').style.display = 'none';
+            document.getElementById('groupListView').style.display = 'block';
+        }
+
+        function removeDevice() {
+            showConfirm('确定要从分组中移除该设备吗？', () => {
+                showToast('设备已移除', 'success');
+            });
+        }
+
+        function batchRemoveDevices() {
+             showConfirm('确定要批量移除选中的设备吗？', () => {
+                showToast('已批量移除设备', 'success');
+            });
+        }
+
+        // --- Add Device Modal ---
+        function openAddDeviceModal() {
+            document.getElementById('addDeviceModal').classList.add('active');
+            clearSelection(); // Reset selection when opening
+        }
+
+        function closeAddDeviceModal() {
+            document.getElementById('addDeviceModal').classList.remove('active');
+        }
+
+        let selectedDevices = new Set();
+
+        function toggleDeviceSelection(el, id, name) {
+            const checkbox = el.querySelector('input[type="checkbox"]');
+            
+            if (selectedDevices.has(id)) {
+                selectedDevices.delete(id);
+                checkbox.checked = false;
+                el.style.background = 'transparent';
+                removeSelectedTag(id);
+            } else {
+                selectedDevices.add(id);
+                checkbox.checked = true;
+                el.style.background = '#e6f7ff';
+                addSelectedTag(id, name);
+            }
+            updateSelectedCount();
+        }
+
+        function addSelectedTag(id, name) {
+            const container = document.getElementById('selectedDeviceList');
+            const div = document.createElement('div');
+            div.id = `tag-${id}`;
+            div.style = 'background: #f0f0f0; padding: 6px 10px; border-radius: 4px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;';
+            div.innerHTML = `
+                <span style="font-size: 13px;">${name}</span>
+                <span style="cursor: pointer; color: #999;" onclick="removeSelectionFromRight('${id}')">×</span>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeSelectedTag(id) {
+            const el = document.getElementById(`tag-${id}`);
+            if (el) el.remove();
+        }
+
+        function removeSelectionFromRight(id) {
+             // Find left item and uncheck
+             // This is a simplified mock. In real app, we'd map IDs to DOM elements better.
+             // For now, just remove from set and update UI manually if possible or just clear set logic
+             selectedDevices.delete(id);
+             removeSelectedTag(id);
+             
+             // Try to uncheck left side if visible
+             const items = document.querySelectorAll('.device-item');
+             items.forEach(item => {
+                 if (item.getAttribute('onclick').includes(id)) {
+                     item.querySelector('input').checked = false;
+                     item.style.background = 'transparent';
+                 }
+             });
+             updateSelectedCount();
+        }
+
+        function clearSelection() {
+            selectedDevices.clear();
+            document.getElementById('selectedDeviceList').innerHTML = '';
+            document.getElementById('selectedCount').innerText = '0';
+            const items = document.querySelectorAll('.device-item');
+            items.forEach(item => {
+                item.querySelector('input').checked = false;
+                item.style.background = 'transparent';
+            });
+        }
+
+        function updateSelectedCount() {
+            document.getElementById('selectedCount').innerText = selectedDevices.size;
+        }
+
+        function saveAddedDevices() {
+            if (selectedDevices.size === 0) {
+                showToast('请先选择设备', 'warning');
+                return;
+            }
+            closeAddDeviceModal();
+            showToast(`已成功加入 ${selectedDevices.size} 个设备`, 'success');
+        }
+    </script>
+</body>
+
+</html>

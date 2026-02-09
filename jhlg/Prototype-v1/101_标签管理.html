@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>标签管理 - 金华理工物联网平台</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .layout-grid {
+            display: block;
+            height: calc(100vh - 64px);
+        }
+
+        .nav-sub-menu {
+            border-right: 1px solid var(--border-color);
+            padding: 16px;
+            background: white;
+        }
+
+        .nav-sub-item {
+            padding: 10px;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 4px;
+        }
+
+        .nav-sub-item:hover {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+
+        .nav-sub-item.active {
+            background: #eff6ff;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .content-area {
+            padding: 24px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-text">物联网平台</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-group-title">设备空间管理</div>
+                <a href="101_基础设备目录管理.html" class="nav-item">
+                    <span>📚</span> 基础目录
+                </a>
+                <a href="101_标签管理.html" class="nav-item active">
+                    <span>🏷️</span> 标签管理
+                </a>
+                <a href="101_地图广场.html" class="nav-item">
+                    <span>🗺️</span> 地图广场
+                </a>
+                <a href="101_地图管理.html" class="nav-item">
+                    <span>⚙️</span> 地图配置
+                </a>
+
+                <div class="nav-group-title">设备治理</div>
+                <a href="102_治理任务.html" class="nav-item">
+                    <span>📋</span> 治理任务
+                </a>
+                <a href="102_治理参数设置.html" class="nav-item">
+                    <span>⚙️</span> 参数设置
+                </a>
+
+                <div class="nav-group-title">物联网设备管理</div>
+                <a href="103_平台设备管理.html" class="nav-item">
+                    <span>🖥️</span> 平台管理
+                </a>
+                <a href="103_平台通道管理.html" class="nav-item">
+                    <span>📡</span> 通道管理
+                </a>
+                <a href="103_设备分组管理.html" class="nav-item">
+                    <span>📂</span> 设备分组
+                </a>
+
+                <div class="nav-group-title">视频权限管理</div>
+                <a href="104_直接共享.html" class="nav-item">
+                    <span>📱</span> 应用管理
+                </a>
+                <!-- <span>🎨</span> 应用编排 (Coming Soon) -->
+                <a href="104_代理共享.html" class="nav-item">
+                    <span>🔗</span> 上级平台
+                </a>
+
+                <div class="nav-group-title">权限审批管理</div>
+                <a href="105_需求登记.html" class="nav-item">
+                    <span>📝</span> 需求登记
+                </a>
+                <a href="105_需求审批.html" class="nav-item">
+                    <span>⚖️</span> 需求审批
+                </a>
+                <a href="105_授权管理.html" class="nav-item">
+                    <span>🛑</span> 授权管理
+                </a>
+            </nav>
+        </aside>
+
+        <div class="main-content">
+            <header class="top-bar">
+                <h2 class="page-title">标签管理</h2>
+                <div class="user-profile">
+                    <span>管理员</span>
+                    <div class="avatar"></div>
+                </div>
+            </header>
+
+            <div class="layout-grid">
+                <!-- Main Area -->
+                <div class="content-area">
+                    <!-- Toolbar -->
+                    <div class="filter-bar">
+                        <input type="text" class="glass-input" placeholder="输入标签名称搜索..." style="width: 240px;">
+                        <button class="btn btn-secondary">查询</button>
+                        <div style="flex: 1"></div>
+                        <button class="btn btn-primary" onclick="openCreateModal()">+ 新增标签</button>
+                        <button class="btn btn-secondary"
+                            style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3);">批量删除</button>
+                    </div>
+
+                    <!-- Tag List -->
+                    <div class="glass-panel">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th width="40"><input type="checkbox"></th>
+                                    <th>标签名称</th>
+                                    <th>类型</th>
+                                    <th>关联设备数</th>
+                                    <th>创建人</th>
+                                    <th>创建时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>重点区域</td>
+                                    <td>业务专用</td>
+                                    <td><a href="#" style="color: var(--primary);">125</a></td>
+                                    <td>Admin</td>
+                                    <td>2026-02-01</td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                            onclick="openEditModal('重点区域', '业务专用')">编辑</button>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                            onclick="openAssociateModal()">关联设备</button>
+                                        <button class="btn btn-secondary"
+                                            style="padding: 4px 8px; font-size: 12px; color: var(--danger);">删除</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>消防通道</td>
+                                    <td>通用</td>
+                                    <td><a href="#" style="color: var(--primary);">42</a></td>
+                                    <td>Admin</td>
+                                    <td>2026-02-01</td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                            onclick="openEditModal('重点区域', '业务专用')">编辑</button>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                            onclick="openAssociateModal()">关联设备</button>
+                                        <button class="btn btn-secondary"
+                                            style="padding: 4px 8px; font-size: 12px; color: var(--danger);">删除</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>高空抛物</td>
+                                    <td>AI算法</td>
+                                    <td><a href="#" style="color: var(--primary);">18</a></td>
+                                    <td>ZhangSan</td>
+                                    <td>2026-02-03</td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                            onclick="openEditModal('重点区域', '业务专用')">编辑</button>
+                                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                            onclick="openAssociateModal()">关联设备</button>
+                                        <button class="btn btn-secondary"
+                                            style="padding: 4px 8px; font-size: 12px; color: var(--danger);">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div class="modal-overlay" id="createModal">
+        <div class="modal-content" style="width: 520px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增标签</h3>
+                <button class="modal-close" data-modal-close>×</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label class="input-label">标签名称 <span style="color: var(--danger)">*</span></label>
+                    <input type="text" id="tagName" class="glass-input" placeholder="请输入标签名称" value="">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">标签类型</label>
+                    <select class="glass-input" id="tagType">
+                        <option>业务专用</option>
+                        <option>通用</option>
+                        <option>系统预置</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">备注</label>
+                    <textarea class="glass-input" rows="4" placeholder="请输入备注信息..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-modal-close>取消</button>
+                <button class="btn btn-primary" onclick="saveTag()">确定保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Associate Modal -->
+    <div class="modal-overlay" id="associateModal">
+        <div class="modal-content" style="width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">关联设备 - 重点区域</h3>
+                <button class="modal-close" data-modal-close>×</button>
+            </div>
+            <div class="modal-body" style="height: 500px; display: flex; gap: 16px;">
+                <!-- Left Tree -->
+                <div
+                    style="width: 240px; border-right: 1px solid var(--glass-border); padding-right: 16px; display: flex; flex-direction: column;">
+                    <!-- Directory Tabs -->
+                    <div
+                        style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 6px; margin-bottom: 12px;">
+                        <div class="dir-tab active"
+                            style="flex: 1; text-align: center; font-size: 12px; padding: 6px; border-radius: 4px; background: white; color: var(--primary); font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                            基础目录
+                        </div>
+                    </div>
+
+                    <!-- Search -->
+                    <input type="text" class="glass-input" placeholder="搜索组织..." style="margin-bottom: 12px;">
+
+                    <!-- Tree Content -->
+                    <div style="flex: 1; overflow-y: auto;">
+                        <div id="tree-basic">
+                            <div class="tree-node active">📂 金华理工学院</div>
+                            <div class="tree-node">📂 教学楼A区</div>
+                            <div class="tree-node">📂 行政楼</div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right List -->
+                <div style="flex: 1; display: flex; flex-direction: column;">
+                    <div
+                        style="border-bottom: 1px solid var(--glass-border); padding-bottom: 12px; margin-bottom: 12px; display: flex; gap: 8px;">
+                        <button id="btn-associate-available" class="btn btn-secondary"
+                            onclick="switchAssociateTab('available')"
+                            style="background: rgba(59, 130, 246, 0.1); border-color: var(--primary); color: var(--primary);">待选设备</button>
+                        <button id="btn-associate-selected" class="btn btn-secondary"
+                            onclick="switchAssociateTab('selected')"
+                            style="border: 1px solid transparent; color: var(--text-muted);">已选设备 (125)</button>
+                    </div>
+
+                    <!-- Panel: Available -->
+                    <div id="panel-associate-available" style="display: flex; flex-direction: column; height: 100%;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <input type="text" class="glass-input" placeholder="设备名称/编码" style="width: 200px;">
+                            <button class="btn btn-primary">批量添加</button>
+                        </div>
+
+                        <div
+                            style="flex: 1; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th width="30"><input type="checkbox"></th>
+                                        <th>设备名称</th>
+                                        <th>归属组织</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>教学楼A-1F-大厅全景</td>
+                                        <td>一楼大厅</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>教学楼A-1F-东门球机</td>
+                                        <td>一楼大厅</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>行政楼-3F-会议室</td>
+                                        <td>行政楼</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>行政楼-3F-走廊</td>
+                                        <td>行政楼</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>行政楼-3F-楼梯口</td>
+                                        <td>行政楼</td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>食堂-1F-大厅</td>
+                                        <td>学生食堂</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Panel: Selected -->
+                    <div id="panel-associate-selected" style="display: none; flex-direction: column; height: 100%;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <input type="text" class="glass-input" placeholder="已选设备搜索..." style="width: 200px;">
+                            <button class="btn btn-secondary"
+                                style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3);">批量移除</button>
+                        </div>
+                        <div
+                            style="flex: 1; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th width="30"><input type="checkbox"></th>
+                                        <th>设备名称</th>
+                                        <th>归属组织</th>
+                                        <th width="80">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>行政楼-1F-北门入口</td>
+                                        <td>行政楼</td>
+                                        <td><button class="btn btn-secondary"
+                                                style="padding: 2px 6px; font-size: 12px; color: var(--danger);">移除</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>行政楼-1F-电梯厅</td>
+                                        <td>行政楼</td>
+                                        <td><button class="btn btn-secondary"
+                                                style="padding: 2px 6px; font-size: 12px; color: var(--danger);">移除</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>图书馆-1F-借阅区</td>
+                                        <td>图书馆</td>
+                                        <td><button class="btn btn-secondary"
+                                                style="padding: 2px 6px; font-size: 12px; color: var(--danger);">移除</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function openCreateModal() {
+            document.getElementById('modalTitle').innerText = '新增标签';
+            document.getElementById('tagName').value = '';
+            document.getElementById('createModal').classList.add('active');
+        }
+
+        function openEditModal(name, type) {
+            document.getElementById('modalTitle').innerText = '编辑标签';
+            document.getElementById('tagName').value = name || '重点区域';
+            document.getElementById('createModal').classList.add('active');
+        }
+
+        function openAssociateModal() {
+            document.getElementById('associateModal').classList.add('active');
+        }
+
+        function saveTag() {
+            document.getElementById('createModal').classList.remove('active');
+            showToast('保存成功', 'success');
+        }
+
+
+
+        function switchAssociateTab(tab) {
+            const btnAvailable = document.getElementById('btn-associate-available');
+            const btnSelected = document.getElementById('btn-associate-selected');
+            const panelAvailable = document.getElementById('panel-associate-available');
+            const panelSelected = document.getElementById('panel-associate-selected');
+
+            if (tab === 'available') {
+                btnAvailable.style.background = 'rgba(59, 130, 246, 0.1)';
+                btnAvailable.style.borderColor = 'var(--primary)';
+                btnAvailable.style.color = 'var(--primary)';
+                btnAvailable.style.opacity = '1';
+
+                btnSelected.style.background = 'transparent';
+                btnSelected.style.borderColor = 'transparent';
+                btnSelected.style.color = 'var(--text-muted)';
+                btnSelected.style.opacity = '1';
+
+                panelAvailable.style.display = 'flex';
+                panelSelected.style.display = 'none';
+            } else {
+                btnAvailable.style.background = 'transparent';
+                btnAvailable.style.borderColor = 'transparent';
+                btnAvailable.style.color = 'var(--text-muted)';
+                btnAvailable.style.opacity = '1';
+
+                btnSelected.style.background = 'rgba(59, 130, 246, 0.1)';
+                btnSelected.style.borderColor = 'var(--primary)';
+                btnSelected.style.color = 'var(--primary)';
+                btnSelected.style.opacity = '1';
+
+                panelAvailable.style.display = 'none';
+                panelSelected.style.display = 'flex';
+                panelAvailable.style.display = 'none';
+                panelSelected.style.display = 'flex';
+            }
+        }
+
+
+    </script>
+</body>
+
+</html>

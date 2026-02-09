@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>授权管理 - 金华理工物联网平台</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-text">物联网平台</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-group-title">设备空间管理</div>
+                <a href="101_基础设备目录管理.html" class="nav-item">
+                    <span>📚</span> 基础目录
+                </a>
+                <a href="101_标签管理.html" class="nav-item">
+                    <span>🏷️</span> 标签管理
+                </a>
+                <a href="101_地图广场.html" class="nav-item">
+                    <span>🗺️</span> 地图广场
+                </a>
+                <a href="101_地图管理.html" class="nav-item">
+                    <span>⚙️</span> 地图配置
+                </a>
+
+                <div class="nav-group-title">设备治理</div>
+                <a href="102_治理任务.html" class="nav-item">
+                    <span>📋</span> 治理任务
+                </a>
+                <a href="102_治理参数设置.html" class="nav-item">
+                    <span>⚙️</span> 参数设置
+                </a>
+
+                <div class="nav-group-title">物联网设备管理</div>
+                <a href="103_平台设备管理.html" class="nav-item">
+                    <span>🖥️</span> 平台管理
+                </a>
+                <a href="103_平台通道管理.html" class="nav-item">
+                    <span>📡</span> 通道管理
+                </a>
+                <a href="103_设备分组管理.html" class="nav-item">
+                    <span>📂</span> 设备分组
+                </a>
+
+                <div class="nav-group-title">视频权限管理</div>
+                <a href="104_直接共享.html" class="nav-item">
+                    <span>📱</span> 应用管理
+                </a>
+                <!-- <span>🎨</span> 应用编排 (Coming Soon) -->
+                <a href="104_代理共享.html" class="nav-item">
+                    <span>🔗</span> 上级平台
+                </a>
+
+                <div class="nav-group-title">权限审批管理</div>
+                <a href="105_需求登记.html" class="nav-item">
+                    <span>📝</span> 需求登记
+                </a>
+                <a href="105_需求审批.html" class="nav-item">
+                    <span>⚖️</span> 需求审批
+                </a>
+                <a href="105_授权管理.html" class="nav-item active">
+                    <span>🛑</span> 授权管理
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-bar">
+                <h2 class="page-title">授权管理 (监控与回收)</h2>
+                <div class="user-profile">
+                    <span>管理员</span>
+                    <div class="avatar"></div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Filter -->
+                <div class="filter-bar">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label class="input-label">应用名称</label>
+                        <input type="text" class="glass-input" placeholder="请输入应用名称">
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <label class="input-label">授权状态</label>
+                        <select class="glass-input">
+                            <option value="">全部</option>
+                            <option value="active">生效中</option>
+                            <option value="expired">已过期</option>
+                            <option value="revoked">已撤销</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: flex-end; gap: 8px;">
+                        <button class="btn btn-primary" onclick="searchData()">查询</button>
+                    </div>
+                </div>
+
+                <!-- Authorized List -->
+                <div class="glass-panel">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>授权ID</th>
+                                <th>被授应用</th>
+                                <th>授权范围摘要</th>
+                                <th>生效时间</th>
+                                <th>失效时间</th>
+                                <th>当前状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>AUTH-20251020005</td>
+                                <td>消防通道监测</td>
+                                <td>标签: 行政楼 (含10设备)</td>
+                                <td>2025-10-20 14:00</td>
+                                <td>2026-10-20 00:00</td>
+                                <td><span class="status-tag status-success">生效中</span></td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="showDetail()">详情</button>
+                                    <button class="btn btn-secondary"
+                                        style="padding: 4px 8px; font-size: 12px; color: var(--danger); border-color: var(--danger);"
+                                        onclick="revokeAuth(this)">撤销</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>AUTH-20251015001</td>
+                                <td>人脸门禁服务</td>
+                                <td>设备: 教学楼A栋 (5)</td>
+                                <td>2025-10-15 10:00</td>
+                                <td>2025-10-16 10:00</td>
+                                <td><span class="status-tag status-neutral"
+                                        style="background: #f1f5f9; color: #64748b;">已过期</span></td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="showDetail()">详情</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="revokeModal">
+        <div class="modal-content" style="width: 450px;">
+            <div class="modal-header">
+                <h3 class="modal-title">撤销授权</h3>
+                <button class="modal-close" onclick="closeRevokeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 16px;">确定要收回 <b id="revokeAppName">[应用名称]</b> 对 <b id="revokeScope">[范围]</b>
+                    的访问权限吗？<br><span style="color: var(--danger); font-size: 12px;">此操作立即生效，不可撤销。</span></p>
+                <div class="input-group">
+                    <label class="input-label"><span style="color:red">*</span> 撤销备注</label>
+                    <textarea id="revokeReason" class="glass-input" rows="3" placeholder="请输入撤销原因（必填）..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeRevokeModal()">取消</button>
+                <button class="btn btn-primary" onclick="confirmRevoke()"
+                    style="background: var(--danger); border-color: var(--danger);">确认撤销</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authorization Detail Modal -->
+    <div class="modal-overlay" id="authDetailModal">
+        <div class="modal-content" style="width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">授权详情</h3>
+                <button class="modal-close" onclick="closeAuthDetailModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group" style="margin-top: 16px;">
+                    <label class="input-label">已授权设备清单 (10)</label>
+                    <div
+                        style="height: 150px; overflow-y: auto; background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 8px;">
+                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-正门球机</div>
+                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-大厅全景</div>
+                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-1F走廊A</div>
+                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-1F走廊B</div>
+                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-2F会议室</div>
+                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-2F走廊</div>
+                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-停车场入口</div>
+                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-停车场出口</div>
+                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-顶楼全景</div>
+                        <div style="padding: 4px;">📹 行政楼-后门枪机</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeAuthDetailModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function searchData() {
+            showToast('数据已刷新');
+        }
+
+        function showDetail() {
+            document.getElementById('authDetailModal').classList.add('active');
+        }
+
+        function closeAuthDetailModal() {
+            document.getElementById('authDetailModal').classList.remove('active');
+        }
+
+        let currentRevokeRow = null;
+
+        function revokeAuth(btn) {
+            // Find row for context (simulation)
+            currentRevokeRow = btn ? btn.closest('tr') : document.querySelector('tbody tr:first-child');
+            const appName = currentRevokeRow.cells[1].innerText;
+            const scope = currentRevokeRow.cells[2].innerText;
+
+            document.getElementById('revokeAppName').innerText = appName;
+            document.getElementById('revokeScope').innerText = scope;
+            document.getElementById('revokeReason').value = '';
+            document.getElementById('revokeModal').classList.add('active');
+        }
+
+        function closeRevokeModal() {
+            document.getElementById('revokeModal').classList.remove('active');
+        }
+
+        function confirmRevoke() {
+            const reason = document.getElementById('revokeReason').value;
+            if (!reason) {
+                showToast('请输入撤销原因', 'error');
+                return;
+            }
+            closeRevokeModal();
+            showToast('授权已撤销', 'success');
+
+            // Simulate status change
+            if (currentRevokeRow) {
+                const statusTag = currentRevokeRow.querySelector('.status-tag');
+                statusTag.className = 'status-tag status-neutral'; // Update to neutral/gray
+                statusTag.innerText = '已撤销';
+                statusTag.style.background = '#f1f5f9';
+                statusTag.style.color = '#64748b';
+            }
+        }
+    </script>
+</body>
+
+</html>

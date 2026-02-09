@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代理共享管理 - 金华理工物联网平台</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-text">物联网平台</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-group-title">设备空间管理</div>
+                <a href="101_基础设备目录管理.html" class="nav-item">
+                    <span>📚</span> 基础目录
+                </a>
+                <a href="101_标签管理.html" class="nav-item">
+                    <span>🏷️</span> 标签管理
+                </a>
+                <a href="101_地图广场.html" class="nav-item">
+                    <span>🗺️</span> 地图广场
+                </a>
+                <a href="101_地图管理.html" class="nav-item">
+                    <span>⚙️</span> 地图配置
+                </a>
+
+                <div class="nav-group-title">设备治理</div>
+                <a href="102_治理任务.html" class="nav-item">
+                    <span>📋</span> 治理任务
+                </a>
+                <a href="102_治理参数设置.html" class="nav-item">
+                    <span>⚙️</span> 参数设置
+                </a>
+
+                <div class="nav-group-title">物联网设备管理</div>
+                <a href="103_平台设备管理.html" class="nav-item">
+                    <span>🖥️</span> 平台管理
+                </a>
+                <a href="103_平台通道管理.html" class="nav-item">
+                    <span>📡</span> 通道管理
+                </a>
+                <a href="103_设备分组管理.html" class="nav-item">
+                    <span>📂</span> 设备分组
+                </a>
+
+                <div class="nav-group-title">视频权限管理</div>
+                <a href="104_直接共享.html" class="nav-item">
+                    <span>📹</span> 直接共享
+                </a>
+                <a href="104_代理共享.html" class="nav-item active">
+                    <span>🔗</span> 代理共享
+                </a>
+
+                <div class="nav-group-title">权限审批管理</div>
+                <a href="105_需求登记.html" class="nav-item">
+                    <span>📝</span> 需求登记
+                </a>
+                <a href="105_需求审批.html" class="nav-item">
+                    <span>⚖️</span> 需求审批
+                </a>
+                <a href="105_授权管理.html" class="nav-item">
+                    <span>🛑</span> 授权管理
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-bar">
+                <h2 class="page-title">代理共享管理</h2>
+                <div class="user-profile">
+                    <span>管理员</span>
+                    <div class="avatar"></div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Two-column layout -->
+                <div class="layout-grid">
+                    <!-- Left: Directory Tree -->
+                    <div class="tree-panel">
+                        <div class="tree-search-box">
+                            <input type="text" class="glass-input" placeholder="搜索目录...">
+                            <span class="tree-search-icon">🔍</span>
+                        </div>
+                        <div class="tree-content">
+                            <div class="tree-node active" onclick="selectTreeNode(this, '金华理工学院')">
+                                📂 金华理工学院 <span class="proxy-count">(45/128)</span>
+                            </div>
+                            <div class="tree-node" onclick="selectTreeNode(this, '教学楼A区')">
+                                📂 教学楼A区 <span class="proxy-count">(15/45)</span>
+                            </div>
+                            <div class="tree-node child" onclick="selectTreeNode(this, '一楼大厅')">
+                                📁 一楼大厅 <span class="proxy-count">(5/10)</span>
+                            </div>
+                            <div class="tree-node child" onclick="selectTreeNode(this, '二楼教室')">
+                                📁 二楼教室 <span class="proxy-count">(10/35)</span>
+                            </div>
+                            <div class="tree-node" onclick="selectTreeNode(this, '行政楼')">
+                                📂 行政楼 <span class="proxy-count">(10/20)</span>
+                            </div>
+                            <div class="tree-node" onclick="selectTreeNode(this, '图书馆')">
+                                📂 图书馆 <span class="proxy-count">(15/30)</span>
+                            </div>
+                            <div class="tree-node" onclick="selectTreeNode(this, '体育馆')">
+                                📂 体育馆 <span class="proxy-count">(0/23)</span>
+                            </div>
+                        </div>
+                        <div class="tree-footer">
+                            <span class="tree-stat">已配置代理: <strong>45</strong> / 128</span>
+                        </div>
+                    </div>
+
+                    <!-- Right: Device List -->
+                    <div class="content-panel" style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Filters -->
+                        <div class="filter-bar">
+                            <div style="flex: 1; min-width: 150px;">
+                                <label class="input-label">设备名称</label>
+                                <input type="text" class="glass-input" placeholder="请输入设备名称">
+                            </div>
+                            <div style="width: 120px;">
+                                <label class="input-label">在线状态</label>
+                                <select class="glass-input">
+                                    <option value="">全部</option>
+                                    <option value="1">在线</option>
+                                    <option value="0">离线</option>
+                                </select>
+                            </div>
+                            <div style="width: 120px;">
+                                <label class="input-label">代理状态</label>
+                                <select class="glass-input">
+                                    <option value="">全部</option>
+                                    <option value="1">已配置</option>
+                                    <option value="0">未配置</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; align-items: flex-end; gap: 8px;">
+                                <button class="btn btn-primary" onclick="searchData()">查询</button>
+                                <button class="btn btn-secondary">重置</button>
+                            </div>
+                        </div>
+
+                        <!-- Toolbar -->
+                        <div class="toolbar-bar">
+                            <button class="btn btn-primary" onclick="openBatchConfigModal()">⚙️ 批量配置代理</button>
+                            <button class="btn btn-secondary" onclick="batchClearProxy()">🗑️ 批量清除代理</button>
+                            <button class="btn btn-secondary" onclick="exportData()">📥 批量导出</button>
+                            <span class="toolbar-info">已选择 <strong id="selectedCount">0</strong> 个设备</span>
+                        </div>
+
+                        <!-- Device Table -->
+                        <div class="glass-panel"
+                            style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
+                            <div style="flex: 1; overflow-y: auto;">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 40px;"><input type="checkbox"
+                                                    onclick="toggleSelectAll(this)"></th>
+                                            <th>设备名称</th>
+                                            <th>平台编码</th>
+                                            <th>在线状态</th>
+                                            <th style="min-width: 200px;">原始流地址</th>
+                                            <th>代理状态</th>
+                                            <th style="min-width: 200px;">代理流地址</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><input type="checkbox" onchange="updateSelectedCount()"></td>
+                                            <td>教学楼A-1F-大厅全景</td>
+                                            <td>33010000001320000001</td>
+                                            <td><span class="status-tag status-success">在线</span></td>
+                                            <td><code class="stream-url">rtsp://192.168.1.101:554/stream1</code></td>
+                                            <td><span class="status-tag status-success">已配置</span></td>
+                                            <td><code
+                                                    class="stream-url proxy">http://video.jhit.edu.cn:80/live/33010000001320000001.flv</code>
+                                            </td>
+                                            <td>
+                                                <button class="icon-btn" title="复制代理地址"
+                                                    onclick="copyUrl('http://video.jhit.edu.cn:80/live/33010000001320000001.flv')">📋</button>
+                                                <button class="icon-btn" title="编辑"
+                                                    onclick="openEditModal(0)">✏️</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><input type="checkbox" onchange="updateSelectedCount()"></td>
+                                            <td>图书馆-正门人脸抓拍</td>
+                                            <td>33010000001320000002</td>
+                                            <td><span class="status-tag status-success">在线</span></td>
+                                            <td><code class="stream-url">rtsp://192.168.1.102:554/stream1</code></td>
+                                            <td><span class="status-tag status-success">已配置</span></td>
+                                            <td><code
+                                                    class="stream-url proxy">http://video.jhit.edu.cn:80/live/33010000001320000002.flv</code>
+                                            </td>
+                                            <td>
+                                                <button class="icon-btn" title="复制代理地址"
+                                                    onclick="copyUrl('http://video.jhit.edu.cn:80/live/33010000001320000002.flv')">📋</button>
+                                                <button class="icon-btn" title="编辑"
+                                                    onclick="openEditModal(1)">✏️</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><input type="checkbox" onchange="updateSelectedCount()"></td>
+                                            <td>行政楼-走廊监控01</td>
+                                            <td>33010000001320000003</td>
+                                            <td><span class="status-tag status-neutral">离线</span></td>
+                                            <td><code class="stream-url">rtsp://192.168.1.103:554/stream1</code></td>
+                                            <td><span class="status-tag status-neutral">未配置</span></td>
+                                            <td><span class="no-proxy">-</span></td>
+                                            <td>
+                                                <button class="icon-btn disabled" title="复制代理地址" disabled>📋</button>
+                                                <button class="icon-btn" title="配置"
+                                                    onclick="openEditModal(2)">✏️</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><input type="checkbox" onchange="updateSelectedCount()"></td>
+                                            <td>北门-车辆识别入口</td>
+                                            <td>33010000001320000004</td>
+                                            <td><span class="status-tag status-success">在线</span></td>
+                                            <td><code class="stream-url">rtsp://192.168.1.104:554/stream1</code></td>
+                                            <td><span class="status-tag status-neutral">未配置</span></td>
+                                            <td><span class="no-proxy">-</span></td>
+                                            <td>
+                                                <button class="icon-btn disabled" title="复制代理地址" disabled>📋</button>
+                                                <button class="icon-btn" title="配置"
+                                                    onclick="openEditModal(3)">✏️</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><input type="checkbox" onchange="updateSelectedCount()"></td>
+                                            <td>食堂-入口通道</td>
+                                            <td>33010000001320000005</td>
+                                            <td><span class="status-tag status-success">在线</span></td>
+                                            <td><code class="stream-url">rtsp://192.168.1.105:554/stream1</code></td>
+                                            <td><span class="status-tag status-success">已配置</span></td>
+                                            <td><code
+                                                    class="stream-url proxy">http://video.jhit.edu.cn:80/live/33010000001320000005.flv</code>
+                                            </td>
+                                            <td>
+                                                <button class="icon-btn" title="复制代理地址"
+                                                    onclick="copyUrl('http://video.jhit.edu.cn:80/live/33010000001320000005.flv')">📋</button>
+                                                <button class="icon-btn" title="编辑"
+                                                    onclick="openEditModal(4)">✏️</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- Pagination -->
+                            <div
+                                style="padding: 12px 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #666;">
+                                <span>共 128 条</span>
+                                <div style="display: flex; gap: 4px;">
+                                    <button class="btn btn-secondary" style="padding: 4px 10px;">上一页</button>
+                                    <button class="btn btn-primary" style="padding: 4px 10px;">1</button>
+                                    <button class="btn btn-secondary" style="padding: 4px 10px;">2</button>
+                                    <button class="btn btn-secondary" style="padding: 4px 10px;">3</button>
+                                    <button class="btn btn-secondary" style="padding: 4px 10px;">下一页</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Batch Config Modal -->
+    <div class="modal-overlay" id="batchConfigModal">
+        <div class="modal-content" style="width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">批量配置代理</h3>
+                <button class="icon-btn" onclick="closeBatchConfigModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="batch-info" id="modalInfo">
+                    已选择 <strong id="modalSelectedCount">0</strong> 个设备进行配置
+                </div>
+
+                <!-- Mode Toggle (only visible in single edit mode) -->
+                <div class="form-group" id="modeToggleGroup" style="display: none;">
+                    <label class="form-label">配置模式</label>
+                    <div style="display: flex; gap: 16px; margin-top: 8px;">
+                        <label><input type="radio" name="configMode" value="auto" checked onchange="toggleConfigMode()">
+                            自动生成</label>
+                        <label><input type="radio" name="configMode" value="manual" onchange="toggleConfigMode()">
+                            手动输入</label>
+                    </div>
+                </div>
+
+                <!-- Auto Generate Fields -->
+                <div id="autoGenerateFields">
+                    <div class="form-group">
+                        <label class="form-label required">服务地址 (Service Host)</label>
+                        <input type="text" class="form-control" id="serviceHost" placeholder="e.g. video.jhit.edu.cn"
+                            value="video.jhit.edu.cn">
+                        <span class="input-hint">代理流媒体服务器的域名或IP地址</span>
+                    </div>
+
+                    <div class="form-group grid-2">
+                        <div>
+                            <label class="form-label required">服务端口 (Port)</label>
+                            <input type="number" class="form-control" id="servicePort" placeholder="e.g. 80" value="80">
+                        </div>
+                        <div>
+                            <label class="form-label required">应用名称 (App Name)</label>
+                            <input type="text" class="form-control" id="appName" placeholder="e.g. live" value="live">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">流ID规则 (Stream ID Rule)</label>
+                        <select class="form-control" id="streamIdRule">
+                            <option value="{DeviceCode}">{设备编码} (推荐)</option>
+                            <option value="{DeviceName}">{设备名称}</option>
+                            <option value="cam_{DeviceCode}">cam_{设备编码}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">主协议 (Protocol)</label>
+                        <div style="display: flex; gap: 16px; margin-top: 8px;">
+                            <label><input type="radio" name="protocol" value="http-flv" checked
+                                    onchange="updatePreview()"> HTTP-FLV</label>
+                            <label><input type="radio" name="protocol" value="hls" onchange="updatePreview()">
+                                HLS</label>
+                            <label><input type="radio" name="protocol" value="rtmp" onchange="updatePreview()">
+                                RTMP</label>
+                            <label><input type="radio" name="protocol" value="rtsp" onchange="updatePreview()">
+                                RTSP</label>
+                        </div>
+                        <span class="input-hint">表格中将展示所选协议的地址</span>
+                    </div>
+
+                    <div class="preview-box">
+                        <label class="form-label" style="font-size: 12px; margin-bottom: 4px;">地址预览（所有协议参考）</label>
+                        <div class="preview-content" id="previewContent">
+                            <code>http://video.jhit.edu.cn:80/live/33010000001320000001.flv</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual Input Fields (hidden by default) -->
+                <div id="manualInputFields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label required">代理流地址</label>
+                        <input type="text" class="form-control" id="manualProxyUrl"
+                            placeholder="http://video.example.com/live/stream.flv">
+                        <span class="input-hint">直接输入完整的代理流地址，适用于特殊场景</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeBatchConfigModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveBatchConfig()">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Single Device Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content" style="width: 550px;">
+            <div class="modal-header">
+                <h3 class="modal-title">编辑代理地址</h3>
+                <button class="modal-close" onclick="closeEditModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="device-info">
+                    <div class="info-row">
+                        <span class="info-label">设备名称：</span>
+                        <span class="info-value" id="editDeviceName">教学楼A-1F-大厅全景</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">平台编码：</span>
+                        <span class="info-value" id="editDeviceCode">33010000001320000001</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">原始流地址：</span>
+                        <span class="info-value"><code class="stream-url">rtsp://192.168.1.101:554/stream1</code></span>
+                    </div>
+                </div>
+                <div class="input-group" style="margin-top: 20px;">
+                    <label class="input-label">代理流地址</label>
+                    <input type="text" class="glass-input" id="editProxyUrl" placeholder="请输入代理流地址，留空表示清除配置">
+                    <span class="input-hint">直接输入完整的代理流地址，或留空清除配置</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveEditProxy()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function searchData() {
+            showToast('数据已刷新');
+        }
+
+        function exportData() {
+            showToast('正在导出代理配置列表...', 'success');
+        }
+
+        function copyUrl(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('已复制到剪贴板', 'success');
+            }).catch(() => {
+                showToast('复制失败', 'danger');
+            });
+        }
+
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const checked = document.querySelectorAll('tbody input[type="checkbox"]:checked').length;
+            document.getElementById('selectedCount').innerText = checked;
+        }
+
+        function selectTreeNode(element, name) {
+            document.querySelectorAll('.tree-node').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            showToast(`已选择：${name}`);
+        }
+
+        // Global variable to track editing mode
+        let returnToBatch = false;
+        let pCurrentDeviceCode = '';
+
+        function openBatchConfigModal() {
+            const checked = document.querySelectorAll('tbody input[type="checkbox"]:checked').length;
+            if (checked === 0) {
+                showToast('请先选择设备', 'warning');
+                return;
+            }
+            returnToBatch = true;
+            pCurrentDeviceCode = '33010000001320000001'; // Default example for batch
+
+            document.getElementById('modalTitle').innerText = '批量配置代理';
+            document.getElementById('modalInfo').innerHTML = `已选择 <strong id="modalSelectedCount">${checked}</strong> 个设备进行配置`;
+
+            // Hide mode toggle for batch mode
+            document.getElementById('modeToggleGroup').style.display = 'none';
+            document.getElementById('autoGenerateFields').style.display = 'block';
+            document.getElementById('manualInputFields').style.display = 'none';
+
+            document.getElementById('batchConfigModal').classList.add('active');
+            updatePreview();
+        }
+
+        function closeBatchConfigModal() {
+            document.getElementById('batchConfigModal').classList.remove('active');
+            // Reset mode toggle selection
+            document.querySelector('input[name="configMode"][value="auto"]').checked = true;
+        }
+
+        function saveBatchConfig() {
+            const isManualMode = document.querySelector('input[name="configMode"]:checked')?.value === 'manual';
+
+            if (isManualMode) {
+                const manualUrl = document.getElementById('manualProxyUrl').value;
+                if (!manualUrl) {
+                    showToast('请输入代理流地址', 'warning');
+                    return;
+                }
+            } else {
+                const host = document.getElementById('serviceHost').value;
+                const port = document.getElementById('servicePort').value;
+                const app = document.getElementById('appName').value;
+
+                if (!host || !port || !app) {
+                    showToast('请填写完整的服务配置信息', 'warning');
+                    return;
+                }
+            }
+
+            closeBatchConfigModal();
+
+            if (returnToBatch) {
+                const count = document.getElementById('modalSelectedCount').innerText;
+                const selectedProtocol = document.querySelector('input[name="protocol"]:checked')?.value?.toUpperCase() || 'FLV';
+                showToast(`批量配置成功，共更新 ${count} 条代理信息 (${selectedProtocol})`, 'success');
+            } else {
+                showToast('设备代理配置已更新', 'success');
+            }
+        }
+
+        function batchClearProxy() {
+            const checked = document.querySelectorAll('tbody input[type="checkbox"]:checked').length;
+            if (checked === 0) {
+                showToast('请先选择设备', 'warning');
+                return;
+            }
+            showConfirm(`确定清除选中的 ${checked} 个设备的代理配置吗？`, () => {
+                showToast(`已清除 ${checked} 条代理配置`, 'success');
+            });
+        }
+
+        function openEditModal(index) {
+            // Mock device data
+            const devices = [
+                { name: '教学楼A-1F-大厅全景', code: '33010000001320000001' },
+                { name: '图书馆-正门人脸抓拍', code: '33010000001320000002' },
+                { name: '行政楼-走廊监控01', code: '33010000001320000003' },
+                { name: '北门-车辆识别入口', code: '33010000001320000004' },
+                { name: '食堂-入口通道', code: '33010000001320000005' }
+            ];
+
+            const device = devices[index];
+            if (!device) return;
+
+            returnToBatch = false;
+            pCurrentDeviceCode = device.code;
+
+            document.getElementById('modalTitle').innerText = '配置代理';
+            document.getElementById('modalInfo').innerHTML = `当前设备：<strong>${device.name}</strong> (${device.code})`;
+
+            // Show mode toggle for single edit mode
+            document.getElementById('modeToggleGroup').style.display = 'block';
+            document.getElementById('autoGenerateFields').style.display = 'block';
+            document.getElementById('manualInputFields').style.display = 'none';
+
+            // Reset mode toggle to auto
+            document.querySelector('input[name="configMode"][value="auto"]').checked = true;
+
+            // Pre-fill fields
+            document.getElementById('serviceHost').value = 'video.jhit.edu.cn';
+            document.getElementById('servicePort').value = '80';
+            document.getElementById('appName').value = 'live';
+
+            document.getElementById('batchConfigModal').classList.add('active');
+            updatePreview();
+        }
+
+        function toggleConfigMode() {
+            const mode = document.querySelector('input[name="configMode"]:checked').value;
+            if (mode === 'manual') {
+                document.getElementById('autoGenerateFields').style.display = 'none';
+                document.getElementById('manualInputFields').style.display = 'block';
+            } else {
+                document.getElementById('autoGenerateFields').style.display = 'block';
+                document.getElementById('manualInputFields').style.display = 'none';
+            }
+        }
+
+        // Update preview in batch modal
+        document.getElementById('serviceHost')?.addEventListener('input', updatePreview);
+        document.getElementById('servicePort')?.addEventListener('input', updatePreview);
+        document.getElementById('appName')?.addEventListener('input', updatePreview);
+        document.getElementById('streamIdRule')?.addEventListener('change', updatePreview);
+        document.querySelectorAll('input[name="protocol"]').forEach(cb => cb.addEventListener('change', updatePreview));
+
+        function updatePreview() {
+            const host = document.getElementById('serviceHost').value || 'video.jhit.edu.cn';
+            const port = document.getElementById('servicePort').value || '80';
+            const app = document.getElementById('appName').value || 'live';
+            const rule = document.getElementById('streamIdRule').value;
+
+            // Use specific device code if editing single, otherwise example
+            let baseStreamId = pCurrentDeviceCode || '33010000001320000001';
+            let streamId = baseStreamId;
+
+            if (rule === '{DeviceName}') streamId = 'device_name_example';
+            else if (rule === 'cam_{DeviceCode}') streamId = `cam_${baseStreamId}`;
+
+            // Get selected protocol (radio button)
+            const selectedProtocol = document.querySelector('input[name="protocol"]:checked')?.value || 'http-flv';
+
+            // Generate all protocol URLs for preview (as reference)
+            const allProtocols = ['http-flv', 'hls', 'rtmp', 'rtsp'];
+            let previewHtml = '';
+
+            allProtocols.forEach(p => {
+                let url = '';
+                if (p === 'http-flv') url = `http://${host}:${port}/${app}/${streamId}.flv`;
+                else if (p === 'hls') url = `http://${host}:${port}/${app}/${streamId}/hls.m3u8`;
+                else if (p === 'rtmp') url = `rtmp://${host}:${port}/${app}/${streamId}`;
+                else if (p === 'rtsp') url = `rtsp://${host}:${port}/${app}/${streamId}`;
+
+                const isSelected = (p === selectedProtocol);
+                const style = isSelected ? 'background: #e0f2fe; padding: 2px 6px; border-radius: 4px;' : 'opacity: 0.6;';
+                const label = isSelected ? ' ✓ 主协议' : '';
+                previewHtml += `<div style="margin-bottom: 4px; ${style}"><code>${url}</code><span style="font-size: 11px; color: #0284c7; margin-left: 8px;">${label}</span></div>`;
+            });
+
+            document.getElementById('previewContent').innerHTML = previewHtml;
+        }
+    </script>
+    <style>
+        .stream-url {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            background: #f1f5f9;
+            padding: 3px 6px;
+            border-radius: 4px;
+            color: #475569;
+            word-break: break-all;
+            display: inline-block;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .stream-url.proxy {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .no-proxy {
+            color: #94a3b8;
+        }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .tree-item:hover {
+            background: #f1f5f9;
+            color: var(--primary);
+        }
+
+        .tree-item.active {
+            background: #eff6ff;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .tree-toggle {
+            font-size: 10px;
+            color: #94a3b8;
+            width: 12px;
+        }
+
+        .tree-count {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-left: auto;
+        }
+
+        .proxy-count {
+            color: var(--success);
+        }
+
+        .tree-children {
+            margin-left: 20px;
+        }
+
+        .tree-footer {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border-color);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .tree-stat strong {
+            color: var(--success);
+        }
+
+        .toolbar-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 12px 16px;
+        }
+
+        .toolbar-info {
+            margin-left: auto;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .toolbar-info strong {
+            color: var(--primary);
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .icon-btn.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .batch-info {
+            background: #eff6ff;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .form-section {
+            padding: 0;
+        }
+
+        .input-hint {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .preview-box {
+            margin-top: 16px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border: 1px dashed #e2e8f0;
+        }
+
+        .preview-content {
+            margin-top: 8px;
+        }
+
+        .preview-content code {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--success);
+            word-break: break-all;
+        }
+
+        .device-info {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 6px;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            width: 100px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .info-value {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        .tree-node.child {
+            padding-left: 28px;
+        }
+
+        .proxy-count {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-left: 4px;
+        }
+    </style>
+</body>
+
+</html>

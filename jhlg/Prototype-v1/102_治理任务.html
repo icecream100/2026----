@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>治理任务 - 金华理工物联网平台</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: 600px;
+            /* Fixed height for modal content */
+        }
+
+        /* Custom styles for governance cards/tables */
+        .progress-bar {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            width: 100px;
+        }
+
+        .progress-value {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-text">物联网平台</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-group-title">设备空间管理</div>
+                <a href="101_基础设备目录管理.html" class="nav-item">
+                    <span>📚</span> 基础目录
+                </a>
+                <a href="101_标签管理.html" class="nav-item">
+                    <span>🏷️</span> 标签管理
+                </a>
+                <a href="101_地图广场.html" class="nav-item">
+                    <span>🗺️</span> 地图广场
+                </a>
+                <a href="101_地图管理.html" class="nav-item">
+                    <span>⚙️</span> 地图配置
+                </a>
+
+                <div class="nav-group-title">设备治理</div>
+                <a href="102_治理任务.html" class="nav-item active">
+                    <span>📋</span> 治理任务
+                </a>
+                <a href="102_治理参数设置.html" class="nav-item">
+                    <span>⚙️</span> 参数设置
+                </a>
+
+                <div class="nav-group-title">物联网设备管理</div>
+                <a href="103_平台设备管理.html" class="nav-item">
+                    <span>🖥️</span> 平台管理
+                </a>
+                <a href="103_平台通道管理.html" class="nav-item">
+                    <span>📡</span> 通道管理
+                </a>
+                <a href="103_设备分组管理.html" class="nav-item">
+                    <span>📂</span> 设备分组
+                </a>
+
+                <div class="nav-group-title">视频权限管理</div>
+                <a href="104_直接共享.html" class="nav-item">
+                    <span>📱</span> 应用管理
+                </a>
+                <!-- <span>🎨</span> 应用编排 (Coming Soon) -->
+                <a href="104_代理共享.html" class="nav-item">
+                    <span>🔗</span> 上级平台
+                </a>
+
+                <div class="nav-group-title">权限审批管理</div>
+                <a href="105_需求登记.html" class="nav-item">
+                    <span>📝</span> 需求登记
+                </a>
+                <a href="105_需求审批.html" class="nav-item">
+                    <span>⚖️</span> 需求审批
+                </a>
+                <a href="105_授权管理.html" class="nav-item">
+                    <span>🛑</span> 授权管理
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-bar">
+                <h2 class="page-title">治理任务</h2>
+                <div class="user-profile">
+                    <span>管理员</span>
+                    <div class="avatar"></div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Data Filter -->
+                <div class="filter-bar">
+                    <div style="flex: 1; min-width: 180px;">
+                        <label class="input-label">任务名称</label>
+                        <input type="text" class="glass-input" placeholder="请输入任务名称">
+                    </div>
+                    <div style="flex: 1; min-width: 180px;">
+                        <label class="input-label">治理人员</label>
+                        <input type="text" class="glass-input" placeholder="请输入人员姓名">
+                    </div>
+                    <div style="flex: 1; min-width: 160px;">
+                        <label class="input-label">任务状态</label>
+                        <select class="glass-input">
+                            <option value="">全部状态</option>
+                            <option value="pending">待派单</option>
+                            <option value="dispatched">已派单</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: flex-end; gap: 8px;">
+                        <button class="btn btn-primary" onclick="searchData()">查询</button>
+                        <button class="btn btn-secondary">重置</button>
+                    </div>
+                    <div style="flex: 1; display: flex; justify-content: flex-end; align-items: flex-end;">
+                        <button class="btn btn-primary" onclick="openAddTaskModal()">+ 新增任务</button>
+                    </div>
+                </div>
+
+                <!-- Task List -->
+                <div class="glass-panel">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>治理任务名称</th>
+                                <th>设备数量</th>
+                                <th>任务进度</th>
+                                <th>治理类型</th>
+                                <th>治理人员</th>
+                                <th>任务状态</th>
+                                <th>创建人</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Item 1: Pending Dispatch -->
+                            <tr>
+                                <td>教学楼设备信息补全</td>
+                                <td>156</td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div class="progress-bar">
+                                            <div class="progress-value" style="width: 0%;"></div>
+                                        </div>
+                                        <span style="font-size: 12px;">0.00%</span>
+                                    </div>
+                                </td>
+                                <td>场所类型、管理单位</td>
+                                <td>张三</td>
+                                <td><span class="status-tag status-warning">待派单</span></td>
+                                <td>admin</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="openConfigModal()">配置设备</button>
+                                    <button class="btn btn-secondary"
+                                        style="padding: 4px 8px; font-size: 12px; color: var(--primary); border-color: var(--primary);"
+                                        onclick="openDispatchModal()">派单</button>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="openAddTaskModal(true)">编辑</button>
+                                    <button class="btn btn-secondary"
+                                        style="padding: 4px 8px; font-size: 12px; color: var(--danger); border-color: var(--danger);"
+                                        onclick="deleteTask()">删除</button>
+                                </td>
+                            </tr>
+                            <!-- Item 2: Dispatched -->
+                            <tr>
+                                <td>全校经纬度校准</td>
+                                <td>1,240</td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div class="progress-bar">
+                                            <div class="progress-value" style="width: 45%;"></div>
+                                        </div>
+                                        <span style="font-size: 12px;">45.20%</span>
+                                    </div>
+                                </td>
+                                <td>经纬度治理</td>
+                                <td>李四</td>
+                                <td><span class="status-tag status-success">已派单</span></td>
+                                <td>admin</td>
+                                <td>
+                                    <!-- Actions disabled/hidden for dispatched tasks -->
+                                    <span style="color: #ccc; font-size: 12px;">不可操作</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- 1. Add/Edit Task Modal -->
+    <div class="modal-overlay" id="addTaskModal">
+        <div class="modal-content" style="width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="addModalTitle">新增治理任务</h3>
+                <button class="modal-close" onclick="closeAddTaskModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group" style="margin-bottom: 20px;">
+                    <label class="input-label"><span style="color:red">*</span> 治理任务名称</label>
+                    <input type="text" class="glass-input" placeholder="请输入任务名称（不可重复）">
+                </div>
+
+                <div class="input-group" style="margin-bottom: 20px;">
+                    <label class="input-label"><span style="color:red">*</span> 治理类型 (多选)</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <label style="display: flex; align-items: center; font-size: 14px;"><input type="checkbox"
+                                style="margin-right: 6px;"> 场所类型</label>
+                        <label style="display: flex; align-items: center; font-size: 14px;"><input type="checkbox"
+                                style="margin-right: 6px;"> 管理单位</label>
+                        <label style="display: flex; align-items: center; font-size: 14px;"><input type="checkbox"
+                                style="margin-right: 6px;"> 地理区域</label>
+                        <label style="display: flex; align-items: center; font-size: 14px;"><input type="checkbox"
+                                style="margin-right: 6px;"> 主题分类</label>
+                        <label style="display: flex; align-items: center; font-size: 14px;"><input type="checkbox"
+                                style="margin-right: 6px;"> 行政区划</label>
+                        <label style="display: flex; align-items: center; font-size: 14px;"><input type="checkbox"
+                                style="margin-right: 6px;"> 经纬度治理</label>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label"><span style="color:red">*</span> 治理人员</label>
+                    <div style="position: relative;">
+                        <input type="text" class="glass-input" placeholder="请输入姓名搜索">
+                        <span style="position: absolute; right: 8px; top: 9px;">🔍</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddTaskModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveTask()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Configure Device Modal -->
+    <div class="modal-overlay" id="configModal">
+        <div class="modal-content" style="width: 1000px; height: 80vh;">
+            <div class="modal-header">
+                <h3 class="modal-title">配置设备 - 教学楼设备信息补全</h3>
+                <button class="modal-close" onclick="closeConfigModal()">×</button>
+            </div>
+            <div class="modal-body" style="display: flex; padding: 0; overflow: hidden; height: 100%;">
+                <!-- Left Tree -->
+                <div
+                    style="width: 280px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column;">
+                    <div class="tree-search-box" style="padding: 12px; border-bottom: 1px solid var(--border-color);">
+                        <input type="text" class="glass-input" placeholder="搜索目录...">
+                    </div>
+                    <div class="tree-content" style="flex: 1; overflow-y: auto; padding-top: 8px;">
+                        <div class="tree-node active">📂 金华理工 (120/120)</div>
+                        <div class="tree-node">📂 教学楼A区 (45/45)</div>
+                        <div class="tree-node">📂 行政楼 (20/20)</div>
+                    </div>
+                </div>
+
+                <!-- Right List -->
+                <div style="flex: 1; display: flex; flex-direction: column; background: #f8fafc;">
+                    <div
+                        style="padding: 12px; display: flex; gap: 12px; border-bottom: 1px solid var(--border-color); background: white;">
+                        <input type="text" class="glass-input" placeholder="设备名称/编码" style="width: 200px;">
+                        <button class="btn btn-primary">查询</button>
+                    </div>
+                    <div style="flex: 1; overflow-y: auto; padding: 12px;">
+                        <div class="glass-panel">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;"><input type="checkbox"></th>
+                                        <th>设备名称</th>
+                                        <th>平台编码</th>
+                                        <th>在线状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>教学楼A-1F-大厅全景</td>
+                                        <td>33070200001310000001</td>
+                                        <td><span class="status-tag status-success">在线</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" checked></td>
+                                        <td>教学楼A-1F-东门球机</td>
+                                        <td>33070200001310000002</td>
+                                        <td><span class="status-tag status-success">在线</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>图书馆-正门人脸抓拍</td>
+                                        <td>33070200001310000035</td>
+                                        <td><span class="status-tag status-danger">离线</span></td>
+                                    </tr>
+                                    <!-- More rows... -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div
+                        style="padding: 12px; background: white; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 13px; color: var(--text-secondary);">已选 1 个设备</span>
+                        <!-- Pagination placeholder -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeConfigModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Dispatch Modal -->
+    <div class="modal-overlay" id="dispatchModal">
+        <div class="modal-content" style="width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">确认派单</h3>
+                <button class="modal-close" onclick="closeDispatchModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p>确认将任务 <strong>教学楼设备信息补全</strong> 派单给 <strong>张三</strong> 吗？</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">派单后任务不可再编辑和配置设备。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDispatchModal()">取消</button>
+                <button class="btn btn-primary" onclick="confirmDispatch()">确认派单</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function searchData() {
+            showToast('数据已刷新');
+        }
+
+        // Add Task Logic
+        function openAddTaskModal(isEdit = false) {
+            document.getElementById('addModalTitle').innerText = isEdit ? '编辑治理任务' : '新增治理任务';
+            document.getElementById('addTaskModal').classList.add('active');
+        }
+        function closeAddTaskModal() {
+            document.getElementById('addTaskModal').classList.remove('active');
+        }
+        function saveTask() {
+            closeAddTaskModal();
+            // If New Task -> Open Config Modal immediately as per PRD
+            if (document.getElementById('addModalTitle').innerText.includes('新增')) {
+                setTimeout(() => {
+                    openConfigModal();
+                }, 300);
+            } else {
+                showToast('任务保存成功', 'success');
+            }
+        }
+
+        // Config Device Logic
+        function openConfigModal() {
+            document.getElementById('configModal').classList.add('active');
+        }
+        function closeConfigModal() {
+            document.getElementById('configModal').classList.remove('active');
+        }
+        function saveConfig() {
+            closeConfigModal();
+            showToast('设备配置已保存', 'success');
+        }
+
+        // Dispatch Logic
+        function openDispatchModal() {
+            document.getElementById('dispatchModal').classList.add('active');
+        }
+        function closeDispatchModal() {
+            document.getElementById('dispatchModal').classList.remove('active');
+        }
+        function confirmDispatch() {
+            closeDispatchModal();
+            showToast('派单成功', 'success');
+            // In real app, this would refresh the list and change status
+        }
+
+        function deleteTask() {
+            showConfirm('确定要删除该治理任务吗？', () => {
+                showToast('任务已删除', 'success');
+            });
+        }
+    </script>
+</body>
+
+</html>

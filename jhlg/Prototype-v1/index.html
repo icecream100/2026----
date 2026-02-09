@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金华理工物联网平台 - 产品原型</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .module-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .module-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .module-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .prototype-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .prototype-card {
+            display: block;
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #334155;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .prototype-card:hover {
+            background: #eff6ff;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .prototype-card .card-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .prototype-card .card-file {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-family: 'Courier New', monospace;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            margin-top: 40px;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #e0f2fe;
+            color: #0284c7;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 金华理工物联网平台</h1>
+            <p>V1 产品原型导航</p>
+        </header>
+
+        <!-- 模块101: 基础目录管理 -->
+        <section class="module-section">
+            <div class="module-header">
+                <div class="module-number">101</div>
+                <h2 class="module-title">基础目录管理</h2>
+            </div>
+            <div class="prototype-list">
+                <a href="101_基础设备目录管理.html" class="prototype-card">
+                    <div class="card-title">📂 基础设备目录管理</div>
+                    <div class="card-file">101_基础设备目录管理.html</div>
+                </a>
+                <a href="101_标签管理.html" class="prototype-card">
+                    <div class="card-title">🏷️ 标签管理</div>
+                    <div class="card-file">101_标签管理.html</div>
+                </a>
+                <a href="101_地图管理.html" class="prototype-card">
+                    <div class="card-title">🗺️ 地图管理</div>
+                    <div class="card-file">101_地图管理.html</div>
+                </a>
+                <a href="101_地图广场.html" class="prototype-card">
+                    <div class="card-title">🌐 地图广场</div>
+                    <div class="card-file">101_地图广场.html</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- 模块102: 数据治理 -->
+        <section class="module-section">
+            <div class="module-header">
+                <div class="module-number">102</div>
+                <h2 class="module-title">数据治理</h2>
+            </div>
+            <div class="prototype-list">
+                <a href="102_治理任务.html" class="prototype-card">
+                    <div class="card-title">📋 治理任务</div>
+                    <div class="card-file">102_治理任务.html</div>
+                </a>
+                <a href="102_治理参数设置.html" class="prototype-card">
+                    <div class="card-title">⚙️ 治理参数设置</div>
+                    <div class="card-file">102_治理参数设置.html</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- 模块103: 设备空间管理 -->
+        <section class="module-section">
+            <div class="module-header">
+                <div class="module-number">103</div>
+                <h2 class="module-title">设备空间管理</h2>
+            </div>
+            <div class="prototype-list">
+                <a href="103_平台设备管理.html" class="prototype-card">
+                    <div class="card-title">📹 平台设备管理</div>
+                    <div class="card-file">103_平台设备管理.html</div>
+                </a>
+                <a href="103_平台通道管理.html" class="prototype-card">
+                    <div class="card-title">📡 平台通道管理</div>
+                    <div class="card-file">103_平台通道管理.html</div>
+                </a>
+                <a href="103_设备分组管理.html" class="prototype-card">
+                    <div class="card-title">📁 设备分组管理</div>
+                    <div class="card-file">103_设备分组管理.html</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- 模块104: 视频权限管理 -->
+        <section class="module-section">
+            <div class="module-header">
+                <div class="module-number">104</div>
+                <h2 class="module-title">视频权限管理</h2>
+            </div>
+            <div class="prototype-list">
+                <a href="104_直接共享.html" class="prototype-card">
+                    <div class="card-title">🔗 直接共享</div>
+                    <div class="card-file">104_直接共享.html</div>
+                </a>
+                <a href="104_代理共享.html" class="prototype-card">
+                    <div class="card-title">🌐 代理共享 <span class="badge">已更新</span></div>
+                    <div class="card-file">104_代理共享.html</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- 模块105: 权限审批管理 -->
+        <section class="module-section">
+            <div class="module-header">
+                <div class="module-number">105</div>
+                <h2 class="module-title">权限审批管理</h2>
+            </div>
+            <div class="prototype-list">
+                <a href="105_需求登记.html" class="prototype-card">
+                    <div class="card-title">📝 需求登记</div>
+                    <div class="card-file">105_需求登记.html</div>
+                </a>
+                <a href="105_需求审批.html" class="prototype-card">
+                    <div class="card-title">✅ 需求审批</div>
+                    <div class="card-file">105_需求审批.html</div>
+                </a>
+                <a href="105_授权管理.html" class="prototype-card">
+                    <div class="card-title">🔐 授权管理</div>
+                    <div class="card-file">105_授权管理.html</div>
+                </a>
+            </div>
+        </section>
+
+        <footer>
+            <p>金华理工物联网平台 V1 © 2026</p>
+        </footer>
+    </div>
+</body>
+
+</html>

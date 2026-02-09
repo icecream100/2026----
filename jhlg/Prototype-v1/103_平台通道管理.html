@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通道管理 - 金华理工物联网平台</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            height: calc(100vh - 64px - 48px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-text">物联网平台</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-group-title">设备空间管理</div>
+                <a href="101_基础设备目录管理.html" class="nav-item">
+                    <span>📚</span> 基础目录
+                </a>
+                <a href="101_标签管理.html" class="nav-item">
+                    <span>🏷️</span> 标签管理
+                </a>
+                <a href="101_地图广场.html" class="nav-item">
+                    <span>🗺️</span> 地图广场
+                </a>
+                <a href="101_地图管理.html" class="nav-item">
+                    <span>⚙️</span> 地图配置
+                </a>
+
+                <div class="nav-group-title">设备治理</div>
+                <a href="102_治理任务.html" class="nav-item">
+                    <span>📋</span> 治理任务
+                </a>
+                <a href="102_治理参数设置.html" class="nav-item">
+                    <span>⚙️</span> 参数设置
+                </a>
+
+                <div class="nav-group-title">物联网设备管理</div>
+                <a href="103_平台设备管理.html" class="nav-item">
+                    <span>🖥️</span> 平台管理
+                </a>
+                <a href="103_平台通道管理.html" class="nav-item active">
+                    <span>📡</span> 通道管理
+                </a>
+                <a href="103_设备分组管理.html" class="nav-item">
+                    <span>📂</span> 设备分组
+                </a>
+
+                <div class="nav-group-title">视频权限管理</div>
+                <a href="104_直接共享.html" class="nav-item">
+                    <span>📱</span> 应用管理
+                </a>
+                <!-- <span>🎨</span> 应用编排 (Coming Soon) -->
+                <a href="104_代理共享.html" class="nav-item">
+                    <span>🔗</span> 上级平台
+                </a>
+
+                <div class="nav-group-title">权限审批管理</div>
+                <a href="105_需求登记.html" class="nav-item">
+                    <span>📝</span> 需求登记
+                </a>
+                <a href="105_需求审批.html" class="nav-item">
+                    <span>⚖️</span> 需求审批
+                </a>
+                <a href="105_授权管理.html" class="nav-item">
+                    <span>🛑</span> 授权管理
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-bar">
+                <h2 class="page-title">通道管理</h2>
+                <div class="user-profile">
+                    <span>管理员</span>
+                    <div class="avatar"></div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="layout-grid">
+                    <!-- Left Tree Panel -->
+                    <div class="tree-panel">
+                        <div
+                            style="padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 500; font-size: 14px;">接入通道目录</span>
+                            <button class="btn btn-secondary" style="padding: 4px 8px;" title="从上级平台更新目录"
+                                onclick="syncCatalog()">🔄 同步</button>
+                        </div>
+                        <div class="tree-search-box" style="padding: 8px 12px;">
+                            <input type="text" class="glass-input" placeholder="搜索通道/组织...">
+                        </div>
+
+                        <div class="tree-content">
+                            <div class="tree-node active">📂 大华ICC视频云 (30/120)</div>
+                            <div class="tree-node" style="padding-left: 32px;">📂 教学楼区域 (20/40)</div>
+                            <div class="tree-node" style="padding-left: 32px;">📂 行政楼区域 (10/80)</div>
+                            <div class="tree-node">📂 海康ISC安防 (0/0)</div>
+                            <div class="tree-node">📂 老旧国标NVR (0/5)</div>
+                        </div>
+                    </div>
+
+                    <!-- Right List Content -->
+                    <div class="content-panel">
+                        <!-- Filters -->
+                        <div class="filter-bar">
+                            <!-- Scope Dropdown -->
+                            <div style="margin-right: 12px;">
+                                <select class="glass-input" style="width: 120px;">
+                                    <option>设备列表</option>
+                                    <option>组织列表</option>
+                                </select>
+                            </div>
+
+                            <div style="flex: 1; min-width: 140px;">
+                                <label class="input-label">设备名称</label>
+                                <input type="text" class="glass-input" placeholder="输入名称">
+                            </div>
+                            <div style="flex: 1; min-width: 140px;">
+                                <label class="input-label">通道编码</label>
+                                <input type="text" class="glass-input" placeholder="输入编码">
+                            </div>
+                            <div style="flex: 1; min-width: 120px;">
+                                <label class="input-label">上架状态</label>
+                                <select class="glass-input">
+                                    <option value="">全部</option>
+                                    <option value="1">已上架</option>
+                                    <option value="0">未上架</option>
+                                </select>
+                            </div>
+
+                            <div style="display: flex; align-items: flex-end; margin-left: 12px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; height: 38px;">
+                                    <input type="checkbox" style="margin-right: 6px;"> 只看本级
+                                </label>
+                            </div>
+
+                            <div style="display: flex; align-items: flex-end; gap: 8px; margin-left: 12px;">
+                                <button class="btn btn-primary" onclick="searchData()">查询</button>
+                            </div>
+                        </div>
+
+                        <!-- Batch Actions -->
+                        <div
+                            style="padding: 8px 16px; background: #fff; border-bottom: 1px solid var(--border-color); display: flex; gap: 8px;">
+                            <button class="btn btn-secondary" onclick="batchAction('up')">🚀 批量上架</button>
+                            <button class="btn btn-secondary" onclick="batchAction('down')">🛑 批量下架</button>
+                            <button class="btn btn-secondary" style="color: var(--danger); border-color: var(--danger);"
+                                onclick="batchAction('delete')">🗑️ 批量删除</button>
+                        </div>
+
+                        <!-- Data Table -->
+                        <div class="glass-panel" style="border-top-left-radius: 0; border-top-right-radius: 0;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;"><input type="checkbox"></th>
+                                        <th>设备名称</th>
+                                        <th>通道编码</th>
+                                        <th>在线状态</th>
+                                        <th>上架状态</th>
+                                        <th>归属组织</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>教学楼A-1F-大厅全景</td>
+                                        <td>33070200001310000001</td>
+                                        <td><span class="status-tag status-success">在线</span></td>
+                                        <td><span class="status-tag status-success">已上架</span></td>
+                                        <td>大华ICC / 教学楼区域</td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                                onclick="toggleShelf(this)">下架</button>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                                onclick="playVideo()">播放</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>教学楼A-1F-东门球机</td>
+                                        <td>33070200001310000002</td>
+                                        <td><span class="status-tag status-success">在线</span></td>
+                                        <td><span class="status-tag status-success">已上架</span></td>
+                                        <td>大华ICC / 教学楼区域</td>
+                                        <td>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                                onclick="toggleShelf(this)">下架</button>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                                onclick="playVideo()">播放</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>行政楼-会议室1</td>
+                                        <td>33070200001310000015</td>
+                                        <td><span class="status-tag status-danger">离线</span></td>
+                                        <td><span class="status-tag status-warning">未上架</span></td>
+                                        <td>大华ICC / 行政楼区域</td>
+                                        <td>
+                                            <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;"
+                                                onclick="toggleShelf(this)">上架</button>
+                                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                                onclick="playVideo()">播放</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Preview Modal -->
+    <div class="modal-overlay" id="videoModal">
+        <div class="modal-content" style="width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">视频预览</h3>
+                <button class="modal-close" onclick="closeVideo()">×</button>
+            </div>
+            <div class="modal-body">
+                <div
+                    style="width: 100%; height: 350px; background: #000; color: #fff; display: flex; align-items: center; justify-content: center;">
+                    实时视频流加载中...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function searchData() {
+            showToast('数据已刷新');
+        }
+
+        function syncCatalog() {
+            showToast('正在向下级平台同步通道目录...', 'info');
+            // Simulate delay
+            setTimeout(() => {
+                showToast('目录同步完成', 'success');
+            }, 1000);
+        }
+
+        function toggleShelf(btn) {
+            const isUp = btn.innerText === '上架';
+            btn.innerText = isUp ? '下架' : '上架';
+            btn.className = isUp ? 'btn btn-secondary' : 'btn btn-primary';
+
+            // Update status tag in previous cell
+            const statusCell = btn.parentElement.previousElementSibling.previousElementSibling;
+            if (isUp) {
+                statusCell.innerHTML = '<span class="status-tag status-success">已上架</span>';
+                showToast('设备已上架', 'success');
+            } else {
+                statusCell.innerHTML = '<span class="status-tag status-warning">未上架</span>';
+                showToast('设备已下架');
+            }
+        }
+
+        function batchAction(type) {
+            const count = 3; // Simulated selection count
+            if (type === 'up') showToast(`已批量上架 ${count} 个设备`, 'success');
+            if (type === 'down') showToast(`已批量下架 ${count} 个设备`, 'info');
+            if (type === 'delete') showConfirm('确定要删除选中的设备吗？', () => showToast('设备已删除'));
+        }
+
+        function playVideo() {
+            document.getElementById('videoModal').classList.add('active');
+        }
+        function closeVideo() {
+            document.getElementById('videoModal').classList.remove('active');
+        }
+    </script>
+</body>
+
+</html>
