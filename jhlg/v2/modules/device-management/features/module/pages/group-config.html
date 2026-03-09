@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备管理 - 设备组开发配置</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { primary: '#1677ff', 'primary-hover': '#4096ff', slate: '#f0f2f5' } } } }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #d1d5db;
+            border-radius: 4px;
+        }
+
+        .tab-btn {
+            color: #4b5563;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #1677ff;
+            border-bottom-color: #1677ff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800 font-sans h-screen flex overflow-hidden">
+    <!-- 侧边栏 -->
+    <aside class="w-56 bg-white border-r border-gray-200 flex flex-col h-full flex-shrink-0 z-20">
+        <div class="h-14 flex items-center px-6 border-b border-gray-200">
+            <i class="ph-fill ph-hard-drives text-2xl text-primary mr-2"></i>
+            <span class="text-base font-bold text-gray-800">物联网管理平台</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 custom-scrollbar">
+            <div class="px-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">设备管理</div>
+            <div class="space-y-1">
+                <a href="#" class="flex items-center px-6 py-2 text-sm text-gray-700 bg-gray-50 font-medium">
+                    <i class="ph ph-cpu text-lg mr-2 text-gray-500"></i> 设备
+                    <i class="ph ph-caret-down ml-auto text-xs text-gray-400"></i>
+                </a>
+                <div class="pl-12 space-y-1">
+                    <a href="../../../dashboard/module/index.html"
+                        class="block py-2 text-sm text-gray-600 hover:text-primary">仪表盘</a>
+                    <a href="../index.html" class="block py-2 text-sm text-gray-600 hover:text-primary">设备列表</a>
+                    <a href="dev-config.html" class="block py-2 text-sm text-gray-600 hover:text-primary">设备开发配置</a>
+                    <a href="data-catalog.html" class="block py-2 text-sm text-gray-600 hover:text-primary">感知数据目录管理</a>
+                    <a href="group-config.html"
+                        class="block py-2 text-sm text-primary font-medium hover:text-primary">设备组开发配置</a>
+                </div>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden">
+        <!-- 顶部通栏 -->
+        <header class="h-14 bg-white border-b border-gray-200 flex justify-between items-center px-6 flex-shrink-0">
+            <div class="flex items-center text-sm text-gray-500">
+                <span>设备管理</span>
+                <i class="ph ph-caret-right mx-2 text-xs"></i> <span>设备</span>
+                <i class="ph ph-caret-right mx-2 text-xs"></i> <span class="text-gray-900 font-medium">设备组开发配置</span>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-6 bg-slate custom-scrollbar relative">
+
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-4">
+                <div class="px-6 pt-4 border-b border-gray-200">
+                    <div class="flex space-x-8">
+                        <button class="tab-btn pb-3 text-sm font-medium active"
+                            onclick="switchMainTab('system')">系统分组</button>
+                        <button class="tab-btn pb-3 text-sm font-medium"
+                            onclick="switchMainTab('custom')">自定义分组</button>
+                    </div>
+                </div>
+
+                <!-- 系统分组的内容 -->
+                <div id="tab-system" class="tab-content active p-6">
+                    <div
+                        class="bg-blue-50 border border-blue-200 text-blue-800 text-xs px-3 py-2 rounded mb-4 flex items-start">
+                        <i class="ph-fill ph-info text-primary mt-0.5 mr-1.5"></i>
+                        <span>系统分组基于设备当前属性实时聚合展示，仅供查看，不支持手工编辑。</span>
+                    </div>
+
+                    <form class="grid grid-cols-4 gap-4 mb-4">
+                        <div class="flex flex-col space-y-1">
+                            <label class="text-xs text-gray-600">分组维度</label>
+                            <select
+                                class="w-full h-8 px-3 border border-gray-300 rounded focus:border-primary outline-none text-sm">
+                                <option value="">全部维度</option>
+                                <option value="type">按类型</option>
+                                <option value="industry">按行业</option>
+                                <option value="dept">按部门</option>
+                                <option value="area">按区域</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col space-y-1">
+                            <label class="text-xs text-gray-600">分组名称</label>
+                            <input type="text" placeholder="关键字查询"
+                                class="w-full h-8 px-3 border border-gray-300 rounded focus:border-primary outline-none text-sm">
+                        </div>
+                        <div class="flex items-end space-x-2">
+                            <button type="button"
+                                class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-sm hover:bg-primary-hover">查询</button>
+                        </div>
+                    </form>
+
+                    <div class="overflow-x-auto border border-gray-200 rounded">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-700">
+                                <tr>
+                                    <th class="p-3 font-medium">分组名称</th>
+                                    <th class="p-3 font-medium">系统分组维度</th>
+                                    <th class="p-3 font-medium">设备数量</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-blue-50/50">
+                                    <td class="p-3 text-gray-800">智能安防设备</td>
+                                    <td class="p-3 text-gray-600">按类型</td>
+                                    <td class="p-3 text-primary cursor-pointer hover:underline"
+                                        onclick="openDeviceDetailDrawer('智能安防设备')">153</td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/50">
+                                    <td class="p-3 text-gray-800">主校区南门</td>
+                                    <td class="p-3 text-gray-600">按区域</td>
+                                    <td class="p-3 text-primary cursor-pointer hover:underline"
+                                        onclick="openDeviceDetailDrawer('主校区南门')">12</td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/50">
+                                    <td class="p-3 text-gray-800">保卫处</td>
+                                    <td class="p-3 text-gray-600">按部门</td>
+                                    <td class="p-3 text-primary cursor-pointer hover:underline"
+                                        onclick="openDeviceDetailDrawer('保卫处')">45</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 自定义分组的内容 -->
+                <div id="tab-custom" class="tab-content p-6">
+                    <form class="grid grid-cols-4 gap-4 mb-4">
+                        <div class="flex flex-col space-y-1">
+                            <label class="text-xs text-gray-600">分组名称</label>
+                            <input type="text" placeholder="输入名称查询"
+                                class="w-full h-8 px-3 border border-gray-300 rounded focus:border-primary outline-none text-sm">
+                        </div>
+                        <div class="flex flex-col space-y-1">
+                            <label class="text-xs text-gray-600">创建人</label>
+                            <input type="text" placeholder="创建人姓名"
+                                class="w-full h-8 px-3 border border-gray-300 rounded focus:border-primary outline-none text-sm">
+                        </div>
+                        <div class="flex items-end justify-between col-span-2">
+                            <div class="space-x-2">
+                                <button type="button"
+                                    class="px-4 py-1.5 border border-gray-300 rounded text-sm hover:border-primary">重置</button>
+                                <button type="button"
+                                    class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-sm hover:bg-primary-hover">查询</button>
+                            </div>
+                            <button type="button"
+                                class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-sm hover:bg-primary-hover flex items-center"
+                                onclick="openGroupDrawer()">
+                                <i class="ph ph-plus mr-1"></i> 新增系统分组
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="overflow-x-auto border border-gray-200 rounded">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-700">
+                                <tr>
+                                    <th class="p-3 font-medium">分组名称</th>
+                                    <th class="p-3 font-medium">分组维度</th>
+                                    <th class="p-3 font-medium truncate max-w-xs">分组说明</th>
+                                    <th class="p-3 font-medium text-center">成员设备数量</th>
+                                    <th class="p-3 font-medium">创建人</th>
+                                    <th class="p-3 font-medium">创建时间</th>
+                                    <th class="p-3 font-medium text-right">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-blue-50/50">
+                                    <td class="p-3 font-medium text-gray-800">校庆重点巡检设备</td>
+                                    <td class="p-3 text-gray-600">自定义组</td>
+                                    <td class="p-3 text-gray-500 truncate max-w-xs">包含北门打卡机、南门闸机与体育馆周边监控</td>
+                                    <td class="p-3 text-center"><span
+                                            class="bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded-full font-medium">18</span>
+                                    </td>
+                                    <td class="p-3 text-gray-600">系统管理员</td>
+                                    <td class="p-3 text-gray-600">2026-03-05 14:00</td>
+                                    <td class="p-3 text-right space-x-2">
+                                        <button class="text-primary hover:text-primary-hover"
+                                            onclick="openGroupDrawer(true)">编辑</button>
+                                        <span class="text-gray-300">|</span>
+                                        <button class="text-red-500 hover:text-red-400"
+                                            onclick="if(confirm('即将删除自定义分组，此操作不删除实际设备主数据。确认继续？')) { alert('删除成功'); const tr = this.closest('tr'); if(tr) tr.remove(); }">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 新增/编辑分组 Modal -->
+    <div id="groupDrawer" class="fixed inset-0 bg-black bg-opacity-40 z-50 hidden transition-opacity flex justify-end">
+        <div id="drawerPanel"
+            class="w-full max-w-xl bg-white h-full shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+            <div class="h-14 flex items-center justify-between px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-800" id="drawerTitle">新增分组</h3>
+                <button onclick="closeGroupDrawer()" class="text-gray-400 hover:text-gray-600">
+                    <i class="ph ph-x text-xl"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 bg-white custom-scrollbar space-y-6">
+                <div class="flex flex-col space-y-2">
+                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                        <span class="text-red-500 mr-1">*</span> 分组名称
+                    </label>
+                    <input type="text" id="groupName" placeholder="如：校庆重点巡检设备 (同租户唯一)"
+                        class="h-8 px-3 border border-gray-300 rounded text-sm focus:border-primary outline-none">
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <label class="text-sm font-medium text-gray-700">分组说明</label>
+                    <textarea
+                        class="h-24 p-3 border border-gray-300 rounded text-sm focus:border-primary outline-none resize-none"
+                        placeholder="选填，不超过500字"></textarea>
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <label class="text-sm font-medium text-gray-700">选择设备成员</label>
+                    <div class="border border-gray-300 rounded p-3 min-h-[100px] flex items-start gap-2 flex-wrap">
+                        <span
+                            class="inline-flex items-center px-2 py-1 rounded bg-blue-50 text-blue-700 text-xs border border-blue-200">
+                            C2023-Cam-01 <i class="ph ph-x ml-1 cursor-pointer hover:text-red-500"></i>
+                        </span>
+                        <span
+                            class="inline-flex items-center px-2 py-1 rounded bg-blue-50 text-blue-700 text-xs border border-blue-200">
+                            C2023-Cam-02 <i class="ph ph-x ml-1 cursor-pointer hover:text-red-500"></i>
+                        </span>
+                        <button
+                            class="inline-flex items-center px-2 py-1 rounded border border-dashed border-gray-400 text-gray-500 text-xs hover:border-primary hover:text-primary transition-colors">
+                            <i class="ph ph-plus mr-1"></i> 添加设备
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-16 flex items-center justify-end px-6 border-t border-gray-200 bg-gray-50">
+                <button type="button" onclick="closeGroupDrawer()"
+                    class="px-5 py-2 mr-3 border border-gray-300 text-gray-700 rounded text-sm hover:bg-white transition-colors">取消</button>
+                <button type="button" onclick="saveGroupDrawer()"
+                    class="px-5 py-2 bg-primary text-white rounded text-sm hover:bg-primary-hover shadow-sm">提交保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 系统分组设备穿透明细 Modal -->
+    <div id="deviceDetailDrawer"
+        class="fixed inset-0 bg-black bg-opacity-40 z-50 hidden transition-opacity flex justify-end">
+        <div id="detailDrawerPanel"
+            class="w-full max-w-2xl bg-white h-full shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+            <div class="h-14 flex items-center justify-between px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-800">系统分组设备明细: <span id="detailGroupName"
+                        class="text-primary"></span></h3>
+                <button onclick="closeDeviceDetailDrawer()" class="text-gray-400 hover:text-gray-600">
+                    <i class="ph ph-x text-xl"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6 bg-white custom-scrollbar">
+                <div class="overflow-x-auto border border-gray-200 rounded">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-gray-50 border-b border-gray-200 text-gray-700">
+                            <tr>
+                                <th class="p-3 font-medium">设备名称 / ID</th>
+                                <th class="p-3 font-medium">所属产品</th>
+                                <th class="p-3 font-medium">设备状态</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="hover:bg-blue-50/50">
+                                <td class="p-3">
+                                    <div class="font-medium text-gray-800">主校区南门摄像头</div>
+                                    <div class="text-gray-500 text-xs mt-0.5">C2023-Cam-01</div>
+                                </td>
+                                <td class="p-3">智能安防摄像头</td>
+                                <td class="p-3"><span class="text-green-600">在线</span></td>
+                            </tr>
+                            <tr class="hover:bg-blue-50/50">
+                                <td class="p-3">
+                                    <div class="font-medium text-gray-800">实验楼入口闸机</div>
+                                    <div class="text-gray-500 text-xs mt-0.5">G-0021</div>
+                                </td>
+                                <td class="p-3">人脸识别终端</td>
+                                <td class="p-3"><span class="text-gray-500">离线</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="h-16 flex items-center justify-end px-6 border-t border-gray-200 bg-gray-50">
+                <button type="button" onclick="closeDeviceDetailDrawer()"
+                    class="px-5 py-2 border border-gray-300 text-gray-700 rounded text-sm hover:bg-white transition-colors">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast"
+        class="fixed top-6 right-1/2 translate-x-1/2 bg-white border border-gray-200 shadow-lg flex items-center p-3 rounded opacity-0 transition-opacity z-50 pointer-events-none">
+        <i class="ph-fill ph-check-circle text-success text-xl mr-2"></i>
+        <span class="text-sm text-gray-800" id="toastMsg">成功</span>
+    </div>
+
+    <script>
+        function switchMainTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            const map = { 'system': 0, 'custom': 1 };
+            document.querySelectorAll('.tab-btn')[map[tabId]].classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        const detailDrawer = document.getElementById('deviceDetailDrawer');
+        const detailPanel = document.getElementById('detailDrawerPanel');
+
+        function openDeviceDetailDrawer(groupName) {
+            document.getElementById('detailGroupName').innerText = groupName;
+            detailDrawer.classList.remove('hidden');
+            setTimeout(() => { detailPanel.classList.remove('translate-x-full'); }, 10);
+        }
+
+        function closeDeviceDetailDrawer() {
+            detailPanel.classList.add('translate-x-full');
+            setTimeout(() => { detailDrawer.classList.add('hidden'); }, 300);
+        }
+
+        const drawer = document.getElementById('groupDrawer');
+        const panel = document.getElementById('drawerPanel');
+
+        function openGroupDrawer(isEdit = false) {
+            document.getElementById('drawerTitle').innerText = isEdit ? '编辑分组' : '新增自定义分组';
+            if (isEdit) {
+                document.getElementById('groupName').value = '校庆重点巡检设备';
+            } else {
+                document.getElementById('groupName').value = '';
+            }
+            drawer.classList.remove('hidden');
+            setTimeout(() => { panel.classList.remove('translate-x-full'); }, 10);
+        }
+
+        function closeGroupDrawer() {
+            panel.classList.add('translate-x-full');
+            setTimeout(() => { drawer.classList.add('hidden'); }, 300);
+        }
+
+        function saveGroupDrawer() {
+            if (!document.getElementById('groupName').value) {
+                alert('分组名称不可为空，且不能与已有名称重复！');
+                return;
+            }
+            closeGroupDrawer();
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = '分组保存成功';
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1440">
+    <title>规则引擎 - 感知报文存储</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"PingFang SC"', '"Microsoft YaHei"', 'sans-serif']
+                    },
+                    colors: {
+                        brand: '#2f5ee5',
+                        navy: '#0b162a',
+                        sidebarActive: '#2f5ee5',
+                        panel: '#f0f2f5',
+                        danger: '#e83b3b',
+                        warning: '#fdb51c',
+                        success: '#3cc664'
+                    },
+                    boxShadow: {
+                        card: '0 2px 8px rgba(0, 0, 0, 0.04)'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            min-width: 1440px;
+            background-color: #f0f2f5;
+        }
+
+        .menu-item {
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .submenu-item.active {
+            background-color: #2f5ee5;
+            color: white;
+            position: relative;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="font-sans text-slate-800 antialiased overflow-hidden h-screen flex flex-col">
+
+    <!-- Top Header -->
+    <header
+        class="h-[60px] bg-brand text-white flex items-center justify-between px-6 shrink-0 z-50 fixed w-full top-0">
+        <div class="flex items-center gap-6">
+            <div class="text-[17px] font-medium tracking-wide">物联网管理服务系统</div>
+            <button class="text-xl hover:bg-white/10 p-2 rounded transition ml-8">
+                <i class="fa-solid fa-outdent text-white/90"></i>
+            </button>
+        </div>
+        <div class="flex items-center gap-6">
+            <button class="relative text-lg hover:text-white/80">
+                <i class="fa-regular fa-bell"></i>
+                <span class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+            </button>
+            <div class="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1 rounded transition">
+                <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <span class="text-sm">平台管理员</span>
+                <i class="fa-solid fa-angle-down text-xs ml-1 text-white/80"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 pt-[60px] h-full">
+        <!-- Sidebar -->
+        <aside
+            class="w-[200px] h-full bg-navy flex-shrink-0 text-slate-300 overflow-y-auto overflow-x-hidden border-r border-[#1a253a]">
+            <nav class="py-2 text-[14px]">
+                <div class="menu-item flex items-center justify-between px-5 py-3.5 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-house w-4 text-center"></i>
+                        <span>首页</span>
+                    </div>
+                </div>
+
+                <div class="menu-item flex items-center justify-between px-5 py-3.5 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-sitemap w-4 text-center"></i>
+                        <span>设备管理</span>
+                    </div>
+                    <i class="fa-solid fa-caret-down text-[10px] text-slate-500"></i>
+                </div>
+
+                <!-- Open Section: 规则引擎 -->
+                <div>
+                    <div class="menu-item flex items-center justify-between px-5 py-3.5 cursor-pointer text-white">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-code-branch w-4 text-center"></i>
+                            <span>规则引擎</span>
+                        </div>
+                        <i class="fa-solid fa-caret-up text-[10px] text-white"></i>
+                    </div>
+                    <div class="bg-black/20 pb-1">
+                        <!-- Rule Orchestration Group -->
+                        <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider">规则编排</div>
+                        <div
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors">
+                            <i class="fa-regular fa-copy w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>规则编排</span>
+                        </div>
+                        <a href="index.html"
+                            class="submenu-item active flex items-center pl-[46px] pr-5 py-3 cursor-pointer text-[13px] block">
+                            <i class="fa-solid fa-database w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>感知报文存储</span>
+                        </a>
+                        <a href="pages/data_upload.html"
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors block">
+                            <i
+                                class="fa-solid fa-cloud-arrow-up w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>数据上报</span>
+                        </a>
+                        <a href="pages/data_receive.html"
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors block">
+                            <i
+                                class="fa-solid fa-cloud-arrow-down w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>下发数据接收</span>
+                        </a>
+                        <a href="pages/protocol_api.html"
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors block">
+                            <i
+                                class="fa-solid fa-layer-group w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>协议解析二次接口</span>
+                        </a>
+                        <a href="pages/alarm_api.html"
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors block">
+                            <i
+                                class="fa-solid fa-triangle-exclamation w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>异常告警二开接口</span>
+                        </a>
+                        <a href="pages/catalog_publish.html"
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors block">
+                            <i class="fa-solid fa-book-open w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>目录发布</span>
+                        </a>
+
+                        <!-- Scene Linkage Group -->
+                        <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider mt-1">场景联动</div>
+                        <div
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors">
+                            <i class="fa-solid fa-bolt w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>事件规则管理</span>
+                        </div>
+                        <a href="pages/event_type.html"
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors block">
+                            <i class="fa-solid fa-tags w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>事件类型管理</span>
+                        </a>
+                        <a href="pages/event_notify.html"
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors block">
+                            <i
+                                class="fa-solid fa-comment-dots w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>事件通知管理</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="menu-item flex items-center justify-between px-5 py-3.5 cursor-pointer mt-1">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-bell w-4 text-center"></i>
+                        <span>告警中心</span>
+                    </div>
+                    <i class="fa-solid fa-caret-down text-[10px] text-slate-500"></i>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#f0f2f5]">
+            <!-- Breadcrumb -->
+            <div class="h-12 flex items-center px-6 bg-white border-b border-slate-200 text-sm text-slate-500 shrink-0">
+                <span>规则引擎</span>
+                <span class="mx-2 text-slate-300">/</span>
+                <span>规则编排</span>
+                <span class="mx-2 text-slate-300">/</span>
+                <span class="text-slate-800 font-medium">感知报文存储</span>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-5">
+                <!-- Search Panel -->
+                <div class="bg-white p-5 rounded shadow-card mb-4 min-w-[1000px]">
+                    <div class="grid grid-cols-4 gap-6">
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right shrink-0">时间范围</label>
+                            <div class="flex-1 border border-slate-200 rounded px-3 py-1.5 flex items-center bg-white">
+                                <span class="text-[13px] text-slate-600">近24小时</span>
+                                <i class="fa-regular fa-calendar ml-auto text-slate-400"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right shrink-0">设备名称</label>
+                            <input type="text" placeholder="请输入设备名称"
+                                class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none hover:border-brand/50 focus:border-brand placeholder:text-slate-300">
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right shrink-0">设备类型</label>
+                            <div
+                                class="flex-1 border border-slate-200 rounded px-3 py-1.5 flex items-center bg-white relative">
+                                <select
+                                    class="w-full text-[13px] text-slate-600 appearance-none outline-none bg-transparent cursor-pointer">
+                                    <option value="">全部</option>
+                                    <option>环境温湿度传感器</option>
+                                    <option>智能电表</option>
+                                    <option>多功能网关</option>
+                                </select>
+                                <i
+                                    class="fa-solid fa-angle-down absolute right-3 text-slate-400 text-xs pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right shrink-0">入库状态</label>
+                            <div
+                                class="flex-1 border border-slate-200 rounded px-3 py-1.5 flex items-center bg-white relative">
+                                <select
+                                    class="w-full text-[13px] text-slate-600 appearance-none outline-none bg-transparent cursor-pointer">
+                                    <option value="">全部</option>
+                                    <option>已入库</option>
+                                    <option>清洗未通过</option>
+                                </select>
+                                <i
+                                    class="fa-solid fa-angle-down absolute right-3 text-slate-400 text-xs pointer-events-none"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-3 mt-5">
+                        <button
+                            class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:border-brand hover:text-brand transition cursor-pointer">重置</button>
+                        <button
+                            class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90 transition shadow-sm cursor-pointer">查询</button>
+                    </div>
+                </div>
+
+                <!-- Table Panel -->
+                <div class="bg-white p-5 rounded shadow-card min-w-[1000px]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-[15px] font-bold text-slate-800">报文列表</h2>
+                        <button
+                            class="px-3 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:text-brand transition flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-download text-xs"></i> 导出数据
+                        </button>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="border border-slate-200 rounded overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-[13px] text-slate-500 border-b border-slate-200">
+                                    <th class="py-3 px-4 font-medium min-w-[120px]">报文ID</th>
+                                    <th class="py-3 px-4 font-medium min-w-[150px]">设备名称</th>
+                                    <th class="py-3 px-4 font-medium min-w-[120px]">设备类型</th>
+                                    <th class="py-3 px-4 font-medium min-w-[160px]">上报时间</th>
+                                    <th class="py-3 px-4 font-medium min-w-[120px]">入库状态</th>
+                                    <th class="py-3 px-4 font-medium min-w-[180px]">失败原因</th>
+                                    <th class="py-3 px-4 font-medium min-w-[160px]">入库时间</th>
+                                    <th class="py-3 px-4 font-medium w-[80px]">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-[13px] text-slate-700">
+                                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                                    <td class="py-3 px-4 font-mono text-slate-500">MSG-8A9F20</td>
+                                    <td class="py-3 px-4">环境温湿度传感器-01</td>
+                                    <td class="py-3 px-4">环境温湿度传感器</td>
+                                    <td class="py-3 px-4 text-slate-500">2026-03-07 23:15:22</td>
+                                    <td class="py-3 px-4">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[12px] bg-green-50 text-green-600 border border-green-200">
+                                            <span class="w-1 h-1 rounded-full bg-green-500"></span>已入库
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4 text-slate-400">--</td>
+                                    <td class="py-3 px-4 text-slate-500">2026-03-07 23:15:23</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openDrawer()"
+                                            class="text-brand hover:text-brand/80 cursor-pointer">详情</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                                    <td class="py-3 px-4 font-mono text-slate-500">MSG-8A9F21</td>
+                                    <td class="py-3 px-4">智能电表-A区-11</td>
+                                    <td class="py-3 px-4">智能电表</td>
+                                    <td class="py-3 px-4 text-slate-500">2026-03-07 23:14:10</td>
+                                    <td class="py-3 px-4">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[12px] bg-red-50 text-red-600 border border-red-200">
+                                            <span class="w-1 h-1 rounded-full bg-red-500"></span>清洗未通过
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4 text-red-500 truncate max-w-[180px]"
+                                        title="电压数值异常，超出阈值范围(0-380)">电压数值异常，超出阈值...</td>
+                                    <td class="py-3 px-4 text-slate-400">--</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openDrawer()"
+                                            class="text-brand hover:text-brand/80 cursor-pointer">详情</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                                    <td class="py-3 px-4 font-mono text-slate-500">MSG-8A9F22</td>
+                                    <td class="py-3 px-4">水泵智能控制器</td>
+                                    <td class="py-3 px-4">多功能网关</td>
+                                    <td class="py-3 px-4 text-slate-500">2026-03-07 23:12:05</td>
+                                    <td class="py-3 px-4">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[12px] bg-green-50 text-green-600 border border-green-200">
+                                            <span class="w-1 h-1 rounded-full bg-green-500"></span>已入库
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4 text-slate-400">--</td>
+                                    <td class="py-3 px-4 text-slate-500">2026-03-07 23:12:06</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openDrawer()"
+                                            class="text-brand hover:text-brand/80 cursor-pointer">详情</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                                    <td class="py-3 px-4 font-mono text-slate-500">MSG-8A9F23</td>
+                                    <td class="py-3 px-4">消防烟感-F2-04</td>
+                                    <td class="py-3 px-4">烟雾探测器</td>
+                                    <td class="py-3 px-4 text-slate-500">2026-03-07 23:05:44</td>
+                                    <td class="py-3 px-4">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[12px] bg-green-50 text-green-600 border border-green-200">
+                                            <span class="w-1 h-1 rounded-full bg-green-500"></span>已入库
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4 text-slate-400">--</td>
+                                    <td class="py-3 px-4 text-slate-500">2026-03-07 23:05:45</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openDrawer()"
+                                            class="text-brand hover:text-brand/80 cursor-pointer">详情</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                                    <td class="py-3 px-4 font-mono text-slate-500">MSG-8A9F24</td>
+                                    <td class="py-3 px-4">智能电表-A区-12</td>
+                                    <td class="py-3 px-4">智能电表</td>
+                                    <td class="py-3 px-4 text-slate-500">2026-03-07 23:01:10</td>
+                                    <td class="py-3 px-4">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[12px] bg-red-50 text-red-600 border border-red-200">
+                                            <span class="w-1 h-1 rounded-full bg-red-500"></span>清洗未通过
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4 text-red-500 truncate max-w-[180px]"
+                                        title="报文缺失必要字段 [current]">报文缺失必要字段 [current]</td>
+                                    <td class="py-3 px-4 text-slate-400">--</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openDrawer()"
+                                            class="text-brand hover:text-brand/80 cursor-pointer">详情</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="flex justify-between items-center mt-4 text-[13px] text-slate-500">
+                        <div>共查询到 1,482 条数据</div>
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-1">
+                                <span>每页展示</span>
+                                <select
+                                    class="border border-slate-200 rounded px-2 py-1 outline-none text-slate-700 bg-white cursor-pointer">
+                                    <option>20</option>
+                                    <option>50</option>
+                                    <option>100</option>
+                                </select>
+                                <span>条</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center border border-slate-200 rounded text-slate-400 cursor-not-allowed hover:bg-slate-50">
+                                    <i class="fa-solid fa-angle-left"></i>
+                                </button>
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center bg-brand text-white rounded cursor-pointer shadow-sm">
+                                    1
+                                </button>
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center border border-slate-200 rounded text-slate-700 hover:border-brand hover:text-brand cursor-pointer transition">
+                                    2
+                                </button>
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center border border-slate-200 rounded text-slate-700 hover:border-brand hover:text-brand cursor-pointer transition">
+                                    3
+                                </button>
+                                <span class="px-1 text-slate-400">...</span>
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center border border-slate-200 rounded text-slate-700 hover:border-brand hover:text-brand cursor-pointer transition">
+                                    75
+                                </button>
+                                <button
+                                    class="w-8 h-8 flex items-center justify-center border border-slate-200 rounded text-slate-500 hover:border-brand hover:text-brand cursor-pointer transition">
+                                    <i class="fa-solid fa-angle-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Detail Drawer Overlay -->
+    <div id="drawerOverlay" class="fixed inset-0 bg-black/40 z-[60] hidden transition-opacity" onclick="closeDrawer()">
+    </div>
+
+    <!-- Detail Drawer -->
+    <div id="detailDrawer"
+        class="fixed top-0 bottom-0 right-0 w-[600px] bg-white z-[70] shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300">
+        <div class="h-14 flex items-center justify-between px-6 border-b border-slate-100 shrink-0">
+            <h3 class="text-[16px] font-bold text-slate-800">报文详情 (MSG-8A9F21)</h3>
+            <button onclick="closeDrawer()" class="text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+
+            <!-- Summary -->
+            <div class="bg-slate-50 p-4 rounded-lg flex items-center gap-8">
+                <div>
+                    <div class="text-[12px] text-slate-500 mb-1">入库状态</div>
+                    <div class="font-medium text-red-600 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> 清洗未通过
+                    </div>
+                </div>
+                <div>
+                    <div class="text-[12px] text-slate-500 mb-1">上报时间</div>
+                    <div class="font-medium text-slate-800">2026-03-07 23:14:10</div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-500">清洗规则标识</span>
+                    <span
+                        class="font-mono bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs select-all">RULE-ELEC-V-001</span>
+                </div>
+                <div class="flex justify-between items-start text-sm border-t border-slate-100 pt-3">
+                    <span class="text-slate-500 shrink-0 pt-0.5">失败原因</span>
+                    <span class="text-red-500 text-right">电压数值异常，超出阈值范围(0-380)</span>
+                </div>
+                <div class="flex justify-between items-start text-sm border-t border-slate-100 pt-3">
+                    <span class="text-slate-500 shrink-0 pt-0.5">处理说明</span>
+                    <span class="text-slate-700 text-right leading-relaxed max-w-[400px]">报文中的 voltage 字段值为
+                        395，触发了电压越限抛弃处理策略。</span>
+                </div>
+            </div>
+
+            <!-- Payload Raw -->
+            <div class="space-y-2 pt-2">
+                <div class="flex items-center justify-between">
+                    <div class="text-[14px] font-bold text-slate-800 border-l-3 border-brand pl-2">原始报文</div>
+                    <button class="text-brand text-xs hover:underline" onclick="alert('报文已复制')">复制 JSON</button>
+                </div>
+                <div class="bg-[#1e1e1e] p-4 rounded-lg overflow-x-auto text-[13px] font-mono text-green-400">
+                    <pre><code>{
+  "deviceId": "DEV-ELEC-A-11",
+  "timestamp": 1713425000000,
+  "data": {
+    "voltage": 395.2,
+    "current": 12.5,
+    "power": 4940,
+    "frequency": 50.1
+  },
+  "sign": "a9f3b18cdef91e"
+}</code></pre>
+                </div>
+            </div>
+
+            <!-- Payload Cleaned (Optional) -->
+            <div class="space-y-2 pt-2">
+                <h4 class="text-[14px] font-bold text-slate-800 border-l-3 border-brand pl-2">清洗后数据</h4>
+                <div
+                    class="bg-slate-50 border border-slate-200 p-4 rounded-lg flex items-center justify-center text-slate-400 text-[13px] h-[100px]">
+                    因清洗未通过，无清洗后数据
+                </div>
+            </div>
+
+        </div>
+        <div class="p-4 border-t border-slate-100 shrink-0 flex justify-end gap-3 bg-white">
+            <button onclick="closeDrawer()"
+                class="px-5 py-1.5 border border-slate-200 text-slate-600 rounded text-[13px] hover:border-slate-400 cursor-pointer">关闭</button>
+        </div>
+    </div>
+
+    <!-- Alert functionality -->
+    <div id="toast"
+        class="fixed top-6 right-6 bg-slate-800 text-white px-4 py-3 rounded-lg shadow-xl text-sm hidden z-[100] transition-opacity duration-300">
+    </div>
+
+    <script>
+        function openDrawer() {
+            const overlay = document.getElementById('drawerOverlay');
+            const drawer = document.getElementById('detailDrawer');
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                drawer.classList.remove('translate-x-full');
+            }, 10);
+        }
+
+        function closeDrawer() {
+            const overlay = document.getElementById('drawerOverlay');
+            const drawer = document.getElementById('detailDrawer');
+            drawer.classList.add('translate-x-full');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300);
+        }
+
+        // Setup simple toast alerts for interactivity constraints handling
+        window.alert = function (msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.remove('hidden');
+            toast.style.opacity = '1';
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 2000);
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>需求审批 - 金华理工二期物联网平台</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-text">物联网平台</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-group-title">二期原型</div>
+                <a href="../../206_权限申请.html" class="nav-item">
+                    <span>↩</span> 模块入口
+                </a>
+
+                <div class="nav-group-title">权限申请管理</div>
+                <a href="105_需求登记.html" class="nav-item">
+                    <span>📝</span> 需求登记
+                </a>
+                <a href="105_需求审批.html" class="nav-item active">
+                    <span>⚖️</span> 需求审批
+                </a>
+                <a href="105_授权管理.html" class="nav-item">
+                    <span>🛑</span> 授权管理
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-bar">
+                <h2 class="page-title">需求审批</h2>
+                <div class="user-profile">
+                    <span>管理员</span>
+                    <div class="avatar"></div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Tabs -->
+                <div class="tabs tab-container">
+                    <div class="tab-item tab-trigger active" data-tab-target="tab-pending">待办任务 <span
+                            class="badge">1</span></div>
+                    <div class="tab-item tab-trigger" data-tab-target="tab-processed">已办任务</div>
+                </div>
+
+                <!-- Filter -->
+                <div class="filter-bar">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label class="input-label">申请人/应用</label>
+                        <input type="text" class="glass-input" placeholder="请输入关键字">
+                    </div>
+                    <div style="display: flex; align-items: flex-end; gap: 8px;">
+                        <button class="btn btn-primary" onclick="searchData()">查询</button>
+                    </div>
+                </div>
+
+                <!-- Approval List (Pending) -->
+                <div id="tab-pending" class="tab-content active glass-panel">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>申请单号</th>
+                                <th>申请人</th>
+                                <th>关联应用</th>
+                                <th>数据范围</th>
+                                <th>申请时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>REQ202510250001</td>
+                                <td>张三 (开发者)</td>
+                                <td>智慧安防应用</td>
+                                <td>设备 (2个)</td>
+                                <td>2025-10-25 10:30</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="openApprovalModal()">审批</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Approval List (Processed) -->
+                <div id="tab-processed" class="tab-content glass-panel">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>申请单号</th>
+                                <th>申请人</th>
+                                <th>关联应用</th>
+                                <th>数据范围</th>
+                                <th>审批结果</th>
+                                <th>审批时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>REQ202510200005</td>
+                                <td>李四 (消防管理员)</td>
+                                <td>消防通道监测</td>
+                                <td>设备 (5个)</td>
+                                <td><span class="status-tag status-success">已通过</span></td>
+                                <td>2025-10-20 14:00</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="openProcessedDetailModal()">查看</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approval Modal -->
+    <div class="modal-overlay" id="approvalModal">
+        <div class="modal-content" style="width: 1000px;">
+            <div class="modal-header">
+                <h3 class="modal-title">审批单据: REQ202510250001</h3>
+                <button class="modal-close" onclick="closeApprovalModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; gap: 20px;">
+                    <!-- Left: Request Info (Read Only) -->
+                    <div style="flex: 1; border-right: 1px solid #eee; padding-right: 20px;">
+                        <h4 style="margin-top: 0; color: #333;">申请信息</h4>
+                        <div style="margin-bottom: 12px;">
+                            <label style="color: #666; font-size: 12px; display: block;">关联应用</label>
+                            <div>智慧安防应用</div>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <label style="color: #666; font-size: 12px; display: block;">申请人</label>
+                            <div>张三 (开发者)</div>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <label style="color: #666; font-size: 12px; display: block;">申请理由</label>
+                            <div style="background: #f8fafc; padding: 8px; border-radius: 4px; font-size: 13px;">
+                                因校园周界安防监控项目需要，需获取东门及大厅摄像头的预览及回放权限。
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <label style="color: #666; font-size: 12px; display: block;">请求数据范围</label>
+                            <ul style="padding-left: 20px; font-size: 13px; margin: 4px 0;">
+                                <li>📹 教学楼A-大厅全景</li>
+                                <li>📹 教学楼A-东门球机</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Right: Decision -->
+                    <div style="flex: 1;">
+                        <h4 style="margin-top: 0; color: #333;">审批决策</h4>
+
+                        <!-- Approval Form -->
+                        <div id="decisionForm">
+                            <div class="input-group">
+                                <label class="input-label">审核结果</label>
+                                <div style="display: flex; gap: 16px;">
+                                    <label><input type="radio" name="result" checked
+                                            onchange="toggleRejectReason(false)"> 通过</label>
+                                    <label><input type="radio" name="result" onchange="toggleRejectReason(true)">
+                                        驳回</label>
+                                </div>
+                            </div>
+
+                            <div id="approveOptions">
+                                <div class="input-group">
+                                    <label class="input-label">授权策略</label>
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 8px;">此次申请为按设备申请，默认为快照授权。
+                                    </div>
+                                    <div style="display: flex; gap: 16px;">
+                                        <label><input type="radio" name="strategy" value="snapshot" checked> 快照授权
+                                            (固定列表)</label>
+                                        <label><input type="radio" name="strategy" value="dynamic"> 动态授权
+                                            (自动继承)</label>
+                                    </div>
+                                </div>
+
+                                <div class="input-group">
+                                    <label class="input-label">权限微调</label>
+                                    <div style="display: flex; gap: 12px; height: 350px;">
+                                        <!-- Left Panel: Inline Available -->
+                                        <div
+                                            style="flex: 1; background: #fff; border: 1px solid #ddd; border-radius: 6px; display: flex; flex-direction: column;">
+                                            <div
+                                                style="padding: 10px; border-bottom: 1px solid #eee; background: #fafafa; border-radius: 6px 6px 0 0;">
+                                                <div style="font-weight: 500; font-size: 14px; margin-bottom: 8px;">可选设备
+                                                    (全部)</div>
+                                                <input type="text" class="glass-input" id="inlineSearchInput"
+                                                    placeholder="🔍 搜索设备..."
+                                                    style="width: 100%; font-size: 12px; padding: 6px 8px;"
+                                                    oninput="filterInlineDevices()">
+                                                <div style="display: flex; gap: 6px; margin-top: 8px;">
+                                                    <select class="glass-input" id="inlineAreaFilter"
+                                                        style="flex: 1; font-size: 11px; padding: 4px;"
+                                                        onchange="filterInlineDevices()">
+                                                        <option value="">区域: 全部</option>
+                                                        <option value="教学楼">教学楼</option>
+                                                        <option value="图书馆">图书馆</option>
+                                                        <option value="行政楼">行政楼</option>
+                                                        <option value="宿舍楼">宿舍楼</option>
+                                                    </select>
+                                                    <select class="glass-input" id="inlineStatusFilter"
+                                                        style="flex: 1; font-size: 11px; padding: 4px;"
+                                                        onchange="filterInlineDevices()">
+                                                        <option value="">状态: 全部</option>
+                                                        <option value="online">在线</option>
+                                                        <option value="offline">离线</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div
+                                                style="padding: 6px 10px; border-bottom: 1px solid #f0f0f0; background: #fafafa;">
+                                                <label style="font-size: 12px; color: #666;"><input type="checkbox"
+                                                        onclick="toggleSelectAllInline(this)"> 全选当前页</label>
+                                            </div>
+                                            <div id="inlineAvailableList"
+                                                style="flex: 1; overflow-y: auto; padding: 4px 0;">
+                                                <!-- Populated by JS -->
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Panel: Inline Authorized -->
+                                        <div
+                                            style="flex: 1; background: #fff; border: 1px solid #ddd; border-radius: 6px; display: flex; flex-direction: column;">
+                                            <div
+                                                style="padding: 10px; border-bottom: 1px solid #eee; background: #e6f7ff; border-radius: 6px 6px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                                                <span style="font-size: 14px; font-weight: 500;">授权设备 (<span
+                                                        id="inlineAuthorizedCount">0</span>)</span>
+                                                <button type="button" class="btn btn-secondary"
+                                                    style="font-size: 11px; padding: 3px 10px;"
+                                                    onclick="clearAllAuthorized()">清空</button>
+                                            </div>
+                                            <div id="inlineAuthorizedList"
+                                                style="flex: 1; overflow-y: auto; padding: 4px 0;">
+                                                <!-- Populated by JS -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="input-group">
+                                    <label class="input-label">有效期至</label>
+                                <input type="date" class="glass-input" value="2026-10-25">
+                            </div>
+                        </div>
+
+                        <div id="rejectOptions" style="display: none;">
+                            <div class="input-group">
+                                <label class="input-label"><span style="color:red">*</span> 驳回原因</label>
+                                <textarea class="glass-input" rows="4" placeholder="请输入驳回原因..."></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeApprovalModal()">取消</button>
+                <button class="btn btn-primary" onclick="submitDecision()">确认提交</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Processed Detail Modal (Read Only) -->
+    <div class="modal-overlay" id="processedDetailModal">
+        <div class="modal-content" style="width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">审批详情: REQ202510200005</h3>
+                <button class="modal-close" onclick="closeProcessedDetailModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <div>
+                        <h4 style="margin-top: 0;">申请信息</h4>
+                        <div style="margin-bottom: 12px;">
+                            <label class="input-label">申请人</label>
+                            <div>李四 (消防管理员)</div>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <label class="input-label">关联应用</label>
+                            <div>消防通道监测</div>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <label class="input-label">申请理由</label>
+                            <div style="background: #f8fafc; padding: 8px; border-radius: 4px; font-size: 13px;">
+                                需接入消防通道摄像头进行违停检测算法分析。
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="margin-top: 0;">审批结果</h4>
+                        <div style="margin-bottom: 12px;">
+                            <label class="input-label">审核状态</label>
+                            <span class="status-tag status-success">已通过</span>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <label class="input-label">审批人</label>
+                            <div>王管理员</div>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <label class="input-label">审批时间</label>
+                            <div>2025-10-20 14:00</div>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <label class="input-label">最终授权范围</label>
+                            <ul style="padding-left: 20px; font-size: 13px; color: #333;">
+                                <li>📹 消防通道-东区01</li>
+                                <li>📹 消防通道-东区02</li>
+                                <li>📹 消防通道-西区01</li>
+                                <li>📹 消防通道-北门全景</li>
+                                <li>📹 消防通道-地库入口</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeProcessedDetailModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="script.js"></script>
+    <script>
+        // Data for device selector
+        const allDevices = [
+            { name: "教学楼A-大厅全景", area: "教学楼", status: "online" },
+            { name: "教学楼A-东门球机", area: "教学楼", status: "online" },
+            { name: "教学楼A-1F走廊", area: "教学楼", status: "online" },
+            { name: "图书馆-正门", area: "图书馆", status: "offline" },
+            { name: "图书馆-阅览室", area: "图书馆", status: "online" },
+            { name: "行政楼-大厅", area: "行政楼", status: "online" },
+            { name: "行政楼-停车场", area: "行政楼", status: "online" },
+            { name: "宿舍楼A-入口", area: "宿舍楼", status: "online" }
+        ];
+
+        // Currently authorized devices (starts with requested)
+        let authorizedDevices = ["教学楼A-大厅全景", "教学楼A-东门球机"];
+
+        function searchData() {
+            showToast('数据已刷新');
+        }
+
+        function openApprovalModal() {
+            document.getElementById('approvalModal').classList.add('active');
+            renderInlineSelector();
+        }
+
+        function closeApprovalModal() {
+            document.getElementById('approvalModal').classList.remove('active');
+        }
+
+        function openProcessedDetailModal() {
+            document.getElementById('processedDetailModal').classList.add('active');
+        }
+
+        function closeProcessedDetailModal() {
+            document.getElementById('processedDetailModal').classList.remove('active');
+        }
+
+        function toggleRejectReason(isReject) {
+            if (isReject) {
+                document.getElementById('approveOptions').style.display = 'none';
+                document.getElementById('rejectOptions').style.display = 'block';
+            } else {
+                document.getElementById('approveOptions').style.display = 'block';
+                document.getElementById('rejectOptions').style.display = 'none';
+            }
+        }
+
+        // Inline Selector Logic
+        function renderInlineSelector(filterText = '', areaFilter = '', statusFilter = '') {
+            const container = document.getElementById('inlineAvailableList');
+            container.innerHTML = '';
+
+            let count = 0;
+            allDevices.forEach(device => {
+                // Apply filters
+                if (filterText && !device.name.toLowerCase().includes(filterText.toLowerCase())) return;
+                if (areaFilter && device.area !== areaFilter) return;
+                if (statusFilter && device.status !== statusFilter) return;
+
+                count++;
+                const isSelected = authorizedDevices.includes(device.name);
+                const statusColor = device.status === 'online' ? '#52c41a' : '#999';
+                const statusText = device.status === 'online' ? '在线' : '离线';
+
+                const item = document.createElement('div');
+                item.className = 'available-device-item';
+                item.style.cssText = 'display: flex; align-items: center; padding: 6px 10px; border-bottom: 1px solid #f5f5f5; cursor: pointer;';
+                item.onclick = (e) => {
+                    // Prevent triggering if clicking checkbox directly
+                    if (e.target.type !== 'checkbox') {
+                        const cb = item.querySelector('input[type="checkbox"]');
+                        cb.checked = !cb.checked;
+                        toggleDeviceAuth(device.name);
+                    }
+                };
+
+                item.innerHTML = `
+                    <input type="checkbox" ${isSelected ? 'checked' : ''} style="margin-right: 8px;" onchange="toggleDeviceAuth('${device.name}')">
+                    <span style="font-size: 12px; flex: 1;">📹 ${device.name}</span>
+                    <span style="font-size: 10px; color: ${statusColor};">●${statusText}</span>
+                `;
+                container.appendChild(item);
+            });
+
+            // Render Authorized Right Panel
+            renderAuthorizedList();
+        }
+
+        function renderAuthorizedList() {
+            const container = document.getElementById('inlineAuthorizedList');
+            container.innerHTML = '';
+            document.getElementById('inlineAuthorizedCount').textContent = authorizedDevices.length;
+
+            if (authorizedDevices.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px 10px; color: #999; font-size: 12px;">暂无授权设备</div>';
+                return;
+            }
+
+            authorizedDevices.forEach(name => {
+                const item = document.createElement('div');
+                item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid #f5f5f5;';
+                item.innerHTML = `
+                    <span style="font-size: 12px;">📹 ${name}</span>
+                    <button type="button" class="btn btn-secondary" style="font-size: 10px; padding: 1px 5px; color: var(--danger);" onclick="removeAuthorized('${name}')">移除</button>
+                `;
+                container.appendChild(item);
+            });
+
+            // Also update checkboxes in left panel
+            const checkboxes = document.querySelectorAll('#inlineAvailableList input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                const name = cb.nextElementSibling.textContent.replace('📹 ', '');
+                cb.checked = authorizedDevices.includes(name);
+            });
+        }
+
+        function toggleDeviceAuth(name) {
+            if (authorizedDevices.includes(name)) {
+                authorizedDevices = authorizedDevices.filter(d => d !== name);
+            } else {
+                authorizedDevices.push(name);
+            }
+            renderAuthorizedList();
+        }
+
+        function removeAuthorized(name) {
+            authorizedDevices = authorizedDevices.filter(d => d !== name);
+            renderAuthorizedList();
+        }
+
+        function clearAllAuthorized() {
+            authorizedDevices = [];
+            renderAuthorizedList();
+        }
+
+        function toggleSelectAllInline(checkbox) {
+            const visibleItems = document.querySelectorAll('#inlineAvailableList .available-device-item');
+
+            visibleItems.forEach(item => {
+                const name = item.querySelector('span').textContent.replace('📹 ', '');
+                if (checkbox.checked) {
+                    if (!authorizedDevices.includes(name)) authorizedDevices.push(name);
+                } else {
+                    authorizedDevices = authorizedDevices.filter(d => d !== name);
+                }
+            });
+            renderAuthorizedList();
+        }
+
+        function filterInlineDevices() {
+            const text = document.getElementById('inlineSearchInput').value;
+            const area = document.getElementById('inlineAreaFilter').value;
+            const status = document.getElementById('inlineStatusFilter').value;
+            renderInlineSelector(text, area, status);
+        }
+
+        function submitDecision() {
+            if (authorizedDevices.length === 0) {
+                showToast('至少需要授权一台设备', 'error');
+                return;
+            }
+            closeApprovalModal();
+            showToast(`审批完成，已授权 ${authorizedDevices.length} 台设备`, 'success');
+        }
+    </script>
+</body>
+
+</html>

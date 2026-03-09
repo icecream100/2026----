@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1440">
+    <title>告警中心仪表盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"PingFang SC"', '"Microsoft YaHei"', 'sans-serif']
+                    },
+                    colors: {
+                        brand: '#1677ff',
+                        brandHover: '#4096ff',
+                        navy: '#0b162a',
+                        sidebarActive: '#1677ff',
+                        panel: '#f0f2f5',
+                        danger: '#ff4d4f',
+                        warning: '#faad14',
+                        success: '#52c41a'
+                    },
+                    boxShadow: {
+                        card: '0 2px 8px rgba(0, 0, 0, 0.04)'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            min-width: 1440px;
+            background-color: #f0f2f5;
+        }
+
+        .menu-item {
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .submenu-item.active {
+            color: #1677ff;
+            background-color: #f0f5ff;
+            font-weight: 500;
+        }
+
+        .submenu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #1677ff;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .bar-chart-mock {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 48px;
+        }
+
+        .bar-chart-mock .bar {
+            width: 4px;
+            background-color: #2f5ee5;
+            border-radius: 2px 2px 0 0;
+        }
+
+        /* Checkbox-like toggle buttons */
+        .btn-group-toggle .btn {
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            color: #666;
+            padding: 4px 12px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn-group-toggle .btn:not(:first-child) {
+            border-left: none;
+        }
+
+        .btn-group-toggle .btn:first-child {
+            border-radius: 4px 0 0 4px;
+        }
+
+        .btn-group-toggle .btn:last-child {
+            border-radius: 0 4px 4px 0;
+        }
+
+        .btn-group-toggle .btn.active {
+            background: #2f5ee5;
+            color: #fff;
+            border-color: #2f5ee5;
+        }
+    </style>
+</head>
+
+<body class="font-sans text-slate-800 antialiased overflow-hidden h-screen flex flex-col">
+
+    <!-- Top Header & Left Sidebar Container Wrapper for Holy Grail or similar layout if needed, but we keep fixed header -->
+    <div class="flex flex-1 h-full overflow-hidden">
+
+        <!-- Left Sidebar -->
+        <aside
+            class="w-[220px] bg-white flex flex-col h-full flex-shrink-0 border-r border-slate-200 z-20 shadow-sm relative">
+            <div class="h-14 flex items-center px-5 border-b border-slate-200">
+                <div class="w-6 h-6 bg-brand rounded flex items-center justify-center mr-2">
+                    <i class="fa-solid fa-layer-group text-white text-xs"></i>
+                </div>
+                <span class="text-[15px] font-bold text-slate-800 tracking-wide">物联网管理平台</span>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto py-3 custom-scrollbar text-[13px] text-slate-600">
+                <!-- 模块分组 1 -->
+                <div class="px-5 mb-2 mt-2 text-[12px] font-medium text-slate-400">告警中心</div>
+
+                <div class="space-y-1">
+                    <div
+                        class="submenu-item active flex items-center px-5 py-2.5 cursor-pointer relative transition-colors">
+                        <i class="fa-solid fa-chart-line w-5 text-center mr-2 text-brand"></i>
+                        <span>仪表盘</span>
+                    </div>
+                    <div class="flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-gear w-5 text-center mr-2 text-slate-400"></i>
+                        <span>基础配置</span>
+                    </div>
+                    <!-- Dropdown structure mock -->
+                    <div class="flex flex-col">
+                        <div
+                            class="flex items-center justify-between px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                            <div class="flex items-center">
+                                <i class="fa-solid fa-sliders w-5 text-center mr-2 text-slate-400"></i>
+                                <span>告警配置</span>
+                            </div>
+                            <i class="fa-solid fa-angle-down text-[10px] text-slate-400"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-regular fa-clipboard w-5 text-center mr-2 text-slate-400"></i>
+                        <span>告警记录</span>
+                    </div>
+                </div>
+
+                <!-- 模块分组 其他 -->
+                <div class="px-5 mb-2 mt-6 text-[12px] font-medium text-slate-400">其他应用</div>
+                <div class="space-y-1">
+                    <div class="flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-sitemap w-5 text-center mr-2 text-slate-400"></i>
+                        <span>设备管理</span>
+                    </div>
+                    <div class="flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-code-branch w-5 text-center mr-2 text-slate-400"></i>
+                        <span>规则引擎</span>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-panel relative">
+
+            <!-- Page Tabs Area -->
+            <div class="h-[46px] flex border-b border-slate-200 bg-[#f5f7fa] shrink-0 items-end px-3">
+                <div
+                    class="h-[34px] px-4 bg-white border border-b-0 border-slate-200 rounded-t-md flex items-center text-slate-600 text-[13px] mr-1 cursor-pointer hover:text-brand">
+                    首页 <i
+                        class="fa-solid fa-xmark ml-2 text-[10px] text-slate-400 hover:text-danger hover:scale-110 transition-transform"></i>
+                </div>
+                <div
+                    class="h-[34px] px-4 bg-brand text-white border border-b-0 border-brand rounded-t-md flex items-center text-[13px] mr-1 cursor-pointer shadow-[0_-2px_6px_rgba(22,119,255,0.15)] relative z-10 font-medium">
+                    仪表盘 <i
+                        class="fa-solid fa-xmark ml-2 text-[10px] text-white/80 hover:text-white hover:scale-110 transition-transform"></i>
+                </div>
+            </div>
+
+            <!-- Dashboard Content Scrollable Area -->
+            <div class="flex-1 overflow-y-auto p-5 relative custom-scrollbar">
+                <div class="max-w-[1600px] mx-auto space-y-5">
+
+                    <!-- Top Cards Area -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+
+                        <!-- Card 1: 今日告警 -->
+                        <div
+                            class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex flex-col relative transition-shadow hover:shadow-md">
+                            <h3 class="text-slate-800 text-[14px] font-bold mb-3">今日告警</h3>
+                            <div class="flex justify-between items-end mb-4">
+                                <span class="text-4xl font-bold text-slate-800 tracking-tight">81</span>
+                                <!-- Mini Bar Chart Area -->
+                                <div class="flex items-end gap-[3px] h-10">
+                                    <div class="w-1.5 bg-brand h-[40%] rounded-t-sm"></div>
+                                    <div class="w-1.5 bg-brand h-[60%] rounded-t-sm"></div>
+                                    <div class="w-1.5 bg-brand h-[50%] rounded-t-sm"></div>
+                                    <div class="w-1.5 bg-brand h-[80%] rounded-t-sm"></div>
+                                    <div class="w-1.5 bg-brand h-[70%] rounded-t-sm"></div>
+                                    <div class="w-1.5 bg-brand h-[90%] rounded-t-sm"></div>
+                                    <div class="w-1.5 bg-brand h-[85%] rounded-t-sm"></div>
+                                    <div
+                                        class="w-[5px] bg-brand h-[100%] rounded-t-sm shadow-[0_0_4px_theme(colors.brand)] relative z-10 ring-1 ring-brand/30">
+                                    </div>
+                                    <div class="w-1.5 bg-brand h-[75%] rounded-t-sm"></div>
+                                    <div class="w-1.5 bg-brand h-[60%] rounded-t-sm"></div>
+                                </div>
+                            </div>
+                            <div class="mt-auto pt-4 flex items-center justify-between text-[13px]">
+                                <div class="flex items-center text-slate-500">
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full bg-success mr-2 shadow-[0_0_4px_theme(colors.success)]"></span>
+                                    <span>当月告警</span>
+                                </div>
+                                <span class="font-bold text-slate-800">1423</span>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: 告警配置 -->
+                        <div
+                            class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex flex-col relative overflow-hidden transition-shadow hover:shadow-md">
+                            <h3 class="text-slate-800 text-[14px] font-bold mb-3">告警配置</h3>
+                            <div class="flex justify-between items-center mb-4">
+                                <span
+                                    class="text-4xl font-bold text-slate-800 tracking-tight relative z-10 w-1/2">81</span>
+                                <!-- Server Graphic Mock -->
+                                <div
+                                    class="absolute right-2 top-4 w-[110px] h-[75px] flex justify-center items-center select-none pointer-events-none">
+                                    <div class="relative w-full h-full">
+                                        <!-- Server Isometric svg -->
+                                        <svg viewBox="0 0 100 100" class="w-full h-full opacity-90 drop-shadow-md">
+                                            <polygon points="50,20 85,35 50,50 15,35" fill="#e6f4ff" stroke="#91caff"
+                                                stroke-width="1.5"></polygon>
+                                            <polygon points="15,35 50,50 50,85 15,70" fill="#bae0ff" stroke="#91caff"
+                                                stroke-width="1.5"></polygon>
+                                            <polygon points="50,50 85,35 85,70 50,85" fill="#e6f4ff" stroke="#91caff"
+                                                stroke-width="1.5"></polygon>
+                                            <polygon points="53,53 80,41 80,47 53,59" fill="#1677ff" opacity="0.6">
+                                            </polygon>
+                                            <polygon points="53,63 80,51 80,57 53,69" fill="#1677ff" opacity="0.6">
+                                            </polygon>
+                                            <circle cx="25" cy="45" r="2" fill="#52c41a"></circle>
+                                            <circle cx="25" cy="55" r="2" fill="#52c41a"></circle>
+                                            <circle cx="25" cy="65" r="2" fill="#ff4d4f"></circle>
+                                        </svg>
+                                        <!-- Decorative floating dots -->
+                                        <div
+                                            class="absolute -top-1 right-2 w-1.5 h-1.5 bg-brand/40 rounded-full blur-[1px]">
+                                        </div>
+                                        <div
+                                            class="absolute top-1/2 left-0 w-2 h-2 bg-success/30 rounded-full blur-[2px]">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-auto pt-4 flex items-center justify-start gap-10 text-[13px] relative z-10">
+                                <div class="flex items-center text-slate-500">
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full bg-success mr-2 shadow-[0_0_4px_theme(colors.success)]"></span>
+                                    <span>正常</span>
+                                    <span class="font-bold text-slate-800 ml-4 text-[14px]">69</span>
+                                </div>
+                                <div class="flex items-center text-slate-500">
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full bg-danger mr-2 shadow-[0_0_4px_theme(colors.danger)]"></span>
+                                    <span>禁用</span>
+                                    <span class="font-bold text-slate-800 ml-4 text-[14px]">12</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: 事件监听 -->
+                        <div
+                            class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex flex-col relative overflow-hidden transition-shadow hover:shadow-md ring-1 ring-brand/10 bg-gradient-to-br from-white to-brand/[0.02]">
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-slate-800 text-[14px] font-bold">事件监听</h3>
+                                    <span
+                                        class="px-1.5 py-[1px] rounded bg-brand/10 text-brand text-[10px] scale-90 -ml-1 border border-brand/20">新功能</span>
+                                </div>
+                                <div class="text-[11px] text-slate-400 font-mono" title="最近更新时间: 2026-03-09 10:48">
+                                    10:48:55
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-end mb-4 relative z-10">
+                                <span class="text-4xl font-bold text-brand tracking-tight drop-shadow-sm">125</span>
+                                <div
+                                    class="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center relative">
+                                    <div
+                                        class="absolute inset-0 rounded-full animate-ping opacity-20 bg-brand hover:scale-105">
+                                    </div>
+                                    <i class="fa-solid fa-satellite-dish text-lg"></i>
+                                </div>
+                            </div>
+                            <div class="mt-auto pt-4 flex items-center gap-3 text-[12px] flex-wrap relative z-10">
+                                <div
+                                    class="flex items-center text-slate-500 bg-slate-50 px-2.5 py-1 rounded border border-slate-100 hover:border-success/30 transition-colors">
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full bg-success mr-1.5 shadow-[0_0_4px_theme(colors.success)]"></span>
+                                    <span>运行中 <span class="font-bold text-slate-700 ml-1">120</span></span>
+                                </div>
+                                <div
+                                    class="flex items-center text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5"></span>
+                                    <span>停用 <span class="font-bold text-slate-700 ml-1">2</span></span>
+                                </div>
+                                <div class="flex items-center text-danger font-medium bg-danger/5 px-2 py-1 rounded border border-danger/10 hover:border-danger/30 transition-colors cursor-help"
+                                    title="存在异常的监听器">
+                                    <span
+                                        class="w-1.5 h-1.5 rounded-full bg-danger mr-1.5 animate-pulse shadow-[0_0_4px_theme(colors.danger)]"></span>
+                                    <span>异常 <span class="font-bold ml-1 text-[13px]">3</span></span>
+                                </div>
+                            </div>
+                            <!-- Subtle decorative bg -->
+                            <div
+                                class="absolute -right-4 -bottom-4 w-24 h-24 bg-brand/[0.03] rounded-full blur-xl pointer-events-none">
+                            </div>
+                        </div>
+
+                        <!-- Card 4: 最新告警 -->
+                        <div
+                            class="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col relative transition-shadow hover:shadow-md">
+                            <div class="flex justify-between items-center px-4 py-3 border-b border-slate-50">
+                                <h3 class="text-slate-800 text-[14px] font-bold">最新告警</h3>
+                            </div>
+                            <div class="flex-1 flex flex-col p-4 pt-2 gap-2.5 overflow-hidden">
+                                <!-- item -->
+                                <div class="flex items-center justify-between text-[12px] group">
+                                    <div class="flex items-center gap-2 overflow-hidden mr-2">
+                                        <i
+                                            class="fa-solid fa-droplet text-danger text-[10px] w-3 flex-shrink-0 text-center"></i>
+                                        <span
+                                            class="text-slate-400/80 shrink-0 font-mono text-[11px] w-[50px]">10:48</span>
+                                        <a href="#" class="text-brand hover:underline truncate"
+                                            title="变压器开关柜-主站配电2#H8">变压器开关柜-主站配...</a>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 shrink-0 pl-1 border-l border-slate-100">
+                                        <span class="text-slate-500 text-[11px] items-center hidden 2xl:flex"><span
+                                                class="w-1 h-1 rounded-full bg-danger mr-1.5 shadow-[0_0_2px_theme(colors.danger)]"></span>告警中</span>
+                                        <span
+                                            class="bg-danger text-white px-1.5 py-0.5 rounded-[2px] text-[10px] font-medium min-w-[36px] text-center shadow-sm">超紧急</span>
+                                    </div>
+                                </div>
+                                <!-- item -->
+                                <div class="flex items-center justify-between text-[12px] group">
+                                    <div class="flex items-center gap-2 overflow-hidden mr-2">
+                                        <i
+                                            class="fa-solid fa-droplet text-brand text-[10px] w-3 flex-shrink-0 text-center"></i>
+                                        <span
+                                            class="text-slate-400/80 shrink-0 font-mono text-[11px] w-[50px]">昨日</span>
+                                        <a href="#" class="text-brand hover:underline truncate"
+                                            title="水泵房水泵监控">水泵房水泵监控</a>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 shrink-0 pl-1 border-l border-slate-100">
+                                        <span class="text-slate-500 text-[11px] items-center hidden 2xl:flex"><span
+                                                class="w-1 h-1 rounded-full bg-danger mr-1.5 shadow-[0_0_2px_theme(colors.danger)]"></span>告警中</span>
+                                        <span
+                                            class="bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded-[2px] text-[10px] font-medium min-w-[36px] text-center shadow-sm">提醒</span>
+                                    </div>
+                                </div>
+                                <!-- item -->
+                                <div class="flex items-center justify-between text-[12px] group">
+                                    <div class="flex items-center gap-2 overflow-hidden mr-2">
+                                        <i
+                                            class="fa-solid fa-fire text-warning text-[10px] w-3 flex-shrink-0 text-center"></i>
+                                        <span
+                                            class="text-slate-400/80 shrink-0 font-mono text-[11px] w-[50px]">11-12</span>
+                                        <a href="#" class="text-brand hover:underline truncate"
+                                            title="消控-点型光电感烟探测器故障">消控-点型光电感烟探...</a>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 shrink-0 pl-1 border-l border-slate-100">
+                                        <span class="text-slate-500 text-[11px] items-center hidden 2xl:flex"><span
+                                                class="w-1 h-1 rounded-full bg-danger mr-1.5 shadow-[0_0_2px_theme(colors.danger)]"></span>告警中</span>
+                                        <span
+                                            class="bg-warning text-white px-1.5 py-0.5 rounded-[2px] text-[10px] font-medium min-w-[36px] text-center shadow-sm">严重</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Content Area -->
+                    <div class="bg-white rounded-xl shadow-sm p-6 min-h-[460px] border border-slate-100 flex flex-col">
+
+                        <!-- Toolbar -->
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-4">
+                                <span class="font-bold text-slate-800 text-[15px]">告警统计</span>
+                                <div class="relative">
+                                    <select
+                                        class="appearance-none border border-slate-200 text-slate-600 text-[13px] rounded px-3 py-1.5 pr-8 bg-white focus:outline-brand hover:border-brand/40 outline-none w-[160px]">
+                                        <option>设备</option>
+                                        <option>网关</option>
+                                    </select>
+                                    <i
+                                        class="fa-solid fa-angle-down absolute right-3 top-2.5 text-slate-400 text-xs pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="btn-group-toggle flex">
+                                    <button class="btn">今日</button>
+                                    <button class="btn active">近一周</button>
+                                    <button class="btn">近一月</button>
+                                    <button class="btn">近一年</button>
+                                </div>
+                                <div
+                                    class="border border-slate-200 text-slate-600 rounded flex items-center bg-white px-3 py-1.5 text-[13px] cursor-pointer hover:border-brand/40">
+                                    <span>2026-03-01 22:28:46 ~ 2026-03-07 22:28:46</span>
+                                    <i class="fa-regular fa-calendar ml-3 text-slate-400"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Content Layout -->
+                        <div class="flex gap-8 flex-1">
+                            <!-- Left: Chart Area -->
+                            <div class="flex-1 border-r border-slate-100 pr-8 relative">
+                                <!-- Y Axis -->
+                                <div
+                                    class="absolute left-0 top-0 bottom-8 w-8 flex flex-col justify-between text-[11px] text-slate-400 items-end pr-2 pt-2">
+                                    <span>1.0</span>
+                                    <span>0.8</span>
+                                    <span>0.6</span>
+                                    <span>0.4</span>
+                                    <span>0.2</span>
+                                    <span>0</span>
+                                </div>
+
+                                <!-- Chart Grid Lines -->
+                                <div class="ml-8 h-full pb-8 flex flex-col justify-between relative mt-2">
+                                    <div class="border-b border-dashed border-slate-200 w-full h-0"></div>
+                                    <div class="border-b border-dashed border-slate-200 w-full h-0"></div>
+                                    <div class="border-b border-dashed border-slate-200 w-full h-0"></div>
+                                    <div class="border-b border-dashed border-slate-200 w-full h-0"></div>
+                                    <div class="border-b border-dashed border-slate-200 w-full h-0"></div>
+                                    <div class="border-b border-slate-300 w-full h-0"></div> <!-- Baseline -->
+
+                                    <!-- Drawing a pure CSS Mock line chart -->
+                                    <svg class="absolute inset-0 w-full h-full pb-8 overflow-visible"
+                                        preserveAspectRatio="none">
+                                        <path
+                                            d="M 0,260 L 100,220 L 200,250 L 300,150 L 400,180 L 500,80 L 600,120 L 700,40"
+                                            fill="none" stroke="#2f5ee5" stroke-width="2" />
+                                        <path
+                                            d="M 0,260 L 100,220 L 200,250 L 300,150 L 400,180 L 500,80 L 600,120 L 700,40"
+                                            fill="rgba(47,94,229,0.1)" stroke="none" />
+                                        <!-- Data points -->
+                                        <circle cx="0" cy="260" r="3" fill="#fff" stroke="#2f5ee5" stroke-width="2" />
+                                        <circle cx="100" cy="220" r="3" fill="#fff" stroke="#2f5ee5" stroke-width="2" />
+                                        <circle cx="200" cy="250" r="3" fill="#fff" stroke="#2f5ee5" stroke-width="2" />
+                                        <circle cx="300" cy="150" r="3" fill="#fff" stroke="#2f5ee5" stroke-width="2" />
+                                        <circle cx="400" cy="180" r="3" fill="#fff" stroke="#2f5ee5" stroke-width="2" />
+                                        <circle cx="500" cy="80" r="3" fill="#fff" stroke="#2f5ee5" stroke-width="2" />
+                                        <circle cx="600" cy="120" r="3" fill="#fff" stroke="#2f5ee5" stroke-width="2" />
+                                        <circle cx="700" cy="40" r="3" fill="#fff" stroke="#2f5ee5" stroke-width="2" />
+                                    </svg>
+
+                                    <!-- Tooltip mock -->
+                                    <div
+                                        class="absolute top-[30px] right-[160px] bg-slate-800 text-white text-xs px-3 py-1.5 rounded shadow pointer-events-none opacity-90 z-10 whitespace-nowrap">
+                                        03-07: <span class="font-bold">120</span> 次
+                                        <div class="absolute -bottom-1 left-1/2 -ml-1 w-2 h-2 bg-slate-800 rotate-45">
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="absolute top-[40px] right-[180px] w-px h-[calc(100%-40px)] bg-brand/30 border-l border-dashed border-brand/50 z-0">
+                                    </div>
+                                </div>
+
+                                <!-- X Axis -->
+                                <div
+                                    class="ml-8 absolute bottom-0 left-0 right-8 h-8 flex items-end justify-between text-[11px] text-slate-400">
+                                    <span>03-01</span>
+                                    <span>03-02</span>
+                                    <span>03-03</span>
+                                    <span>03-04</span>
+                                    <span>03-05</span>
+                                    <span>03-06</span>
+                                    <span>03-07</span>
+                                </div>
+                            </div>
+
+                            <!-- Right: List Area -->
+                            <div class="w-[280px] shrink-0">
+                                <h3 class="font-bold text-slate-800 text-[14px] mb-4">告警排名</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-5 h-5 rounded-full bg-[#314659] text-white flex items-center justify-center text-[11px] font-bold">
+                                            1</div>
+                                        <span class="text-[13px] text-slate-700 truncate w-32"
+                                            title="消控-点型光电感烟探测器">消控-点型光电感烟...</span>
+                                        <span class="text-[13px] text-slate-500 ml-auto">324</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-5 h-5 rounded-full bg-[#314659] text-white flex items-center justify-center text-[11px] font-bold">
+                                            2</div>
+                                        <span class="text-[13px] text-slate-700 truncate w-32"
+                                            title="水泵房水泵监控设备">水泵房水泵监控设...</span>
+                                        <span class="text-[13px] text-slate-500 ml-auto">187</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-5 h-5 rounded-full bg-[#314659] text-white flex items-center justify-center text-[11px] font-bold">
+                                            3</div>
+                                        <span class="text-[13px] text-slate-700 truncate w-32"
+                                            title="变压器开关柜-主站配电2#H8">变压器开关柜-主站...</span>
+                                        <span class="text-[13px] text-slate-500 ml-auto">142</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-5 h-5 rounded-full bg-[#fafafa] text-slate-500 flex items-center justify-center text-[11px] font-bold mt-1">
+                                            4</div>
+                                        <span class="text-[13px] text-slate-700 truncate w-32" title="智能电表">智能电表</span>
+                                        <span class="text-[13px] text-slate-500 ml-auto">98</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-5 h-5 rounded-full bg-[#fafafa] text-slate-500 flex items-center justify-center text-[11px] font-bold mt-1">
+                                            5</div>
+                                        <span class="text-[13px] text-slate-700 truncate w-32"
+                                            title="环境温湿度传感器">环境温湿度传感器</span>
+                                        <span class="text-[13px] text-slate-500 ml-auto">56</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-5 h-5 rounded-full bg-[#fafafa] text-slate-500 flex items-center justify-center text-[11px] font-bold mt-1">
+                                            6</div>
+                                        <span class="text-[13px] text-slate-700 truncate w-32"
+                                            title="智能燃气表">智能燃气表</span>
+                                        <span class="text-[13px] text-slate-500 ml-auto">23</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-5 h-5 rounded-full bg-[#fafafa] text-slate-500 flex items-center justify-center text-[11px] font-bold mt-1">
+                                            7</div>
+                                        <span class="text-[13px] text-slate-700 truncate w-32" title="智能水表">智能水表</span>
+                                        <span class="text-[13px] text-slate-500 ml-auto">15</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1440">
+    <title>规则引擎 - 事件类型管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { colors: { brand: '#2f5ee5', navy: '#0b162a' }, boxShadow: { card: '0 2px 8px rgba(0, 0, 0, 0.04)' } }
+            }
+        };
+    </script>
+    <style>
+        body {
+            background-color: #f0f2f5;
+            min-width: 1440px;
+        }
+
+        .submenu-item.active {
+            background-color: #2f5ee5;
+            color: white;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #2f5ee5;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(16px);
+        }
+    </style>
+</head>
+
+<body class="font-sans text-slate-800 antialiased overflow-hidden h-screen flex flex-col">
+
+    <header
+        class="h-[60px] bg-brand text-white flex items-center justify-between px-6 shrink-0 z-50 fixed w-full top-0">
+        <div class="flex items-center gap-6">
+            <div class="text-[17px] font-medium tracking-wide">物联网管理服务系统</div>
+            <button class="text-xl hover:bg-white/10 p-2 rounded ml-8"><i class="fa-solid fa-outdent"></i></button>
+        </div>
+        <div class="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1 rounded">
+            <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs"><i
+                    class="fa-solid fa-user"></i></div>
+            <span class="text-sm">业务管理员</span>
+        </div>
+    </header>
+
+    <div class="flex flex-1 pt-[60px] h-full">
+        <!-- Sidebar -->
+        <aside class="w-[200px] h-full bg-navy flex-shrink-0 text-slate-300 overflow-y-auto border-r border-[#1a253a]">
+            <nav class="py-2 text-[14px]">
+                <div class="bg-black/20 pb-1 mt-2">
+                    <div class="px-5 py-2 text-xs text-slate-500 font-medium">规则编排</div>
+                    <a href="../index.html" class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
+                            class="fa-solid fa-database absolute left-6 opacity-70"></i> <span>感知报文存储</span></a>
+                    <a href="data_upload.html" class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
+                            class="fa-solid fa-cloud-arrow-up absolute left-6 opacity-70"></i> <span>数据上报</span></a>
+                    <a href="data_receive.html"
+                        class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
+                            class="fa-solid fa-cloud-arrow-down absolute left-6 opacity-70"></i> <span>下发数据接收</span></a>
+                    <a href="protocol_api.html"
+                        class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
+                            class="fa-solid fa-layer-group absolute left-6 opacity-70"></i> <span>协议解析二次接口</span></a>
+                    <a href="alarm_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
+                            class="fa-solid fa-triangle-exclamation absolute left-6 opacity-70"></i>
+                        <span>异常告警二开接口</span></a>
+                    <a href="catalog_publish.html"
+                        class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
+                            class="fa-solid fa-book-open absolute left-6 opacity-70"></i> <span>目录发布</span></a>
+
+                    <div class="px-5 py-2 text-xs text-slate-500 font-medium mt-1">场景联动</div>
+                    <a href="event_type.html"
+                        class="submenu-item active flex items-center pl-[46px] pr-5 py-3 text-white block"><i
+                            class="fa-solid fa-tags absolute left-6 opacity-70"></i> <span>事件类型管理</span></a>
+                    <a href="event_notify.html"
+                        class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
+                            class="fa-solid fa-comment-dots absolute left-6 opacity-70"></i> <span>事件通知管理</span></a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#f0f2f5]">
+            <div class="h-12 flex items-center px-6 bg-white border-b border-slate-200 text-sm text-slate-500 shrink-0">
+                <span class="text-slate-800 font-medium">事件类型管理</span>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-5">
+                <!-- Search Panel (with 事件等级查询 fields) -->
+                <div class="bg-white p-5 rounded shadow-card mb-4">
+                    <div class="grid grid-cols-5 gap-6">
+                        <div class="flex items-center gap-2"><label
+                                class="text-[13px] text-slate-600 shrink-0">类型名称</label><input type="text"
+                                placeholder="关键字" class="border rounded px-2 w-full text-[13px] py-1"></div>
+                        <div class="flex items-center gap-2"><label
+                                class="text-[13px] text-slate-600 shrink-0">等级名称</label><input type="text"
+                                placeholder="如: 一般, 重大" class="border rounded px-2 w-full text-[13px] py-1"></div>
+                        <div class="flex items-center gap-2"><label
+                                class="text-[13px] text-slate-600 shrink-0">严重程度</label><select
+                                class="border rounded px-2 w-full text-[13px] py-1 bg-white">
+                                <option>全部</option>
+                                <option>低</option>
+                                <option>中</option>
+                                <option>高</option>
+                                <option>紧急</option>
+                            </select></div>
+                        <div class="flex items-center gap-2"><label
+                                class="text-[13px] text-slate-600 shrink-0">颜色标记</label><select
+                                class="border rounded px-2 w-full text-[13px] py-1 bg-white">
+                                <option>全部</option>
+                                <option>红</option>
+                                <option>橙</option>
+                                <option>黄</option>
+                                <option>绿</option>
+                            </select></div>
+                        <div class="flex justify-end gap-3 w-full"><button
+                                class="px-4 py-1.5 bg-brand text-white text-[13px] rounded">查询</button></div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded shadow-card">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-[15px] font-bold">事件类型列表</h2>
+                        <div class="flex gap-3">
+                            <!-- 批量数据维护 Tools -->
+                            <button
+                                class="px-3 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:text-brand"
+                                onclick="alert('模板下载中...')"><i class="fa-solid fa-download mr-1"></i>模板下载</button>
+                            <button
+                                class="px-3 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:text-brand"
+                                onclick="openImportModal()"><i class="fa-solid fa-file-import mr-1"></i>导入</button>
+                            <button
+                                class="px-3 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:text-brand"
+                                onclick="alert('已按照当前过滤条件导出数据')"><i class="fa-solid fa-file-export mr-1"></i>导出</button>
+                            <button onclick="openModal()" class="px-3 py-1.5 bg-brand text-white text-[13px] rounded"><i
+                                    class="fa-solid fa-plus mr-1"></i>新增</button>
+                        </div>
+                    </div>
+
+                    <table class="w-full text-left border-collapse border border-slate-200">
+                        <thead class="bg-slate-50 text-[13px] text-slate-500 border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-4 font-medium">编码</th>
+                                <th class="py-3 px-4 font-medium">名称</th>
+                                <th class="py-3 px-4 font-medium">分类</th>
+                                <th class="py-3 px-4 font-medium">等级</th>
+                                <th class="py-3 px-4 font-medium">严重程度</th>
+                                <th class="py-3 px-4 font-medium">颜色</th>
+                                <th class="py-3 px-4 font-medium">状态</th>
+                                <th class="py-3 px-4 font-medium">更新时间</th>
+                                <th class="py-3 px-4 w-[120px]">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-[13px] text-slate-700">
+                            <tr class="border-b">
+                                <td class="py-3 px-4 text-slate-500">EVT-FIRE-01</td>
+                                <td class="py-3 px-4 font-bold">火警报警</td>
+                                <td class="py-3 px-4">消防安全</td>
+                                <td class="py-3 px-4">特别重大</td>
+                                <td class="py-3 px-4 text-red-500 font-bold">紧急</td>
+                                <td class="py-3 px-4"><span
+                                        class="w-3 h-3 rounded-full bg-red-500 inline-block shadow"></span></td>
+                                <td class="py-3 px-4"><label class="switch"><input type="checkbox" checked><span
+                                            class="slider"></span></label></td>
+                                <td class="py-3 px-4 text-slate-400">03-07 10:00</td>
+                                <td class="py-3 px-4">
+                                    <button class="text-brand mr-2" onclick="openModal()">编辑</button>
+                                    <button class="text-red-500" onclick="alert('当前事件类型已被规则引用，无法删除')">删除</button>
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-3 px-4 text-slate-500">EVT-SYS-05</td>
+                                <td class="py-3 px-4 font-bold">设备离线</td>
+                                <td class="py-3 px-4">系统运维</td>
+                                <td class="py-3 px-4">一般警告</td>
+                                <td class="py-3 px-4 text-yellow-500 font-bold">低</td>
+                                <td class="py-3 px-4"><span
+                                        class="w-3 h-3 rounded-full bg-yellow-400 inline-block shadow"></span></td>
+                                <td class="py-3 px-4"><label class="switch"><input type="checkbox" checked><span
+                                            class="slider"></span></label></td>
+                                <td class="py-3 px-4 text-slate-400">03-07 09:30</td>
+                                <td class="py-3 px-4">
+                                    <button class="text-brand mr-2" onclick="openModal()">编辑</button>
+                                    <button class="text-red-500" onclick="confirm('确认删除？')">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit/Add Form Modal -->
+    <div id="modal" class="fixed inset-0 bg-black/40 z-[60] hidden flex items-center justify-center">
+        <div class="bg-white rounded shadow-xl w-[600px]">
+            <div class="p-4 border-b font-bold flex justify-between">事件类型配置<button onclick="closeModal()"><i
+                        class="fa-solid fa-xmark"></i></button></div>
+            <div class="p-4 grid grid-cols-2 gap-4 text-[13px]">
+                <div class="col-span-2"><label>编码 (*)</label><input type="text" class="w-full border rounded p-1"></div>
+                <div><label>名称 (*)</label><input type="text" class="w-full border rounded p-1"></div>
+                <div><label>分类 (*)</label><input type="text" class="w-full border rounded p-1"></div>
+                <div><label>等级名称 (*)</label><input type="text" placeholder="如: 一般、重大" class="w-full border rounded p-1">
+                </div>
+                <div><label>严重程度 (*)</label><select class="w-full border rounded p-1 bg-white h-7">
+                        <option>低</option>
+                        <option>中</option>
+                        <option>高</option>
+                        <option>紧急</option>
+                    </select></div>
+                <div><label>颜色标记 (*)</label><select class="w-full border rounded p-1 bg-white h-7">
+                        <option>红</option>
+                        <option>橙</option>
+                        <option>黄</option>
+                        <option>绿</option>
+                    </select></div>
+                <div class="col-span-2"><label>状态 (*)</label>
+                    <div class="flex gap-4 mt-1"><label><input type="radio" name="st" checked> 启用</label><label><input
+                                type="radio" name="st"> 停用</label></div>
+                </div>
+                <div class="col-span-2"><label>说明</label><textarea class="w-full border rounded p-1 h-16"></textarea>
+                </div>
+            </div>
+            <div class="p-4 border-t flex justify-end gap-3"><button class="px-3"
+                    onclick="closeModal()">取消</button><button class="px-3 bg-brand text-white rounded"
+                    onclick="closeModal()">保存</button></div>
+        </div>
+    </div>
+
+    <!-- Batch Import Modal -->
+    <div id="importModal" class="fixed inset-0 bg-black/40 z-[60] hidden flex items-center justify-center">
+        <div class="bg-white rounded shadow-xl w-[500px]">
+            <div class="p-4 border-b font-bold flex justify-between">批量导入事件类型<button onclick="closeImportModal()"><i
+                        class="fa-solid fa-xmark"></i></button></div>
+            <div class="p-4 space-y-4 text-[13px]">
+                <div>
+                    <label class="block mb-2 font-medium">请选择已填好的模板文件：</label>
+                    <input type="file" accept=".xlsx,.csv" class="w-full border p-2 rounded bg-slate-50 cursor-pointer">
+                    <p class="text-xs text-slate-400 mt-2">支持 xlsx 或 csv 文件，单次最多1000条，重复编码将自动覆盖更新。</p>
+                </div>
+                <!-- Mock upload success state -->
+                <div class="bg-green-50 text-green-700 p-3 rounded text-xs hidden" id="importResult">
+                    <i class="fa-solid fa-check-circle mr-1"></i> 校验成功: 准备导入 125 条，覆盖更新 10 条。
+                </div>
+            </div>
+            <div class="p-4 border-t flex justify-between text-[13px]">
+                <button class="text-brand hover:underline" onclick="alert('模板下载中...')">下载空模板</button>
+                <div class="flex gap-2">
+                    <button class="px-3 border rounded hover:bg-slate-50" onclick="closeImportModal()">取消</button>
+                    <button class="px-3 bg-brand text-white rounded" onclick="simulateUpload()">校验并导入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal() { document.getElementById('modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+        function openImportModal() {
+            document.getElementById('importResult').classList.add('hidden');
+            document.getElementById('importModal').classList.remove('hidden');
+        }
+        function closeImportModal() { document.getElementById('importModal').classList.add('hidden'); }
+        function simulateUpload() {
+            document.getElementById('importResult').classList.remove('hidden');
+            setTimeout(() => { alert('导入成功'); closeImportModal(); }, 1000);
+        }
+    </script>
+</body>
+
+</html>

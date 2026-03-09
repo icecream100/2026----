@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1440">
+    <title>告警中心新增功能原型 - 告警处置</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"PingFang SC"', '"Microsoft YaHei"', 'sans-serif']
+                    },
+                    colors: {
+                        brand: '#1677ff',
+                        brandHover: '#4096ff',
+                        navy: '#0b162a',
+                        sidebarActive: '#1677ff',
+                        panel: '#f0f2f5',
+                        danger: '#ff4d4f',
+                        warning: '#faad14',
+                        success: '#52c41a'
+                    },
+                    boxShadow: {
+                        panel: '0 2px 8px rgba(0, 0, 0, 0.04)'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            min-width: 1440px;
+            background-color: #f0f2f5;
+        }
+
+        .submenu-item.active {
+            color: #1677ff;
+            background-color: #f0f5ff;
+            font-weight: 500;
+        }
+
+        .submenu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #1677ff;
+        }
+
+        .level3-link.active {
+            color: #1677ff;
+            background-color: #f0f5ff;
+            font-weight: 500;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+        }
+
+        .modal-mask {
+            background: rgba(2, 18, 43, 0.48);
+            backdrop-filter: blur(4px);
+        }
+
+        .drawer-mask {
+            background: rgba(2, 18, 43, 0.28);
+        }
+    </style>
+</head>
+
+<body class="font-sans text-slate-800 antialiased overflow-hidden h-screen flex flex-col">
+    <div id="toast"
+        class="hidden fixed right-6 top-5 z-[120] rounded-lg bg-slate-800 px-4 py-3 text-sm text-white shadow-xl pointer-events-none">
+    </div>
+
+    <div class="flex flex-1 h-full overflow-hidden">
+
+        <!-- Left Sidebar -->
+        <aside
+            class="w-[220px] bg-white flex flex-col h-full flex-shrink-0 border-r border-slate-200 z-20 shadow-sm relative">
+            <div class="h-14 flex items-center px-5 border-b border-slate-200">
+                <div class="w-6 h-6 bg-brand rounded flex items-center justify-center mr-2">
+                    <i class="fa-solid fa-layer-group text-white text-xs"></i>
+                </div>
+                <span class="text-[15px] font-bold text-slate-800 tracking-wide">物联网管理平台</span>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto py-3 custom-scrollbar text-[13px] text-slate-600">
+                <!-- 模块分组 1 -->
+                <div class="px-5 mb-2 mt-2 text-[12px] font-medium text-slate-400">告警中心</div>
+
+                <div class="space-y-1">
+                    <a href="../index.html"
+                        class="flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-chart-line w-5 text-center mr-2 text-slate-400"></i>
+                        <span>仪表盘</span>
+                    </a>
+                    <button type="button" onclick="showToast('基础配置原型未展开')"
+                        class="w-full flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-gear w-5 text-center mr-2 text-slate-400"></i>
+                        <span>基础配置</span>
+                    </button>
+                    <!-- Dropdown structure -->
+                    <div class="flex flex-col relative w-fulltext-left">
+                        <div
+                            class="submenu-item active flex items-center justify-between px-5 py-2.5 cursor-pointer transition-colors">
+                            <div class="flex items-center">
+                                <i class="fa-solid fa-sliders w-5 text-center mr-2 text-brand"></i>
+                                <span>告警配置</span>
+                            </div>
+                            <i class="fa-solid fa-angle-up text-[10px] text-brand"></i>
+                        </div>
+                        <div class="pl-12 pr-4 py-1 space-y-1 border-l-2 border-transparent bg-slate-50/50">
+                            <a href="alarm_config.html"
+                                class="level3-link block rounded px-3 py-1.5 transition text-slate-500 hover:text-brand">告警配置</a>
+                            <a href="workflow_config.html"
+                                class="level3-link block rounded px-3 py-1.5 transition text-slate-500 hover:text-brand">工作流程配置</a>
+                            <a href="alarm_disposal.html"
+                                class="level3-link active block rounded px-3 py-1.5 transition">告警处置</a>
+                        </div>
+                    </div>
+                    <a href="alarm_records.html"
+                        class="flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-regular fa-clipboard w-5 text-center mr-2 text-slate-400"></i>
+                        <span>告警记录</span>
+                    </a>
+                </div>
+
+                <!-- 模块分组 其他 -->
+                <div class="px-5 mb-2 mt-6 text-[12px] font-medium text-slate-400">其他应用</div>
+                <div class="space-y-1">
+                    <button type="button" onclick="showToast('设备管理原型未展开')"
+                        class="w-full text-left flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-sitemap w-5 text-center mr-2 text-slate-400"></i>
+                        <span>设备管理</span>
+                    </button>
+                    <button type="button" onclick="showToast('规则引擎原型未展开')"
+                        class="w-full text-left flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-code-branch w-5 text-center mr-2 text-slate-400"></i>
+                        <span>规则引擎</span>
+                    </button>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-panel relative">
+
+            <!-- Page Breadcrumb & Title Area -->
+            <div class="h-14 flex items-center justify-between px-6 bg-white border-b border-slate-200 shrink-0 z-10">
+                <div class="flex items-center text-[13px] text-slate-500 gap-2">
+                    <span>告警中心</span>
+                    <i class="fa-solid fa-angle-right text-[10px]"></i>
+                    <span>告警配置</span>
+                    <i class="fa-solid fa-angle-right text-[10px]"></i>
+                    <span class="font-bold text-slate-800 tracking-wide text-[14px]">告警处置</span>
+                </div>
+
+                <div class="flex items-center gap-5">
+                    <button class="relative text-slate-500 hover:text-brand transition-colors">
+                        <i class="fa-regular fa-bell text-lg"></i>
+                        <span class="absolute top-0 right-0 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-1.5 rounded transition">
+                        <div
+                            class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-brand font-bold text-xs">
+                            管
+                        </div>
+                        <span class="text-sm text-slate-600">系统管理员</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content Scrollable Area -->
+            <div class="flex-1 overflow-y-auto p-5 relative custom-scrollbar">
+                <div class="max-w-[1600px] mx-auto">
+                    <section class="mb-4 flex items-center justify-between">
+                        <div>
+                            <p class="text-[13px] text-slate-500">
+                                告警触发后自动生成处置单。本期默认一条告警生成一条处置单；未匹配工作流的告警仍进入处置列表，状态为“待分派”；第三方回写失败仅保留失败状态，不提供人工重试入口。
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button type="button" onclick="showToast('当前处置单默认从告警触发自动生成')"
+                                class="rounded border border-slate-300 bg-white px-4 py-1.5 text-[13px] text-slate-600 hover:text-brand hover:border-brand transition">
+                                <i class="fa-solid fa-circle-info mr-1.5"></i>查看生成规则
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="mb-4 grid grid-cols-4 gap-4">
+                        <div
+                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div class="text-[13px] text-slate-500">待分派</div>
+                            <div id="waitAssignCount" class="mt-2 text-[28px] font-bold text-warning leading-tight">0
+                            </div>
+                            <div class="mt-1 text-[12px] text-slate-400">未匹配工作流或未指定责任人</div>
+                        </div>
+                        <div
+                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div class="text-[13px] text-slate-500">待接单</div>
+                            <div id="waitTakeCount" class="mt-2 text-[28px] font-bold text-slate-800 leading-tight">0
+                            </div>
+                            <div class="mt-1 text-[12px] text-slate-400">已分派，等待责任人接单</div>
+                        </div>
+                        <div
+                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div class="text-[13px] text-slate-500">处理中</div>
+                            <div id="processingCount" class="mt-2 text-[28px] font-bold text-brand leading-tight">0
+                            </div>
+                            <div class="mt-1 text-[12px] text-slate-400">已接单，正在处置</div>
+                        </div>
+                        <div
+                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div class="text-[13px] text-slate-500">回写失败</div>
+                            <div id="callbackFailCount" class="mt-2 text-[28px] font-bold text-danger leading-tight">0
+                            </div>
+                            <div class="mt-1 text-[12px] text-slate-400">仅保留失败状态，由第三方重复回写</div>
+                        </div>
+                    </section>
+
+                    <section class="rounded-xl bg-white p-5 shadow-sm border border-slate-100">
+                        <div class="mb-4 flex flex-wrap items-center gap-3">
+                            <input id="keyword" type="text" placeholder="搜索工单号 / 告警名称"
+                                class="w-60 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                            <select id="type"
+                                class="w-36 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                <option value="">全部告警类型</option>
+                                <option value="设备状态告警">设备状态告警</option>
+                                <option value="设备事件告警">设备事件告警</option>
+                                <option value="感知数据告警">感知数据告警</option>
+                            </select>
+                            <select id="status"
+                                class="w-36 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                <option value="">全部处置状态</option>
+                                <option value="待分派">待分派</option>
+                                <option value="待接单">待接单</option>
+                                <option value="处理中">处理中</option>
+                                <option value="待回写">待回写</option>
+                                <option value="已完成">已完成</option>
+                                <option value="已关闭">已关闭</option>
+                            </select>
+                            <select id="callbackStatus"
+                                class="w-36 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                <option value="">全部回写状态</option>
+                                <option value="无需回写">无需回写</option>
+                                <option value="未回写">未回写</option>
+                                <option value="回写成功">回写成功</option>
+                                <option value="回写失败">回写失败</option>
+                            </select>
+                            <button type="button" onclick="renderTable()"
+                                class="rounded bg-brand px-4 py-1.5 text-[13px] text-white hover:bg-brandHover transition">查询</button>
+                            <button type="button" onclick="resetFilter()"
+                                class="rounded border border-slate-300 px-4 py-1.5 text-[13px] text-slate-600 hover:border-brand hover:text-brand transition">重置</button>
+                        </div>
+
+                        <div class="overflow-hidden border border-slate-200">
+                            <table class="w-full bg-white text-[13px] text-left">
+                                <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">工单号</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">告警名称</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">告警类型 / 级别</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">处置状态</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">责任部门 / 人</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">工作流</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">第三方回写</th>
+                                        <th class="px-4 py-3 font-medium">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody" class="divide-y divide-slate-200"></tbody>
+                            </table>
+                            <div
+                                class="flex items-center justify-between px-4 py-3 border-t border-slate-200 text-[13px] text-slate-500">
+                                <div id="totalRows">共 6 条记录</div>
+                                <div class="flex items-center gap-1">
+                                    <button
+                                        class="w-7 h-7 flex items-center justify-center rounded border border-slate-200 hover:border-brand hover:text-brand transition cursor-not-allowed bg-slate-50">&lt;</button>
+                                    <button
+                                        class="w-7 h-7 flex items-center justify-center rounded bg-brand text-white">1</button>
+                                    <button
+                                        class="w-7 h-7 flex items-center justify-center rounded border border-slate-200 hover:border-brand hover:text-brand transition cursor-not-allowed bg-slate-50">&gt;</button>
+                                    <select
+                                        class="ml-2 rounded border border-slate-300 bg-white px-2 py-1 text-[13px] outline-none">
+                                        <option>10 条/页</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="assignModal" class="modal-mask hidden fixed inset-0 z-[100] flex items-center justify-center p-8">
+        <div class="w-[560px] rounded-[28px] bg-white p-7 shadow-2xl">
+            <div class="mb-5 flex items-center justify-between">
+                <h2 id="assignTitle" class="text-[24px] font-semibold text-slate-900">分派处置单</h2>
+                <button type="button" onclick="closeModal('assignModal')" class="text-xl text-slate-400"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input id="assignId" type="hidden">
+            <select id="assignDept"
+                class="mb-4 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand">
+                <option value="">选择责任部门</option>
+                <option value="供配电运维组">供配电运维组</option>
+                <option value="消防安全组">消防安全组</option>
+                <option value="机房保障组">机房保障组</option>
+            </select>
+            <input id="assignUser" type="text" placeholder="责任人"
+                class="mb-4 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand">
+            <textarea id="assignReason" rows="3" placeholder="分派 / 转派说明"
+                class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand"></textarea>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="closeModal('assignModal')"
+                    class="rounded-2xl border border-slate-200 px-5 py-3 text-sm text-slate-600">取消</button>
+                <button type="button" onclick="saveAssign()"
+                    class="rounded-2xl bg-brand px-5 py-3 text-sm font-medium text-white">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="handleModal" class="modal-mask hidden fixed inset-0 z-[100] flex items-center justify-center p-8">
+        <div class="w-[620px] rounded-[28px] bg-white p-7 shadow-2xl">
+            <div class="mb-5 flex items-center justify-between">
+                <h2 class="text-[24px] font-semibold text-slate-900">提交处理结果</h2>
+                <button type="button" onclick="closeModal('handleModal')" class="text-xl text-slate-400"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input id="handleId" type="hidden">
+            <select id="handleResult"
+                class="mb-4 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand">
+                <option value="已恢复">已恢复</option>
+                <option value="已临时处理">已临时处理</option>
+                <option value="误报关闭">误报关闭</option>
+            </select>
+            <textarea id="handleDesc" rows="4" placeholder="处理说明"
+                class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand"></textarea>
+            <div class="mt-4 rounded-[22px] bg-slate-50 p-4 text-sm text-slate-500">
+                本期不提供人工重试入口。若工作流已开启第三方回写，提交后状态将进入“待回写”。
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="closeModal('handleModal')"
+                    class="rounded-2xl border border-slate-200 px-5 py-3 text-sm text-slate-600">取消</button>
+                <button type="button" onclick="submitHandle()"
+                    class="rounded-2xl bg-brand px-5 py-3 text-sm font-medium text-white">提交</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="closeModal" class="modal-mask hidden fixed inset-0 z-[100] flex items-center justify-center p-8">
+        <div class="w-[560px] rounded-[28px] bg-white p-7 shadow-2xl">
+            <div class="mb-5 flex items-center justify-between">
+                <h2 class="text-[24px] font-semibold text-slate-900">关闭处置单</h2>
+                <button type="button" onclick="closeModal('closeModal')" class="text-xl text-slate-400"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input id="closeId" type="hidden">
+            <textarea id="closeReason" rows="4" placeholder="关闭原因"
+                class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand"></textarea>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="closeModal('closeModal')"
+                    class="rounded-2xl border border-slate-200 px-5 py-3 text-sm text-slate-600">取消</button>
+                <button type="button" onclick="submitClose()"
+                    class="rounded-2xl bg-red-500 px-5 py-3 text-sm font-medium text-white">确认关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="drawerWrap" class="drawer-mask hidden fixed inset-0 z-[90]">
+        <div class="absolute inset-y-0 right-0 w-[520px] bg-white px-7 py-6 shadow-2xl">
+            <div class="flex items-start justify-between">
+                <div>
+                    <div class="text-sm text-slate-400">工单详情</div>
+                    <h2 id="drawerTicket" class="mt-2 text-[26px] font-semibold text-slate-900"></h2>
+                </div>
+                <button type="button" onclick="closeDrawer()" class="text-xl text-slate-400"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="drawerContent" class="mt-6 space-y-4 text-sm text-slate-600"></div>
+        </div>
+    </div>
+
+    <script>
+        const items = [
+            { id: 1, ticketNo: 'GD-20260307-001', alarmName: '主站配电-2#H8 故障报警', type: '设备状态告警', level: '特别重大', status: '待分派', dept: '', user: '', workflow: '未匹配', third: '', callbackStatus: '无需回写', alarmTime: '2026-03-07 21:45:18', dueTime: '--', logs: ['21:45 告警触发', '21:45 未匹配工作流，自动生成待分派处置单'] },
+            { id: 2, ticketNo: 'GD-20260307-002', alarmName: '水泵房水泵运行异常', type: '设备事件告警', level: '一般', status: '待接单', dept: '机电保障组', user: '陈亮', workflow: '水泵房运行异常流程', third: '', callbackStatus: '无需回写', alarmTime: '2026-03-07 20:12:08', dueTime: '2026-03-07 20:42:08', logs: ['20:12 告警触发', '20:12 工作流命中', '20:13 已分派至机电保障组 / 陈亮'] },
+            { id: 3, ticketNo: 'GD-20260307-003', alarmName: '机房空调温湿度异常', type: '感知数据告警', level: '重大', status: '处理中', dept: '机房保障组', user: '李峰', workflow: '机房环控流程', third: '', callbackStatus: '无需回写', alarmTime: '2026-03-07 19:41:20', dueTime: '2026-03-07 20:01:20', logs: ['19:41 告警触发', '19:42 工作流命中', '19:43 李峰已接单'] },
+            { id: 4, ticketNo: 'GD-20260307-004', alarmName: '点型光电感烟探测器报警', type: '感知数据告警', level: '较大', status: '待回写', dept: '消防安全组', user: '王静', workflow: '消防感知-较大流程', third: '消防联动平台', callbackStatus: '未回写', alarmTime: '2026-03-07 18:31:54', dueTime: '2026-03-07 18:46:54', logs: ['18:31 告警触发', '18:31 工作流命中', '18:35 已提交处理结果，等待第三方回写'] },
+            { id: 5, ticketNo: 'GD-20260307-005', alarmName: '消防联动通道异常', type: '设备事件告警', level: '重大', status: '待回写', dept: '消防安全组', user: '王静', workflow: '消防联动-重大流程', third: '消防联动平台', callbackStatus: '回写失败', alarmTime: '2026-03-07 17:05:22', dueTime: '2026-03-07 17:20:22', logs: ['17:05 告警触发', '17:06 工作流命中', '17:10 处理结果已提交', '17:12 第三方回写失败：ticket_no 校验通过，但业务状态码异常'] },
+            { id: 6, ticketNo: 'GD-20260307-006', alarmName: '主站配电-1#H2 故障报警', type: '设备状态告警', level: '重大', status: '已完成', dept: '供配电运维组', user: '刘晓东', workflow: '主站配电故障-重大流程', third: '供配电工单平台', callbackStatus: '回写成功', alarmTime: '2026-03-07 16:15:48', dueTime: '2026-03-07 16:25:48', logs: ['16:15 告警触发', '16:16 工作流命中', '16:17 刘晓东接单', '16:22 第三方回写成功，处置完成'] }
+        ];
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => toast.classList.add('hidden'), 2200);
+        }
+
+        function levelBadge(level) {
+            const map = {
+                '特别重大': 'bg-red-500 text-white',
+                '重大': 'bg-orange-500 text-white',
+                '较大': 'bg-amber-400 text-white',
+                '一般': 'bg-slate-300 text-white'
+            };
+            return `<span class="rounded-lg px-3 py-1 text-xs font-medium ${map[level] || 'bg-slate-100 text-slate-500'}">${level}</span>`;
+        }
+
+        function statusBadge(status) {
+            const map = {
+                '待分派': 'bg-amber-50 text-warning',
+                '待接单': 'bg-slate-100 text-slate-600',
+                '处理中': 'bg-brand/10 text-brand',
+                '待回写': 'bg-purple-50 text-purple-600',
+                '已完成': 'bg-emerald-50 text-success',
+                '已关闭': 'bg-slate-100 text-slate-500'
+            };
+            return `<span class="rounded-full px-3 py-1 text-xs font-medium ${map[status] || 'bg-slate-100 text-slate-500'}">${status}</span>`;
+        }
+
+        function callbackBadge(status) {
+            const map = {
+                '无需回写': 'bg-slate-100 text-slate-500',
+                '未回写': 'bg-brand/10 text-brand',
+                '回写成功': 'bg-emerald-50 text-success',
+                '回写失败': 'bg-red-50 text-danger'
+            };
+            return `<span class="rounded-full px-3 py-1 text-xs font-medium ${map[status] || 'bg-slate-100 text-slate-500'}">${status}</span>`;
+        }
+
+        function updateSummary() {
+            document.getElementById('waitAssignCount').textContent = items.filter((item) => item.status === '待分派').length;
+            document.getElementById('waitTakeCount').textContent = items.filter((item) => item.status === '待接单').length;
+            document.getElementById('processingCount').textContent = items.filter((item) => item.status === '处理中').length;
+            document.getElementById('callbackFailCount').textContent = items.filter((item) => item.callbackStatus === '回写失败').length;
+        }
+
+        function renderTable() {
+            const keyword = document.getElementById('keyword').value.trim();
+            const type = document.getElementById('type').value;
+            const status = document.getElementById('status').value;
+            const callback = document.getElementById('callbackStatus').value;
+            const rows = items.filter((item) => {
+                const hitKeyword = !keyword || item.ticketNo.includes(keyword) || item.alarmName.includes(keyword);
+                const hitType = !type || item.type === type;
+                const hitStatus = !status || item.status === status;
+                const hitCallback = !callback || item.callbackStatus === callback;
+                return hitKeyword && hitType && hitStatus && hitCallback;
+            });
+            document.getElementById('tbody').innerHTML = rows.map((item) => `
+                <tr>
+                    <td class="px-5 py-4 font-medium text-slate-900">${item.ticketNo}</td>
+                    <td class="px-5 py-4">
+                        <div class="font-medium text-slate-900">${item.alarmName}</div>
+                        <div class="mt-1 text-xs text-slate-400">${item.alarmTime}</div>
+                    </td>
+                    <td class="px-5 py-4 text-slate-600">${item.type}<br>${levelBadge(item.level)}</td>
+                    <td class="px-5 py-4">${statusBadge(item.status)}</td>
+                    <td class="px-5 py-4 text-slate-600">${item.dept || '--'}<br><span class="text-slate-400">${item.user || '待分派'}</span></td>
+                    <td class="px-5 py-4 ${item.workflow === '未匹配' ? 'text-warning' : 'text-slate-600'}">${item.workflow}</td>
+                    <td class="px-5 py-4">${callbackBadge(item.callbackStatus)}</td>
+                    <td class="px-5 py-4">
+                        <div class="flex flex-wrap gap-2">
+                            ${actionButtons(item)}
+                            <button type="button" onclick="openDrawer(${item.id})" class="rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-600">详情</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            updateSummary();
+        }
+
+        function actionButtons(item) {
+            if (item.status === '待分派') {
+                return `<button type="button" onclick="openAssign(${item.id}, false)" class="rounded-xl border border-brand/20 px-3 py-2 text-xs text-brand">分派</button>`;
+            }
+            if (item.status === '待接单') {
+                return `
+                    <button type="button" onclick="takeOrder(${item.id})" class="rounded-xl border border-brand/20 px-3 py-2 text-xs text-brand">接单</button>
+                    <button type="button" onclick="openAssign(${item.id}, true)" class="rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-600">转派</button>
+                `;
+            }
+            if (item.status === '处理中') {
+                return `
+                    <button type="button" onclick="openHandle(${item.id})" class="rounded-xl border border-brand/20 px-3 py-2 text-xs text-brand">处理</button>
+                    <button type="button" onclick="openAssign(${item.id}, true)" class="rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-600">转派</button>
+                    <button type="button" onclick="openClose(${item.id})" class="rounded-xl border border-red-200 px-3 py-2 text-xs text-red-500">关闭</button>
+                `;
+            }
+            if (item.status === '待回写') {
+                return `
+                    <button type="button" onclick="simulateCallback(${item.id})" class="rounded-xl border border-brand/20 px-3 py-2 text-xs text-brand">模拟回写</button>
+                    <button type="button" onclick="openClose(${item.id})" class="rounded-xl border border-red-200 px-3 py-2 text-xs text-red-500">关闭</button>
+                `;
+            }
+            return '';
+        }
+
+        function resetFilter() {
+            document.getElementById('keyword').value = '';
+            document.getElementById('type').value = '';
+            document.getElementById('status').value = '';
+            document.getElementById('callbackStatus').value = '';
+            renderTable();
+        }
+
+        function getItem(id) {
+            return items.find((item) => item.id === id);
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function openAssign(id, transfer) {
+            const item = getItem(id);
+            document.getElementById('assignId').value = id;
+            document.getElementById('assignDept').value = item.dept || '';
+            document.getElementById('assignUser').value = item.user || '';
+            document.getElementById('assignReason').value = '';
+            document.getElementById('assignTitle').textContent = transfer ? '转派处置单' : '分派处置单';
+            document.getElementById('assignModal').classList.remove('hidden');
+        }
+
+        function saveAssign() {
+            const item = getItem(Number(document.getElementById('assignId').value));
+            const dept = document.getElementById('assignDept').value;
+            const user = document.getElementById('assignUser').value.trim();
+            const reason = document.getElementById('assignReason').value.trim();
+            if (!dept || !user) {
+                showToast('请填写责任部门和责任人');
+                return;
+            }
+            const transfer = item.status !== '待分派';
+            item.dept = dept;
+            item.user = user;
+            item.status = '待接单';
+            item.logs.push(`${new Date().toLocaleTimeString('zh-CN', { hour12: false }).slice(0, 5)} ${transfer ? '已转派' : '已分派'}至 ${dept} / ${user}${reason ? '：' + reason : ''}`);
+            closeModal('assignModal');
+            renderTable();
+            showToast(transfer ? '处置单已转派' : '处置单已分派');
+        }
+
+        function takeOrder(id) {
+            const item = getItem(id);
+            item.status = '处理中';
+            item.logs.push(`${new Date().toLocaleTimeString('zh-CN', { hour12: false }).slice(0, 5)} ${item.user || '当前责任人'}已接单`);
+            renderTable();
+            showToast('已接单，状态更新为处理中');
+        }
+
+        function openHandle(id) {
+            document.getElementById('handleId').value = id;
+            document.getElementById('handleResult').value = '已恢复';
+            document.getElementById('handleDesc').value = '';
+            document.getElementById('handleModal').classList.remove('hidden');
+        }
+
+        function submitHandle() {
+            const item = getItem(Number(document.getElementById('handleId').value));
+            const result = document.getElementById('handleResult').value;
+            const desc = document.getElementById('handleDesc').value.trim();
+            if (!desc) {
+                showToast('请填写处理说明');
+                return;
+            }
+            item.logs.push(`${new Date().toLocaleTimeString('zh-CN', { hour12: false }).slice(0, 5)} 已提交处理结果：${result}，${desc}`);
+            if (item.third) {
+                item.status = '待回写';
+                item.callbackStatus = '未回写';
+            } else {
+                item.status = '已完成';
+                item.callbackStatus = '无需回写';
+            }
+            closeModal('handleModal');
+            renderTable();
+            showToast(item.third ? '已提交处理结果，等待第三方回写' : '已完成处置');
+        }
+
+        function openClose(id) {
+            document.getElementById('closeId').value = id;
+            document.getElementById('closeReason').value = '';
+            document.getElementById('closeModal').classList.remove('hidden');
+        }
+
+        function submitClose() {
+            const item = getItem(Number(document.getElementById('closeId').value));
+            const reason = document.getElementById('closeReason').value.trim();
+            if (!reason) {
+                showToast('请填写关闭原因');
+                return;
+            }
+            item.status = '已关闭';
+            item.logs.push(`${new Date().toLocaleTimeString('zh-CN', { hour12: false }).slice(0, 5)} 处置单已关闭：${reason}`);
+            closeModal('closeModal');
+            renderTable();
+            showToast('处置单已关闭');
+        }
+
+        function simulateCallback(id) {
+            const item = getItem(id);
+            item.callbackStatus = '回写成功';
+            item.status = '已完成';
+            item.logs.push(`${new Date().toLocaleTimeString('zh-CN', { hour12: false }).slice(0, 5)} 第三方基于工单号 ${item.ticketNo} 回写成功`);
+            renderTable();
+            showToast('已模拟第三方回写成功');
+        }
+
+        function openDrawer(id) {
+            const item = getItem(id);
+            document.getElementById('drawerTicket').textContent = item.ticketNo;
+            document.getElementById('drawerContent').innerHTML = `
+                <div class="rounded-[22px] bg-slate-50 p-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><div class="text-slate-400">告警名称</div><div class="mt-1 text-slate-900">${item.alarmName}</div></div>
+                        <div><div class="text-slate-400">处置状态</div><div class="mt-1">${statusBadge(item.status)}</div></div>
+                        <div><div class="text-slate-400">告警类型</div><div class="mt-1 text-slate-900">${item.type}</div></div>
+                        <div><div class="text-slate-400">告警级别</div><div class="mt-1">${levelBadge(item.level)}</div></div>
+                        <div><div class="text-slate-400">责任部门 / 人</div><div class="mt-1 text-slate-900">${item.dept || '--'} / ${item.user || '--'}</div></div>
+                        <div><div class="text-slate-400">第三方回写</div><div class="mt-1">${callbackBadge(item.callbackStatus)}</div></div>
+                    </div>
+                </div>
+                <div class="rounded-[22px] border border-line p-4">
+                    <div class="text-sm text-slate-400">工作流信息</div>
+                    <div class="mt-2 text-slate-900">${item.workflow}</div>
+                    <div class="mt-2 text-sm text-slate-500">${item.workflow === '未匹配' ? '未命中工作流，自动生成待分派处置单。' : '第三方应用：' + (item.third || '无')}</div>
+                </div>
+                <div class="rounded-[22px] border border-line p-4">
+                    <div class="text-sm text-slate-400">处置过程</div>
+                    <div class="mt-3 space-y-2">
+                        ${item.logs.map((log) => `<div class="rounded-xl bg-slate-50 px-3 py-3 text-slate-600">${log}</div>`).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('drawerWrap').classList.remove('hidden');
+        }
+
+        function closeDrawer() {
+            document.getElementById('drawerWrap').classList.add('hidden');
+        }
+
+        renderTable();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日志管理 - 数据处理服务管理</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --blue: #2f5fe3;
+            --blue-dark: #123d96;
+            --sidebar: #021e3d;
+            --sidebar-light: #072b52;
+            --bg: #d8dde8;
+            --panel: #f7f8fb;
+            --line: #d7dbe5;
+            --text: #2b3242;
+            --muted: #7f8aa3;
+            --danger: #ef4444;
+            --success: #0f9d58;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-width: 1360px;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        .shell {
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 70px;
+            background: var(--blue);
+            color: #fff;
+            display: grid;
+            grid-template-columns: 374px 1fr 280px;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(15, 35, 95, 0.12);
+        }
+
+        .brand {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 34px;
+            font-size: 22px;
+            font-weight: 700;
+            border-right: 1px solid rgba(255, 255, 255, 0.12);
+            background: linear-gradient(90deg, #2f5fe3 0%, #2958dd 100%);
+        }
+
+        .topbar-main {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 0 24px;
+            font-size: 28px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 28px;
+            padding-right: 30px;
+            font-size: 15px;
+        }
+
+        .topbar-right .user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 28px;
+            border-left: 1px solid rgba(255, 255, 255, 0.28);
+        }
+
+        .content-shell {
+            display: grid;
+            grid-template-columns: 374px 1fr;
+            min-height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #032247 0%, #02162d 100%);
+            color: #dbe7ff;
+            padding-bottom: 28px;
+        }
+
+        .sidebar-group {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-title {
+            height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 38px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .sidebar-menu a,
+        .sidebar-title {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .sidebar-menu a {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 0 40px 0 78px;
+            font-size: 18px;
+            position: relative;
+        }
+
+        .sidebar-menu a.active {
+            background: #2f5fe3;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .sidebar-menu a:hover {
+            background: rgba(47, 95, 227, 0.18);
+        }
+
+        .other-group {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 38px;
+            font-size: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .workspace {
+            padding: 22px 26px 28px;
+            overflow: auto;
+        }
+
+        .workspace-tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 0;
+        }
+
+        .workspace-tab {
+            min-width: 168px;
+            height: 54px;
+            background: #eef1f8;
+            border: 1px solid #cfd6e4;
+            border-bottom: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #6e7893;
+            font-size: 18px;
+            position: relative;
+        }
+
+        .workspace-tab.active {
+            background: var(--blue);
+            color: #fff;
+        }
+
+        .workspace-tab .close {
+            position: absolute;
+            right: 12px;
+            top: 8px;
+            font-size: 15px;
+            opacity: 0.75;
+        }
+
+        .panel {
+            background: #fff;
+            min-height: calc(100vh - 140px);
+            border: 1px solid #d5dbe7;
+            box-shadow: 0 6px 18px rgba(28, 46, 97, 0.08);
+            padding: 0 28px 26px;
+        }
+
+        .panel-title {
+            display: inline-flex;
+            align-items: center;
+            height: 52px;
+            min-width: 184px;
+            padding: 0 20px;
+            margin-left: -28px;
+            background: var(--blue);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 0 0 6px 0;
+        }
+
+        .log-tabs {
+            display: flex;
+            gap: 50px;
+            padding-top: 32px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .log-tab {
+            background: none;
+            border: none;
+            height: 50px;
+            font-size: 16px;
+            color: #4b5569;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .log-tab.active {
+            color: var(--blue);
+            font-weight: 600;
+        }
+
+        .log-tab.active::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -1px;
+            height: 2px;
+            background: var(--blue);
+        }
+
+        .filter-panel {
+            padding: 20px 0 14px;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        .field {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 380px;
+        }
+
+        .field.compact {
+            min-width: 320px;
+        }
+
+        .field label {
+            width: 78px;
+            color: #343c4f;
+            font-size: 16px;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            height: 42px;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            background: #fff;
+            padding: 0 14px;
+            color: #333;
+            outline: none;
+        }
+
+        .field input::placeholder {
+            color: #b5bccd;
+        }
+
+        .action-row {
+            margin-left: auto;
+            display: flex;
+            gap: 14px;
+        }
+
+        .btn {
+            min-width: 84px;
+            height: 40px;
+            border-radius: 6px;
+            background: #fff;
+            border: 1px solid #cfd6e4;
+            color: #4c5874;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+
+        .btn.primary {
+            color: var(--blue);
+            border-color: var(--blue);
+        }
+
+        .btn.warn {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .btn.export {
+            color: var(--success);
+            border-color: var(--success);
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(29, 78, 216, 0.08);
+        }
+
+        .more-toggle-wrap {
+            display: flex;
+            justify-content: center;
+            margin: 18px 0 16px;
+        }
+
+        .more-toggle {
+            min-width: 140px;
+            height: 38px;
+            border: none;
+            background: #fff;
+            color: var(--blue);
+            border-radius: 0 0 14px 14px;
+            box-shadow: 0 3px 10px rgba(33, 64, 139, 0.12);
+            cursor: pointer;
+        }
+
+        .more-fields {
+            display: none;
+            padding-bottom: 4px;
+        }
+
+        .more-fields.expanded {
+            display: block;
+        }
+
+        .result-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #69758f;
+            padding: 0 0 14px;
+        }
+
+        .result-summary strong {
+            color: var(--blue);
+        }
+
+        .table-wrap {
+            border: 1px solid #dce2ee;
+            background: #fff;
+            min-height: 540px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        thead {
+            background: #e6ebf4;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #e6ebf4;
+            padding: 18px 12px;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 16px;
+        }
+
+        th {
+            color: #252d3d;
+            font-weight: 700;
+        }
+
+        tbody tr:hover {
+            background: #f7faff;
+        }
+
+        .level {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 68px;
+            height: 30px;
+            border-radius: 4px;
+            border: 1px solid currentColor;
+            font-size: 13px;
+            background: #fff;
+        }
+
+        .level.debug {
+            color: #2f5fe3;
+        }
+
+        .level.info {
+            color: #73b71a;
+        }
+
+        .level.warn {
+            color: #d97706;
+        }
+
+        .level.error {
+            color: #ef4444;
+        }
+
+        .view-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--blue);
+            border-radius: 6px;
+            background: #fff;
+            color: var(--blue);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .empty {
+            display: none;
+            min-height: 360px;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #99a3b9;
+            gap: 10px;
+            font-size: 16px;
+        }
+
+        .empty.show {
+            display: flex;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 18px 0;
+            color: #7f8aa3;
+            font-size: 14px;
+        }
+
+        .pagination .pager {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .pager span,
+        .pager button {
+            min-width: 34px;
+            height: 32px;
+            border-radius: 4px;
+            border: 1px solid #d3dae8;
+            background: #fff;
+            color: #6d7890;
+            cursor: pointer;
+        }
+
+        .pager .active {
+            background: var(--blue);
+            color: #fff;
+            border-color: var(--blue);
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.38);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 40;
+        }
+
+        .overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            width: 540px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.24);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            height: 58px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #edf1f6;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .modal-body {
+            padding: 22px;
+        }
+
+        .modal-tip {
+            background: #eef5ff;
+            border: 1px solid #d4e5ff;
+            border-radius: 8px;
+            padding: 14px 16px;
+            color: #2754b9;
+            margin-bottom: 18px;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .modal-field {
+            margin-bottom: 18px;
+        }
+
+        .modal-field label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #3a465d;
+            font-weight: 600;
+        }
+
+        .radio-list {
+            display: flex;
+            gap: 14px;
+        }
+
+        .radio-item {
+            flex: 1;
+            border: 1px solid #d9e1ef;
+            border-radius: 8px;
+            padding: 14px 16px;
+            cursor: pointer;
+        }
+
+        .radio-item input {
+            margin-right: 8px;
+        }
+
+        .modal-input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #dde4f0;
+            border-radius: 6px;
+            background: #f7f9fc;
+            padding: 0 14px;
+            color: #7a859e;
+        }
+
+        .modal-error {
+            display: none;
+            margin-top: 10px;
+            color: var(--danger);
+            font-size: 13px;
+        }
+
+        .modal-error.show {
+            display: block;
+        }
+
+        .modal-footer {
+            padding: 16px 22px 22px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .detail-modal {
+            width: 720px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 130px 1fr;
+            gap: 12px 16px;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .detail-grid dt {
+            color: #7c889f;
+        }
+
+        .detail-grid dd {
+            color: #2e3648;
+        }
+
+        .toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 240px;
+            max-width: 480px;
+            background: rgba(25, 33, 52, 0.92);
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 999px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 60;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2);
+        }
+
+        .toast.show {
+            display: inline-flex;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shell">
+        <header class="topbar">
+            <div class="brand">物联网管理平台</div>
+            <div class="topbar-main">
+                <i class="ph ph-list"></i>
+            </div>
+            <div class="topbar-right">
+                <i class="ph ph-bell text-lg"></i>
+                <div class="user">
+                    <i class="ph ph-user-circle text-lg"></i>
+                    <span>超级管理员</span>
+                    <i class="ph ph-caret-down"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-shell">
+            <aside class="sidebar">
+                <div class="sidebar-group">
+                    <div class="sidebar-title">
+                        <span><i class="ph ph-list-bullets" style="margin-right: 12px;"></i>数据处理服务管理</span>
+                        <i class="ph ph-caret-up"></i>
+                    </div>
+                    <div class="sidebar-menu">
+                        <a href="#"><i class="ph ph-file-text"></i><span>协议管理</span></a>
+                        <a href="../index.html"><i class="ph ph-gauge"></i><span>仪表盘</span></a>
+                        <a href="#"><i class="ph ph-globe"></i><span>设备空间管理</span></a>
+                        <a href="#"><i class="ph ph-device-mobile"></i><span>设备治理</span></a>
+                        <a href="#" class="active"><i class="ph ph-book-open-text"></i><span>日志管理</span></a>
+                    </div>
+                </div>
+                <div class="other-group">
+                    <span><i class="ph ph-devices" style="margin-right: 12px;"></i>物联设备管理</span>
+                    <i class="ph ph-caret-down"></i>
+                </div>
+                <div class="other-group">
+                    <span><i class="ph ph-bell-ringing" style="margin-right: 12px;"></i>告警中心</span>
+                    <i class="ph ph-caret-down"></i>
+                </div>
+                <div class="other-group">
+                    <span><i class="ph ph-share-network" style="margin-right: 12px;"></i>规则引擎</span>
+                    <i class="ph ph-caret-down"></i>
+                </div>
+                <div class="other-group">
+                    <span><i class="ph ph-gear" style="margin-right: 12px;"></i>系统管理</span>
+                    <i class="ph ph-caret-down"></i>
+                </div>
+                <div class="other-group">
+                    <span><i class="ph ph-plugs-connected" style="margin-right: 12px;"></i>数据通道</span>
+                    <i class="ph ph-caret-down"></i>
+                </div>
+            </aside>
+
+            <main class="workspace">
+                <div class="workspace-tabs">
+                    <div class="workspace-tab">协议管理 <span class="close">×</span></div>
+                    <div class="workspace-tab">仪表盘 <span class="close">×</span></div>
+                    <div class="workspace-tab active">日志管理 <span class="close">×</span></div>
+                </div>
+
+                <section class="panel">
+                    <div class="panel-title">日志管理</div>
+
+                    <div class="log-tabs">
+                        <button class="log-tab active" data-tab="access">访问日志</button>
+                        <button class="log-tab" data-tab="system">系统日志</button>
+                    </div>
+
+                    <div class="filter-panel">
+                        <div id="accessFilters">
+                            <div class="filter-row">
+                                <div class="field compact">
+                                    <label>IP：</label>
+                                    <input id="accessIp" type="text" placeholder="请输入IP">
+                                </div>
+                                <div class="field">
+                                    <label>请求路径：</label>
+                                    <input id="accessPath" type="text" placeholder="请输入请求路径">
+                                </div>
+                                <div class="action-row">
+                                    <button class="btn primary" onclick="searchLogs()">查询</button>
+                                    <button class="btn warn" onclick="resetFilters()">重置</button>
+                                    <button class="btn export" id="exportBtn" onclick="openExportModal()">导出</button>
+                                </div>
+                            </div>
+                            <div class="more-fields" id="accessMoreFields">
+                                <div class="filter-row" style="padding-top: 18px;">
+                                    <div class="field compact">
+                                        <label>请求方法：</label>
+                                        <select id="accessMethod">
+                                            <option value="">全部</option>
+                                            <option value="GET">GET</option>
+                                            <option value="POST">POST</option>
+                                            <option value="PUT">PUT</option>
+                                        </select>
+                                    </div>
+                                    <div class="field">
+                                        <label>请求时间：</label>
+                                        <input id="accessTime" type="text" placeholder="例如：2026-03-09 00:00 ~ 2026-03-09 23:59">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="systemFilters" style="display: none;">
+                            <div class="filter-row">
+                                <div class="field compact">
+                                    <label>名称：</label>
+                                    <input id="systemName" type="text" placeholder="请输入名称">
+                                </div>
+                                <div class="field compact">
+                                    <label>日志级别：</label>
+                                    <select id="systemLevel">
+                                        <option value="">请选择日志级别</option>
+                                        <option value="DEBUG">DEBUG</option>
+                                        <option value="INFO">INFO</option>
+                                        <option value="WARN">WARN</option>
+                                        <option value="ERROR">ERROR</option>
+                                    </select>
+                                </div>
+                                <div class="action-row">
+                                    <button class="btn primary" onclick="searchLogs()">查询</button>
+                                    <button class="btn warn" onclick="resetFilters()">重置</button>
+                                    <button class="btn export" id="systemExportBtn" onclick="openExportModal()">导出</button>
+                                </div>
+                            </div>
+                            <div class="more-fields" id="systemMoreFields">
+                                <div class="filter-row" style="padding-top: 18px;">
+                                    <div class="field compact">
+                                        <label>关键字：</label>
+                                        <input id="systemKeyword" type="text" placeholder="请输入日志关键字">
+                                    </div>
+                                    <div class="field">
+                                        <label>记录时间：</label>
+                                        <input id="systemTime" type="text" placeholder="例如：2026-03-09 00:00 ~ 2026-03-09 23:59">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="more-toggle-wrap">
+                            <button class="more-toggle" id="moreToggle" onclick="toggleMoreFields()">
+                                展开更多 <i class="ph ph-caret-down"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="result-summary">
+                        <div>当前页签：<strong id="activeTabLabel">访问日志</strong>，当前结果 <strong id="resultCount">6</strong> 条</div>
+                        <div>导出范围：当前页签下的当前查询结果</div>
+                    </div>
+
+                    <div class="table-wrap">
+                        <div class="empty" id="emptyState">
+                            <i class="ph ph-folder-open" style="font-size: 44px;"></i>
+                            <div>暂无匹配日志，请调整查询条件后重试</div>
+                        </div>
+
+                        <table id="accessTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 17%;">IP</th>
+                                    <th style="width: 32%;">请求路径</th>
+                                    <th style="width: 12%;">请求方法</th>
+                                    <th style="width: 12%;">请求耗时</th>
+                                    <th style="width: 17%;">请求时间</th>
+                                    <th style="width: 10%; text-align: center;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accessTableBody"></tbody>
+                        </table>
+
+                        <table id="systemTable" style="display: none;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 36%;">名称</th>
+                                    <th style="width: 14%;">日志级别</th>
+                                    <th style="width: 30%;">日志内容</th>
+                                    <th style="width: 10%;">记录时间</th>
+                                    <th style="width: 10%; text-align: center;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="systemTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <div id="pageInfo">显示第 1 至 6 项结果，共 6 项</div>
+                        <div class="pager">
+                            <button>上一页</button>
+                            <span class="active">1</span>
+                            <button>下一页</button>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div class="overlay" id="exportOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <span>导出日志报表</span>
+                <button class="btn" style="min-width: 40px;" onclick="closeExportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-tip" id="exportSummary"></div>
+
+                <div class="modal-field">
+                    <label>导出格式</label>
+                    <div class="radio-list">
+                        <label class="radio-item">
+                            <input type="radio" name="exportFormat" value="CSV" checked>CSV
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="exportFormat" value="Excel">Excel
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-field">
+                    <label>文件命名预览</label>
+                    <input class="modal-input" id="fileNamePreview" type="text" readonly>
+                </div>
+
+                <div class="modal-error" id="exportError">当前结果超过 20,000 条，请缩小查询范围后再导出。</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeExportModal()">取消</button>
+                <button class="btn primary" id="confirmExportBtn" onclick="doExport()">确认导出</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="detailOverlay">
+        <div class="modal detail-modal">
+            <div class="modal-header">
+                <span id="detailTitle">日志详情</span>
+                <button class="btn" style="min-width: 40px;" onclick="closeDetailModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <dl class="detail-grid" id="detailContent"></dl>
+            </div>
+            <div class="modal-footer">
+                <button class="btn primary" onclick="closeDetailModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="ph ph-check-circle"></i>
+        <span id="toastText">操作成功</span>
+    </div>
+
+    <script>
+        const accessLogs = [
+            { ip: '10.55.135.125', path: '/onecity/cc/iot/dashboard/_multi', method: 'POST', duration: '17ms', time: '2026-03-09 09:41:08', status: '200', requestId: 'REQ-20260309-0001' },
+            { ip: '10.55.135.125', path: '/onecity/cc/iot/device/instance/_count', method: 'GET', duration: '9ms', time: '2026-03-09 09:40:57', status: '200', requestId: 'REQ-20260309-0002' },
+            { ip: '10.55.135.125', path: '/onecity/cc/iot/device/instance/_count', method: 'GET', duration: '10ms', time: '2026-03-09 09:40:41', status: '200', requestId: 'REQ-20260309-0003' },
+            { ip: '10.55.135.125', path: '/onecity/cc/iot/device/instance/_count', method: 'GET', duration: '7ms', time: '2026-03-09 09:40:20', status: '200', requestId: 'REQ-20260309-0004' },
+            { ip: '10.55.135.125', path: '/onecity/cc/iot/geo/object/device/_search/geo.json', method: 'POST', duration: '14ms', time: '2026-03-09 09:39:56', status: '200', requestId: 'REQ-20260309-0005' },
+            { ip: '10.55.135.125', path: '/onecity/cc/iot/dashboard/_multi', method: 'POST', duration: '18ms', time: '2026-03-09 09:39:21', status: '200', requestId: 'REQ-20260309-0006' }
+        ];
+
+        const systemLogs = [
+            { name: 'org.hswebframework.web.starter.jackson.CustomJackson2Js...', level: 'DEBUG', content: '[f29a9a96-3299] Decoded [org.hswebframework.web]', time: '2026-03-09 09:41:11', thread: 'http-nio-8080-exec-1' },
+            { name: 'org.hswebframework.web.crud.web.ResponseMessageWrap...', level: 'DEBUG', content: '[f29a9a96-3299] 0..1 [org.hswebframework.web.crud]', time: '2026-03-09 09:40:48', thread: 'http-nio-8080-exec-2' },
+            { name: 'org.hswebframework.web.crud.web.ResponseMessageWrap...', level: 'DEBUG', content: '[f29a9a96-3299] Using "application/json" given [application/json]', time: '2026-03-09 09:40:26', thread: 'http-nio-8080-exec-2' },
+            { name: 'org.jetlinks.pro.standalone.JetLinksApplication$AdminAllAcc...', level: 'INFO', content: '10.55.135.125 => /onecity/cc/iot/notifications/_query...', time: '2026-03-09 09:39:47', thread: 'http-nio-8080-exec-3' },
+            { name: 'org.hswebframework.web.starter.jackson.CustomJackson2Js...', level: 'DEBUG', content: '[98d55c30-3298] Decoded [org.hswebframework.web]', time: '2026-03-09 09:39:22', thread: 'http-nio-8080-exec-1' },
+            { name: 'org.hswebframework.web.starter.jackson.CustomJackson2jso...', level: 'WARN', content: '[104e3dbb-3297] Encoding [org.hswebframework.web]', time: '2026-03-09 09:38:55', thread: 'http-nio-8080-exec-4' }
+        ];
+
+        let activeTab = 'access';
+        let expanded = false;
+        let currentRows = [];
+
+        function renderRows() {
+            const accessBody = document.getElementById('accessTableBody');
+            const systemBody = document.getElementById('systemTableBody');
+            accessBody.innerHTML = '';
+            systemBody.innerHTML = '';
+
+            currentRows.forEach((row, index) => {
+                if (activeTab === 'access') {
+                    accessBody.insertAdjacentHTML('beforeend', `
+                        <tr>
+                            <td>${row.ip}</td>
+                            <td title="${row.path}">${row.path}</td>
+                            <td>${row.method}</td>
+                            <td>${row.duration}</td>
+                            <td>${row.time}</td>
+                            <td style="text-align:center;">
+                                <button class="view-btn" onclick="openDetailModal(${index})"><i class="ph ph-eye"></i></button>
+                            </td>
+                        </tr>
+                    `);
+                } else {
+                    const levelClass = row.level.toLowerCase();
+                    systemBody.insertAdjacentHTML('beforeend', `
+                        <tr>
+                            <td title="${row.name}">${row.name}</td>
+                            <td><span class="level ${levelClass}">${row.level}</span></td>
+                            <td title="${row.content}">${row.content}</td>
+                            <td>${row.time}</td>
+                            <td style="text-align:center;">
+                                <button class="view-btn" onclick="openDetailModal(${index})"><i class="ph ph-eye"></i></button>
+                            </td>
+                        </tr>
+                    `);
+                }
+            });
+
+            const isEmpty = currentRows.length === 0;
+            document.getElementById('emptyState').classList.toggle('show', isEmpty);
+            document.getElementById('accessTable').style.display = activeTab === 'access' && !isEmpty ? 'table' : 'none';
+            document.getElementById('systemTable').style.display = activeTab === 'system' && !isEmpty ? 'table' : 'none';
+            document.getElementById('resultCount').innerText = String(currentRows.length);
+            document.getElementById('pageInfo').innerText = isEmpty ? '显示第 0 至 0 项结果，共 0 项' : `显示第 1 至 ${currentRows.length} 项结果，共 ${currentRows.length} 项`;
+            document.getElementById('activeTabLabel').innerText = activeTab === 'access' ? '访问日志' : '系统日志';
+            updateExportState();
+        }
+
+        function getFilteredRows() {
+            if (activeTab === 'access') {
+                const ip = document.getElementById('accessIp').value.trim().toLowerCase();
+                const path = document.getElementById('accessPath').value.trim().toLowerCase();
+                const method = document.getElementById('accessMethod').value;
+                return accessLogs.filter(row => {
+                    const ipMatch = !ip || row.ip.toLowerCase().includes(ip);
+                    const pathMatch = !path || row.path.toLowerCase().includes(path);
+                    const methodMatch = !method || row.method === method;
+                    return ipMatch && pathMatch && methodMatch;
+                });
+            }
+
+            const name = document.getElementById('systemName').value.trim().toLowerCase();
+            const level = document.getElementById('systemLevel').value;
+            const keyword = document.getElementById('systemKeyword').value.trim().toLowerCase();
+
+            return systemLogs.filter(row => {
+                const nameMatch = !name || row.name.toLowerCase().includes(name);
+                const levelMatch = !level || row.level === level;
+                const keywordMatch = !keyword || row.content.toLowerCase().includes(keyword);
+                return nameMatch && levelMatch && keywordMatch;
+            });
+        }
+
+        function searchLogs() {
+            currentRows = getFilteredRows();
+            renderRows();
+            showToast(currentRows.length ? '查询完成' : '未检索到匹配日志');
+        }
+
+        function resetFilters() {
+            if (activeTab === 'access') {
+                document.getElementById('accessIp').value = '';
+                document.getElementById('accessPath').value = '';
+                document.getElementById('accessMethod').value = '';
+                document.getElementById('accessTime').value = '';
+            } else {
+                document.getElementById('systemName').value = '';
+                document.getElementById('systemLevel').value = '';
+                document.getElementById('systemKeyword').value = '';
+                document.getElementById('systemTime').value = '';
+            }
+            currentRows = activeTab === 'access' ? [...accessLogs] : [...systemLogs];
+            renderRows();
+            showToast('查询条件已重置');
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            document.querySelectorAll('.log-tab').forEach(item => item.classList.toggle('active', item.dataset.tab === tab));
+            document.getElementById('accessFilters').style.display = tab === 'access' ? 'block' : 'none';
+            document.getElementById('systemFilters').style.display = tab === 'system' ? 'block' : 'none';
+            document.getElementById('accessMoreFields').classList.toggle('expanded', expanded && tab === 'access');
+            document.getElementById('systemMoreFields').classList.toggle('expanded', expanded && tab === 'system');
+            currentRows = tab === 'access' ? [...accessLogs] : [...systemLogs];
+            renderRows();
+        }
+
+        function toggleMoreFields() {
+            expanded = !expanded;
+            document.getElementById('accessMoreFields').classList.toggle('expanded', expanded && activeTab === 'access');
+            document.getElementById('systemMoreFields').classList.toggle('expanded', expanded && activeTab === 'system');
+            document.getElementById('moreToggle').innerHTML = expanded ? '收起更多 <i class="ph ph-caret-up"></i>' : '展开更多 <i class="ph ph-caret-down"></i>';
+        }
+
+        function updateExportState() {
+            const disabled = currentRows.length === 0;
+            document.getElementById('exportBtn').disabled = activeTab !== 'access' || disabled;
+            document.getElementById('systemExportBtn').disabled = activeTab !== 'system' || disabled;
+        }
+
+        function buildFileName() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            return `${activeTab === 'access' ? '访问日志报表' : '系统日志报表'}_${y}${m}${d}_${hh}${mm}${ss}`;
+        }
+
+        function openExportModal() {
+            if (!currentRows.length) {
+                showToast('当前无可导出的日志数据');
+                return;
+            }
+            const overLimit = currentRows.length > 20000;
+            document.getElementById('exportSummary').innerHTML = `
+                当前页签：<strong>${activeTab === 'access' ? '访问日志' : '系统日志'}</strong><br>
+                当前查询结果：<strong>${currentRows.length}</strong> 条，仅支持导出当前页签下的当前结果
+            `;
+            document.getElementById('fileNamePreview').value = buildFileName();
+            document.getElementById('exportError').classList.toggle('show', overLimit);
+            document.getElementById('confirmExportBtn').disabled = overLimit;
+            document.getElementById('exportOverlay').classList.add('show');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportOverlay').classList.remove('show');
+        }
+
+        function doExport() {
+            const format = document.querySelector('input[name="exportFormat"]:checked').value;
+            closeExportModal();
+            showToast(`正在导出${activeTab === 'access' ? '访问日志' : '系统日志'} ${format} 报表...`);
+            setTimeout(() => {
+                showToast('导出成功，已按当前查询结果生成文件');
+            }, 900);
+        }
+
+        function openDetailModal(index) {
+            const row = currentRows[index];
+            const detail = document.getElementById('detailContent');
+            const isAccess = activeTab === 'access';
+            document.getElementById('detailTitle').innerText = isAccess ? '访问日志详情' : '系统日志详情';
+            detail.innerHTML = isAccess ? `
+                <dt>IP</dt><dd>${row.ip}</dd>
+                <dt>请求路径</dt><dd>${row.path}</dd>
+                <dt>请求方法</dt><dd>${row.method}</dd>
+                <dt>请求耗时</dt><dd>${row.duration}</dd>
+                <dt>请求时间</dt><dd>${row.time}</dd>
+                <dt>请求状态</dt><dd>${row.status}</dd>
+                <dt>请求ID</dt><dd>${row.requestId}</dd>
+            ` : `
+                <dt>名称</dt><dd>${row.name}</dd>
+                <dt>日志级别</dt><dd>${row.level}</dd>
+                <dt>日志内容</dt><dd>${row.content}</dd>
+                <dt>记录时间</dt><dd>${row.time}</dd>
+                <dt>线程</dt><dd>${row.thread}</dd>
+            `;
+            document.getElementById('detailOverlay').classList.add('show');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailOverlay').classList.remove('show');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastText').innerText = message;
+            toast.classList.add('show');
+            clearTimeout(showToast.timer);
+            showToast.timer = setTimeout(() => toast.classList.remove('show'), 1800);
+        }
+
+        document.querySelectorAll('.log-tab').forEach(item => {
+            item.addEventListener('click', () => switchTab(item.dataset.tab));
+        });
+
+        currentRows = [...accessLogs];
+        renderRows();
+    </script>
+</body>
+
+</html>

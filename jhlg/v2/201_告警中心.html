@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>告警中心 - 二期产品原型</title>
+    <link rel="stylesheet" href="assets/styles.css">
+    <script src="assets/script.js" defer></script>
+</head>
+
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">II</div>
+                <div class="brand-text">
+                    <strong>金华理工二期原型</strong>
+                    <span>统一导航包 / GitHub 共享版</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-section-title">模块导航</div>
+                <a class="nav-item active" href="201_告警中心.html"><span class="nav-index">201</span><span>告警中心</span></a>
+                <a class="nav-item" href="202_规则引擎.html"><span class="nav-index">202</span><span>规则引擎</span></a>
+                <a class="nav-item" href="203_设备管理.html"><span class="nav-index">203</span><span>设备管理</span></a>
+                <a class="nav-item" href="204_数据处理服务管理.html"><span class="nav-index">204</span><span>数据处理服务管理</span></a>
+                <a class="nav-item" href="205_第三方平台管理.html"><span class="nav-index">205</span><span>第三方平台管理</span></a>
+                <a class="nav-item" href="206_权限申请.html"><span class="nav-index">206</span><span>权限申请</span></a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-title-group">
+                    <h1>告警中心</h1>
+                    <p>统一入口页，收拢告警规则、工作流配置、告警处置与记录查询等原型页面。</p>
+                </div>
+                <div class="topbar-meta">模块编号 201</div>
+            </header>
+
+            <div class="content">
+                <section class="hero-card">
+                    <div class="hero-copy">
+                        <h2>告警中心产品原型</h2>
+                        <p>本模块聚合告警中心的主要功能原型，覆盖从仪表盘概览、告警规则定义、工作流流转配置到最终的告警接单、处置下发及历史记录查询的全闭环流程。</p>
+                        <div class="hero-badges">
+                            <span class="badge">仪表盘</span>
+                            <span class="badge">告警配置</span>
+                            <span class="badge">工作流配置</span>
+                            <span class="badge">告警处置</span>
+                            <span class="badge">告警记录</span>
+                        </div>
+                    </div>
+                    <div class="hero-aside">
+                        <div class="metric-box">
+                            <div class="metric-label">模块页面</div>
+                            <div class="metric-value">5</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">核心方向</div>
+                            <div class="metric-value">闭环验证</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <div class="section-header">
+                        <div>
+                            <h3>页面入口</h3>
+                            <p>原型页面按模块首页和四个子功能页面组织。</p>
+                        </div>
+                    </div>
+                    <div class="prototype-grid">
+                        <a class="prototype-card" href="modules/alarm-center/index.html">
+                            <strong>模块首页 / 仪表盘</strong>
+                            <p>告警中心仪表盘概览，提供宏观的数据统计和图表展示。</p>
+                            <code>modules/alarm-center/index.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/alarm-center/pages/alarm_config.html">
+                            <strong>告警配置</strong>
+                            <p>告警规则组、联动规则等的管理与配置。</p>
+                            <code>modules/alarm-center/pages/alarm_config.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/alarm-center/pages/workflow_config.html">
+                            <strong>工作流配置</strong>
+                            <p>定义告警发生后的工单流转策略及人员派发规则。</p>
+                            <code>modules/alarm-center/pages/workflow_config.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/alarm-center/pages/alarm_disposal.html">
+                            <strong>告警处置</strong>
+                            <p>展示平台侧待处理告警的接单、忽略、分派及向下推单的过程。</p>
+                            <code>modules/alarm-center/pages/alarm_disposal.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/alarm-center/pages/alarm_records.html">
+                            <strong>告警记录</strong>
+                            <p>全量历史告警及工单处置流转记录的条件检索与查看。</p>
+                            <code>modules/alarm-center/pages/alarm_records.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

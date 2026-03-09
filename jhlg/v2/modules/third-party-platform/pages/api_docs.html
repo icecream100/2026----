@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查看API - 第三方平台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .bbtn {
+            @apply px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+        }
+
+        .btn-primary {
+            @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+        }
+
+        .btn-secondary {
+            @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-blue-500;
+        }
+
+        .input-field {
+            @apply w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border;
+        }
+    </style>
+</head>
+
+<body class="h-screen flex overflow-hidden text-gray-800" x-data="apiDocsPage()" x-init="init()">
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col hidden md:flex shrink-0">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800 shrink-0">
+            <div class="w-8 h-8 rounded-md bg-blue-500 mr-3"></div>
+            <span class="text-white text-lg font-bold tracking-wider">IoT Platform</span>
+        </div>
+        <div class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">第三方平台管理</div>
+        <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
+            <a href="../index.html" class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 rounded-md">第三方平台</a>
+            <a href="api_docs.html" class="flex items-center px-3 py-2.5 bg-blue-600 text-white rounded-md">查看API</a>
+            <a href="api_governance.html" class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 rounded-md">接口治理</a>
+            <a href="data_sharing.html" class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 rounded-md">数据共享管理</a>
+            <a href="api_config.html" class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 rounded-md">API配置</a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-gray-50">
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 shadow-sm">
+            <div>
+                <h1 class="text-xl font-semibold text-gray-800">查看API</h1>
+                <p class="text-xs text-gray-500 mt-1">当前演示平台：<span class="text-blue-600 font-medium" x-text="platformName"></span></p>
+            </div>
+            <a href="api_config.html" class="bbtn btn-secondary">前往 API配置</a>
+        </header>
+
+        <div class="flex-1 overflow-auto p-6">
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6">
+                <form class="flex flex-wrap gap-4 items-end" @submit.prevent="applyFilters()">
+                    <div class="w-56">
+                        <label class="block text-xs text-gray-500 mb-1">接口分类</label>
+                        <select class="input-field" x-model="filters.category">
+                            <option value="">全部</option>
+                            <option value="device">设备接入</option>
+                            <option value="status">状态获取</option>
+                            <option value="data">数据接入</option>
+                            <option value="control">命令控制</option>
+                            <option value="feedback">命令反馈</option>
+                        </select>
+                    </div>
+                    <div class="w-64">
+                        <label class="block text-xs text-gray-500 mb-1">接口名称 / 路径</label>
+                        <input type="text" class="input-field" placeholder="请输入名称或路径关键字" x-model="filters.keyword">
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" class="bbtn btn-primary">查询</button>
+                        <button type="button" class="bbtn btn-secondary" @click="resetFilters()">重置</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <template x-for="api in filteredApis" :key="api.id">
+                    <section class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h2 class="text-base font-semibold text-gray-900" x-text="api.name"></h2>
+                                    <span class="px-2 py-0.5 rounded text-xs bg-blue-50 text-blue-700 border border-blue-100" x-text="api.categoryLabel"></span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2 font-mono" x-text="api.method + ' ' + api.path"></p>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">已开放</span>
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+                            <div class="rounded-md bg-gray-50 p-3">
+                                <div class="text-xs text-gray-500 mb-1">映射客户能力</div>
+                                <div class="text-gray-800" x-text="api.mapping"></div>
+                            </div>
+                            <div class="rounded-md bg-gray-50 p-3">
+                                <div class="text-xs text-gray-500 mb-1">权限控制</div>
+                                <div class="text-gray-800" x-text="api.auth"></div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <div class="text-sm font-medium text-gray-800 mb-2">请求示例</div>
+                            <pre class="rounded-md bg-slate-900 text-slate-200 p-3 text-xs overflow-x-auto" x-text="api.request"></pre>
+                        </div>
+
+                        <div class="mt-4">
+                            <div class="text-sm font-medium text-gray-800 mb-2">响应示例</div>
+                            <pre class="rounded-md bg-slate-900 text-emerald-200 p-3 text-xs overflow-x-auto" x-text="api.response"></pre>
+                        </div>
+
+                        <div class="mt-4 flex justify-between items-center text-xs text-gray-500">
+                            <span x-text="'默认版本：' + api.version"></span>
+                            <a href="api_config.html" class="text-blue-600 hover:text-blue-700">去配置开放范围</a>
+                        </div>
+                    </section>
+                </template>
+            </div>
+
+            <div x-show="filteredApis.length === 0" class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center text-sm text-gray-500 mt-6">
+                暂无匹配接口，请调整筛选条件后重试。
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function apiDocsPage() {
+            return {
+                platformName: '全部第三方平台',
+                filters: { category: '', keyword: '' },
+                apis: [
+                    {
+                        id: 'device_list',
+                        name: '获取设备清单',
+                        category: 'device',
+                        categoryLabel: '设备接入',
+                        method: 'GET',
+                        path: '/api/v1/devices',
+                        mapping: '平台设备清单接入',
+                        auth: '赋权后按产品 / 设备组 / 设备实例过滤',
+                        version: 'v1.2',
+                        request: 'GET /api/v1/devices?page=1&size=20',
+                        response: '{\n  "total": 2,\n  "items": [{"deviceId":"dev_8829_abc","deviceName":"智能电表 DB-1"}]\n}'
+                    },
+                    {
+                        id: 'device_status',
+                        name: '获取设备在线状态',
+                        category: 'status',
+                        categoryLabel: '状态获取',
+                        method: 'GET',
+                        path: '/api/v1/devices/status',
+                        mapping: '平台设备状态接入 / 平台状态获取',
+                        auth: '需先勾选状态类 API 权限',
+                        version: 'v1.1',
+                        request: 'GET /api/v1/devices/status?deviceId=dev_8829_abc',
+                        response: '{\n  "deviceId":"dev_8829_abc",\n  "status":"online",\n  "lastOnlineTime":"2026-03-09 10:20:11"\n}'
+                    },
+                    {
+                        id: 'data_latest',
+                        name: '获取设备实时数据',
+                        category: 'data',
+                        categoryLabel: '数据接入',
+                        method: 'GET',
+                        path: '/api/v1/data/latest',
+                        mapping: '平台数据接入',
+                        auth: '按授权范围返回实时数据',
+                        version: 'v1.0',
+                        request: 'GET /api/v1/data/latest?productId=smart_meter',
+                        response: '{\n  "items":[{"deviceId":"dev_8829_abc","value":128.4,"ts":"2026-03-09 10:20:00"}]\n}'
+                    },
+                    {
+                        id: 'command_send',
+                        name: '下发控制命令',
+                        category: 'control',
+                        categoryLabel: '命令控制',
+                        method: 'POST',
+                        path: '/api/v1/cmd/invoke',
+                        mapping: '平台命令控制 / 第三方系统命令控制',
+                        auth: '需同时具备控制 API 权限和设备范围授权',
+                        version: 'v1.2',
+                        request: 'POST /api/v1/cmd/invoke\n{\n  "deviceId":"dev_1033_light",\n  "command":"power_off"\n}',
+                        response: '{\n  "requestId":"REQ-291039815",\n  "status":"accepted"\n}'
+                    },
+                    {
+                        id: 'command_feedback',
+                        name: '查询命令反馈',
+                        category: 'feedback',
+                        categoryLabel: '命令反馈',
+                        method: 'GET',
+                        path: '/api/v1/cmd/feedback',
+                        mapping: '第三方系统命令反馈',
+                        auth: '通过接口日志记录页签查看完整反馈',
+                        version: 'v1.0',
+                        request: 'GET /api/v1/cmd/feedback?requestId=REQ-291039815',
+                        response: '{\n  "requestId":"REQ-291039815",\n  "result":"failed",\n  "message":"Device Offline"\n}'
+                    }
+                ],
+                filteredApis: [],
+                init() {
+                    const params = new URLSearchParams(window.location.search);
+                    this.platformName = params.get('platform') || '全部第三方平台';
+                    this.applyFilters();
+                },
+                applyFilters() {
+                    const keyword = this.filters.keyword.trim().toLowerCase();
+                    this.filteredApis = this.apis.filter(api => {
+                        const categoryMatch = !this.filters.category || api.category === this.filters.category;
+                        const keywordMatch = !keyword || api.name.toLowerCase().includes(keyword) || api.path.toLowerCase().includes(keyword);
+                        return categoryMatch && keywordMatch;
+                    });
+                },
+                resetFilters() {
+                    this.filters = { category: '', keyword: '' };
+                    this.applyFilters();
+                }
+            };
+        }
+    </script>
+</body>
+
+</html>

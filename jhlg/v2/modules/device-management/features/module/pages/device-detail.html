@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备详情 - 设备概况</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1677ff',
+                        'primary-hover': '#4096ff',
+                        slate: '#f0f2f5',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-slate text-gray-800 font-sans h-screen flex flex-col overflow-hidden">
+
+    <!-- 顶部导航栏 -->
+    <header
+        class="h-14 bg-white border-b border-gray-200 flex justify-between items-center px-6 flex-shrink-0 z-10 shadow-sm">
+        <div class="flex items-center">
+            <a href="../index.html"
+                class="flex items-center text-gray-500 hover:text-primary transition-colors cursor-pointer mr-4 border-r border-gray-200 pr-4">
+                <i class="ph ph-arrow-left text-lg mr-1"></i> 返回
+            </a>
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-50 text-blue-500 rounded flex items-center justify-center text-2xl">
+                    <i class="ph-fill ph-webcam"></i>
+                </div>
+                <div>
+                    <h1 class="text-base font-bold text-gray-900 flex items-center">
+                        主校区南门摄像头
+                        <span
+                            class="ml-3 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700 border border-green-200">
+                            在线
+                        </span>
+                    </h1>
+                    <div class="text-xs text-gray-500 mt-0.5 space-x-4">
+                        <span>设备 ID: C2023-Cam-01</span>
+                        <span>所属产品: 智能安防摄像头</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex space-x-2">
+            <button
+                class="px-3 py-1.5 border border-gray-300 text-gray-700 rounded text-sm hover:border-gray-400 bg-white transition-colors">设备调试</button>
+            <button
+                class="px-3 py-1.5 bg-primary text-white rounded text-sm hover:bg-primary-hover transition-colors shadow-sm">命令下发</button>
+        </div>
+    </header>
+
+    <!-- 主体区域 -->
+    <main class="flex-1 overflow-y-auto w-full relative">
+        <!-- 横向页签 -->
+        <div class="bg-white border-b border-gray-200 px-6 sticky top-0 z-10">
+            <nav class="flex space-x-8 -mb-px">
+                <a href="#"
+                    class="border-primary text-primary whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">实例信息</a>
+                <a href="#"
+                    class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">物模型数据</a>
+                <a href="#"
+                    class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">设备诊断</a>
+                <a href="#"
+                    class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">设备日志</a>
+            </nav>
+        </div>
+
+        <div class="p-6 max-w-7xl mx-auto space-y-6">
+
+            <!-- 设备概况 (核心补齐需求) -->
+            <section class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 relative">
+                <div class="flex justify-between items-center mb-5">
+                    <h2 class="text-base font-bold text-gray-800 flex items-center">
+                        <div class="w-1 h-4 bg-primary rounded-full mr-2"></div>
+                        设备概况
+                    </h2>
+                    <button class="text-primary text-sm hover:text-primary-hover flex items-center"
+                        onclick="alert('进入编辑流程，同列表页直接呼出编辑抽屉')">
+                        <i class="ph ph-note-pencil mr-1"></i> 编辑
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-3 gap-y-6 gap-x-8">
+                    <div class="flex flex-col">
+                        <span class="text-sm text-gray-500 mb-1">设备名称</span>
+                        <span class="text-sm font-medium text-gray-900">主校区南门摄像头</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm text-gray-500 mb-1">设备 ID</span>
+                        <span class="text-sm font-medium text-gray-900">C2023-Cam-01</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm text-gray-500 mb-1">设备创建时间</span>
+                        <span class="text-sm font-medium text-gray-900">2023-01-10 10:00:00</span>
+                    </div>
+
+                    <!-- 新增的生命周期字段 -->
+                    <div class="flex flex-col">
+                        <span class="text-sm text-gray-500 mb-1 flex items-center">
+                            设备服役时间 <span class="ml-2 text-xs text-blue-500 bg-blue-50 px-1 rounded">新增</span>
+                        </span>
+                        <span class="text-sm font-medium text-gray-900">2023-09-01</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm text-gray-500 mb-1 flex items-center">
+                            设备退役时间 <span class="ml-2 text-xs text-blue-500 bg-blue-50 px-1 rounded">新增</span>
+                        </span>
+                        <span class="text-sm font-medium text-gray-900">2028-09-01</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm text-gray-500 mb-1">所属产品</span>
+                        <span class="text-sm font-medium text-primary cursor-pointer hover:underline">智能安防摄像头</span>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <span class="text-sm text-gray-500 mb-1">设备状态</span>
+                        <span class="text-sm font-medium text-gray-900">在线</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm text-gray-500 mb-1 flex items-center">
+                            最后上线时间 <span class="ml-2 text-xs text-blue-500 bg-blue-50 px-1 rounded">新增</span>
+                        </span>
+                        <span class="text-sm font-medium text-gray-900">2026-03-08 10:12:45</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm text-gray-500 mb-1">固件版本</span>
+                        <span class="text-sm font-medium text-gray-900">V1.2.0-Release</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 扩展信息 -->
+            <section class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <div class="flex justify-between items-center mb-5">
+                    <h2 class="text-base font-bold text-gray-800 flex items-center">
+                        <div class="w-1 h-4 bg-primary rounded-full mr-2"></div>
+                        网络与认证信息
+                    </h2>
+                </div>
+                <!-- 略 -->
+                <div
+                    class="text-sm text-gray-400 border border-dashed border-gray-200 rounded h-32 flex items-center justify-center bg-gray-50">
+                    网络接入类型、认证方式、IP地址等底层架构固定字段...
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+</body>
+
+</html>

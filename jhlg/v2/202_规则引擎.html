@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>规则引擎 - 二期产品原型</title>
+    <link rel="stylesheet" href="assets/styles.css">
+    <script src="assets/script.js" defer></script>
+</head>
+
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">II</div>
+                <div class="brand-text">
+                    <strong>金华理工二期原型</strong>
+                    <span>统一导航包 / GitHub 共享版</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-section-title">模块导航</div>
+                
+                <a class="nav-item" href="201_告警中心.html"><span class="nav-index">201</span><span>告警中心</span></a>
+                <a class="nav-item active" href="202_规则引擎.html"><span class="nav-index">202</span><span>规则引擎</span></a>
+                <a class="nav-item" href="203_设备管理.html"><span class="nav-index">203</span><span>设备管理</span></a>
+                <a class="nav-item" href="204_数据处理服务管理.html"><span class="nav-index">204</span><span>数据处理服务管理</span></a>
+                <a class="nav-item" href="205_第三方平台管理.html"><span class="nav-index">205</span><span>第三方平台管理</span></a>
+                <a class="nav-item" href="206_权限申请.html"><span class="nav-index">206</span><span>权限申请</span></a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-title-group">
+                    <h1>规则引擎</h1>
+                    <p>统一入口页，收拢规则编排、事件管理与接口扩展相关原型页面。</p>
+                </div>
+                <div class="topbar-meta">模块编号 202</div>
+            </header>
+
+            <div class="content">
+                <section class="hero-card">
+                    <div class="hero-copy">
+                        <h2>规则引擎产品原型</h2>
+                        <p>本模块聚合规则引擎新增功能原型，包括事件类型、数据上报、下发数据接收、协议解析接口、异常告警接口、目录发布与事件通知管理等页面。</p>
+                        <div class="hero-badges">
+                            <span class="badge">规则编排</span>
+                            <span class="badge">事件类型</span>
+                            <span class="badge">数据上报</span>
+                            <span class="badge">目录发布</span>
+                            <span class="badge">事件通知</span>
+                        </div>
+                    </div>
+                    <div class="hero-aside">
+                        <div class="metric-box">
+                            <div class="metric-label">模块页面</div>
+                            <div class="metric-value">8</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">核心方向</div>
+                            <div class="metric-value">编排</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <div class="section-header">
+                        <div>
+                            <h3>页面入口</h3>
+                            <p>原型页面按模块首页和七个新增能力页面组织。</p>
+                        </div>
+                    </div>
+                    <div class="prototype-grid">
+                        <a class="prototype-card" href="modules/rule-engine/index.html">
+                            <strong>模块首页 / 规则编排</strong>
+                            <p>规则编排主列表页，承接整个规则引擎模块的入口。</p>
+                            <code>modules/rule-engine/index.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/rule-engine/pages/event_type.html">
+                            <strong>事件类型管理</strong>
+                            <p>事件类型、等级和批量维护相关页面入口。</p>
+                            <code>modules/rule-engine/pages/event_type.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/rule-engine/pages/data_upload.html">
+                            <strong>数据上报</strong>
+                            <p>展示平台对外提供的上报能力配置和说明。</p>
+                            <code>modules/rule-engine/pages/data_upload.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/rule-engine/pages/data_receive.html">
+                            <strong>下发数据接收</strong>
+                            <p>展示平台接收下发数据的能力与配置界面。</p>
+                            <code>modules/rule-engine/pages/data_receive.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/rule-engine/pages/protocol_api.html">
+                            <strong>协议解析二次接口</strong>
+                            <p>针对外部系统或协议扩展的接口说明与配置。</p>
+                            <code>modules/rule-engine/pages/protocol_api.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/rule-engine/pages/alarm_api.html">
+                            <strong>异常告警二次开发接口</strong>
+                            <p>告警扩展接口配置与说明页。</p>
+                            <code>modules/rule-engine/pages/alarm_api.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/rule-engine/pages/catalog_publish.html">
+                            <strong>目录发布</strong>
+                            <p>服务目录或能力目录发布原型页面。</p>
+                            <code>modules/rule-engine/pages/catalog_publish.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/rule-engine/pages/event_notify.html">
+                            <strong>事件通知管理</strong>
+                            <p>事件通知管理与查询能力原型。</p>
+                            <code>modules/rule-engine/pages/event_notify.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

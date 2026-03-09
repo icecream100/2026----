@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1440">
+    <title>告警中心新增功能原型 - 告警配置</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"PingFang SC"', '"Microsoft YaHei"', 'sans-serif']
+                    },
+                    colors: {
+                        brand: '#1677ff',
+                        brandHover: '#4096ff',
+                        navy: '#0b162a',
+                        sidebarActive: '#1677ff',
+                        panel: '#f0f2f5',
+                        danger: '#ff4d4f',
+                        warning: '#faad14',
+                        success: '#52c41a'
+                    },
+                    boxShadow: {
+                        panel: '0 2px 8px rgba(0, 0, 0, 0.04)'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            min-width: 1440px;
+            background-color: #f0f2f5;
+        }
+
+        .submenu-item.active {
+            color: #1677ff;
+            background-color: #f0f5ff;
+            font-weight: 500;
+        }
+
+        .submenu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #1677ff;
+        }
+
+        .level3-link.active {
+            color: #1677ff;
+            background-color: #f0f5ff;
+            font-weight: 500;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="font-sans text-slate-800 antialiased overflow-hidden h-screen flex flex-col">
+    <div id="toast"
+        class="hidden fixed right-6 top-5 z-[120] rounded-lg bg-slate-800 px-4 py-3 text-sm text-white shadow-xl pointer-events-none">
+    </div>
+
+    <div class="flex flex-1 h-full overflow-hidden">
+
+        <!-- Left Sidebar -->
+        <aside
+            class="w-[220px] bg-white flex flex-col h-full flex-shrink-0 border-r border-slate-200 z-20 shadow-sm relative">
+            <div class="h-14 flex items-center px-5 border-b border-slate-200">
+                <div class="w-6 h-6 bg-brand rounded flex items-center justify-center mr-2">
+                    <i class="fa-solid fa-layer-group text-white text-xs"></i>
+                </div>
+                <span class="text-[15px] font-bold text-slate-800 tracking-wide">物联网管理平台</span>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto py-3 custom-scrollbar text-[13px] text-slate-600">
+                <!-- 模块分组 1 -->
+                <div class="px-5 mb-2 mt-2 text-[12px] font-medium text-slate-400">告警中心</div>
+
+                <div class="space-y-1">
+                    <a href="../index.html"
+                        class="flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-chart-line w-5 text-center mr-2 text-slate-400"></i>
+                        <span>仪表盘</span>
+                    </a>
+                    <button type="button" onclick="showToast('基础配置原型未展开')"
+                        class="w-full flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-gear w-5 text-center mr-2 text-slate-400"></i>
+                        <span>基础配置</span>
+                    </button>
+                    <!-- Dropdown structure -->
+                    <div class="flex flex-col relative w-fulltext-left">
+                        <div
+                            class="submenu-item active flex items-center justify-between px-5 py-2.5 cursor-pointer transition-colors">
+                            <div class="flex items-center">
+                                <i class="fa-solid fa-sliders w-5 text-center mr-2 text-brand"></i>
+                                <span>告警配置</span>
+                            </div>
+                            <i class="fa-solid fa-angle-up text-[10px] text-brand"></i>
+                        </div>
+                        <div class="pl-12 pr-4 py-1 space-y-1 border-l-2 border-transparent bg-slate-50/50">
+                            <a href="alarm_config.html"
+                                class="level3-link active block rounded px-3 py-1.5 transition">告警配置</a>
+                            <a href="workflow_config.html"
+                                class="level3-link block rounded px-3 py-1.5 transition text-slate-500 hover:text-brand">工作流程配置</a>
+                            <a href="alarm_disposal.html"
+                                class="level3-link block rounded px-3 py-1.5 transition text-slate-500 hover:text-brand">告警处置</a>
+                        </div>
+                    </div>
+                    <a href="alarm_records.html"
+                        class="flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-regular fa-clipboard w-5 text-center mr-2 text-slate-400"></i>
+                        <span>告警记录</span>
+                    </a>
+                </div>
+
+                <!-- 模块分组 其他 -->
+                <div class="px-5 mb-2 mt-6 text-[12px] font-medium text-slate-400">其他应用</div>
+                <div class="space-y-1">
+                    <button type="button" onclick="showToast('设备管理原型未展开')"
+                        class="w-full text-left flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-sitemap w-5 text-center mr-2 text-slate-400"></i>
+                        <span>设备管理</span>
+                    </button>
+                    <button type="button" onclick="showToast('规则引擎原型未展开')"
+                        class="w-full text-left flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-code-branch w-5 text-center mr-2 text-slate-400"></i>
+                        <span>规则引擎</span>
+                    </button>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-panel relative">
+
+            <!-- Page Breadcrumb & Title Area -->
+            <div class="h-14 flex items-center justify-between px-6 bg-white border-b border-slate-200 shrink-0 z-10">
+                <div class="flex items-center text-[13px] text-slate-500 gap-2">
+                    <span>告警中心</span>
+                    <i class="fa-solid fa-angle-right text-[10px]"></i>
+                    <span>告警配置</span>
+                    <i class="fa-solid fa-angle-right text-[10px]"></i>
+                    <span class="font-bold text-slate-800 tracking-wide text-[14px]">告警配置</span>
+                </div>
+
+                <div class="flex items-center gap-5">
+                    <button class="relative text-slate-500 hover:text-brand transition-colors">
+                        <i class="fa-regular fa-bell text-lg"></i>
+                        <span class="absolute top-0 right-0 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-1.5 rounded transition">
+                        <div
+                            class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-brand font-bold text-xs">
+                            管
+                        </div>
+                        <span class="text-sm text-slate-600">系统管理员</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content Scrollable Area -->
+            <div class="flex-1 overflow-y-auto p-5 relative custom-scrollbar">
+                <div class="max-w-[1600px] mx-auto">
+                    <section class="mb-4 flex items-center justify-between">
+                        <div>
+                            <p class="text-[13px] text-slate-500">
+                                定义规则和触发条件等告警配置能力。
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button type="button" onclick="showToast('新增告警配置沿用现有实现，本原型不展开表单明细')"
+                                class="rounded bg-brand px-4 py-2 text-[13px] text-white hover:bg-brandHover transition">
+                                <i class="fa-solid fa-plus mr-1.5"></i>新增告警配置
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="mb-4 grid grid-cols-4 gap-4">
+                        <div
+                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div class="text-[13px] text-slate-500">生效中规则</div>
+                            <div class="mt-2 text-[28px] font-bold text-slate-800 leading-tight">69</div>
+                            <div class="mt-1 text-[12px] text-slate-400">正常参与告警生成</div>
+                        </div>
+                        <div
+                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div class="text-[13px] text-slate-500">禁用规则</div>
+                            <div class="mt-2 text-[28px] font-bold text-slate-800 leading-tight">12</div>
+                            <div class="mt-1 text-[12px] text-slate-400">不再生成新告警</div>
+                        </div>
+                        <div
+                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div class="text-[13px] text-slate-500">已绑定工作流</div>
+                            <div class="mt-2 text-[28px] font-bold text-brand leading-tight">75</div>
+                            <div class="mt-1 text-[12px] text-slate-400">按类型 + 级别统一匹配</div>
+                        </div>
+                        <div
+                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div class="text-[13px] text-slate-500">待补充工作流</div>
+                            <div class="mt-2 text-[28px] font-bold text-warning leading-tight">6</div>
+                            <div class="mt-1 text-[12px] text-slate-400">触发后将进入待分派处置单</div>
+                        </div>
+                    </section>
+
+                    <section class="rounded-xl bg-white p-5 shadow-sm border border-slate-100">
+                        <div class="mb-4 flex flex-wrap items-center gap-3">
+                            <input id="keyword" type="text" placeholder="搜索规则名称 / 场景"
+                                class="w-64 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                            <select id="type"
+                                class="w-40 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                <option value="">全部告警类型</option>
+                                <option value="设备状态告警">设备状态告警</option>
+                                <option value="设备事件告警">设备事件告警</option>
+                                <option value="感知数据告警">感知数据告警</option>
+                            </select>
+                            <select id="level"
+                                class="w-40 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                <option value="">全部告警级别</option>
+                                <option value="特别重大">特别重大</option>
+                                <option value="重大">重大</option>
+                                <option value="较大">较大</option>
+                                <option value="一般">一般</option>
+                            </select>
+                            <button type="button" onclick="renderTable()"
+                                class="rounded bg-brand px-4 py-1.5 text-[13px] text-white hover:bg-brandHover transition">查询</button>
+                            <button type="button" onclick="resetFilter()"
+                                class="rounded border border-slate-300 px-4 py-1.5 text-[13px] text-slate-600 hover:border-brand hover:text-brand transition">重置</button>
+                        </div>
+
+                        <div class="overflow-hidden border border-slate-200">
+                            <table class="w-full bg-white text-[13px] text-left">
+                                <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                                    <tr>
+                                        <th
+                                            class="px-4 py-3 font-medium w-[40px] text-center border-r border-slate-200">
+                                            <input type="checkbox" class="rounded border-slate-300">
+                                        </th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">规则名称</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">告警类型</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">告警级别</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">告警场景</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">匹配工作流</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">状态</th>
+                                        <th class="px-4 py-3 font-medium">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody" class="divide-y divide-slate-200"></tbody>
+                            </table>
+                            <div
+                                class="flex items-center justify-between px-4 py-3 border-t border-slate-200 text-[13px] text-slate-500">
+                                <div>共 6 条记录</div>
+                                <div class="flex items-center gap-1">
+                                    <button
+                                        class="w-7 h-7 flex items-center justify-center rounded border border-slate-200 hover:border-brand hover:text-brand transition cursor-not-allowed bg-slate-50">&lt;</button>
+                                    <button
+                                        class="w-7 h-7 flex items-center justify-center rounded bg-brand text-white">1</button>
+                                    <button
+                                        class="w-7 h-7 flex items-center justify-center rounded border border-slate-200 hover:border-brand hover:text-brand transition cursor-not-allowed bg-slate-50">&gt;</button>
+                                    <select
+                                        class="ml-2 rounded border border-slate-300 bg-white px-2 py-1 text-[13px] outline-none">
+                                        <option>10 条/页</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        const configs = [
+            { id: 1, name: '主站配电-2#H8故障报警配置', type: '设备状态告警', level: '特别重大', scene: '主站配电-2#H8', workflow: '主站配电故障-特别重大流程', status: '启用' },
+            { id: 2, name: '主站配电-1#H2故障报警配置', type: '设备状态告警', level: '重大', scene: '主站配电-1#H2', workflow: '主站配电故障-重大流程', status: '启用' },
+            { id: 3, name: '消防-点型光电感烟探测器', type: '感知数据告警', level: '较大', scene: '消防探测器', workflow: '消防感知-较大流程', status: '启用' },
+            { id: 4, name: '水泵房水泵运行异常', type: '设备事件告警', level: '一般', scene: '水泵房', workflow: '水泵房运行异常流程', status: '禁用' },
+            { id: 5, name: '消火栓按钮故障报警', type: '设备事件告警', level: '重大', scene: '消防消火栓', workflow: '未绑定', status: '启用' },
+            { id: 6, name: '机房空调温湿度告警', type: '感知数据告警', level: '较大', scene: '机房空调', workflow: '机房环控流程', status: '启用' }
+        ];
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => toast.classList.add('hidden'), 2200);
+        }
+
+        function levelBadge(level) {
+            const map = {
+                '特别重大': 'bg-red-500 text-white',
+                '重大': 'bg-orange-500 text-white',
+                '较大': 'bg-amber-400 text-white',
+                '一般': 'bg-slate-300 text-white'
+            };
+            return `<span class="rounded-lg px-3 py-1 text-xs font-medium ${map[level] || 'bg-slate-100 text-slate-500'}">${level}</span>`;
+        }
+
+        function statusBadge(status) {
+            return status === '启用'
+                ? '<span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-success"></span><span class="text-success">启用</span></span>'
+                : '<span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span><span class="text-slate-500">禁用</span></span>';
+        }
+
+        function renderTable() {
+            const keyword = document.getElementById('keyword').value.trim();
+            const type = document.getElementById('type').value;
+            const level = document.getElementById('level').value;
+            const rows = configs.filter((item) => {
+                const hitKeyword = !keyword || item.name.includes(keyword) || item.scene.includes(keyword);
+                const hitType = !type || item.type === type;
+                const hitLevel = !level || item.level === level;
+                return hitKeyword && hitType && hitLevel;
+            });
+            const tbody = document.getElementById('tbody');
+            tbody.innerHTML = rows.map((item) => `
+                <tr class="hover:bg-slate-50">
+                    <td class="px-4 py-3 text-center border-r border-slate-200"><input type="checkbox" class="rounded border-slate-300"></td>
+                    <td class="px-4 py-3 text-slate-800 border-r border-slate-200">${item.name}</td>
+                    <td class="px-4 py-3 text-slate-600 border-r border-slate-200">${item.type}</td>
+                    <td class="px-4 py-3 border-r border-slate-200">${levelBadge(item.level)}</td>
+                    <td class="px-4 py-3 text-slate-600 border-r border-slate-200">${item.scene}</td>
+                    <td class="px-4 py-3 border-r border-slate-200">
+                        ${item.workflow === '未绑定'
+                    ? '<span class="text-warning text-xs"><i class="fa-solid fa-triangle-exclamation mr-1"></i>未绑定，命中后进入待分派</span>'
+                    : `<a href="#" onclick="showToast('跳转工作流页')" class="text-brand hover:underline">${item.workflow}</a>`}
+                    </td>
+                    <td class="px-4 py-3 border-r border-slate-200">${statusBadge(item.status)}</td>
+                    <td class="px-4 py-3 text-brand">
+                        <button type="button" onclick="showToast('编辑')" class="hover:underline mr-1">编辑</button>
+                        <span class="text-slate-300 mx-1">|</span>
+                        <button type="button" onclick="toggleStatus(${item.id})" class="hover:underline text-${item.status === '启用' ? 'danger' : 'success'}">${item.status === '启用' ? '禁用' : '启用'}</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function toggleStatus(id) {
+            const current = configs.find((item) => item.id === id);
+            current.status = current.status === '启用' ? '禁用' : '启用';
+            renderTable();
+            showToast(`已${current.status === '启用' ? '启用' : '禁用'}规则：${current.name}`);
+        }
+
+        function resetFilter() {
+            document.getElementById('keyword').value = '';
+            document.getElementById('type').value = '';
+            document.getElementById('level').value = '';
+            renderTable();
+        }
+
+        renderTable();
+    </script>
+</body>
+
+</html>

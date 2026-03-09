@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1440">
+    <title>规则引擎 - 数据上报</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"PingFang SC"', '"Microsoft YaHei"', 'sans-serif']
+                    },
+                    colors: {
+                        brand: '#2f5ee5',
+                        navy: '#0b162a',
+                        sidebarActive: '#2f5ee5',
+                        panel: '#f0f2f5',
+                        danger: '#e83b3b',
+                        warning: '#fdb51c',
+                        success: '#3cc664'
+                    },
+                    boxShadow: {
+                        card: '0 2px 8px rgba(0, 0, 0, 0.04)',
+                        modal: '0 8px 30px rgba(0, 0, 0, 0.12)'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            min-width: 1440px;
+            background-color: #f0f2f5;
+        }
+
+        .menu-item {
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .submenu-item.active {
+            background-color: #2f5ee5;
+            color: white;
+            position: relative;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #2f5ee5;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(16px);
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="font-sans text-slate-800 antialiased overflow-hidden h-screen flex flex-col">
+
+    <!-- Top Header -->
+    <header
+        class="h-[60px] bg-brand text-white flex items-center justify-between px-6 shrink-0 z-50 fixed w-full top-0">
+        <div class="flex items-center gap-6">
+            <div class="text-[17px] font-medium tracking-wide">物联网管理服务系统</div>
+            <button class="text-xl hover:bg-white/10 p-2 rounded transition ml-8">
+                <i class="fa-solid fa-outdent text-white/90"></i>
+            </button>
+        </div>
+        <div class="flex items-center gap-6">
+            <button class="relative text-lg hover:text-white/80">
+                <i class="fa-regular fa-bell"></i>
+                <span class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+            </button>
+            <div class="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1 rounded transition">
+                <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <span class="text-sm">集成开发人员</span>
+                <i class="fa-solid fa-angle-down text-xs ml-1 text-white/80"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 pt-[60px] h-full">
+        <!-- Sidebar -->
+        <aside
+            class="w-[200px] h-full bg-navy flex-shrink-0 text-slate-300 overflow-y-auto overflow-x-hidden border-r border-[#1a253a]">
+            <nav class="py-2 text-[14px]">
+                <div class="menu-item flex items-center justify-between px-5 py-3.5 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-house w-4 text-center"></i>
+                        <span>首页</span>
+                    </div>
+                </div>
+
+                <div class="menu-item flex items-center justify-between px-5 py-3.5 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-sitemap w-4 text-center"></i>
+                        <span>设备管理</span>
+                    </div>
+                    <i class="fa-solid fa-caret-down text-[10px] text-slate-500"></i>
+                </div>
+
+                <!-- Open Section: 规则引擎 -->
+                <div>
+                    <div class="menu-item flex items-center justify-between px-5 py-3.5 cursor-pointer text-white">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-code-branch w-4 text-center"></i>
+                            <span>规则引擎</span>
+                        </div>
+                        <i class="fa-solid fa-caret-up text-[10px] text-white"></i>
+                    </div>
+                    <div class="bg-black/20 pb-1">
+                        <!-- Rule Orchestration Group -->
+                        <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider">规则编排</div>
+                        <div
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors">
+                            <i class="fa-regular fa-copy w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>规则编排</span>
+                        </div>
+                        <a href="../index.html"
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors block">
+                            <i class="fa-solid fa-database w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>感知报文存储</span>
+                        </a>
+                        <a href="data_upload.html"
+                            class="submenu-item active flex items-center pl-[46px] pr-5 py-3 cursor-pointer text-[13px] block">
+                            <i
+                                class="fa-solid fa-cloud-arrow-up w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>数据上报</span>
+                        </a>
+                        <a href="data_receive.html"
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors block">
+                            <i
+                                class="fa-solid fa-cloud-arrow-down w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>下发数据接收</span>
+                        </a>
+                        <a href="protocol_api.html"
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors block">
+                            <i
+                                class="fa-solid fa-layer-group w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>协议解析二次接口</span>
+                        </a>
+                        <a href="alarm_api.html"
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors block">
+                            <i
+                                class="fa-solid fa-triangle-exclamation w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>异常告警二开接口</span>
+                        </a>
+                        <a href="catalog_publish.html"
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors block">
+                            <i class="fa-solid fa-book-open w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>目录发布</span>
+                        </a>
+
+                        <!-- Scene Linkage Group -->
+                        <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider mt-1">场景联动</div>
+                        <div
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors">
+                            <i class="fa-solid fa-bolt w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>事件规则管理</span>
+                        </div>
+                        <a href="event_type.html"
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors block">
+                            <i class="fa-solid fa-tags w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>事件类型管理</span>
+                        </a>
+                        <a href="event_notify.html"
+                            class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative transition-colors block">
+                            <i
+                                class="fa-solid fa-comment-dots w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>事件通知管理</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="menu-item flex items-center justify-between px-5 py-3.5 cursor-pointer mt-1">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-bell w-4 text-center"></i>
+                        <span>告警中心</span>
+                    </div>
+                    <i class="fa-solid fa-caret-down text-[10px] text-slate-500"></i>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#f0f2f5]">
+            <!-- Breadcrumb -->
+            <div class="h-12 flex items-center px-6 bg-white border-b border-slate-200 text-sm text-slate-500 shrink-0">
+                <span>规则引擎</span>
+                <span class="mx-2 text-slate-300">/</span>
+                <span>规则编排</span>
+                <span class="mx-2 text-slate-300">/</span>
+                <span class="text-slate-800 font-medium">数据上报</span>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-5">
+                <!-- Search Panel -->
+                <div class="bg-white p-5 rounded shadow-card mb-4 min-w-[1000px]">
+                    <div class="grid grid-cols-4 gap-6">
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right shrink-0">接口名称</label>
+                            <input type="text" placeholder="请输入配置名称"
+                                class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none hover:border-brand/50 focus:border-brand placeholder:text-slate-300">
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right shrink-0">协议类型</label>
+                            <div
+                                class="flex-1 border border-slate-200 rounded px-3 py-1.5 flex items-center bg-white relative">
+                                <select
+                                    class="w-full text-[13px] text-slate-600 appearance-none outline-none bg-transparent cursor-pointer">
+                                    <option value="">全部</option>
+                                    <option>HTTP</option>
+                                    <option>MQTT</option>
+                                    <option>TCP</option>
+                                    <option>CoAP</option>
+                                </select>
+                                <i
+                                    class="fa-solid fa-angle-down absolute right-3 text-slate-400 text-xs pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right shrink-0">状态</label>
+                            <div
+                                class="flex-1 border border-slate-200 rounded px-3 py-1.5 flex items-center bg-white relative">
+                                <select
+                                    class="w-full text-[13px] text-slate-600 appearance-none outline-none bg-transparent cursor-pointer">
+                                    <option value="">全部</option>
+                                    <option>启用</option>
+                                    <option>停用</option>
+                                </select>
+                                <i
+                                    class="fa-solid fa-angle-down absolute right-3 text-slate-400 text-xs pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-3 w-full">
+                            <button
+                                class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:border-brand hover:text-brand transition cursor-pointer">重置</button>
+                            <button
+                                class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90 transition shadow-sm cursor-pointer">查询</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Panel -->
+                <div class="bg-white p-5 rounded shadow-card min-w-[1000px]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-[15px] font-bold text-slate-800">上报接口列表</h2>
+                        <button onclick="openFormModal()"
+                            class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90 transition shadow-sm flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-plus text-xs"></i> 新增接口配置
+                        </button>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="border border-slate-200 rounded overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-[13px] text-slate-500 border-b border-slate-200">
+                                    <th class="py-3 px-4 font-medium min-w-[160px]">接口名称</th>
+                                    <th class="py-3 px-4 font-medium min-w-[100px]">协议</th>
+                                    <th class="py-3 px-4 font-medium min-w-[200px]">上报地址/Topic</th>
+                                    <th class="py-3 px-4 font-medium min-w-[100px]">鉴权方式</th>
+                                    <th class="py-3 px-4 font-medium min-w-[90px]">状态</th>
+                                    <th class="py-3 px-4 font-medium min-w-[160px]">最近调用时间</th>
+                                    <th class="py-3 px-4 font-medium min-w-[100px]">最近调用结果</th>
+                                    <th class="py-3 px-4 font-medium w-[180px]">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-[13px] text-slate-700">
+                                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                                    <td class="py-3 px-4 text-slate-800">消防平台烟感数据同步</td>
+                                    <td class="py-3 px-4 font-medium">HTTP</td>
+                                    <td class="py-3 px-4 text-slate-500 font-mono text-[12px] truncate max-w-[200px]"
+                                        title="/api/v1/smoke/upload">/api/v1/smoke/upload</td>
+                                    <td class="py-3 px-4">Token</td>
+                                    <td class="py-3 px-4">
+                                        <label class="switch">
+                                            <input type="checkbox" checked onchange="alert('状态已更新为停用')">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-3 px-4 text-slate-500">2026-03-07 23:25:10</td>
+                                    <td class="py-3 px-4 text-green-600">成功</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openDetailDrawer()"
+                                            class="text-brand hover:text-brand/80 mr-3 cursor-pointer">查看说明</button>
+                                        <button onclick="openFormModal()"
+                                            class="text-brand hover:text-brand/80 mr-3 cursor-pointer">编辑</button>
+                                        <button onclick="confirm('确认删除该接口配置吗？已被设备引用的接口将导致上报失败。')"
+                                            class="text-red-500 hover:text-red-600 cursor-pointer">删除</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                                    <td class="py-3 px-4 text-slate-800">水泵变频器状态上报</td>
+                                    <td class="py-3 px-4 font-medium">MQTT</td>
+                                    <td class="py-3 px-4 text-slate-500 font-mono text-[12px] truncate max-w-[200px]"
+                                        title="/uplink/pump/status">/uplink/pump/status</td>
+                                    <td class="py-3 px-4">AppKey</td>
+                                    <td class="py-3 px-4">
+                                        <label class="switch">
+                                            <input type="checkbox" checked onchange="alert('状态已更新为停用')">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-3 px-4 text-slate-500">2026-03-07 23:21:05</td>
+                                    <td class="py-3 px-4 text-green-600">成功</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openDetailDrawer()"
+                                            class="text-brand hover:text-brand/80 mr-3 cursor-pointer">查看说明</button>
+                                        <button onclick="openFormModal()"
+                                            class="text-brand hover:text-brand/80 mr-3 cursor-pointer">编辑</button>
+                                        <button onclick="confirm('确认删除该接口配置吗？已被设备引用的接口将导致上报失败。')"
+                                            class="text-red-500 hover:text-red-600 cursor-pointer">删除</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50 transition text-slate-400">
+                                    <td class="py-3 px-4">第三方门禁流水历史对接</td>
+                                    <td class="py-3 px-4 font-medium">HTTP</td>
+                                    <td class="py-3 px-4 font-mono text-[12px] truncate max-w-[200px]"
+                                        title="/api/v1/door/sync">/api/v1/door/sync</td>
+                                    <td class="py-3 px-4">无鉴权</td>
+                                    <td class="py-3 px-4">
+                                        <label class="switch opacity-60">
+                                            <input type="checkbox" onchange="alert('状态已更新为启用')">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </td>
+                                    <td class="py-3 px-4">--</td>
+                                    <td class="py-3 px-4">--</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openDetailDrawer()"
+                                            class="text-brand hover:text-brand/80 mr-3 cursor-pointer">查看说明</button>
+                                        <button onclick="openFormModal()"
+                                            class="text-brand hover:text-brand/80 mr-3 cursor-pointer">编辑</button>
+                                        <button onclick="confirm('确认删除该接口配置吗？已被设备引用的接口将导致上报失败。')"
+                                            class="text-red-500 hover:text-red-600 cursor-pointer">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Form Modal Overlay -->
+    <div id="formModalOverlay" class="fixed inset-0 bg-black/40 z-[60] hidden flex items-center justify-center">
+        <!-- Modal Content -->
+        <div
+            class="bg-white rounded-xl shadow-modal w-[640px] flex flex-col max-h-[90vh] overflow-hidden transform transition-all">
+            <div class="h-12 border-b border-slate-100 flex items-center justify-between px-6 bg-slate-50">
+                <h3 class="text-[15px] font-bold text-slate-800">新增上报接口配置</h3>
+                <button onclick="closeFormModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto w-full">
+                <form class="space-y-5">
+                    <div class="flex gap-4 items-center">
+                        <label class="w-20 text-right text-[13px] text-slate-600 shrink-0"><span
+                                class="text-red-500 mr-1">*</span>接口名称</label>
+                        <input type="text" placeholder="输入1-100字符"
+                            class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand w-full">
+                    </div>
+
+                    <div class="flex gap-4 items-center">
+                        <label class="w-20 text-right text-[13px] text-slate-600 shrink-0"><span
+                                class="text-red-500 mr-1">*</span>协议类型</label>
+                        <div class="flex-1 grid grid-cols-4 gap-3">
+                            <label
+                                class="border border-brand bg-blue-50 text-brand rounded px-3 py-1.5 text-center text-[13px] cursor-pointer">
+                                <input type="radio" name="proto" class="hidden" checked> HTTP
+                            </label>
+                            <label
+                                class="border border-slate-200 text-slate-600 rounded px-3 py-1.5 text-center text-[13px] cursor-pointer hover:border-slate-300">
+                                <input type="radio" name="proto" class="hidden"> MQTT
+                            </label>
+                            <label
+                                class="border border-slate-200 text-slate-600 rounded px-3 py-1.5 text-center text-[13px] cursor-pointer hover:border-slate-300">
+                                <input type="radio" name="proto" class="hidden"> TCP
+                            </label>
+                            <label
+                                class="border border-slate-200 text-slate-600 rounded px-3 py-1.5 text-center text-[13px] cursor-pointer hover:border-slate-300">
+                                <input type="radio" name="proto" class="hidden"> CoAP
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 items-center">
+                        <label class="w-20 text-right text-[13px] text-slate-600 shrink-0"><span
+                                class="text-red-500 mr-1">*</span>请求方式</label>
+                        <div class="flex-1 flex gap-4">
+                            <label class="flex items-center gap-1.5 text-[13px] text-slate-700 cursor-pointer">
+                                <input type="radio" name="method" class="accent-brand" checked> POST
+                            </label>
+                            <label class="flex items-center gap-1.5 text-[13px] text-slate-700 cursor-pointer">
+                                <input type="radio" name="method" class="accent-brand"> GET
+                            </label>
+                            <label class="flex items-center gap-1.5 text-[13px] text-slate-700 cursor-pointer">
+                                <input type="radio" name="method" class="accent-brand"> PUT
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 items-start">
+                        <label class="w-20 text-right text-[13px] text-slate-600 mt-2 shrink-0"><span
+                                class="text-red-500 mr-1">*</span>上报地址</label>
+                        <div class="flex-1">
+                            <div class="flex items-center">
+                                <span
+                                    class="bg-slate-100 border border-slate-200 border-r-0 rounded-l px-3 py-1.5 text-[13px] text-slate-500 shrink-0">https://api.domain.com</span>
+                                <input type="text" placeholder="/api/v1/your/path"
+                                    class="flex-1 border border-slate-200 rounded-r px-3 py-1.5 text-[13px] outline-none focus:border-brand border-l-0 w-full">
+                            </div>
+                            <div class="text-[12px] text-slate-400 mt-1">系统已默认分配域名基础前缀，仅需输入路径</div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 items-center">
+                        <label class="w-20 text-right text-[13px] text-slate-600 shrink-0"><span
+                                class="text-red-500 mr-1">*</span>鉴权方式</label>
+                        <div class="flex-1 flex border border-slate-200 rounded overflow-hidden">
+                            <div
+                                class="flex-1 text-center py-1.5 text-[13px] bg-slate-50 border-r border-slate-200 text-slate-600 cursor-pointer hover:bg-slate-100">
+                                无鉴权</div>
+                            <div
+                                class="flex-1 text-center py-1.5 text-[13px] bg-brand text-white border-r border-slate-200 font-medium cursor-pointer">
+                                Token</div>
+                            <div
+                                class="flex-1 text-center py-1.5 text-[13px] bg-slate-50 text-slate-600 cursor-pointer hover:bg-slate-100">
+                                AppKey</div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 items-start">
+                        <label class="w-20 text-right text-[13px] text-slate-600 mt-2 shrink-0">请求示例</label>
+                        <textarea placeholder="非必填，请输入示例JSON，将展示在接口说明中"
+                            class="flex-1 h-32 border border-slate-200 rounded px-3 py-2 text-[13px] font-mono outline-none focus:border-brand w-full resize-none"></textarea>
+                    </div>
+
+                    <div class="flex gap-4 items-start">
+                        <label class="w-20 text-right text-[13px] text-slate-600 mt-2 shrink-0">字段说明</label>
+                        <textarea placeholder="非必填，输入业务字段说明描述"
+                            class="flex-1 h-20 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand w-full resize-none"></textarea>
+                    </div>
+
+                    <div class="flex gap-4 items-center">
+                        <label class="w-20 text-right text-[13px] text-slate-600 shrink-0"><span
+                                class="text-red-500 mr-1">*</span>状态</label>
+                        <div class="flex-1 flex gap-6">
+                            <label class="flex items-center gap-1.5 text-[13px] text-slate-700 cursor-pointer">
+                                <input type="radio" name="status" class="accent-brand" checked> 启用
+                            </label>
+                            <label class="flex items-center gap-1.5 text-[13px] text-slate-700 cursor-pointer">
+                                <input type="radio" name="status" class="accent-brand"> 停用
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="p-4 border-t border-slate-100 bg-slate-50 shrink-0 flex justify-end gap-3 rounded-b-xl">
+                <button onclick="closeFormModal()"
+                    class="px-5 py-1.5 border border-slate-200 bg-white text-slate-600 rounded shadow-sm text-[13px] hover:border-slate-400 cursor-pointer transition">取消</button>
+                <button onclick="submitForm()"
+                    class="px-5 py-1.5 bg-brand text-white rounded shadow-sm text-[13px] hover:bg-brand/90 cursor-pointer transition">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interface Detail Drawer -->
+    <div id="detailDrawerOverlay" class="fixed inset-0 bg-black/40 z-[60] hidden transition-opacity"
+        onclick="closeDetailDrawer()"></div>
+
+    <div id="detailDrawer"
+        class="fixed top-0 bottom-0 right-0 w-[600px] bg-white z-[70] shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300">
+        <div class="h-14 flex items-center justify-between px-6 border-b border-slate-100 shrink-0">
+            <h3 class="text-[15px] font-bold text-slate-800">接口配置说明与对接信息</h3>
+            <button onclick="closeDetailDrawer()" class="text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+
+            <!-- Basic info summary -->
+            <div>
+                <h4
+                    class="text-[14px] font-bold text-slate-800 border-l-[3px] border-brand pl-2 mb-4 leading-none flex items-center gap-2">
+                    基础说明
+                    <span
+                        class="inline-flex items-center px-2 py-0.5 rounded text-[10px] bg-green-50 text-green-600 border border-green-200 ml-2">启用中</span>
+                </h4>
+                <div class="rounded border border-slate-100 overflow-hidden">
+                    <div class="flex border-b border-slate-100">
+                        <div
+                            class="w-[120px] bg-slate-50 py-2 px-3 text-[12px] text-slate-500 shrink-0 border-r border-slate-100">
+                            接口名称</div>
+                        <div class="flex-1 py-2 px-3 text-[12px] font-medium text-slate-800">消防平台烟感数据同步</div>
+                    </div>
+                    <div class="flex border-b border-slate-100">
+                        <div
+                            class="w-[120px] bg-slate-50 py-2 px-3 text-[12px] text-slate-500 shrink-0 border-r border-slate-100">
+                            协议与方式</div>
+                        <div class="flex-1 py-2 px-3 text-[12px] text-slate-800"><span
+                                class="font-bold text-brand mr-1">HTTP</span> / POST</div>
+                    </div>
+                    <div class="flex border-b border-slate-100">
+                        <div
+                            class="w-[120px] bg-slate-50 py-2 px-3 text-[12px] text-slate-500 shrink-0 border-r border-slate-100">
+                            鉴权方式</div>
+                        <div class="flex-1 py-2 px-3 text-[12px] text-slate-800">Token <span
+                                class="text-slate-400 ml-2">(在请求头中携带 X-Auth-Token)</span></div>
+                    </div>
+                    <div class="flex">
+                        <div
+                            class="w-[120px] bg-slate-50 py-2 px-3 text-[12px] text-slate-500 shrink-0 border-r border-slate-100">
+                            请求地址</div>
+                        <div
+                            class="flex-1 py-2 px-3 text-[12px] font-mono text-slate-800 flex items-center justify-between group">
+                            https://api.domain.com/api/v1/smoke/upload
+                            <button class="text-slate-400 hover:text-brand opacity-0 group-hover:opacity-100"
+                                onclick="alert('已复制路径')"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="text-[14px] font-bold text-slate-800 border-l-[3px] border-brand pl-2 mb-2 leading-none">
+                    最近调用状态</h4>
+                <div class="bg-slate-50 rounded p-4 flex gap-8">
+                    <div>
+                        <div class="text-[12px] text-slate-500 mb-1">最近调用时间</div>
+                        <div class="text-[13px] font-medium text-slate-800">2026-03-07 23:25:10</div>
+                    </div>
+                    <div>
+                        <div class="text-[12px] text-slate-500 mb-1">调用结果</div>
+                        <div class="text-[13px] font-medium text-green-600">成功 (200 OK)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HTTP Example section -->
+            <div class="space-y-3">
+                <h4
+                    class="text-[14px] font-bold text-slate-800 border-l-[3px] border-brand pl-2 mb-2 leading-none flex justify-between">
+                    请求示例
+                    <button class="text-brand text-xs font-normal hover:underline"
+                        onclick="alert('报文已复制')">复制JSON</button>
+                </h4>
+                <div
+                    class="bg-[#1e1e1e] p-4 rounded-lg overflow-x-auto text-[13px] font-mono text-green-400 leading-relaxed">
+                    <pre><code>{
+  "messageId": "msg-12345",
+  "deviceCode": "XF-YG-001",
+  "status": 1,
+  "battery": 88,
+  "timestamp": 1713425000000
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="text-[14px] font-bold text-slate-800 border-l-[3px] border-brand pl-2 mb-2 leading-none">
+                    接口响应规范</h4>
+                <div
+                    class="bg-[#1e1e1e] p-4 rounded-lg overflow-x-auto text-[13px] font-mono text-slate-300 leading-relaxed opacity-80">
+                    <pre><code>{
+  "code": 200,
+  "msg": "success",
+  "data": null
+}</code></pre>
+                </div>
+            </div>
+
+        </div>
+        <div class="p-4 border-t border-slate-100 shrink-0 flex justify-end gap-3 bg-white">
+            <button onclick="closeDetailDrawer()"
+                class="px-5 py-1.5 border border-brand text-brand rounded text-[13px] hover:bg-brand/5 cursor-pointer">我知道了</button>
+        </div>
+    </div>
+
+    <!-- Alert toast -->
+    <div id="toast"
+        class="fixed top-6 right-6 bg-slate-800 text-white px-4 py-3 rounded-lg shadow-xl text-[13px] hidden z-[100] transition-opacity duration-300">
+    </div>
+
+    <script>
+        function openFormModal() {
+            const modal = document.getElementById('formModalOverlay');
+            modal.classList.remove('hidden');
+        }
+
+        function closeFormModal() {
+            const modal = document.getElementById('formModalOverlay');
+            modal.classList.add('hidden');
+        }
+
+        function submitForm() {
+            alert('接口配置已保存');
+            closeFormModal();
+        }
+
+        function openDetailDrawer() {
+            const overlay = document.getElementById('detailDrawerOverlay');
+            const drawer = document.getElementById('detailDrawer');
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                drawer.classList.remove('translate-x-full');
+            }, 10);
+        }
+
+        function closeDetailDrawer() {
+            const overlay = document.getElementById('detailDrawerOverlay');
+            const drawer = document.getElementById('detailDrawer');
+            drawer.classList.add('translate-x-full');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300);
+        }
+
+        window.alert = function (msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.remove('hidden');
+            toast.style.opacity = '1';
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 2000);
+        };
+    </script>
+</body>
+
+</html>

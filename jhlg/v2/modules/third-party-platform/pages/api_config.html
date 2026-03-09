@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API配置 - 第三方平台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .bbtn {
+            @apply px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+        }
+
+        .btn-primary {
+            @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+        }
+
+        .btn-secondary {
+            @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-blue-500;
+        }
+
+        .input-field {
+            @apply w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border;
+        }
+    </style>
+</head>
+
+<body class="h-screen flex overflow-hidden text-gray-800" x-data="apiConfigPage()" x-init="applyFilters()">
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col hidden md:flex shrink-0">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800 shrink-0">
+            <div class="w-8 h-8 rounded-md bg-blue-500 mr-3"></div>
+            <span class="text-white text-lg font-bold tracking-wider">IoT Platform</span>
+        </div>
+        <div class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">第三方平台管理</div>
+        <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
+            <a href="../index.html" class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 rounded-md">第三方平台</a>
+            <a href="api_docs.html" class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 rounded-md">查看API</a>
+            <a href="api_governance.html" class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 rounded-md">接口治理</a>
+            <a href="data_sharing.html" class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 rounded-md">数据共享管理</a>
+            <a href="api_config.html" class="flex items-center px-3 py-2.5 bg-blue-600 text-white rounded-md">API配置</a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-gray-50">
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 shadow-sm">
+            <div>
+                <h1 class="text-xl font-semibold text-gray-800">API配置</h1>
+                <p class="text-xs text-gray-500 mt-1">控制接口开放状态、默认版本、授权模式和限流范围，承接 PRD 4.6 映射交付。</p>
+            </div>
+            <a href="api_docs.html" class="bbtn btn-secondary">查看接口文档</a>
+        </header>
+
+        <div class="flex-1 overflow-auto p-6">
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6">
+                <form class="flex flex-wrap gap-4 items-end" @submit.prevent="applyFilters()">
+                    <div class="w-56">
+                        <label class="block text-xs text-gray-500 mb-1">接口分类</label>
+                        <select class="input-field" x-model="filters.category">
+                            <option value="">全部</option>
+                            <option value="device">设备接入</option>
+                            <option value="status">状态获取</option>
+                            <option value="data">数据接入</option>
+                            <option value="control">命令控制</option>
+                            <option value="feedback">命令反馈</option>
+                        </select>
+                    </div>
+                    <div class="w-56">
+                        <label class="block text-xs text-gray-500 mb-1">开放状态</label>
+                        <select class="input-field" x-model="filters.enabled">
+                            <option value="">全部</option>
+                            <option value="1">启用</option>
+                            <option value="0">停用</option>
+                        </select>
+                    </div>
+                    <div class="w-64">
+                        <label class="block text-xs text-gray-500 mb-1">接口名称</label>
+                        <input type="text" class="input-field" placeholder="请输入接口名称" x-model="filters.keyword">
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" class="bbtn btn-primary">查询</button>
+                        <button type="button" class="bbtn btn-secondary" @click="resetFilters()">重置</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-base font-medium text-gray-800">配置列表</h2>
+                        <p class="text-xs text-gray-500 mt-1">共 <span class="font-semibold text-blue-600" x-text="filteredConfigs.length"></span> 个对外接口配置。</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200" x-show="filteredConfigs.length > 0">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">接口名称</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">接口分类</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">默认版本</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">开放状态</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">授权模式</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">限流阈值</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                            <template x-for="item in filteredConfigs" :key="item.id">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium text-gray-900" x-text="item.name"></td>
+                                    <td class="px-6 py-4 text-gray-600" x-text="item.categoryLabel"></td>
+                                    <td class="px-6 py-4"><span class="px-2 py-0.5 rounded bg-gray-100 text-gray-700 font-mono text-xs" x-text="item.version"></span></td>
+                                    <td class="px-6 py-4">
+                                        <span x-show="item.enabled" class="px-2 py-0.5 rounded text-xs bg-green-100 text-green-700">启用</span>
+                                        <span x-show="!item.enabled" class="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-600">停用</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-600" x-text="item.authMode"></td>
+                                    <td class="px-6 py-4 text-gray-600" x-text="item.rateLimit + ' 次/分钟'"></td>
+                                    <td class="px-6 py-4">
+                                        <button class="text-blue-600 hover:text-blue-700 mr-3" @click="toggleStatus(item)" x-text="item.enabled ? '停用' : '启用'"></button>
+                                        <button class="text-blue-600 hover:text-blue-700" @click="saveConfig(item)">保存配置</button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                    <div x-show="filteredConfigs.length === 0" class="px-6 py-16 text-center text-sm text-gray-500">
+                        暂无匹配接口配置，请调整查询条件后重试。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function apiConfigPage() {
+            return {
+                filters: { category: '', enabled: '', keyword: '' },
+                configs: [
+                    { id: 'device_list', name: '获取设备清单', category: 'device', categoryLabel: '设备接入', version: 'v1.2', enabled: true, authMode: '平台赋权 + 设备范围', rateLimit: 600 },
+                    { id: 'device_status', name: '获取设备在线状态', category: 'status', categoryLabel: '状态获取', version: 'v1.1', enabled: true, authMode: '平台赋权 + 设备范围', rateLimit: 800 },
+                    { id: 'data_latest', name: '获取设备实时数据', category: 'data', categoryLabel: '数据接入', version: 'v1.0', enabled: true, authMode: '平台赋权 + 数据目录', rateLimit: 500 },
+                    { id: 'command_send', name: '下发控制命令', category: 'control', categoryLabel: '命令控制', version: 'v1.2', enabled: true, authMode: '平台赋权 + 设备范围', rateLimit: 120 },
+                    { id: 'command_feedback', name: '查询命令反馈', category: 'feedback', categoryLabel: '命令反馈', version: 'v1.0', enabled: false, authMode: '平台赋权 + 日志回查', rateLimit: 300 }
+                ],
+                filteredConfigs: [],
+                applyFilters() {
+                    const keyword = this.filters.keyword.trim().toLowerCase();
+                    this.filteredConfigs = this.configs.filter(item => {
+                        const categoryMatch = !this.filters.category || item.category === this.filters.category;
+                        const statusMatch = this.filters.enabled === '' || String(item.enabled ? 1 : 0) === this.filters.enabled;
+                        const keywordMatch = !keyword || item.name.toLowerCase().includes(keyword);
+                        return categoryMatch && statusMatch && keywordMatch;
+                    });
+                },
+                resetFilters() {
+                    this.filters = { category: '', enabled: '', keyword: '' };
+                    this.applyFilters();
+                },
+                toggleStatus(item) {
+                    item.enabled = !item.enabled;
+                    this.applyFilters();
+                },
+                saveConfig(item) {
+                    alert(item.name + ' 配置已保存');
+                }
+            };
+        }
+    </script>
+</body>
+
+</html>

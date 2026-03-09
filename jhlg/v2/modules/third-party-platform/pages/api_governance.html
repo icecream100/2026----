@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>接口治理 - 第三方平台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .bbtn {
+            @apply px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+        }
+
+        .btn-primary {
+            @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+        }
+
+        .btn-secondary {
+            @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-blue-500;
+        }
+
+        .input-field {
+            @apply w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border;
+        }
+
+        .label {
+            @apply block text-sm font-medium text-gray-700 mb-1;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+
+<body class="h-screen flex overflow-hidden text-gray-800" x-data="apiGovernancePage()" x-init="init()">
+
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col hidden md:flex shrink-0">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800 shrink-0">
+            <svg class="w-8 h-8 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                </path>
+            </svg>
+            <span class="text-white text-lg font-bold tracking-wider">IoT Platform</span>
+        </div>
+        <div class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">第三方平台管理</div>
+        <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
+            <a href="../index.html"
+                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                    </path>
+                </svg>
+                第三方平台
+            </a>
+            <a href="api_docs.html"
+                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6.253v11.494m-9-5.747h18"></path>
+                </svg>
+                API 文档
+            </a>
+            <a href="api_governance.html" class="flex items-center px-3 py-2.5 bg-blue-600 text-white rounded-md group">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                    </path>
+                </svg>
+                接口治理
+            </a>
+            <a href="data_sharing.html"
+                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2">
+                    </path>
+                </svg>
+                数据共享管理
+            </a>
+            <a href="api_config.html"
+                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35A1.724 1.724 0 005.38 7.753c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.573-1.066z">
+                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                API 配置
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-gray-50">
+        <header
+            class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 shadow-sm z-10">
+            <div>
+                <h1 class="text-xl font-semibold text-gray-800">接口治理</h1>
+                <p class="text-sm text-gray-500 mt-1">统一承接接口监控、运行日志、版本维护与性能参数治理。</p>
+            </div>
+            <div class="text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full">Mock 演示数据</div>
+        </header>
+
+        <div class="flex-1 overflow-auto flex flex-col pt-6 px-6">
+            <div class="bg-white rounded-t-lg border-b border-gray-200 px-2 flex shrink-0">
+                <button @click="activeTab = 'monitor'"
+                    :class="activeTab === 'monitor' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                    class="px-6 py-4 text-sm font-medium border-b-2 transition-colors">接口监控</button>
+                <button @click="activeTab = 'logs'"
+                    :class="activeTab === 'logs' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                    class="px-6 py-4 text-sm font-medium border-b-2 transition-colors">接口日志记录</button>
+                <button @click="activeTab = 'version'"
+                    :class="activeTab === 'version' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                    class="px-6 py-4 text-sm font-medium border-b-2 transition-colors">接口版本管理</button>
+                <button @click="activeTab = 'perf'"
+                    :class="activeTab === 'perf' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                    class="px-6 py-4 text-sm font-medium border-b-2 transition-colors">接口性能优化</button>
+            </div>
+
+            <div
+                class="bg-white flex-1 rounded-b-lg shadow-sm border border-t-0 border-gray-100 p-6 overflow-y-auto mb-6">
+
+                <div x-show="activeTab === 'monitor'" style="display: none;" x-transition.opacity>
+                    <form class="flex flex-wrap gap-4 items-end mb-6 bg-gray-50 p-4 rounded border border-gray-100">
+                        <div class="w-48">
+                            <label class="label text-xs">平台名称</label>
+                            <input x-model.trim="monitorFilters.platform" type="text" class="input-field"
+                                placeholder="所属第三方平台">
+                        </div>
+                        <div class="w-48">
+                            <label class="label text-xs">接口名称</label>
+                            <input x-model.trim="monitorFilters.api" type="text" class="input-field"
+                                placeholder="输入接口名称">
+                        </div>
+                        <div class="w-32">
+                            <label class="label text-xs">当前状态</label>
+                            <select x-model="monitorFilters.status" class="input-field">
+                                <option value="">全部</option>
+                                <option value="正常">正常</option>
+                                <option value="异常">异常</option>
+                            </select>
+                        </div>
+                        <div class="w-40">
+                            <label class="label text-xs">时间范围</label>
+                            <select x-model="monitorFilters.range" class="input-field">
+                                <option value="1h">最近 1 小时</option>
+                                <option value="1d">最近 1 天</option>
+                                <option value="7d">最近 7 天</option>
+                                <option value="30d">最近 30 天</option>
+                            </select>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button type="button" class="bbtn btn-primary" @click="applyMonitorFilters()">查询</button>
+                            <button type="button" class="bbtn btn-secondary" @click="resetMonitorFilters()">重置</button>
+                        </div>
+                    </form>
+
+                    <div class="overflow-x-auto ring-1 ring-gray-200 sm:rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">平台名称
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">接口名称
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">接口路径
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">当前状态
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">成功率</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">错误率</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">最近调用时间
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <template x-for="item in filteredMonitorRows" :key="item.id">
+                                    <tr class="hover:bg-gray-50 text-sm">
+                                        <td class="px-6 py-4" x-text="item.platformName"></td>
+                                        <td class="px-6 py-4 text-blue-600" x-text="item.apiName"></td>
+                                        <td class="px-6 py-4 text-gray-500 font-mono text-xs" x-text="item.apiPath"></td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-1 rounded-full text-xs"
+                                                :class="item.status === '正常' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800 font-bold animate-pulse'"
+                                                x-text="item.status"></span>
+                                        </td>
+                                        <td class="px-6 py-4"
+                                            :class="item.status === '正常' ? 'text-green-600' : 'text-orange-500'"
+                                            x-text="item.successRate"></td>
+                                        <td class="px-6 py-4" :class="item.errorRate.startsWith('0') ? '' : 'text-red-600 font-mono'"
+                                            x-text="item.errorRate"></td>
+                                        <td class="px-6 py-4 text-gray-500" x-text="item.lastCalled"></td>
+                                    </tr>
+                                </template>
+                                <tr x-show="filteredMonitorRows.length === 0">
+                                    <td colspan="7" class="px-6 py-12 text-center text-sm text-gray-400">未查询到符合条件的接口监控数据</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div x-show="activeTab === 'logs'" style="display: none;" x-transition.opacity>
+                    <form class="flex flex-wrap gap-4 items-end mb-6 bg-gray-50 p-4 rounded border border-gray-100">
+                        <div class="w-48">
+                            <label class="label text-xs">平台名称</label>
+                            <input x-model.trim="logFilters.platform" type="text" class="input-field"
+                                placeholder="所属第三方平台">
+                        </div>
+                        <div class="w-48">
+                            <label class="label text-xs">接口名称</label>
+                            <input x-model.trim="logFilters.api" type="text" class="input-field"
+                                placeholder="输入接口名称">
+                        </div>
+                        <div class="w-32">
+                            <label class="label text-xs">调用状态</label>
+                            <select x-model="logFilters.status" class="input-field">
+                                <option value="">全部</option>
+                                <option value="成功">成功</option>
+                                <option value="失败">失败</option>
+                            </select>
+                        </div>
+                        <div class="w-40">
+                            <label class="label text-xs">时间范围</label>
+                            <select x-model="logFilters.range" class="input-field">
+                                <option value="">全部</option>
+                                <option value="1d">最近 1 天</option>
+                                <option value="7d">最近 7 天</option>
+                                <option value="30d">最近 30 天</option>
+                            </select>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button type="button" class="bbtn btn-primary" @click="applyLogFilters()">查询</button>
+                            <button type="button" class="bbtn btn-secondary" @click="resetLogFilters()">重置</button>
+                        </div>
+                    </form>
+
+                    <div class="overflow-x-auto ring-1 ring-gray-200 sm:rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">日志ID
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">平台名称
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">接口名称
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">请求时间
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">响应时间
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">调用状态
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">失败原因
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                                <template x-for="item in filteredLogRows" :key="item.id">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 font-mono text-xs text-gray-500" x-text="item.logId"></td>
+                                        <td class="px-6 py-4" x-text="item.platformName"></td>
+                                        <td class="px-6 py-4 text-blue-600" x-text="item.apiName"></td>
+                                        <td class="px-6 py-4" x-text="item.requestTime"></td>
+                                        <td class="px-6 py-4 font-mono" x-text="item.responseTime"></td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-0.5 rounded text-xs"
+                                                :class="item.status === '成功' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                                x-text="item.status"></span>
+                                        </td>
+                                        <td class="px-6 py-4 max-w-xs truncate"
+                                            :class="item.status === '失败' ? 'text-red-600' : 'text-gray-400'"
+                                            x-text="item.failureReason || '-'"></td>
+                                        <td class="px-6 py-4">
+                                            <button type="button" class="text-blue-600 hover:text-blue-800"
+                                                @click="openLogDrawer(item)">详情</button>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <tr x-show="filteredLogRows.length === 0">
+                                    <td colspan="8" class="px-6 py-12 text-center text-sm text-gray-400">未查询到符合条件的接口日志</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div x-show="activeTab === 'version'" style="display: none;" x-transition.opacity>
+                    <div class="mb-4 flex flex-wrap justify-between gap-3">
+                        <div class="w-72">
+                            <input x-model.trim="versionKeyword" @input="applyVersionFilters()" type="text" class="input-field" placeholder="搜索接口名称...">
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="button" class="bbtn btn-secondary" @click="resetVersionFilters()">重置</button>
+                            <button type="button" class="bbtn btn-primary" @click="openVersionModal()">新增版本</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto ring-1 ring-gray-200 sm:rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">接口名称
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">版本号</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">默认版本
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">说明</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                                <template x-for="item in filteredVersionRows" :key="item.id">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 font-medium" x-text="item.apiName"></td>
+                                        <td class="px-6 py-4">
+                                            <span class="bg-gray-100 px-2 py-1 rounded font-mono text-xs text-gray-700"
+                                                x-text="item.version"></span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="text-xs font-medium"
+                                                :class="item.isDefault ? 'text-blue-600' : 'text-gray-400'"
+                                                x-text="item.isDefault ? '是' : '否'"></span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="text-xs font-medium"
+                                                :class="item.status === '启用' ? 'text-green-600' : item.status === '停用' ? 'text-orange-500' : 'text-gray-400'"
+                                                x-text="item.status"></span>
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-500" x-text="item.desc"></td>
+                                        <td class="px-6 py-4">
+                                            <button type="button" class="text-blue-600 hover:text-blue-800"
+                                                @click="openVersionModal(item)">编辑</button>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <tr x-show="filteredVersionRows.length === 0">
+                                    <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-400">未查询到符合条件的接口版本</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div x-show="activeTab === 'perf'" style="display: none;" x-transition.opacity>
+                    <div class="mb-4 bg-blue-50 p-3 rounded text-sm text-blue-800 flex items-start">
+                        <svg class="w-5 h-5 text-blue-500 mr-2 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        性能参数保存后对第三方平台发起的新请求立即生效。历史日志不受影响。
+                    </div>
+
+                    <div class="overflow-x-auto ring-1 ring-gray-200 sm:rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">接口名称
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">超时时间(ms)
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">重试次数
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                        限流阈值(次/分)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">近1天平均响应
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium text-gray-900">下发控制命令</td>
+                                    <td class="px-6 py-4"><input type="number"
+                                            class="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500"
+                                            value="5000"></td>
+                                    <td class="px-6 py-4"><input type="number"
+                                            class="w-16 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500"
+                                            value="0"></td>
+                                    <td class="px-6 py-4"><input type="number"
+                                            class="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500"
+                                            value="600"></td>
+                                    <td class="px-6 py-4 text-gray-600 font-mono">142 ms</td>
+                                    <td class="px-6 py-4">
+                                        <button type="button" class="bbtn btn-primary px-3 py-1"
+                                            @click="alert('性能参数已生效')">保存</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium text-gray-900">拉取历史环境数据</td>
+                                    <td class="px-6 py-4"><input type="number"
+                                            class="w-24 px-2 py-1 border border-red-300 rounded text-sm focus:ring-red-500 focus:border-red-500 ring-1 ring-red-200"
+                                            value="30000"></td>
+                                    <td class="px-6 py-4"><input type="number"
+                                            class="w-16 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500"
+                                            value="1"></td>
+                                    <td class="px-6 py-4"><input type="number"
+                                            class="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500"
+                                            value="20"></td>
+                                    <td class="px-6 py-4 text-red-600 font-bold font-mono">4890 ms</td>
+                                    <td class="px-6 py-4">
+                                        <button type="button" class="bbtn btn-primary px-3 py-1"
+                                            @click="alert('性能参数已生效')">保存</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <div x-show="showVersionModal" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showVersionModal = false"></div>
+
+            <div
+                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900" x-text="versionModalTitle"></h3>
+                </div>
+
+                <div class="px-6 py-4 space-y-4">
+                    <div>
+                        <label class="label">接口名称</label>
+                        <input type="text" class="input-field" x-model.trim="versionForm.apiName" placeholder="输入接口名称">
+                    </div>
+                    <div>
+                        <label class="label">版本号</label>
+                        <input type="text" class="input-field font-mono" x-model.trim="versionForm.version"
+                            placeholder="例如 v1.3">
+                    </div>
+                    <div class="flex items-center justify-between bg-blue-50 p-3 rounded">
+                        <div>
+                            <span class="block text-sm font-medium text-gray-900">设为默认版本</span>
+                            <span class="block text-xs text-blue-700">同一接口仅允许一个默认版本</span>
+                        </div>
+                        <input type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                            x-model="versionForm.isDefault">
+                    </div>
+                    <div>
+                        <label class="label">状态</label>
+                        <select class="input-field" x-model="versionForm.status">
+                            <option value="启用">启用</option>
+                            <option value="停用">停用</option>
+                            <option value="废弃">废弃</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label">说明</label>
+                        <textarea class="input-field" rows="2" x-model.trim="versionForm.desc"
+                            placeholder="输入版本变更说明"></textarea>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
+                    <button type="button"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm"
+                        @click="saveVersion()">确定</button>
+                    <button type="button"
+                        class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                        @click="showVersionModal = false">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="showLogDrawer" style="display: none;" class="fixed inset-0 overflow-hidden z-50">
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showLogDrawer = false"></div>
+            <div class="fixed inset-y-0 right-0 pl-10 max-w-full flex">
+                <div class="w-screen max-w-2xl transform transition-transform bg-white shadow-xl">
+                    <div class="h-full flex flex-col py-6 shadow-xl overflow-y-scroll bg-white">
+                        <div class="px-4 sm:px-6 flex items-start justify-between">
+                            <h2 class="text-lg font-medium text-gray-900">日志详细信息</h2>
+                            <div class="ml-3 h-7 flex items-center">
+                                <button type="button"
+                                    class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none"
+                                    @click="showLogDrawer = false">
+                                    <span class="sr-only">关闭面板</span>
+                                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-6 relative flex-1 px-4 sm:px-6" x-show="selectedLog">
+                            <div class="space-y-6">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">基本信息</h3>
+                                    <div
+                                        class="mt-2 text-sm text-gray-900 bg-gray-50 p-4 rounded-md grid grid-cols-2 gap-4">
+                                        <div><span class="text-gray-500">日志ID:</span> <span x-text="selectedLog?.logId"></span></div>
+                                        <div><span class="text-gray-500">平台名称:</span> <span x-text="selectedLog?.platformName"></span></div>
+                                        <div><span class="text-gray-500">接口名称:</span> <span x-text="selectedLog?.apiName"></span></div>
+                                        <div><span class="text-gray-500">请求时间:</span> <span x-text="selectedLog?.requestTime"></span></div>
+                                        <div><span class="text-gray-500">调用状态:</span>
+                                            <span :class="selectedLog?.status === '成功' ? 'text-green-600' : 'text-red-600'"
+                                                x-text="selectedLog?.status"></span>
+                                        </div>
+                                        <div><span class="text-gray-500">响应时间:</span> <span x-text="selectedLog?.responseTime"></span></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">请求信息 (Request)</h3>
+                                    <pre class="mt-2 bg-slate-900 text-slate-300 p-4 rounded-md text-xs font-mono overflow-x-auto"
+                                        x-text="selectedLog?.requestBody"></pre>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">响应信息 (Response)</h3>
+                                    <pre class="mt-2 bg-slate-900 text-slate-300 p-4 rounded-md text-xs font-mono overflow-x-auto"
+                                        x-text="selectedLog?.responseBody"></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function apiGovernancePage() {
+            return {
+                activeTab: 'monitor',
+                showLogDrawer: false,
+                showVersionModal: false,
+                versionModalTitle: '新增接口版本',
+                selectedLog: null,
+                monitorFilters: {
+                    platform: '',
+                    api: '',
+                    status: '',
+                    range: ''
+                },
+                logFilters: {
+                    platform: '',
+                    api: '',
+                    status: '',
+                    range: ''
+                },
+                versionKeyword: '',
+                versionForm: {
+                    id: null,
+                    apiName: '',
+                    version: 'v1.0',
+                    isDefault: false,
+                    status: '启用',
+                    desc: ''
+                },
+                monitorRows: [
+                    {
+                        id: 1,
+                        platformName: '市教育局数据大屏',
+                        apiName: '获取设备清单',
+                        apiPath: '/api/v1/devices',
+                        status: '正常',
+                        successRate: '99.98%',
+                        errorRate: '0.02%',
+                        lastCalled: '2026-03-09 11:30:11'
+                    },
+                    {
+                        id: 2,
+                        platformName: '能源管控平台',
+                        apiName: '下发控制命令',
+                        apiPath: '/api/v1/cmd/invoke',
+                        status: '异常',
+                        successRate: '82.10%',
+                        errorRate: '17.90%',
+                        lastCalled: '2026-03-09 11:25:44'
+                    },
+                    {
+                        id: 3,
+                        platformName: '校园安防中枢',
+                        apiName: '查询命令反馈',
+                        apiPath: '/api/v1/cmd/result',
+                        status: '正常',
+                        successRate: '99.62%',
+                        errorRate: '0.38%',
+                        lastCalled: '2026-03-09 11:18:05'
+                    },
+                    {
+                        id: 4,
+                        platformName: '环保监督平台',
+                        apiName: '获取设备实时数据',
+                        apiPath: '/api/v1/device/realtime',
+                        status: '正常',
+                        successRate: '98.73%',
+                        errorRate: '1.27%',
+                        lastCalled: '2026-03-08 09:12:33'
+                    }
+                ],
+                logRows: [
+                    {
+                        id: 1,
+                        logId: 'REQ-291039818',
+                        platformName: '能源管控平台',
+                        apiName: '下发控制命令',
+                        requestTime: '2026-03-09 11:25:44',
+                        responseTime: '2026-03-09 11:25:44',
+                        status: '成功',
+                        failureReason: '',
+                        requestBody: 'POST /api/v1/cmd/invoke HTTP/1.1\nHost: api.iot.example.com\nContent-Type: application/json\nAuthorization: Bearer xxxxx.yyyyy.zzzzz\n\n{\n  "device_id": "dev_8829_abc",\n  "command": "power_off",\n  "params": {\n    "force": true\n  }\n}',
+                        responseBody: 'HTTP/1.1 200 OK\nContent-Type: application/json\n\n{\n  "code": 0,\n  "message": "success",\n  "trace_id": "REQ-291039818"\n}'
+                    },
+                    {
+                        id: 2,
+                        logId: 'REQ-291039815',
+                        platformName: '能源管控平台',
+                        apiName: '下发控制命令',
+                        requestTime: '2026-03-09 11:24:12',
+                        responseTime: '2026-03-09 11:24:16',
+                        status: '失败',
+                        failureReason: 'Device Offline (设备离线，指令无法送达)',
+                        requestBody: 'POST /api/v1/cmd/invoke HTTP/1.1\nHost: api.iot.example.com\nContent-Type: application/json\nAuthorization: Bearer xxxxx.yyyyy.zzzzz\n\n{\n  "device_id": "dev_8829_abc",\n  "command": "power_off",\n  "params": {\n    "force": true\n  }\n}',
+                        responseBody: 'HTTP/1.1 504 Gateway Timeout\nContent-Type: application/json\n\n{\n  "code": 504001,\n  "message": "Device Offline",\n  "details": "设备处于离线状态，指令无法送达"\n}'
+                    },
+                    {
+                        id: 3,
+                        logId: 'REQ-291039799',
+                        platformName: '市教育局数据大屏',
+                        apiName: '获取设备清单',
+                        requestTime: '2026-03-09 10:58:09',
+                        responseTime: '2026-03-09 10:58:09',
+                        status: '成功',
+                        failureReason: '',
+                        requestBody: 'GET /api/v1/devices?page=1&size=20 HTTP/1.1\nHost: api.iot.example.com\nAuthorization: Bearer xxxxx.yyyyy.zzzzz',
+                        responseBody: 'HTTP/1.1 200 OK\nContent-Type: application/json\n\n{\n  "code": 0,\n  "message": "success",\n  "data": {\n    "total": 20,\n    "items": []\n  }\n}'
+                    },
+                    {
+                        id: 4,
+                        logId: 'REQ-291038911',
+                        platformName: '环保监督平台',
+                        apiName: '获取设备实时数据',
+                        requestTime: '2026-03-07 09:12:33',
+                        responseTime: '2026-03-07 09:12:33',
+                        status: '成功',
+                        failureReason: '',
+                        requestBody: 'GET /api/v1/device/realtime?device_id=air_001 HTTP/1.1\nHost: api.iot.example.com\nAuthorization: Bearer xxxxx.yyyyy.zzzzz',
+                        responseBody: 'HTTP/1.1 200 OK\nContent-Type: application/json\n\n{\n  "code": 0,\n  "message": "success",\n  "data": {\n    "device_id": "air_001",\n    "value": 28.1\n  }\n}'
+                    }
+                ],
+                versionRows: [
+                    {
+                        id: 1,
+                        apiName: '获取设备清单',
+                        version: 'v1.2',
+                        isDefault: true,
+                        status: '启用',
+                        desc: '增加设备组过滤参数'
+                    },
+                    {
+                        id: 2,
+                        apiName: '获取设备清单',
+                        version: 'v1.0',
+                        isDefault: false,
+                        status: '废弃',
+                        desc: '初始版本（不再支持）'
+                    },
+                    {
+                        id: 3,
+                        apiName: '下发控制命令',
+                        version: 'v2.1',
+                        isDefault: true,
+                        status: '启用',
+                        desc: '补充命令反馈 traceId 返回'
+                    }
+                ],
+                filteredMonitorRows: [],
+                filteredLogRows: [],
+                filteredVersionRows: [],
+                init() {
+                    this.resetMonitorFilters();
+                    this.resetLogFilters();
+                    this.resetVersionFilters();
+                },
+                normalize(value) {
+                    return (value || '').toLowerCase();
+                },
+                inRange(dateTime, range) {
+                    if (!range) {
+                        return true;
+                    }
+                    const base = new Date('2026-03-09T12:00:00');
+                    const target = new Date(dateTime.replace(' ', 'T'));
+                    const diff = base - target;
+                    const day = 24 * 60 * 60 * 1000;
+                    if (range === '1h') {
+                        return diff <= 60 * 60 * 1000;
+                    }
+                    if (range === '1d') {
+                        return diff <= day;
+                    }
+                    if (range === '7d') {
+                        return diff <= 7 * day;
+                    }
+                    if (range === '30d') {
+                        return diff <= 30 * day;
+                    }
+                    return true;
+                },
+                applyMonitorFilters() {
+                    this.filteredMonitorRows = this.monitorRows.filter((item) => {
+                        const platformMatch = !this.monitorFilters.platform || this.normalize(item.platformName).includes(this.normalize(this.monitorFilters.platform));
+                        const apiMatch = !this.monitorFilters.api || this.normalize(item.apiName).includes(this.normalize(this.monitorFilters.api));
+                        const statusMatch = !this.monitorFilters.status || item.status === this.monitorFilters.status;
+                        const rangeMatch = this.inRange(item.lastCalled, this.monitorFilters.range);
+                        return platformMatch && apiMatch && statusMatch && rangeMatch;
+                    });
+                },
+                resetMonitorFilters() {
+                    this.monitorFilters = {
+                        platform: '',
+                        api: '',
+                        status: '',
+                        range: '1h'
+                    };
+                    this.applyMonitorFilters();
+                },
+                applyLogFilters() {
+                    this.filteredLogRows = this.logRows.filter((item) => {
+                        const platformMatch = !this.logFilters.platform || this.normalize(item.platformName).includes(this.normalize(this.logFilters.platform));
+                        const apiMatch = !this.logFilters.api || this.normalize(item.apiName).includes(this.normalize(this.logFilters.api));
+                        const statusMatch = !this.logFilters.status || item.status === this.logFilters.status;
+                        const rangeMatch = this.inRange(item.requestTime, this.logFilters.range);
+                        return platformMatch && apiMatch && statusMatch && rangeMatch;
+                    });
+                },
+                resetLogFilters() {
+                    this.logFilters = {
+                        platform: '',
+                        api: '',
+                        status: '',
+                        range: ''
+                    };
+                    this.filteredLogRows = [...this.logRows];
+                },
+                openLogDrawer(item) {
+                    this.selectedLog = item;
+                    this.showLogDrawer = true;
+                },
+                applyVersionFilters() {
+                    this.filteredVersionRows = this.versionRows.filter((item) => {
+                        return !this.versionKeyword || this.normalize(item.apiName).includes(this.normalize(this.versionKeyword));
+                    });
+                },
+                resetVersionFilters() {
+                    this.versionKeyword = '';
+                    this.filteredVersionRows = [...this.versionRows];
+                },
+                openVersionModal(item = null) {
+                    if (item) {
+                        this.versionModalTitle = '编辑接口版本';
+                        this.versionForm = { ...item };
+                    } else {
+                        this.versionModalTitle = '新增接口版本';
+                        this.versionForm = {
+                            id: null,
+                            apiName: '',
+                            version: 'v1.0',
+                            isDefault: false,
+                            status: '启用',
+                            desc: ''
+                        };
+                    }
+                    this.showVersionModal = true;
+                },
+                saveVersion() {
+                    if (!this.versionForm.apiName || !this.versionForm.version) {
+                        alert('请输入接口名称和版本号');
+                        return;
+                    }
+                    if (this.versionForm.status === '废弃' && this.versionForm.isDefault) {
+                        alert('废弃版本不可设为默认版本');
+                        return;
+                    }
+                    if (this.versionForm.isDefault) {
+                        this.versionRows = this.versionRows.map((item) => {
+                            if (item.apiName === this.versionForm.apiName) {
+                                return { ...item, isDefault: false };
+                            }
+                            return item;
+                        });
+                    }
+                    if (this.versionForm.id) {
+                        this.versionRows = this.versionRows.map((item) => item.id === this.versionForm.id ? { ...this.versionForm } : item);
+                    } else {
+                        this.versionRows.unshift({
+                            ...this.versionForm,
+                            id: Date.now()
+                        });
+                    }
+                    this.applyVersionFilters();
+                    this.showVersionModal = false;
+                    alert('版本更新成功');
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

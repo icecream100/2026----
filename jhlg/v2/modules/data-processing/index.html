@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据处理服务管理 - 仪表盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#1677ff', 'primary-hover': '#4096ff', success: '#52c41a', error: '#ff4d4f', warning: '#faad14', slate: '#f0f2f5' }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #d1d5db;
+            border-radius: 4px;
+        }
+
+        .card-number {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-weight: 700;
+        }
+
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+
+<body class="bg-slate text-gray-800 font-sans h-screen flex overflow-hidden">
+    <!-- 侧边栏 -->
+    <aside class="w-56 bg-white border-r border-gray-200 flex flex-col h-full flex-shrink-0 z-20 shadow-sm relative">
+        <div class="h-14 flex items-center px-6 border-b border-gray-200">
+            <i class="ph-fill ph-database text-2xl text-primary mr-2"></i>
+            <span class="text-base font-bold text-gray-800">物联网平台</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 custom-scrollbar">
+            <div class="px-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">数据处理服务管理</div>
+            <div class="space-y-1">
+                <a href="index.html"
+                    class="block py-2 px-6 text-sm text-primary font-medium bg-blue-50 border-r-2 border-primary">
+                    <i class="ph ph-chart-line-up text-lg mr-2 inline-block align-middle"></i> 仪表盘
+                </a>
+                <a href="#"
+                    class="flex items-center px-6 py-2 text-sm text-gray-700 hover:text-primary transition-colors">
+                    <i class="ph ph-plug text-lg mr-2 text-gray-500"></i> 协议管理
+                </a>
+                <a href="#"
+                    class="flex items-center px-6 py-2 text-sm text-gray-700 hover:text-primary transition-colors">
+                    <i class="ph ph-hard-drives text-lg mr-2 text-gray-500"></i> 设备空间管理
+                </a>
+                <a href="#"
+                    class="flex items-center px-6 py-2 text-sm text-gray-700 hover:text-primary transition-colors">
+                    <i class="ph ph-wrench text-lg mr-2 text-gray-500"></i> 设备治理
+                </a>
+
+                <div class="px-6 mt-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">日志管理</div>
+                <a href="#"
+                    class="flex items-center px-6 py-2 text-sm text-gray-700 hover:text-primary transition-colors">
+                    <i class="ph ph-user text-lg mr-2 text-gray-500"></i> 用户日志
+                </a>
+                <a href="pages/log-search.html"
+                    class="flex items-center px-6 py-2 text-sm text-gray-700 hover:text-primary transition-colors group">
+                    <i class="ph ph-book-open-text text-lg mr-2 text-gray-500 group-hover:text-primary"></i> 日志管理
+                    (含导出)
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden">
+        <header
+            class="h-14 bg-white border-b border-gray-200 flex justify-between items-center px-6 flex-shrink-0 z-10 shadow-sm relative">
+            <div class="flex items-center text-sm text-gray-500">
+                <span>数据处理服务管理</span>
+                <i class="ph ph-caret-right mx-2 text-xs"></i>
+                <span class="text-gray-900 font-medium">仪表盘</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <i class="ph ph-bell text-xl text-gray-500 cursor-pointer hover:text-gray-800 transition-colors"></i>
+                <div
+                    class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-primary font-bold cursor-pointer hover:bg-blue-200">
+                    平</div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-6 bg-slate custom-scrollbar space-y-4">
+
+            <!-- 公共筛选区 -->
+            <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200 sticky top-0 z-30">
+                <form class="flex flex-wrap gap-4 items-end"
+                    onsubmit="event.preventDefault(); showToast('正在全局刷新图表...');">
+                    <div class="flex flex-col space-y-1 w-64">
+                        <label class="text-xs text-gray-500 font-medium">统计时间范围 <span
+                                class="text-red-500">*</span></label>
+                        <div
+                            class="flex border border-gray-300 rounded focus-within:border-primary h-8 overflow-hidden bg-white">
+                            <select
+                                class="px-2 text-xs font-medium text-gray-600 border-r border-gray-300 bg-gray-50 outline-none w-20 flex-shrink-0">
+                                <option>今日</option>
+                                <option selected>近一周</option>
+                                <option>近一月</option>
+                                <option>自定义</option>
+                            </select>
+                            <input type="date" value="2026-03-01"
+                                class="w-full h-full px-2 outline-none text-xs text-gray-600">
+                            <span class="text-gray-400 px-1 text-xs self-center">-</span>
+                            <input type="date" value="2026-03-08"
+                                class="w-full h-full px-2 outline-none text-xs text-gray-600">
+                        </div>
+                    </div>
+                    <div class="flex flex-col space-y-1 w-40">
+                        <label class="text-xs text-gray-500 font-medium">指定接口 / 类型</label>
+                        <div class="flex bg-white rounded border border-gray-300 h-8 overflow-hidden">
+                            <select
+                                class="w-[45%] h-full px-1 border-r border-gray-300 outline-none text-xs bg-gray-50">
+                                <option value="api_name">接口名称</option>
+                                <option value="api_type">接口类型</option>
+                            </select>
+                            <input type="text" placeholder="输入关键字"
+                                class="w-[55%] h-full px-2 text-xs outline-none focus:bg-blue-50">
+                        </div>
+                    </div>
+                    <div class="flex flex-col space-y-1 w-32">
+                        <label class="text-xs text-gray-500 font-medium">关联产品类型</label>
+                        <select
+                            class="w-full h-8 px-2 border border-gray-300 rounded outline-none text-xs bg-white focus:border-primary">
+                            <option value="">全部产品</option>
+                            <option value="cam">智能摄像机</option>
+                            <option value="sensor">环境传感器</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col space-y-1 w-32">
+                        <label class="text-xs text-gray-500 font-medium">关联支撑应用</label>
+                        <input type="text" placeholder="应用名称或ID"
+                            class="w-full h-8 px-2 border border-gray-300 rounded outline-none text-xs focus:border-primary">
+                    </div>
+                    <div class="ml-auto flex space-x-2">
+                        <button type="reset"
+                            class="px-4 py-1.5 border border-gray-300 text-gray-700 rounded text-sm hover:border-primary hover:text-primary transition-colors bg-white"><i
+                                class="ph ph-arrow-counter-clockwise mr-1"></i>重置</button>
+                        <button type="submit"
+                            class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-sm hover:bg-primary-hover shadow-sm transition-colors"><i
+                                class="ph ph-magnifying-glass mr-1"></i>查询</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 第一屏：接口概览与质量 -->
+            <div class="grid grid-cols-3 gap-4">
+
+                <!-- 模块1：共享接口访问频率统计 (跨两列) -->
+                <div
+                    class="col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-4 stat-card flex flex-col h-72">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-gray-800"><i
+                                class="ph-fill ph-trend-up text-primary mr-2"></i>共享接口访问频率</h3>
+                        <div class="flex space-x-4 text-sm text-gray-500">
+                            <div>总访问 <span class="font-bold text-gray-900 mx-1 card-number">842,504</span> 次</div>
+                            <div>峰值 <span class="font-bold text-red-500 mx-1 card-number">12,400</span> 次/天</div>
+                            <div>平均 <span class="font-bold text-blue-600 mx-1 card-number">1,245</span> 次/天</div>
+                        </div>
+                    </div>
+                    <div id="chartApiVisit" class="flex-1 w-full min-h-0"></div>
+                </div>
+
+                <!-- 模块2：接口质量统计 -->
+                <div
+                    class="col-span-1 bg-white rounded-lg shadow-sm border border-gray-200 p-4 stat-card flex flex-col h-72">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-gray-800"><i
+                                class="ph-fill ph-shield-check text-green-500 mr-2"></i>接口质量统计</h3>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-2">
+                        <div class="bg-gray-50 rounded p-3 border border-gray-100 relative overflow-hidden">
+                            <i class="ph-fill ph-link text-4xl text-gray-200 absolute -right-2 -bottom-2"></i>
+                            <div class="text-xs text-gray-500 mb-1 z-10 relative">访问质量 (有效连接)</div>
+                            <div class="text-xl font-bold text-gray-800 card-number z-10 relative text-success">98.5%
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded p-3 border border-gray-100 relative overflow-hidden">
+                            <i class="ph-fill ph-file-code text-4xl text-gray-200 absolute -right-2 -bottom-2"></i>
+                            <div class="text-xs text-gray-500 mb-1 z-10 relative">提供质量 (有效数据)</div>
+                            <div class="text-xl font-bold text-gray-800 card-number z-10 relative text-blue-600">92.1%
+                            </div>
+                        </div>
+                    </div>
+                    <div id="chartApiQuality" class="flex-1 w-full mt-2 min-h-0"></div>
+                </div>
+            </div>
+
+            <!-- 第二屏：应用、数据质量与数据量 -->
+            <div class="grid grid-cols-3 gap-4">
+
+                <!-- 模块3：接口支撑应用统计 -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 stat-card flex flex-col h-96">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-gray-800"><i
+                                class="ph-fill ph-app-window text-indigo-500 mr-2"></i>支撑应用统计</h3>
+                    </div>
+                    <div class="flex bg-indigo-50 rounded p-3 text-sm text-indigo-800 mb-4 justify-between font-medium">
+                        <span>总接口数: <span class="card-number">45</span></span>
+                        <span>总关联应用: <span class="card-number">12</span></span>
+                        <span>单接口均应用: <span class="card-number">2.5</span></span>
+                    </div>
+                    <div class="flex-1 flex flex-col min-h-0">
+                        <h4 class="text-xs text-gray-500 mb-2 font-medium">应用占比分布</h4>
+                        <div id="chartAppRatio" class="h-40 w-full shrink-0"></div>
+
+                        <h4 class="text-xs text-gray-500 mb-2 mt-4 font-medium">单接口对接应用数 Top10</h4>
+                        <div class="flex-1 overflow-y-auto custom-scrollbar min-h-0 pb-2">
+                            <table class="w-full text-xs text-left whitespace-nowrap">
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="py-1.5 w-8"><span
+                                                class="bg-orange-100 text-orange-600 w-5 h-5 rounded-full inline-flex items-center justify-center font-bold text-[10px]">1</span>
+                                        </td>
+                                        <td class="py-1.5 truncate max-w-[100px]" title="GetDeviceLocation">
+                                            GetDeviceLocation</td>
+                                        <td class="py-1.5 text-right font-medium text-gray-700">8 个</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="py-1.5"><span
+                                                class="bg-gray-100 text-gray-600 w-5 h-5 rounded-full inline-flex items-center justify-center font-bold text-[10px]">2</span>
+                                        </td>
+                                        <td class="py-1.5 truncate max-w-[100px]">PushAlarmEvent</td>
+                                        <td class="py-1.5 text-right font-medium text-gray-700">5 个</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="py-1.5"><span
+                                                class="bg-gray-100 text-gray-600 w-5 h-5 rounded-full inline-flex items-center justify-center font-bold text-[10px]">3</span>
+                                        </td>
+                                        <td class="py-1.5 truncate max-w-[100px]">QueryMonitorData</td>
+                                        <td class="py-1.5 text-right font-medium text-gray-700">3 个</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="py-1.5"><span
+                                                class="bg-gray-100 text-gray-500 w-5 h-5 rounded-full inline-flex items-center justify-center text-[10px]">4</span>
+                                        </td>
+                                        <td class="py-1.5 text-gray-500 truncate max-w-[100px]">ControlDeviceSync</td>
+                                        <td class="py-1.5 text-right font-medium text-gray-500">1 个</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模块4：数据量统计分析 -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 stat-card flex flex-col h-96">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-gray-800"><i
+                                class="ph-fill ph-chart-bar text-cyan-500 mr-2"></i>数据量统计分析</h3>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-2">
+                        <div class="bg-blue-50/50 rounded p-3 border border-blue-100">
+                            <div class="text-xs text-gray-500 mb-1">监测数据量</div>
+                            <div class="flex items-end justify-between">
+                                <span class="text-xl font-bold text-blue-700 card-number">4.2M</span>
+                                <span class="text-[10px] text-success flex items-center"><i
+                                        class="ph ph-trend-up mr-0.5"></i> 12%</span>
+                            </div>
+                        </div>
+                        <div class="bg-orange-50/50 rounded p-3 border border-orange-100">
+                            <div class="text-xs text-gray-500 mb-1">告警数据量</div>
+                            <div class="flex items-end justify-between">
+                                <span class="text-xl font-bold text-orange-600 card-number">18.5K</span>
+                                <span class="text-[10px] text-red-500 flex items-center"><i
+                                        class="ph ph-trend-up mr-0.5"></i> 4%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <h4 class="text-xs text-gray-500 mb-1 font-medium mt-2">增量趋势对比</h4>
+                    <div id="chartDataVolume" class="flex-1 w-full min-h-0"></div>
+                </div>
+
+                <!-- 模块5：数据质量统计分析 -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 stat-card flex flex-col h-96">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-gray-800"><i class="ph-fill ph-funnel text-teal-500 mr-2"></i>数据质量统计分析
+                        </h3>
+                    </div>
+
+                    <div class="flex space-x-2 mb-4">
+                        <div class="flex-1 bg-gray-50 rounded p-2 text-center border border-gray-100">
+                            <div class="text-[10px] text-gray-500">总清洗量</div>
+                            <div class="font-bold text-gray-700 card-number">42.5 W</div>
+                        </div>
+                        <div class="flex-1 bg-gray-50 rounded p-2 text-center border border-gray-100">
+                            <div class="text-[10px] text-gray-500">通过量</div>
+                            <div class="font-bold text-teal-600 card-number">40.1 W</div>
+                        </div>
+                        <div class="flex-1 bg-teal-50 rounded p-2 text-center border border-teal-100 relative">
+                            <div class="text-[10px] text-teal-600">通过率</div>
+                            <div class="font-bold text-teal-700 card-number">94.3%</div>
+                        </div>
+                    </div>
+
+                    <h4 class="text-xs text-gray-500 mb-1 font-medium">清洗通过率趋势</h4>
+                    <div id="chartDataQuality" class="flex-1 w-full min-h-0"></div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast 提示框 -->
+    <div id="toast"
+        class="fixed top-6 right-1/2 translate-x-1/2 bg-gray-800 text-white shadow-lg flex items-center px-4 py-2 rounded transition-opacity opacity-0 z-50 pointer-events-none text-sm">
+        <i class="ph ph-spinner animate-spin text-lg mr-2"></i>
+        <span id="toastMsg">正在刷新数据...</span>
+    </div>
+
+    <script>
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            t.style.opacity = '1';
+            setTimeout(() => { t.style.opacity = '0'; }, 1500);
+        }
+
+        // 初始化 ECharts
+        let charts = {};
+
+        function initCharts() {
+            charts.visit = echarts.init(document.getElementById('chartApiVisit'));
+            charts.quality = echarts.init(document.getElementById('chartApiQuality'));
+            charts.appRatio = echarts.init(document.getElementById('chartAppRatio'));
+            charts.volume = echarts.init(document.getElementById('chartDataVolume'));
+            charts.dataQuality = echarts.init(document.getElementById('chartDataQuality'));
+
+            // 模块 1: 访问频率
+            charts.visit.setOption({
+                grid: { top: 10, right: 10, bottom: 20, left: 40, containLabel: false },
+                tooltip: { trigger: 'axis' },
+                xAxis: { type: 'category', data: ['3-1', '3-2', '3-3', '3-4', '3-5', '3-6', '3-7'], axisLine: { lineStyle: { color: '#e5e7eb' } }, axisLabel: { color: '#6b7280' } },
+                yAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed', color: '#f3f4f6' } }, axisLabel: { color: '#6b7280', formatter: '{value}k' } },
+                series: [{ name: '访问次数', type: 'line', smooth: true, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(22,119,255,0.4)' }, { offset: 1, color: 'rgba(22,119,255,0.05)' }]) }, itemStyle: { color: '#1677ff' }, data: [110, 105, 112, 98, 115, 124, 120] }]
+            });
+
+            // 模块 2: 接口质量
+            charts.quality.setOption({
+                grid: { top: 10, right: 10, bottom: 20, left: 40 },
+                tooltip: { trigger: 'axis' },
+                legend: { show: false },
+                xAxis: { type: 'category', data: ['3-1', '3-2', '3-3', '3-4', '3-5', '3-6'], show: false },
+                yAxis: { type: 'value', min: 80, max: 100, splitLine: { lineStyle: { type: 'dashed', color: '#f3f4f6' } }, axisLabel: { color: '#9ca3af', fontSize: 10, formatter: '{value}%' } },
+                series: [
+                    { name: '有效连接占比', type: 'line', data: [98.1, 98.4, 99.0, 97.4, 98.5, 98.5], itemStyle: { color: '#52c41a' } },
+                    { name: '有效数据占比', type: 'line', data: [91.4, 92.1, 91.8, 93.0, 92.2, 92.1], itemStyle: { color: '#1677ff' } }
+                ]
+            });
+
+            // 模块 3: 支撑应用分布
+            charts.appRatio.setOption({
+                tooltip: { trigger: 'item' },
+                legend: { bottom: 0, left: 'center', itemWidth: 8, itemHeight: 8, textStyle: { fontSize: 10, color: '#6b7280' } },
+                series: [{
+                    type: 'pie', radius: ['45%', '70%'], center: ['50%', '45%'],
+                    data: [{ value: 45, name: '学工系统' }, { value: 30, name: '停车缴费' }, { value: 15, name: '能耗分析' }, { value: 10, name: '其他' }],
+                    label: { show: false },
+                    itemStyle: { borderColor: '#fff', borderWidth: 2 },
+                    color: ['#1677ff', '#36cfc9', '#fadb14', '#e5e7eb']
+                }]
+            });
+
+            // 模块 4: 数据量对比
+            charts.volume.setOption({
+                grid: { top: 30, right: 10, bottom: 20, left: 40 },
+                tooltip: { trigger: 'axis' },
+                legend: { top: 0, right: 0, textStyle: { fontSize: 10, color: '#6b7280' } },
+                xAxis: { type: 'category', data: ['3-1', '3-2', '3-3', '3-4', '3-5', '3-6', '3-7'], axisLabel: { color: '#6b7280', fontSize: 10 } },
+                yAxis: [
+                    { type: 'value', name: '监测 (万)', nameTextStyle: { color: '#9ca3af', fontSize: 10 }, splitLine: { show: false }, axisLabel: { color: '#6b7280', fontSize: 10 } },
+                    { type: 'value', name: '告警', nameTextStyle: { color: '#9ca3af', fontSize: 10 }, splitLine: { show: true, lineStyle: { type: 'dashed', color: '#f3f4f6' } }, axisLabel: { color: '#6b7280', fontSize: 10 } }
+                ],
+                series: [
+                    { name: '监测', type: 'bar', data: [58, 62, 59, 65, 60, 68, 61], itemStyle: { color: '#69b1ff', borderRadius: [2, 2, 0, 0] } },
+                    { name: '告警', type: 'line', yAxisIndex: 1, data: [120, 150, 110, 180, 130, 210, 140], itemStyle: { color: '#ff7875' }, symbolSize: 6 }
+                ]
+            });
+
+            // 模块 5: 数据清洗通过率
+            charts.dataQuality.setOption({
+                grid: { top: 10, right: 10, bottom: 20, left: 35 },
+                tooltip: { trigger: 'axis', formatter: '{b}<br/>{a}: {c}%' },
+                xAxis: { type: 'category', data: ['3-1', '3-2', '3-3', '3-4', '3-5', '3-6', '3-7'], axisLine: { lineStyle: { color: '#e5e7eb' } }, axisLabel: { color: '#9ca3af', fontSize: 10 } },
+                yAxis: { type: 'value', min: 80, max: 100, splitLine: { lineStyle: { type: 'dashed', color: '#f3f4f6' } }, axisLabel: { color: '#9ca3af', fontSize: 10 } },
+                series: [{ name: '通过率', type: 'line', step: 'middle', data: [91.2, 92.5, 93.1, 94.0, 94.2, 94.3, 94.5], itemStyle: { color: '#13c2c2' }, areaStyle: { color: 'rgba(19,194,194,0.1)' } }]
+            });
+
+            window.addEventListener('resize', () => {
+                Object.values(charts).forEach(c => c.resize());
+            });
+        }
+
+        setTimeout(initCharts, 200);
+
+    </script>
+</body>
+
+</html>

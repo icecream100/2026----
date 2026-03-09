@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1440">
+    <title>规则引擎 - 目录发布</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { colors: { brand: '#2f5ee5', navy: '#0b162a' } }
+            }
+        };
+    </script>
+    <style>
+        body {
+            background-color: #f0f2f5;
+            min-width: 1440px;
+        }
+
+        .submenu-item.active {
+            background-color: #2f5ee5;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="font-sans text-slate-800 antialiased overflow-hidden h-screen flex flex-col">
+
+    <header
+        class="h-[60px] bg-brand text-white flex items-center justify-between px-6 shrink-0 z-50 fixed w-full top-0">
+        <div class="flex items-center gap-6">
+            <div class="text-[17px] font-medium tracking-wide">物联网管理服务系统</div>
+            <button class="text-xl hover:bg-white/10 p-2 rounded ml-8"><i class="fa-solid fa-outdent"></i></button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 pt-[60px] h-full">
+        <!-- Sidebar -->
+        <aside class="w-[200px] h-full bg-navy flex-shrink-0 text-slate-300 overflow-y-auto border-r border-[#1a253a]">
+            <!-- Nav contents hidden for brevity as it's identical -->
+            <nav class="py-2 text-[14px]">
+                <div class="bg-black/20 pb-1 mt-2">
+                    <div class="px-5 py-2 text-xs text-slate-500 font-medium">规则编排</div>
+                    <a href="../index.html" class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
+                            class="fa-solid fa-database absolute left-6 opacity-70"></i> <span>感知报文存储</span></a>
+                    <a href="data_upload.html" class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
+                            class="fa-solid fa-cloud-arrow-up absolute left-6 opacity-70"></i> <span>数据上报</span></a>
+                    <a href="data_receive.html"
+                        class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
+                            class="fa-solid fa-cloud-arrow-down absolute left-6 opacity-70"></i> <span>下发数据接收</span></a>
+                    <a href="protocol_api.html"
+                        class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
+                            class="fa-solid fa-layer-group absolute left-6 opacity-70"></i> <span>协议解析二次接口</span></a>
+                    <a href="alarm_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
+                            class="fa-solid fa-triangle-exclamation absolute left-6 opacity-70"></i>
+                        <span>异常告警二开接口</span></a>
+                    <a href="catalog_publish.html"
+                        class="submenu-item active flex items-center pl-[46px] pr-5 py-3 text-white block"><i
+                            class="fa-solid fa-book-open absolute left-6 opacity-70"></i> <span>目录发布</span></a>
+
+                    <div class="px-5 py-2 text-xs text-slate-500 font-medium mt-1">场景联动</div>
+                    <a href="event_type.html" class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
+                            class="fa-solid fa-tags absolute left-6 opacity-70"></i> <span>事件类型管理</span></a>
+                    <a href="event_notify.html"
+                        class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
+                            class="fa-solid fa-comment-dots absolute left-6 opacity-70"></i> <span>事件通知管理</span></a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#f0f2f5]">
+            <div class="h-12 flex items-center px-6 bg-white border-b border-slate-200 text-sm text-slate-500 shrink-0">
+                <span class="text-slate-800 font-medium">目录发布</span>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-5">
+                <!-- Search Panel -->
+                <div class="bg-white p-5 rounded shadow-[0_2px_8px_rgba(0,0,0,0.04)] mb-4">
+                    <div class="grid grid-cols-4 gap-6">
+                        <div class="flex items-center gap-2"><label
+                                class="text-[13px] text-slate-600">目录名称</label><input type="text"
+                                class="border rounded px-2 w-full"></div>
+                        <div class="flex items-center gap-2"><label class="text-[13px] text-slate-600">服务类型</label>
+                            <select class="border rounded px-2 w-full">
+                                <option>全部</option>
+                                <option>数据服务</option>
+                                <option>接口服务</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2"><label class="text-[13px] text-slate-600">发布状态</label>
+                            <select class="border rounded px-2 w-full">
+                                <option>全部</option>
+                                <option>草稿</option>
+                                <option>已发布</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-end gap-3 w-full"><button
+                                class="px-4 py-1 bg-brand text-white rounded">查询</button></div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-[15px] font-bold">服务目录列表</h2>
+                        <button onclick="openModal()"
+                            class="px-4 py-1.5 bg-brand text-white text-[13px] rounded">新增目录</button>
+                    </div>
+
+                    <table class="w-full text-left border-collapse border border-slate-200">
+                        <thead class="bg-slate-50 text-[13px] text-slate-500 border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-4">目录名称</th>
+                                <th class="py-3 px-4">服务类型</th>
+                                <th class="py-3 px-4">调用方式</th>
+                                <th class="py-3 px-4">发布状态</th>
+                                <th class="py-3 px-4">发布人</th>
+                                <th class="py-3 px-4">更新时间</th>
+                                <th class="py-3 px-4 w-[200px]">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-[13px] text-slate-700">
+                            <tr class="border-b">
+                                <td class="py-3 px-4 font-bold">温湿度数据直连服务</td>
+                                <td class="py-3 px-4">数据服务</td>
+                                <td class="py-3 px-4 font-mono text-xs">/api/v2/data</td>
+                                <td class="py-3 px-4"><span
+                                        class="px-2 bg-green-100 text-green-700 rounded text-xs">已发布</span></td>
+                                <td class="py-3 px-4">admin</td>
+                                <td class="py-3 px-4 text-slate-400">03-07 10:00</td>
+                                <td class="py-3 px-4">
+                                    <button class="text-brand mr-2">详情</button><button class="text-orange-500 mr-2"
+                                        onclick="confirm('确认停用？')">停用</button>
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-3 px-4 font-bold">电表数据透传测试</td>
+                                <td class="py-3 px-4">接口服务</td>
+                                <td class="py-3 px-4 font-mono text-xs">-</td>
+                                <td class="py-3 px-4"><span
+                                        class="px-2 bg-gray-100 text-gray-700 rounded text-xs">草稿</span></td>
+                                <td class="py-3 px-4">-</td>
+                                <td class="py-3 px-4 text-slate-400">03-07 12:00</td>
+                                <td class="py-3 px-4">
+                                    <button class="text-brand mr-2" onclick="openModal()">编辑</button><button
+                                        class="text-green-500 mr-2">发布</button>
+                                    <button class="text-red-500">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Form -->
+    <div id="modal" class="fixed inset-0 bg-black/40 z-[60] hidden flex items-center justify-center">
+        <div class="bg-white rounded shadow-xl w-[500px]">
+            <div class="p-4 border-b font-bold flex justify-between">新增发布目录<button onclick="closeModal()"><i
+                        class="fa-solid fa-xmark"></i></button></div>
+            <div class="p-4 space-y-3 test-[13px]">
+                <div><label>名称</label><input type="text" class="w-full border rounded p-1 mt-1"></div>
+                <div><label>服务类型</label><select class="w-full border rounded p-1 mt-1 bg-white">
+                        <option>数据服务</option>
+                        <option>接口服务</option>
+                    </select></div>
+                <div><label>服务描述</label><textarea class="w-full border rounded p-1 mt-1 h-20"></textarea></div>
+                <div><label>调用方式(地址或说明)</label><textarea class="w-full border rounded p-1 mt-1 h-12"></textarea></div>
+            </div>
+            <div class="p-4 border-t flex justify-end gap-3"><button class="px-3"
+                    onclick="closeModal()">取消</button><button class="px-3 bg-brand text-white rounded"
+                    onclick="closeModal()">保存草稿</button></div>
+        </div>
+    </div>
+    <script>
+        function openModal() { document.getElementById('modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+    </script>
+</body>
+
+</html>

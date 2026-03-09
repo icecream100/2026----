@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备管理 - 设备列表</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1677ff',
+                        'primary-hover': '#4096ff',
+                        'primary-active': '#0958d9',
+                        success: '#52c41a',
+                        warning: '#faad14',
+                        error: '#ff4d4f',
+                        slate: '#f0f2f5',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #d1d5db;
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+
+        /* Tab Styles */
+        .tab-btn {
+            color: #4b5563;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+        }
+
+        .tab-btn.active {
+            color: #1677ff;
+            border-bottom-color: #1677ff;
+        }
+
+        .tab-content {
+            display: hidden;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800 font-sans h-screen flex overflow-hidden">
+
+    <!-- 侧边栏 -->
+    <aside class="w-56 bg-white border-r border-gray-200 flex flex-col h-full flex-shrink-0 z-20">
+        <div class="h-14 flex items-center px-6 border-b border-gray-200">
+            <i class="ph-fill ph-hard-drives text-2xl text-primary mr-2"></i>
+            <span class="text-base font-bold text-gray-800">物联网管理平台</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 custom-scrollbar">
+            <!-- 导航分组 -->
+            <div class="px-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">设备管理</div>
+            <div class="space-y-1">
+                <a href="#" class="flex items-center px-6 py-2 text-sm text-gray-700 bg-gray-50 font-medium">
+                    <i class="ph ph-cpu text-lg mr-2 text-gray-500"></i> 设备
+                    <i class="ph ph-caret-down ml-auto text-xs text-gray-400"></i>
+                </a>
+                <div class="pl-12 space-y-1">
+                    <a href="../../dashboard/module/index.html"
+                        class="block py-2 text-sm text-gray-600 hover:text-primary">仪表盘</a>
+                    <a href="index.html" class="block py-2 text-sm text-primary font-medium hover:text-primary">设备列表</a>
+                    <a href="pages/dev-config.html"
+                        class="block py-2 text-sm text-gray-600 hover:text-primary">设备开发配置</a>
+                    <a href="pages/data-catalog.html"
+                        class="block py-2 text-sm text-gray-600 hover:text-primary">感知数据目录管理</a>
+                    <a href="pages/group-config.html"
+                        class="block py-2 text-sm text-gray-600 hover:text-primary">设备组开发配置</a>
+                </div>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden">
+        <!-- 顶部通栏 -->
+        <header class="h-14 bg-white border-b border-gray-200 flex justify-between items-center px-6 flex-shrink-0">
+            <!-- 面包屑 -->
+            <div class="flex items-center text-sm text-gray-500">
+                <span>设备管理</span>
+                <i class="ph ph-caret-right mx-2 text-xs"></i>
+                <span>设备</span>
+                <i class="ph ph-caret-right mx-2 text-xs"></i>
+                <span class="text-gray-900 font-medium">设备列表</span>
+            </div>
+            <!-- 用户信息 -->
+            <div class="flex items-center space-x-4">
+                <i class="ph ph-bell text-xl text-gray-500 cursor-pointer hover:text-gray-800"></i>
+                <div class="flex items-center space-x-2 cursor-pointer">
+                    <div
+                        class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-primary font-bold">
+                        管</div>
+                    <span class="text-sm">系统管理员</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="flex-1 overflow-y-auto p-6 bg-slate custom-scrollbar relative">
+
+            <!-- 搜索筛选区 -->
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-4">
+                <form class="grid grid-cols-4 gap-4">
+                    <!-- 设备名称/ID -->
+                    <div class="flex flex-col space-y-1">
+                        <label class="text-sm text-gray-600">设备名称 / ID</label>
+                        <input type="text" placeholder="请输入设备名称或ID"
+                            class="w-full h-8 px-3 border border-gray-300 rounded hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors text-sm">
+                    </div>
+                    <!-- 设备状态 -->
+                    <div class="flex flex-col space-y-1">
+                        <label class="text-sm text-gray-600">设备状态</label>
+                        <select
+                            class="w-full h-8 px-3 border border-gray-300 rounded hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm bg-white">
+                            <option value="">全部</option>
+                            <option value="online">在线</option>
+                            <option value="offline">离线</option>
+                            <option value="disabled">禁用</option>
+                        </select>
+                    </div>
+                    <!-- 生命周期状态 -->
+                    <div class="flex flex-col space-y-1">
+                        <label class="text-sm text-gray-600">生命周期状态</label>
+                        <select
+                            class="w-full h-8 px-3 border border-gray-300 rounded hover:border-primary focus:border-primary outline-none text-sm bg-white">
+                            <option value="">全部</option>
+                            <option value="pre-service">待服役</option>
+                            <option value="in-service">服役中</option>
+                            <option value="retired">已退役</option>
+                        </select>
+                    </div>
+                    <!-- 退役时间范围 -->
+                    <div class="flex flex-col space-y-1">
+                        <label class="text-sm text-gray-600">退役时间范围</label>
+                        <div
+                            class="flex items-center border border-gray-300 rounded hover:border-primary focus-within:border-primary focus-within:ring-1 focus-within:ring-primary overflow-hidden h-8">
+                            <input type="date" class="w-full h-full px-2 outline-none text-sm text-gray-600">
+                            <span class="text-gray-400 px-1">-</span>
+                            <input type="date" class="w-full h-full px-2 outline-none text-sm text-gray-600">
+                        </div>
+                    </div>
+                    <!-- 操作按钮 -->
+                    <div class="col-span-4 flex justify-end space-x-2 mt-2">
+                        <button type="button"
+                            class="px-4 py-1.5 border border-gray-300 text-gray-700 rounded text-sm hover:border-primary hover:text-primary transition-colors">重置</button>
+                        <button type="button"
+                            class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-sm hover:bg-primary-hover transition-colors">查询</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 数据列表区 -->
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <!-- 列表操作栏 -->
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex space-x-2">
+                        <button onclick="openDeviceForm()"
+                            class="px-4 py-1.5 bg-primary text-white rounded text-sm hover:bg-primary-hover flex items-center transition-colors">
+                            <i class="ph ph-plus mr-1"></i> 新增设备
+                        </button>
+                        <button
+                            class="px-4 py-1.5 border border-gray-300 text-gray-700 rounded text-sm hover:border-gray-400 bg-white flex items-center transition-colors">
+                            批量导入
+                        </button>
+                        <button
+                            class="px-4 py-1.5 border border-error text-error rounded text-sm hover:bg-red-50 flex items-center transition-colors">
+                            批量删除
+                        </button>
+                    </div>
+                    <div class="flex space-x-2 h-8">
+                        <button
+                            class="w-8 flex items-center justify-center border border-gray-300 rounded hover:text-primary hover:border-primary transition-colors tooltip relative group">
+                            <i class="ph ph-arrow-counter-clockwise"></i>
+                        </button>
+                        <button
+                            class="w-8 flex items-center justify-center border border-gray-300 rounded hover:text-primary hover:border-primary transition-colors tooltip relative group">
+                            <i class="ph ph-gear"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 表格 -->
+                <div class="overflow-x-auto border border-gray-200 rounded">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-slate border-b border-gray-200 text-gray-700">
+                            <tr>
+                                <th class="p-3 w-10 text-center"><input type="checkbox"
+                                        class="rounded border-gray-300 text-primary"></th>
+                                <th class="p-3 font-medium">设备 ID / 名称</th>
+                                <th class="p-3 font-medium">所属产品</th>
+                                <th class="p-3 font-medium">设备状态</th>
+                                <th class="p-3 font-medium">设备厂家 / 型号</th>
+                                <th class="p-3 font-medium text-gray-500">
+                                    生命周期状态
+                                    <i class="ph-fill ph-question text-gray-400 ml-1" title="基于系统当前时间与服役、退役时间计算"></i>
+                                </th>
+                                <th class="p-3 font-medium">最后上线时间</th>
+                                <th class="p-3 font-medium text-right fixed-col-right">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="hover:bg-blue-50/50 transition-colors">
+                                <td class="p-3 text-center"><input type="checkbox"
+                                        class="rounded border-gray-300 text-primary"></td>
+                                <td class="p-3">
+                                    <div class="font-medium text-gray-800">C2023-Cam-01</div>
+                                    <div class="text-gray-500 text-xs mt-0.5">主校区南门摄像头</div>
+                                </td>
+                                <td class="p-3">智能安防摄像头</td>
+                                <td class="p-3">
+                                    <span
+                                        class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700 border border-green-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span> 在线
+                                    </span>
+                                </td>
+                                <td class="p-3">
+                                    <div class="text-gray-800">海康威视</div>
+                                    <div class="text-gray-500 text-xs mt-0.5">DS-2DC4223IW-D</div>
+                                </td>
+                                <td class="p-3">
+                                    <span class="text-black">服役中</span>
+                                </td>
+                                <td class="p-3 text-gray-600">2026-03-08 10:12:45</td>
+                                <td class="p-3 text-right space-x-2">
+                                    <a href="pages/device-detail.html"
+                                        class="text-primary hover:text-primary-hover transition-colors">查看</a>
+                                    <span class="text-gray-300">|</span>
+                                    <button onclick="openDeviceForm(true)"
+                                        class="text-primary hover:text-primary-hover transition-colors">编辑</button>
+                                    <span class="text-gray-300">|</span>
+                                    <button class="text-error hover:text-red-400 transition-colors">删除</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-blue-50/50 transition-colors">
+                                <td class="p-3 text-center"><input type="checkbox"
+                                        class="rounded border-gray-300 text-primary"></td>
+                                <td class="p-3">
+                                    <div class="font-medium text-gray-800">ENV-00129</div>
+                                    <div class="text-gray-500 text-xs mt-0.5">实验楼空气监测站</div>
+                                </td>
+                                <td class="p-3">空气质量微站</td>
+                                <td class="p-3">
+                                    <span
+                                        class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-1.5"></span> 离线
+                                    </span>
+                                </td>
+                                <td class="p-3">
+                                    <div class="text-gray-800">先河环保</div>
+                                    <div class="text-gray-500 text-xs mt-0.5">XH-AQM-mini</div>
+                                </td>
+                                <td class="p-3">
+                                    <span class="text-error">已退役</span>
+                                </td>
+                                <td class="p-3 text-gray-600">2026-03-01 08:30:12</td>
+                                <td class="p-3 text-right space-x-2">
+                                    <a href="pages/device-detail.html"
+                                        class="text-primary hover:text-primary-hover transition-colors">查看</a>
+                                    <span class="text-gray-300">|</span>
+                                    <button onclick="openDeviceForm(true)"
+                                        class="text-primary hover:text-primary-hover transition-colors">编辑</button>
+                                    <span class="text-gray-300">|</span>
+                                    <button class="text-error hover:text-red-400 transition-colors">删除</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-blue-50/50 transition-colors border-b-transparent">
+                                <td class="p-3 text-center"><input type="checkbox"
+                                        class="rounded border-gray-300 text-primary"></td>
+                                <td class="p-3">
+                                    <div class="font-medium text-gray-800">AC-005-Lib</div>
+                                    <div class="text-gray-500 text-xs mt-0.5">图书馆2楼一号空调</div>
+                                </td>
+                                <td class="p-3">智能中央空调</td>
+                                <td class="p-3">
+                                    <span
+                                        class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700 border border-red-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span> 禁用
+                                    </span>
+                                </td>
+                                <td class="p-3">
+                                    <div class="text-gray-800">格力</div>
+                                    <div class="text-gray-500 text-xs mt-0.5">GMV-5S</div>
+                                </td>
+                                <td class="p-3">
+                                    <span class="text-warning">待服役</span>
+                                </td>
+                                <td class="p-3 text-gray-600">--</td>
+                                <td class="p-3 text-right space-x-2">
+                                    <a href="pages/device-detail.html"
+                                        class="text-primary hover:text-primary-hover transition-colors">查看</a>
+                                    <span class="text-gray-300">|</span>
+                                    <button onclick="openDeviceForm(true)"
+                                        class="text-primary hover:text-primary-hover transition-colors">编辑</button>
+                                    <span class="text-gray-300">|</span>
+                                    <button class="text-error hover:text-red-400 transition-colors">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="flex justify-between items-center mt-4 text-sm text-gray-500">
+                    <div>共 <span class="text-gray-800 font-medium">32</span> 条记录</div>
+                    <div class="flex items-center space-x-2">
+                        <button
+                            class="px-2 py-1 border border-gray-300 rounded hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+                            disabled><i class="ph ph-caret-left"></i></button>
+                        <button class="px-2.5 py-1 border border-primary bg-primary text-white rounded">1</button>
+                        <button
+                            class="px-2.5 py-1 border border-gray-300 rounded bg-white hover:border-primary hover:text-primary text-gray-700">2</button>
+                        <button
+                            class="px-2.5 py-1 border border-gray-300 rounded bg-white hover:border-primary hover:text-primary text-gray-700">3</button>
+                        <span>...</span>
+                        <select class="h-7 px-1 border border-gray-300 rounded bg-white outline-none">
+                            <option>10 条/页</option>
+                            <option>20 条/页</option>
+                            <option>50 条/页</option>
+                        </select>
+                        <button class="px-2 py-1 border border-gray-300 rounded bg-white hover:border-primary"><i
+                                class="ph ph-caret-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 页脚 -->
+            <div class="mt-8 text-center text-xs text-gray-400 pb-4">
+                © 2026 物联网管理平台
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 设备信息管理 (新增/编辑) 侧边抽屉 Modal -->
+    <div id="deviceFormDrawer"
+        class="fixed inset-0 bg-black bg-opacity-40 z-50 hidden transition-opacity flex justify-end">
+        <div id="drawerPanel"
+            class="w-full max-w-2xl bg-white h-full shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+            <!-- Header -->
+            <div class="h-14 flex items-center justify-between px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-800" id="drawerTitle">新增设备</h3>
+                <button onclick="closeDeviceForm()" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                    <i class="ph ph-x text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="px-6 border-b border-gray-200 mt-2">
+                <div class="flex space-x-6">
+                    <button class="tab-btn px-1 py-3 text-sm active" onclick="switchTab('basic')">基础信息</button>
+                    <button class="tab-btn px-1 py-3 text-sm" onclick="switchTab('lifecycle')">生命周期与提醒 (本次新增)</button>
+                    <button class="tab-btn px-1 py-3 text-sm" onclick="switchTab('advanced')">高级配置</button>
+                </div>
+            </div>
+
+            <!-- Body Area -->
+            <div class="flex-1 overflow-y-auto p-6 bg-gray-50 custom-scrollbar relative">
+
+                <!-- 基础信息 Tab -->
+                <div id="tab-basic"
+                    class="tab-content w-full bg-white p-5 rounded border border-gray-100 shadow-sm active">
+                    <form class="space-y-5">
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="flex flex-col space-y-2">
+                                <label class="text-sm font-medium text-gray-700 flex items-center">
+                                    <span class="text-error mr-1">*</span> 设备名称
+                                </label>
+                                <input type="text" value="主校区南门摄像头"
+                                    class="h-8 px-3 border border-gray-300 rounded text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                            </div>
+                            <div class="flex flex-col space-y-2">
+                                <label class="text-sm font-medium text-gray-700 flex items-center">
+                                    <span class="text-error mr-1">*</span> 设备 ID
+                                </label>
+                                <input type="text" value="C2023-Cam-01"
+                                    class="h-8 px-3 border border-gray-300 bg-gray-50 rounded text-sm text-gray-500 cursor-not-allowed"
+                                    readonly>
+                            </div>
+                            <div class="flex flex-col space-y-2">
+                                <label class="text-sm font-medium text-gray-700 flex items-center">
+                                    <span class="text-error mr-1">*</span> 所属产品
+                                </label>
+                                <select
+                                    class="h-8 px-3 border border-gray-300 rounded text-sm bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                                    <option>智能安防摄像头</option>
+                                    <option>空气质量微站</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col space-y-2">
+                                <label class="text-sm font-medium text-gray-700 flex items-center">
+                                    所属组织
+                                </label>
+                                <select
+                                    class="h-8 px-3 border border-gray-300 rounded text-sm bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                                    <option>浙江金华理工学院/保卫处</option>
+                                    <option>浙江金华理工学院/后勤处</option>
+                                </select>
+                            </div>
+                            <!-- 动态带出的只读字段 (源自产品) -->
+                            <div class="flex flex-col space-y-2">
+                                <label class="text-sm font-medium text-gray-700">设备厂家 (基于产品填充)</label>
+                                <input type="text" value="海康威视"
+                                    class="h-8 px-3 border border-gray-300 bg-gray-50 rounded text-sm text-gray-500 cursor-not-allowed"
+                                    readonly>
+                            </div>
+                            <div class="flex flex-col space-y-2">
+                                <label class="text-sm font-medium text-gray-700">设备型号 (基于产品填充)</label>
+                                <input type="text" value="DS-2DC4223IW-D"
+                                    class="h-8 px-3 border border-gray-300 bg-gray-50 rounded text-sm text-gray-500 cursor-not-allowed"
+                                    readonly>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 生命周期与提醒 Tab -->
+                <div id="tab-lifecycle"
+                    class="tab-content w-full bg-white p-5 rounded border border-gray-100 shadow-sm hidden">
+                    <div
+                        class="bg-blue-50 border border-blue-200 text-blue-700 text-xs px-3 py-2 rounded mb-5 flex items-start">
+                        <i class="ph-fill ph-info text-blue-500 mt-0.5 mr-1.5"></i>
+                        <span>配置设备的服役和退役时间。如配置了退役提醒时间及人员，系统将在指定时间通过所选方式下发通知。</span>
+                    </div>
+                    <form class="space-y-6">
+                        <!-- 生命期基本信息 -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900 border-l-4 border-primary pl-2 mb-4">生命周期设置
+                            </h4>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div class="flex flex-col space-y-2">
+                                    <label class="text-sm font-medium text-gray-700">设备服役时间</label>
+                                    <input type="date" value="2023-09-01" id="serviceStartTime"
+                                        class="h-8 px-3 border border-gray-300 rounded text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <label class="text-sm font-medium text-gray-700 group flex items-center">
+                                        <span class="text-red-500 mr-1">*</span> 设备退役时间
+                                        <span class="text-gray-400 font-normal text-xs ml-2 tooltip">(若配置提醒则必填)</span>
+                                    </label>
+                                    <input type="date" value="2028-09-01" id="retirementTime"
+                                        class="h-8 px-3 border border-gray-300 rounded text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 退役提醒配置 -->
+                        <div class="pt-4 border-t border-gray-100">
+                            <h4 class="text-sm font-medium text-gray-900 border-l-4 border-primary pl-2 mb-4">退役提醒配置
+                                (可选)</h4>
+                            <div class="grid grid-cols-1 gap-5">
+                                <div class="flex flex-col space-y-2">
+                                    <label class="text-sm font-medium text-gray-700"><span
+                                            class="text-red-500 mr-1">*</span> 退役提醒时间</label>
+                                    <input type="datetime-local" value="2028-08-01T09:00" id="retirementRemindTime"
+                                        class="w-1/2 h-8 px-3 border border-gray-300 rounded text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <label class="text-sm font-medium text-gray-700">提醒人员</label>
+                                    <div class="relative w-1/2">
+                                        <select
+                                            class="w-full h-8 pl-3 pr-8 border border-gray-300 rounded text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none appearance-none bg-white">
+                                            <option value="user1">王管理员 / 运维部</option>
+                                            <option value="user2">李工 / 资产部</option>
+                                        </select>
+                                        <div
+                                            class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-gray-500">
+                                            <i class="ph ph-caret-down"></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 flex flex-wrap gap-2">
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-sm bg-gray-100 border border-gray-200 text-xs text-gray-600">
+                                            王管理员 / 运维部 <i class="ph ph-x ml-1 hover:text-red-500 cursor-pointer"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <label class="text-sm font-medium text-gray-700">提醒方式</label>
+                                    <div class="flex items-center space-x-4">
+                                        <label
+                                            class="inline-flex flex-row-reverse items-center gap-1.5 cursor-pointer text-sm">
+                                            <span class="text-gray-700">平台消息</span>
+                                            <input type="checkbox" checked disabled
+                                                class="rounded border-gray-300 text-gray-400 focus:ring-primary w-4 h-4 cursor-not-allowed">
+                                        </label>
+                                        <!-- Other methods grayed out -->
+                                        <label
+                                            class="inline-flex flex-row-reverse items-center gap-1.5 cursor-not-allowed text-sm opacity-50">
+                                            <span class="text-gray-400">短信 (未开通)</span>
+                                            <input type="checkbox" disabled
+                                                class="rounded border-gray-200 text-gray-400">
+                                        </label>
+                                        <label
+                                            class="inline-flex flex-row-reverse items-center gap-1.5 cursor-not-allowed text-sm opacity-50">
+                                            <span class="text-gray-400">邮件 (未开通)</span>
+                                            <input type="checkbox" disabled
+                                                class="rounded border-gray-200 text-gray-400">
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 高级配置 Tab -->
+                <div id="tab-advanced"
+                    class="tab-content w-full bg-white p-5 rounded border border-gray-100 shadow-sm hidden">
+                    <p class="text-sm text-gray-500">高级配置内容为空，本次 PRD 不涉及更改。</p>
+                </div>
+
+            </div>
+
+            <!-- Footer Area -->
+            <div class="h-16 flex items-center justify-end px-6 border-t border-gray-200 bg-white">
+                <button type="button" onclick="closeDeviceForm()"
+                    class="px-5 py-2 mr-3 border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50 hover:border-gray-400 transition-colors">取消</button>
+                <button type="button" onclick="saveDeviceForm()"
+                    class="px-5 py-2 bg-primary text-white rounded text-sm hover:bg-primary-hover shadow-sm transition-colors flex items-center">
+                    <i class="ph ph-check mr-1.5"></i> 确认保存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Modal / Toast for simulation -->
+    <div id="toast"
+        class="fixed top-6 right-1/2 translate-x-1/2 bg-white border border-gray-200 shadow-lg flex items-center p-3 rounded opacity-0 transition-opacity z-50 pointer-events-none">
+        <i class="ph-fill ph-check-circle text-success text-xl mr-2"></i>
+        <span class="text-sm text-gray-800" id="toastMsg">操作成功</span>
+    </div>
+
+    <script>
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 3000);
+        }
+
+        // Drawers
+        const formDrawer = document.getElementById('deviceFormDrawer');
+        const drawerPanel = document.getElementById('drawerPanel');
+
+        function openDeviceForm(isEdit = false) {
+            document.getElementById('drawerTitle').innerText = isEdit ? '编辑设备' : '新增设备';
+
+            formDrawer.classList.remove('hidden');
+            // Trigger animation
+            setTimeout(() => {
+                drawerPanel.classList.remove('translate-x-full');
+            }, 10);
+
+            // Switch to lifecycle tab if it's edit, just to showcase
+            if (isEdit) switchTab('lifecycle');
+            else switchTab('basic');
+        }
+
+        function closeDeviceForm() {
+            drawerPanel.classList.add('translate-x-full');
+            setTimeout(() => {
+                formDrawer.classList.add('hidden');
+            }, 300);
+        }
+
+        function saveDeviceForm() {
+            const st = document.getElementById('serviceStartTime').value;
+            const rt = document.getElementById('retirementTime').value;
+            const rrt = document.getElementById('retirementRemindTime').value;
+
+            // Validation
+            if (st && rt && new Date(st) > new Date(rt)) {
+                alert("提交失败：退役时间必须晚于服役时间！");
+                return;
+            }
+
+            if (rrt) {
+                if (!rt) {
+                    alert("由于您配置了退役提醒，系统要求：设备退役时间不能为空！");
+                    return;
+                }
+                const rtDate = new Date(rt);
+                if (new Date(rrt) >= rtDate) {
+                    alert("提交失败：退役提醒时间必须早于设备退役时间！");
+                    return;
+                }
+            }
+
+            closeDeviceForm();
+            showToast('设备信息已更新');
+        }
+
+        // Tabs
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+                content.classList.add('hidden');
+            });
+
+            const indexMap = { 'basic': 0, 'lifecycle': 1, 'advanced': 2 };
+            document.querySelectorAll('.tab-btn')[indexMap[tabId]].classList.add('active');
+
+            const target = document.getElementById('tab-' + tabId);
+            target.classList.remove('hidden');
+            target.classList.add('active');
+        }
+    </script>
+</body>
+
+</html>

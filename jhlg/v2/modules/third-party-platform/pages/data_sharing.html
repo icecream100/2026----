@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据共享管理 - 第三方平台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .bbtn {
+            @apply px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+        }
+
+        .btn-primary {
+            @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+        }
+
+        .btn-secondary {
+            @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-blue-500;
+        }
+
+        .input-field {
+            @apply w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border;
+        }
+
+        .label {
+            @apply block text-sm font-medium text-gray-700 mb-1;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .tab-btn {
+            @apply w-full text-left px-4 py-3 text-sm font-medium transition-colors border-l-4;
+        }
+
+        .tab-btn.active {
+            @apply bg-blue-50 text-blue-700 border-blue-500;
+        }
+
+        .tab-btn.inactive {
+            @apply border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900;
+        }
+
+        .bar {
+            @apply bg-blue-500 rounded-t-sm w-8 transition-all hover:bg-blue-600 cursor-pointer;
+        }
+    </style>
+</head>
+
+<body class="h-screen flex overflow-hidden text-gray-800" x-data="dataSharingPage()" x-init="init()">
+
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col hidden md:flex shrink-0">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800 shrink-0">
+            <svg class="w-8 h-8 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                </path>
+            </svg>
+            <span class="text-white text-lg font-bold tracking-wider">IoT Platform</span>
+        </div>
+        <div class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">第三方平台管理</div>
+        <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
+            <a href="../index.html"
+                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                    </path>
+                </svg>
+                第三方平台
+            </a>
+            <a href="api_docs.html"
+                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6.253v11.494m-9-5.747h18"></path>
+                </svg>
+                API 文档
+            </a>
+            <a href="api_governance.html"
+                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                    </path>
+                </svg>
+                接口治理
+            </a>
+            <a href="data_sharing.html"
+                class="flex items-center px-3 py-2.5 bg-blue-600 text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2">
+                    </path>
+                </svg>
+                数据共享管理
+            </a>
+            <a href="api_config.html"
+                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35A1.724 1.724 0 005.38 7.753c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.573-1.066z">
+                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                API 配置
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-gray-50">
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center px-6 shrink-0 shadow-sm z-10">
+            <div>
+                <h1 class="text-xl font-semibold text-gray-800">数据共享管理</h1>
+                <p class="text-sm text-gray-500 mt-1">承接目录发布、共享调用、共享配置和统计分析能力。</p>
+            </div>
+        </header>
+
+        <div class="flex-1 flex overflow-hidden">
+            <div
+                class="w-56 bg-white border-r border-gray-200 overflow-y-auto shrink-0 shadow-[2px_0_8px_-4px_rgba(0,0,0,0.1)] z-10">
+                <div class="p-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">共享基础设施</div>
+                <nav class="space-y-1">
+                    <button @click="activeTab='catalog'" :class="activeTab==='catalog' ? 'active' : 'inactive'"
+                        class="tab-btn">服务目录管理</button>
+                    <button @click="activeTab='calls'" :class="activeTab==='calls' ? 'active' : 'inactive'"
+                        class="tab-btn">数据共享调用</button>
+                </nav>
+
+                <div class="p-3 mt-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">数据共享配置</div>
+                <nav class="space-y-1">
+                    <button @click="activeTab='share_single'"
+                        :class="activeTab==='share_single' ? 'active' : 'inactive'" class="tab-btn">单设备数据共享</button>
+                    <button @click="activeTab='share_batch'" :class="activeTab==='share_batch' ? 'active' : 'inactive'"
+                        class="tab-btn">批量设备数据共享</button>
+                    <button @click="activeTab='share_alarm'" :class="activeTab==='share_alarm' ? 'active' : 'inactive'"
+                        class="tab-btn">业务告警数据共享</button>
+                    <button @click="activeTab='share_error'" :class="activeTab==='share_error' ? 'active' : 'inactive'"
+                        class="tab-btn">设备异常数据共享</button>
+                </nav>
+
+                <div class="p-3 mt-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">分析能力</div>
+                <nav class="space-y-1 mb-4">
+                    <button @click="activeTab='stats'" :class="activeTab==='stats' ? 'active' : 'inactive'"
+                        class="tab-btn">访问量统计与共享统计</button>
+                    <button @click="activeTab='trends'" :class="activeTab==='trends' ? 'active' : 'inactive'"
+                        class="tab-btn">趋势分析数据共享</button>
+                </nav>
+            </div>
+
+            <div class="flex-1 p-6 overflow-y-auto">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col p-6">
+
+                    <div x-show="activeTab === 'catalog'" class="h-full flex flex-col" style="display: none;"
+                        x-transition.opacity>
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg font-medium text-gray-800">服务目录</h2>
+                            <button class="bbtn btn-primary" @click="openCatalogModal()">新建发布目录</button>
+                        </div>
+                        <div class="overflow-x-auto ring-1 ring-gray-200 sm:rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">目录名称
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">目录编码
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">数据类型
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            数据源关联</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            关联平台数</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">发布状态
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">更新时间
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                                    <template x-for="item in catalogRows" :key="item.id">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4 font-medium text-gray-900" x-text="item.name"></td>
+                                            <td class="px-6 py-4 font-mono text-xs text-gray-500" x-text="item.code"></td>
+                                            <td class="px-6 py-4">
+                                                <span class="px-2 py-1 rounded text-xs border"
+                                                    :class="catalogTypeClass(item.type)" x-text="item.type"></span>
+                                            </td>
+                                            <td class="px-6 py-4 text-gray-500" x-text="item.source"></td>
+                                            <td class="px-6 py-4 text-center">
+                                                <span
+                                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                                                    x-text="item.platformCount + ' 个'"></span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="font-medium text-xs"
+                                                    :class="item.status === '已发布' ? 'text-green-600' : 'text-gray-400'"
+                                                    x-text="item.status === '已发布' ? '◆ 已发布' : '◇ 已停用'"></span>
+                                            </td>
+                                            <td class="px-6 py-4 text-gray-500" x-text="item.updatedAt"></td>
+                                            <td class="px-6 py-4">
+                                                <button type="button" class="text-blue-600 hover:text-blue-800 mr-2"
+                                                    @click="openCatalogModal(item)">编辑</button>
+                                                <button type="button"
+                                                    :class="item.status === '已发布' ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'"
+                                                    @click="toggleCatalogStatus(item)"
+                                                    x-text="item.status === '已发布' ? '停用' : '发布'"></button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div x-show="activeTab === 'calls'" class="h-full flex flex-col" style="display: none;"
+                        x-transition.opacity>
+                        <h2 class="text-lg font-medium text-gray-800 mb-4">共享调用记录</h2>
+                        <form class="flex flex-wrap gap-4 items-end mb-4 bg-gray-50 p-4 rounded border border-gray-100">
+                            <div class="w-48">
+                                <label class="label text-xs">目录名称</label>
+                                <input x-model.trim="callFilters.directory" type="text" class="input-field" placeholder="查询发布目录">
+                            </div>
+                            <div class="w-48">
+                                <label class="label text-xs">调用方 (第三方平台)</label>
+                                <input x-model.trim="callFilters.platform" type="text" class="input-field" placeholder="输入平台名称">
+                            </div>
+                            <div class="w-32">
+                                <label class="label text-xs">调用状态</label>
+                                <select x-model="callFilters.status" class="input-field">
+                                    <option value="">全部</option>
+                                    <option value="成功">成功</option>
+                                    <option value="失败">失败</option>
+                                </select>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button type="button" class="bbtn btn-primary" @click="applyCallFilters()">查询</button>
+                                <button type="button" class="bbtn btn-secondary" @click="resetCallFilters()">重置</button>
+                            </div>
+                        </form>
+                        <div class="overflow-x-auto ring-1 ring-gray-200 sm:rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">调用ID
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">调用平台
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            服务目录名称</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">数据类型
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            数据包大小(KB)</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">调用状态
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">调用时间
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                                    <template x-for="item in filteredCallRows" :key="item.id">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4 font-mono text-xs text-gray-400" x-text="item.callId"></td>
+                                            <td class="px-6 py-4 font-medium text-blue-700" x-text="item.platform"></td>
+                                            <td class="px-6 py-4" x-text="item.directory"></td>
+                                            <td class="px-6 py-4" :class="callTypeClass(item.type)" x-text="item.type"></td>
+                                            <td class="px-6 py-4 font-mono" x-text="item.size"></td>
+                                            <td class="px-6 py-4">
+                                                <span class="px-2 py-1 rounded text-xs"
+                                                    :class="item.status === '成功' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                                    x-text="item.status"></span>
+                                            </td>
+                                            <td class="px-6 py-4 text-gray-500" x-text="item.calledAt"></td>
+                                        </tr>
+                                    </template>
+                                    <tr x-show="filteredCallRows.length === 0">
+                                        <td colspan="7" class="px-6 py-12 text-center text-sm text-gray-400">未查询到符合条件的共享调用记录</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <template x-if="['share_single', 'share_batch', 'share_alarm', 'share_error'].includes(activeTab)">
+                        <div class="h-full flex flex-col" x-transition.opacity>
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-lg font-medium text-gray-800" x-text="sharePageTitle()"></h2>
+                                <button class="bbtn btn-primary" @click="openShareModal(currentShareType())">新建配置</button>
+                            </div>
+
+                            <div
+                                class="bg-blue-50/50 border border-blue-100 p-4 rounded-md mb-6 flex text-sm text-blue-800">
+                                <svg class="w-5 h-5 text-blue-500 mr-2 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>
+                                    <p class="font-medium mb-1">通过此页面将已发布的服务目录授权共享给指定第三方平台。</p>
+                                    <p class="text-blue-600 opacity-80" x-text="shareScopeTip()"></p>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto ring-1 ring-gray-200 sm:rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                共享配置名称</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                目标平台</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                引用服务目录</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                限制条件概览</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                状态</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                                        <template x-for="item in currentShareConfigs()" :key="item.id">
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-6 py-4 font-medium text-gray-900" x-text="item.name"></td>
+                                                <td class="px-6 py-4" x-text="item.platform"></td>
+                                                <td class="px-6 py-4 text-blue-600 cursor-pointer hover:underline"
+                                                    x-text="item.directory"></td>
+                                                <td class="px-6 py-4 text-gray-500" x-text="shareConditionText(item)"></td>
+                                                <td class="px-6 py-4">
+                                                    <span class="text-xs font-medium"
+                                                        :class="item.status === '启用' ? 'text-green-600' : 'text-gray-400'"
+                                                        x-text="item.status"></span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <button type="button" class="text-blue-600 hover:text-blue-800 mr-2"
+                                                        @click="openShareModal(item.type, item)">编辑</button>
+                                                    <button type="button"
+                                                        :class="item.status === '启用' ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'"
+                                                        @click="toggleShareStatus(item)"
+                                                        x-text="item.status === '启用' ? '停用' : '启用'"></button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <tr x-show="currentShareConfigs().length === 0">
+                                            <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-400">当前类型暂无共享配置</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div x-show="activeTab === 'stats'" class="h-full flex flex-col" style="display: none;"
+                        x-transition.opacity>
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg font-medium text-gray-800">访问量统计与共享数据统计</h2>
+                            <select class="input-field w-40 text-sm py-1.5">
+                                <option>最近 7 天</option>
+                                <option>最近 30 天</option>
+                                <option>本年度</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-4 gap-4 mb-8">
+                            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-5 text-white shadow">
+                                <div class="text-blue-100 text-sm font-medium mb-1">总调用次数 (次)</div>
+                                <div class="text-3xl font-bold font-mono text-white tracking-wide">1,208,492</div>
+                                <div class="mt-2 text-xs text-blue-200">环比上周 <span class="text-white">↑12.4%</span></div>
+                            </div>
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="text-gray-500 text-sm font-medium mb-1">访问第三方应用数</div>
+                                <div class="text-3xl font-bold font-mono text-gray-800 tracking-wide">14</div>
+                                <div class="mt-2 text-xs text-green-500">2 个新增</div>
+                            </div>
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="text-gray-500 text-sm font-medium mb-1">共享数据包大小总量</div>
+                                <div class="text-3xl font-bold font-mono text-gray-800 tracking-wide">8,421<span
+                                        class="text-lg text-gray-400 font-sans ml-1">MB</span></div>
+                                <div class="mt-2 text-xs text-gray-400">平均包大小: 6.9 KB</div>
+                            </div>
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="text-gray-500 text-sm font-medium mb-1">总体调用成功率</div>
+                                <div class="text-3xl font-bold font-mono text-gray-800 tracking-wide">99.91<span
+                                        class="text-lg text-gray-400 font-sans ml-1">%</span></div>
+                                <div class="mt-2 text-xs text-gray-400">失败次数: 1,023 次</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-6 flex-1">
+                            <div class="border border-gray-200 rounded-lg p-5 flex flex-col">
+                                <h3 class="text-sm font-medium text-gray-700 mb-4">按共享分发类型统计 (调用次数)</h3>
+                                <div class="flex-1 flex flex-col justify-center space-y-4 px-4 relative pb-4">
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1"><span class="text-gray-600">批量设备</span><span
+                                                class="font-mono text-gray-800">65%</span></div>
+                                        <div class="w-full bg-gray-100 rounded-full h-3"><div class="bg-indigo-500 h-3 rounded-full"
+                                                style="width: 65%"></div></div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1"><span class="text-gray-600">单设备</span><span
+                                                class="font-mono text-gray-800">20%</span></div>
+                                        <div class="w-full bg-gray-100 rounded-full h-3"><div class="bg-blue-400 h-3 rounded-full"
+                                                style="width: 20%"></div></div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1"><span class="text-gray-600">业务告警</span><span
+                                                class="font-mono text-gray-800">10%</span></div>
+                                        <div class="w-full bg-gray-100 rounded-full h-3"><div class="bg-orange-400 h-3 rounded-full"
+                                                style="width: 10%"></div></div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-xs mb-1"><span class="text-gray-600">设备异常</span><span
+                                                class="font-mono text-gray-800">5%</span></div>
+                                        <div class="w-full bg-gray-100 rounded-full h-3"><div class="bg-red-400 h-3 rounded-full"
+                                                style="width: 5%"></div></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-5 flex flex-col">
+                                <h3 class="text-sm font-medium text-gray-700 mb-4">调用 TOP3 第三方平台</h3>
+                                <div class="flex-1">
+                                    <table class="w-full text-sm">
+                                        <tr class="border-b text-gray-500 text-xs text-left">
+                                            <th class="pb-2 font-medium">排名</th>
+                                            <th class="pb-2 font-medium">平台名称</th>
+                                            <th class="pb-2 font-medium text-right">调用量 (次)</th>
+                                        </tr>
+                                        <tr class="border-b border-gray-100">
+                                            <td class="py-3"><span
+                                                    class="w-5 h-5 bg-red-100 text-red-600 rounded flex items-center justify-center text-xs font-bold">1</span>
+                                            </td>
+                                            <td class="py-3 font-medium text-gray-800">市教育局数据大屏</td>
+                                            <td class="py-3 text-right font-mono">812,093</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-100">
+                                            <td class="py-3"><span
+                                                    class="w-5 h-5 bg-orange-100 text-orange-600 rounded flex items-center justify-center text-xs font-bold">2</span>
+                                            </td>
+                                            <td class="py-3 font-medium text-gray-800">环保监督平台</td>
+                                            <td class="py-3 text-right font-mono">152,440</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-3"><span
+                                                    class="w-5 h-5 bg-yellow-100 text-yellow-600 rounded flex items-center justify-center text-xs font-bold">3</span>
+                                            </td>
+                                            <td class="py-3 font-medium text-gray-800">校园安防中枢</td>
+                                            <td class="py-3 text-right font-mono">98,221</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div x-show="activeTab === 'trends'" class="h-full flex flex-col" style="display: none;"
+                        x-transition.opacity>
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg font-medium text-gray-800">历史趋势分析</h2>
+                            <div class="flex space-x-2">
+                                <button @click="trendInterval = 'day'"
+                                    :class="trendInterval === 'day' ? 'bg-blue-50 text-blue-600 border border-blue-200 font-medium' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'"
+                                    class="px-3 py-1 rounded text-sm">按天</button>
+                                <button @click="trendInterval = 'week'"
+                                    :class="trendInterval === 'week' ? 'bg-blue-50 text-blue-600 border border-blue-200 font-medium' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'"
+                                    class="px-3 py-1 rounded text-sm">按周</button>
+                                <button @click="trendInterval = 'month'"
+                                    :class="trendInterval === 'month' ? 'bg-blue-50 text-blue-600 border border-blue-200 font-medium' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'"
+                                    class="px-3 py-1 rounded text-sm">按月</button>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 border border-gray-200 rounded-lg p-6 flex flex-col">
+                            <h3 class="text-sm font-medium text-gray-700 mb-6">主要图表：近 14 天每日调用总次数趋势</h3>
+                            <div class="flex-1 flex items-end justify-between px-8 border-l border-b border-gray-200 relative pt-10">
+                                <div class="absolute left-0 top-0 -ml-12 text-xs text-gray-400 w-10 text-right">100k</div>
+                                <div class="absolute left-0 top-1/4 -ml-12 text-xs text-gray-400 w-10 text-right">75k</div>
+                                <div class="absolute left-0 top-2/4 -ml-12 text-xs text-gray-400 w-10 text-right">50k</div>
+                                <div class="absolute left-0 top-3/4 -ml-12 text-xs text-gray-400 w-10 text-right">25k</div>
+                                <div class="absolute left-0 bottom-0 -ml-12 -mb-2 text-xs text-gray-400 w-10 text-right">0</div>
+                                <div class="absolute left-0 right-0 top-0 border-t border-dashed border-gray-100 h-px"></div>
+                                <div class="absolute left-0 right-0 top-1/4 border-t border-dashed border-gray-100 h-px"></div>
+                                <div class="absolute left-0 right-0 top-2/4 border-t border-dashed border-gray-100 h-px"></div>
+                                <div class="absolute left-0 right-0 top-3/4 border-t border-dashed border-gray-100 h-px"></div>
+                                <div class="bar h-1/4" title="22,100"></div>
+                                <div class="bar h-2/5" title="43,210"></div>
+                                <div class="bar h-1/3" title="31,000"></div>
+                                <div class="bar h-1/2" title="48,900"></div>
+                                <div class="bar h-[60%]" title="58,120"></div>
+                                <div class="bar h-3/4" title="75,000"></div>
+                                <div class="bar h-full bg-blue-600" title="100,000 (最高峰)"></div>
+                                <div class="bar h-[80%]" title="81,000"></div>
+                                <div class="bar h-[85%]" title="85,300"></div>
+                                <div class="bar h-3/5" title="61,100"></div>
+                                <div class="bar h-2/5" title="40,200"></div>
+                                <div class="bar h-1/3" title="35,000"></div>
+                                <div class="bar h-1/2" title="50,120"></div>
+                                <div class="bar h-[55%]" title="55,000"></div>
+                            </div>
+
+                            <div class="flex justify-between px-8 mt-2 text-xs text-gray-400">
+                                <span>02-24</span>
+                                <span>02-27</span>
+                                <span>03-02</span>
+                                <span>03-05</span>
+                                <span>03-08</span>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-6 mt-6">
+                            <label class="inline-flex items-center text-sm">
+                                <input type="radio" name="chart_type" checked class="form-radio text-blue-600">
+                                <span class="ml-2 text-gray-800">调用次数趋势</span>
+                            </label>
+                            <label class="inline-flex items-center text-sm">
+                                <input type="radio" name="chart_type" class="form-radio text-blue-600">
+                                <span class="ml-2 text-gray-600">数据包大小趋势</span>
+                            </label>
+                            <label class="inline-flex items-center text-sm">
+                                <input type="radio" name="chart_type" class="form-radio text-blue-600">
+                                <span class="ml-2 text-gray-600">异常/失败趋势</span>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div x-show="showCatalogModal" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showCatalogModal = false"></div>
+            <div
+                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900" x-text="catalogModalTitle"></h3>
+                </div>
+                <div class="px-6 py-4 space-y-4 text-sm">
+                    <div><label class="label">目录名称</label><input type="text" class="input-field" placeholder="1-100字符" x-model.trim="catalogForm.name"></div>
+                    <div><label class="label">目录编码</label><input type="text" class="input-field font-mono" placeholder="字母/数字/下划线" x-model.trim="catalogForm.code"></div>
+                    <div><label class="label">数据类型</label>
+                        <select class="input-field" x-model="catalogForm.type">
+                            <option value="单设备">单设备</option>
+                            <option value="批量设备">批量设备</option>
+                            <option value="业务告警">业务告警</option>
+                            <option value="设备异常">设备异常</option>
+                            <option value="统计数据">统计数据</option>
+                            <option value="趋势图表">趋势图表</option>
+                        </select>
+                    </div>
+                    <div><label class="label">关联底层数据源</label>
+                        <select class="input-field" x-model="catalogForm.source">
+                            <option value="DS_MySQL_Core">DS_MySQL_Core</option>
+                            <option value="DS_Kafka_Alerts">DS_Kafka_Alerts</option>
+                        </select>
+                        <p class="text-xs text-slate-500 mt-1">从数据源管理模块中挑选可用于外发的合法数据池</p>
+                    </div>
+                    <div><label class="label">发布状态</label>
+                        <select class="input-field" x-model="catalogForm.status">
+                            <option value="已发布">已发布 (立即生效)</option>
+                            <option value="已停用">已停用</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
+                    <button type="button"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm"
+                        @click="saveCatalog()">保存并应用</button>
+                    <button type="button"
+                        class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                        @click="showCatalogModal = false">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="showShareModal" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showShareModal = false"></div>
+            <div
+                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900" x-text="shareModalTitle"></h3>
+                </div>
+                <div class="px-6 py-4 space-y-4 text-sm max-h-[60vh] overflow-y-auto">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2">
+                            <label class="label">配置名称</label>
+                            <input type="text" class="input-field" x-model.trim="shareForm.name">
+                        </div>
+                        <div>
+                            <label class="label">目标授权第三方平台</label>
+                            <select class="input-field" x-model="shareForm.platform">
+                                <option value="市教育局数据大屏">市教育局数据大屏</option>
+                                <option value="校园一卡通系统">校园一卡通系统</option>
+                                <option value="环保监督平台">环保监督平台</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="label">选用服务目录</label>
+                            <select class="input-field bg-blue-50 border-blue-200 text-blue-800" x-model="shareForm.directory">
+                                <option value="重点区域水表实时数据">重点区域水表实时数据</option>
+                                <option value="温湿度传感器全级数据">温湿度传感器全级数据</option>
+                                <option value="核心机房温湿度告警流">核心机房温湿度告警流</option>
+                            </select>
+                            <p class="text-xs mt-1 text-gray-400">仅显示同类型已发布目录</p>
+                        </div>
+                        <div>
+                            <label class="label">状态</label>
+                            <select class="input-field" x-model="shareForm.status">
+                                <option value="启用">启用</option>
+                                <option value="停用">停用</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 my-4 pt-4">
+                        <label class="label font-medium text-blue-800 mb-3 border-l-2 pl-2 border-blue-500">限定条件设置</label>
+
+                        <div x-show="showType === 'single'" class="p-4 bg-gray-50 rounded border border-gray-200">
+                            <label class="label">必须选择且仅限 1 台设备实例</label>
+                            <input type="text" class="input-field" x-model.trim="shareForm.singleDevice" placeholder="输入设备ID或名称">
+                        </div>
+
+                        <div x-show="showType === 'batch'" class="p-4 bg-gray-50 rounded border border-gray-200" style="display:none;">
+                            <label class="label">目标设备群体选型</label>
+                            <select class="input-field mb-2" x-model="shareForm.batchMode">
+                                <option value="产品型号">选择产品型号 (按产品批量)</option>
+                                <option value="设备分组">选择设备分组 (按组批量)</option>
+                            </select>
+                            <select class="input-field" multiple size="4" x-model="shareForm.batchTargets">
+                                <option value="NB-IoT 水表系列V3">NB-IoT 水表系列V3</option>
+                                <option value="LoRaWAN 温湿度计群组">LoRaWAN 温湿度计群组</option>
+                                <option value="金华校区全部水表">金华校区全部水表</option>
+                                <option value="教学楼空调设备组">教学楼空调设备组</option>
+                            </select>
+                        </div>
+
+                        <div x-show="showType === 'alarm'" class="p-4 bg-gray-50 rounded border border-gray-200" style="display:none;">
+                            <label class="label">下发告警等级池</label>
+                            <div class="grid grid-cols-2 gap-2 mt-2">
+                                <label class="inline-flex items-center"><input type="checkbox" value="紧急" x-model="shareForm.alarmLevels" class="form-checkbox text-blue-600"><span class="ml-2 text-red-600 font-medium">紧急</span></label>
+                                <label class="inline-flex items-center"><input type="checkbox" value="重要" x-model="shareForm.alarmLevels" class="form-checkbox text-blue-600"><span class="ml-2 text-orange-500 font-medium">重要</span></label>
+                                <label class="inline-flex items-center"><input type="checkbox" value="次要" x-model="shareForm.alarmLevels" class="form-checkbox text-blue-600"><span class="ml-2 text-yellow-500">次要</span></label>
+                                <label class="inline-flex items-center"><input type="checkbox" value="提示" x-model="shareForm.alarmLevels" class="form-checkbox text-blue-600"><span class="ml-2 text-blue-400">提示</span></label>
+                            </div>
+                        </div>
+
+                        <div x-show="showType === 'error'" class="p-4 bg-gray-50 rounded border border-gray-200" style="display:none;">
+                            <label class="label">指定硬件/协议异常类型集</label>
+                            <select class="input-field h-24" multiple x-model="shareForm.errorTypes">
+                                <option value="设备离线挂起">设备离线挂起</option>
+                                <option value="传感器采样探头断连">传感器采样探头断连</option>
+                                <option value="协议解析校验失败">协议解析校验失败</option>
+                                <option value="设备电量低阈值">设备电量低阈值</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2">
+                            <label class="label">说明描述</label>
+                            <textarea rows="2" class="input-field" x-model.trim="shareForm.desc"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
+                    <button type="button"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm"
+                        @click="saveShareConfig()">保存配置</button>
+                    <button type="button"
+                        class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                        @click="showShareModal = false">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function dataSharingPage() {
+            return {
+                activeTab: 'catalog',
+                showCatalogModal: false,
+                catalogModalTitle: '新建服务目录',
+                showShareModal: false,
+                shareModalTitle: '新增配置',
+                showType: 'single',
+                trendInterval: 'day',
+                catalogForm: {
+                    id: null,
+                    name: '',
+                    code: '',
+                    type: '单设备',
+                    source: 'DS_MySQL_Core',
+                    status: '已发布',
+                    platformCount: 0
+                },
+                callFilters: {
+                    directory: '',
+                    platform: '',
+                    status: ''
+                },
+                shareForm: {
+                    id: null,
+                    name: '',
+                    platform: '市教育局数据大屏',
+                    directory: '重点区域水表实时数据',
+                    status: '启用',
+                    desc: '',
+                    singleDevice: '',
+                    batchMode: '产品型号',
+                    batchTargets: ['NB-IoT 水表系列V3'],
+                    alarmLevels: ['紧急', '重要'],
+                    errorTypes: ['设备离线挂起', '传感器采样探头断连']
+                },
+                catalogRows: [
+                    {
+                        id: 1,
+                        name: '重点区域水表实时数据',
+                        code: 'water_meter_batch_01',
+                        type: '批量设备',
+                        source: 'DS_MySQL_Core',
+                        platformCount: 3,
+                        status: '已发布',
+                        updatedAt: '2026-03-08'
+                    },
+                    {
+                        id: 2,
+                        name: '核心机房温湿度告警流',
+                        code: 'alarm_room_temp_02',
+                        type: '业务告警',
+                        source: 'DS_Kafka_Alerts',
+                        platformCount: 1,
+                        status: '已发布',
+                        updatedAt: '2026-03-07'
+                    },
+                    {
+                        id: 3,
+                        name: '校园安防设备异常数据',
+                        code: 'error_security_dev_01',
+                        type: '设备异常',
+                        source: 'DS_MySQL_Core',
+                        platformCount: 0,
+                        status: '已停用',
+                        updatedAt: '2026-03-01'
+                    }
+                ],
+                callRows: [
+                    {
+                        id: 1,
+                        callId: 'CS-7291039',
+                        platform: '市教育局数据大屏',
+                        directory: '重点区域水表实时数据',
+                        type: '批量设备',
+                        size: '1,245.50',
+                        status: '成功',
+                        calledAt: '2026-03-08 10:45:00'
+                    },
+                    {
+                        id: 2,
+                        callId: 'CS-7291038',
+                        platform: '市教育局数据大屏',
+                        directory: '重点区域水表实时数据',
+                        type: '批量设备',
+                        size: '0.00',
+                        status: '失败',
+                        calledAt: '2026-03-08 10:40:12'
+                    },
+                    {
+                        id: 3,
+                        callId: 'CS-7291021',
+                        platform: '环保监督平台',
+                        directory: '核心机房温湿度告警流',
+                        type: '业务告警',
+                        size: '12.00',
+                        status: '成功',
+                        calledAt: '2026-03-07 21:11:39'
+                    }
+                ],
+                filteredCallRows: [],
+                shareConfigs: [
+                    {
+                        id: 11,
+                        type: 'single',
+                        name: '示范区推流 A1',
+                        platform: '市教育局数据大屏',
+                        directory: '重点区域水表实时数据',
+                        status: '启用',
+                        desc: '',
+                        singleDevice: 'dev_8829_abc',
+                        batchMode: '产品型号',
+                        batchTargets: [],
+                        alarmLevels: [],
+                        errorTypes: []
+                    },
+                    {
+                        id: 12,
+                        type: 'batch',
+                        name: '水表批量共享配置',
+                        platform: '校园一卡通系统',
+                        directory: '重点区域水表实时数据',
+                        status: '启用',
+                        desc: '',
+                        singleDevice: '',
+                        batchMode: '设备分组',
+                        batchTargets: ['金华校区全部水表'],
+                        alarmLevels: [],
+                        errorTypes: []
+                    },
+                    {
+                        id: 13,
+                        type: 'alarm',
+                        name: '机房告警共享',
+                        platform: '环保监督平台',
+                        directory: '核心机房温湿度告警流',
+                        status: '启用',
+                        desc: '',
+                        singleDevice: '',
+                        batchMode: '产品型号',
+                        batchTargets: [],
+                        alarmLevels: ['紧急', '重要'],
+                        errorTypes: []
+                    },
+                    {
+                        id: 14,
+                        type: 'error',
+                        name: '设备异常共享',
+                        platform: '市教育局数据大屏',
+                        directory: '校园安防设备异常数据',
+                        status: '停用',
+                        desc: '',
+                        singleDevice: '',
+                        batchMode: '产品型号',
+                        batchTargets: [],
+                        alarmLevels: [],
+                        errorTypes: ['设备离线挂起', '传感器采样探头断连']
+                    }
+                ],
+                init() {
+                    this.resetCallFilters();
+                },
+                defaultCatalogForm() {
+                    return {
+                        id: null,
+                        name: '',
+                        code: '',
+                        type: '单设备',
+                        source: 'DS_MySQL_Core',
+                        status: '已发布',
+                        platformCount: 0
+                    };
+                },
+                catalogTypeClass(type) {
+                    if (type === '批量设备') {
+                        return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+                    }
+                    if (type === '业务告警') {
+                        return 'bg-red-50 text-red-700 border-red-200';
+                    }
+                    if (type === '设备异常') {
+                        return 'bg-orange-50 text-orange-700 border-orange-200';
+                    }
+                    return 'bg-blue-50 text-blue-700 border-blue-200';
+                },
+                callTypeClass(type) {
+                    if (type === '批量设备') {
+                        return 'text-indigo-600';
+                    }
+                    if (type === '业务告警') {
+                        return 'text-red-600';
+                    }
+                    if (type === '设备异常') {
+                        return 'text-orange-600';
+                    }
+                    return 'text-blue-600';
+                },
+                normalize(value) {
+                    return (value || '').toLowerCase();
+                },
+                applyCallFilters() {
+                    this.filteredCallRows = this.callRows.filter((item) => {
+                        const directoryMatch = !this.callFilters.directory || this.normalize(item.directory).includes(this.normalize(this.callFilters.directory));
+                        const platformMatch = !this.callFilters.platform || this.normalize(item.platform).includes(this.normalize(this.callFilters.platform));
+                        const statusMatch = !this.callFilters.status || item.status === this.callFilters.status;
+                        return directoryMatch && platformMatch && statusMatch;
+                    });
+                },
+                resetCallFilters() {
+                    this.callFilters = {
+                        directory: '',
+                        platform: '',
+                        status: ''
+                    };
+                    this.filteredCallRows = [...this.callRows];
+                },
+                openCatalogModal(item = null) {
+                    if (item) {
+                        this.catalogModalTitle = '编辑服务目录';
+                        this.catalogForm = { ...item };
+                    } else {
+                        this.catalogModalTitle = '新建服务目录';
+                        this.catalogForm = this.defaultCatalogForm();
+                    }
+                    this.showCatalogModal = true;
+                },
+                saveCatalog() {
+                    if (!this.catalogForm.name || !this.catalogForm.code) {
+                        alert('请输入目录名称和目录编码');
+                        return;
+                    }
+                    const duplicate = this.catalogRows.find((item) => item.code === this.catalogForm.code && item.id !== this.catalogForm.id);
+                    if (duplicate) {
+                        alert('目录编码已存在，请更换');
+                        return;
+                    }
+                    const payload = {
+                        ...this.catalogForm,
+                        updatedAt: '2026-03-09'
+                    };
+                    if (payload.id) {
+                        this.catalogRows = this.catalogRows.map((item) => item.id === payload.id ? payload : item);
+                    } else {
+                        payload.id = Date.now();
+                        this.catalogRows.unshift(payload);
+                    }
+                    this.showCatalogModal = false;
+                    alert('服务目录已保存');
+                },
+                toggleCatalogStatus(item) {
+                    if (item.status === '已发布') {
+                        alert('停用目录将导致第三方无法调用，确停用吗？');
+                        item.status = '已停用';
+                    } else {
+                        item.status = '已发布';
+                        alert('目录已重新发布');
+                    }
+                },
+                currentShareType() {
+                    return this.activeTab.replace('share_', '');
+                },
+                sharePageTitle() {
+                    if (this.activeTab === 'share_single') {
+                        return '单设备数据共享配置';
+                    }
+                    if (this.activeTab === 'share_batch') {
+                        return '批量设备数据共享配置';
+                    }
+                    if (this.activeTab === 'share_alarm') {
+                        return '业务告警数据共享配置';
+                    }
+                    return '设备异常数据共享配置';
+                },
+                shareScopeTip() {
+                    if (this.activeTab === 'share_single') {
+                        return '范围限制：配置时必须绑定 1 台指定设备实例。';
+                    }
+                    if (this.activeTab === 'share_batch') {
+                        return '范围限制：配置时需指定产品型号或设备组集合。';
+                    }
+                    if (this.activeTab === 'share_alarm') {
+                        return '范围限制：配置时需限定相关的告警类型或告警等级边界。';
+                    }
+                    return '范围限制：配置时需指定下发的硬件或协议异常类型。';
+                },
+                currentShareConfigs() {
+                    return this.shareConfigs.filter((item) => item.type === this.currentShareType());
+                },
+                shareConditionText(item) {
+                    if (item.type === 'single') {
+                        return '设备ID: ' + (item.singleDevice || '-');
+                    }
+                    if (item.type === 'batch') {
+                        return (item.batchMode || '设备群组') + ': ' + ((item.batchTargets || []).join('、') || '-');
+                    }
+                    if (item.type === 'alarm') {
+                        return '告警等级: ' + ((item.alarmLevels || []).join('、') || '-');
+                    }
+                    return '异常类型: ' + ((item.errorTypes || []).join('、') || '-');
+                },
+                defaultShareForm(type) {
+                    return {
+                        id: null,
+                        type,
+                        name: '',
+                        platform: '市教育局数据大屏',
+                        directory: type === 'alarm' ? '核心机房温湿度告警流' : '重点区域水表实时数据',
+                        status: '启用',
+                        desc: '',
+                        singleDevice: '',
+                        batchMode: '产品型号',
+                        batchTargets: type === 'batch' ? ['NB-IoT 水表系列V3'] : [],
+                        alarmLevels: type === 'alarm' ? ['紧急', '重要'] : [],
+                        errorTypes: type === 'error' ? ['设备离线挂起'] : []
+                    };
+                },
+                openShareModal(type, item = null) {
+                    this.showType = type;
+                    if (item) {
+                        this.shareModalTitle = '编辑共享配置';
+                        this.shareForm = {
+                            ...item,
+                            batchTargets: [...(item.batchTargets || [])],
+                            alarmLevels: [...(item.alarmLevels || [])],
+                            errorTypes: [...(item.errorTypes || [])]
+                        };
+                    } else {
+                        this.shareModalTitle = '新增共享配置';
+                        this.shareForm = this.defaultShareForm(type);
+                    }
+                    this.showShareModal = true;
+                },
+                saveShareConfig() {
+                    if (!this.shareForm.name) {
+                        alert('请输入配置名称');
+                        return;
+                    }
+                    if (!this.shareForm.platform || !this.shareForm.directory) {
+                        alert('请选择目标平台和服务目录');
+                        return;
+                    }
+                    if (this.showType === 'single' && !this.shareForm.singleDevice) {
+                        alert('单设备共享必须填写设备实例');
+                        return;
+                    }
+                    if (this.showType === 'batch' && this.shareForm.batchTargets.length === 0) {
+                        alert('批量设备共享至少选择一个产品型号或设备组');
+                        return;
+                    }
+                    if (this.showType === 'alarm' && this.shareForm.alarmLevels.length === 0) {
+                        alert('业务告警共享至少选择一个告警等级');
+                        return;
+                    }
+                    if (this.showType === 'error' && this.shareForm.errorTypes.length === 0) {
+                        alert('设备异常共享至少选择一个异常类型');
+                        return;
+                    }
+                    const payload = {
+                        ...this.shareForm,
+                        type: this.showType,
+                        batchTargets: [...this.shareForm.batchTargets],
+                        alarmLevels: [...this.shareForm.alarmLevels],
+                        errorTypes: [...this.shareForm.errorTypes]
+                    };
+                    if (payload.id) {
+                        this.shareConfigs = this.shareConfigs.map((item) => item.id === payload.id ? payload : item);
+                    } else {
+                        payload.id = Date.now();
+                        this.shareConfigs.unshift(payload);
+                    }
+                    this.showShareModal = false;
+                    alert('配置保存成功');
+                },
+                toggleShareStatus(item) {
+                    item.status = item.status === '启用' ? '停用' : '启用';
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

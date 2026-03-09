@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>权限申请 - 二期产品原型</title>
+    <link rel="stylesheet" href="assets/styles.css">
+    <script src="assets/script.js" defer></script>
+</head>
+
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">II</div>
+                <div class="brand-text">
+                    <strong>金华理工二期原型</strong>
+                    <span>统一导航包 / GitHub 共享版</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-section-title">模块导航</div>
+                <a class="nav-item" href="201_告警中心.html"><span class="nav-index">201</span><span>告警中心</span></a>
+                <a class="nav-item" href="202_规则引擎.html"><span class="nav-index">202</span><span>规则引擎</span></a>
+                <a class="nav-item" href="203_设备管理.html"><span class="nav-index">203</span><span>设备管理</span></a>
+                <a class="nav-item" href="204_数据处理服务管理.html"><span class="nav-index">204</span><span>数据处理服务管理</span></a>
+                <a class="nav-item" href="205_第三方平台管理.html"><span class="nav-index">205</span><span>第三方平台管理</span></a>
+                <a class="nav-item active" href="206_权限申请.html"><span class="nav-index">206</span><span>权限申请</span></a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-title-group">
+                    <h1>权限申请</h1>
+                    <p>一期 `105` 规划遗留模块，并入二期一期开发，统一承接需求登记、需求审批和授权管理原型。</p>
+                </div>
+                <div class="topbar-meta">模块编号 206</div>
+            </header>
+
+            <div class="content">
+                <section class="hero-card">
+                    <div class="hero-copy">
+                        <h2>权限申请管理产品原型</h2>
+                        <p>本模块基于 [105权限审批管理](/Users/wangjingang/Library/Mobile%20Documents/iCloud~md~obsidian/Documents/alex/claudecode/pmtools/prd/105权限审批管理.md) 接入二期原型，覆盖开发者发起权限申请、管理员审批，以及生效授权的查询与撤销。</p>
+                        <div class="hero-badges">
+                            <span class="badge">需求登记</span>
+                            <span class="badge">需求审批</span>
+                            <span class="badge">授权管理</span>
+                            <span class="badge">一期并入二期</span>
+                        </div>
+                    </div>
+                    <div class="hero-aside">
+                        <div class="metric-box">
+                            <div class="metric-label">模块页面</div>
+                            <div class="metric-value">3</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-label">来源</div>
+                            <div class="metric-value">一期遗留</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <div class="section-header">
+                        <div>
+                            <h3>页面入口</h3>
+                            <p>建议按业务链路从需求登记进入，再查看审批和授权管理页面。</p>
+                        </div>
+                    </div>
+                    <div class="prototype-grid">
+                        <a class="prototype-card" href="modules/permission-approval/105_需求登记.html">
+                            <strong>需求登记</strong>
+                            <p>开发者发起权限申请，支持新增、查看、撤回和重新申请。</p>
+                            <code>modules/permission-approval/105_需求登记.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/permission-approval/105_需求审批.html">
+                            <strong>需求审批</strong>
+                            <p>管理员处理待办申请，支持通过、驳回、设备微调和期限确认。</p>
+                            <code>modules/permission-approval/105_需求审批.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/permission-approval/105_授权管理.html">
+                            <strong>授权管理</strong>
+                            <p>查看授权生效情况，支持详情查询和高风险撤销操作。</p>
+                            <code>modules/permission-approval/105_授权管理.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

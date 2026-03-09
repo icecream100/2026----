@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1440">
+    <title>告警中心新增功能原型 - 告警记录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"PingFang SC"', '"Microsoft YaHei"', 'sans-serif']
+                    },
+                    colors: {
+                        brand: '#1677ff',
+                        brandHover: '#4096ff',
+                        navy: '#0b162a',
+                        sidebarActive: '#1677ff',
+                        panel: '#f0f2f5',
+                        danger: '#ff4d4f',
+                        warning: '#faad14',
+                        success: '#52c41a'
+                    },
+                    boxShadow: {
+                        panel: '0 2px 8px rgba(0, 0, 0, 0.04)'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            min-width: 1440px;
+            background-color: #f0f2f5;
+        }
+
+        .submenu-item.active {
+            color: #1677ff;
+            background-color: #f0f5ff;
+            font-weight: 500;
+        }
+
+        .submenu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #1677ff;
+        }
+
+        .level3-link.active {
+            color: #1677ff;
+            background-color: #f0f5ff;
+            font-weight: 500;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+        }
+
+        .drawer-mask {
+            background: rgba(2, 18, 43, 0.28);
+        }
+    </style>
+</head>
+
+<body class="font-sans text-slate-800 antialiased overflow-hidden h-screen flex flex-col">
+    <div id="toast"
+        class="hidden fixed right-6 top-5 z-[120] rounded-lg bg-slate-800 px-4 py-3 text-sm text-white shadow-xl pointer-events-none">
+    </div>
+
+    <div class="flex flex-1 h-full overflow-hidden">
+
+        <!-- Left Sidebar -->
+        <aside
+            class="w-[220px] bg-white flex flex-col h-full flex-shrink-0 border-r border-slate-200 z-20 shadow-sm relative">
+            <div class="h-14 flex items-center px-5 border-b border-slate-200">
+                <div class="w-6 h-6 bg-brand rounded flex items-center justify-center mr-2">
+                    <i class="fa-solid fa-layer-group text-white text-xs"></i>
+                </div>
+                <span class="text-[15px] font-bold text-slate-800 tracking-wide">物联网管理平台</span>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto py-3 custom-scrollbar text-[13px] text-slate-600">
+                <!-- 模块分组 1 -->
+                <div class="px-5 mb-2 mt-2 text-[12px] font-medium text-slate-400">告警中心</div>
+
+                <div class="space-y-1">
+                    <a href="../index.html"
+                        class="flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-chart-line w-5 text-center mr-2 text-slate-400"></i>
+                        <span>仪表盘</span>
+                    </a>
+                    <button type="button" onclick="showToast('基础配置原型未展开')"
+                        class="w-full flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-gear w-5 text-center mr-2 text-slate-400"></i>
+                        <span>基础配置</span>
+                    </button>
+                    <!-- Dropdown structure -->
+                    <div class="flex flex-col relative w-fulltext-left">
+                        <div
+                            class="submenu-item flex items-center justify-between px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                            <div class="flex items-center">
+                                <i class="fa-solid fa-sliders w-5 text-center mr-2 text-slate-400"></i>
+                                <span>告警配置</span>
+                            </div>
+                            <i class="fa-solid fa-angle-down text-[10px] text-slate-400"></i>
+                        </div>
+                        <div class="hidden pl-12 pr-4 py-1 space-y-1 border-l-2 border-transparent bg-slate-50/50">
+                            <a href="alarm_config.html"
+                                class="level3-link block rounded px-3 py-1.5 transition text-slate-500 hover:text-brand">告警配置</a>
+                            <a href="workflow_config.html"
+                                class="level3-link block rounded px-3 py-1.5 transition text-slate-500 hover:text-brand">工作流程配置</a>
+                            <a href="alarm_disposal.html"
+                                class="level3-link block rounded px-3 py-1.5 transition text-slate-500 hover:text-brand">告警处置</a>
+                        </div>
+                    </div>
+                    <a href="alarm_records.html"
+                        class="submenu-item active flex items-center px-5 py-2.5 cursor-pointer transition-colors relative">
+                        <i class="fa-regular fa-clipboard w-5 text-center mr-2 text-brand"></i>
+                        <span>告警记录</span>
+                    </a>
+                </div>
+
+                <!-- 模块分组 其他 -->
+                <div class="px-5 mb-2 mt-6 text-[12px] font-medium text-slate-400">其他应用</div>
+                <div class="space-y-1">
+                    <button type="button" onclick="showToast('设备管理原型未展开')"
+                        class="w-full text-left flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-sitemap w-5 text-center mr-2 text-slate-400"></i>
+                        <span>设备管理</span>
+                    </button>
+                    <button type="button" onclick="showToast('规则引擎原型未展开')"
+                        class="w-full text-left flex items-center px-5 py-2.5 cursor-pointer hover:text-brand transition-colors">
+                        <i class="fa-solid fa-code-branch w-5 text-center mr-2 text-slate-400"></i>
+                        <span>规则引擎</span>
+                    </button>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-panel relative">
+
+            <!-- Page Breadcrumb & Title Area -->
+            <div class="h-14 flex items-center justify-between px-6 bg-white border-b border-slate-200 shrink-0 z-10">
+                <div class="flex items-center text-[13px] text-slate-500 gap-2">
+                    <span>告警中心</span>
+                    <i class="fa-solid fa-angle-right text-[10px]"></i>
+                    <span class="font-bold text-slate-800 tracking-wide text-[14px]">告警记录</span>
+                </div>
+
+                <div class="flex items-center gap-5">
+                    <button class="relative text-slate-500 hover:text-brand transition-colors">
+                        <i class="fa-regular fa-bell text-lg"></i>
+                        <span class="absolute top-0 right-0 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-1.5 rounded transition">
+                        <div
+                            class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-brand font-bold text-xs">
+                            管
+                        </div>
+                        <span class="text-sm text-slate-600">系统管理员</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content Scrollable Area -->
+            <div class="flex-1 overflow-y-auto p-5 relative custom-scrollbar">
+                <div class="max-w-[1600px] mx-auto">
+                    <section class="mb-4 flex items-center justify-between">
+                        <div>
+                            <p class="text-[13px] text-slate-500">
+                                告警记录页面用于查询和查看原始告警事实。主处置入口已迁移到“告警配置 > 告警处置”，本页仅提供查看、筛选和跳转关联处置单能力。
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <a href="alarm_disposal.html"
+                                class="rounded border border-slate-300 bg-white px-4 py-1.5 text-[13px] text-slate-600 hover:text-brand hover:border-brand transition">
+                                <i class="fa-solid fa-arrow-right mr-1.5"></i>进入告警处置
+                            </a>
+                        </div>
+                    </section>
+
+                    <section class="mb-4 grid grid-cols-4 gap-4">
+                        <div
+                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div class="text-[13px] text-slate-500">今日原始告警</div>
+                            <div class="mt-2 text-[28px] font-bold text-slate-800 leading-tight">153</div>
+                            <div class="mt-1 text-[12px] text-slate-400">含已闭环与未闭环告警</div>
+                        </div>
+                        <div
+                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div class="text-[13px] text-slate-500">已生成处置单</div>
+                            <div class="mt-2 text-[28px] font-bold text-brand leading-tight">148</div>
+                            <div class="mt-1 text-[12px] text-slate-400">按一告警一处置单生成</div>
+                        </div>
+                        <div
+                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div class="text-[13px] text-slate-500">未匹配工作流</div>
+                            <div class="mt-2 text-[28px] font-bold text-warning leading-tight">3</div>
+                            <div class="mt-1 text-[12px] text-slate-400">仍已生成待分派处置单</div>
+                        </div>
+                        <div
+                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div class="text-[13px] text-slate-500">已关闭</div>
+                            <div class="mt-2 text-[28px] font-bold text-success leading-tight">104</div>
+                            <div class="mt-1 text-[12px] text-slate-400">可回溯告警与处置链路</div>
+                        </div>
+                    </section>
+
+                    <section class="rounded-xl bg-white p-5 shadow-sm border border-slate-100">
+                        <div class="mb-4 flex flex-wrap items-center gap-3">
+                            <input id="keyword" type="text" placeholder="搜索告警名称 / 关联工单号"
+                                class="w-60 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                            <select id="type"
+                                class="w-36 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                <option value="">全部告警类型</option>
+                                <option value="设备状态告警">设备状态告警</option>
+                                <option value="设备事件告警">设备事件告警</option>
+                                <option value="感知数据告警">感知数据告警</option>
+                            </select>
+                            <select id="level"
+                                class="w-36 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                <option value="">全部告警级别</option>
+                                <option value="特别重大">特别重大</option>
+                                <option value="重大">重大</option>
+                                <option value="较大">较大</option>
+                                <option value="一般">一般</option>
+                            </select>
+                            <select id="recordStatus"
+                                class="w-36 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                <option value="">全部记录状态</option>
+                                <option value="告警中">告警中</option>
+                                <option value="已生成处置单">已生成处置单</option>
+                                <option value="已关闭">已关闭</option>
+                            </select>
+                            <button type="button" onclick="renderTable()"
+                                class="rounded bg-brand px-4 py-1.5 text-[13px] text-white hover:bg-brandHover transition">查询</button>
+                            <button type="button" onclick="resetFilter()"
+                                class="rounded border border-slate-300 px-4 py-1.5 text-[13px] text-slate-600 hover:border-brand hover:text-brand transition">重置</button>
+                        </div>
+
+                        <div class="overflow-hidden border border-slate-200">
+                            <table class="w-full bg-white text-[13px] text-left">
+                                <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">告警名称</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">告警类型 / 级别</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">告警时间</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">记录状态</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">匹配工作流</th>
+                                        <th class="px-4 py-3 font-medium border-r border-slate-200">关联工单号</th>
+                                        <th class="px-4 py-3 font-medium">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody" class="divide-y divide-slate-200"></tbody>
+                            </table>
+                            <div
+                                class="flex items-center justify-between px-4 py-3 border-t border-slate-200 text-[13px] text-slate-500">
+                                <div id="totalRows">共 6 条记录</div>
+                                <div class="flex items-center gap-1">
+                                    <button
+                                        class="w-7 h-7 flex items-center justify-center rounded border border-slate-200 hover:border-brand hover:text-brand transition cursor-not-allowed bg-slate-50">&lt;</button>
+                                    <button
+                                        class="w-7 h-7 flex items-center justify-center rounded bg-brand text-white">1</button>
+                                    <button
+                                        class="w-7 h-7 flex items-center justify-center rounded border border-slate-200 hover:border-brand hover:text-brand transition cursor-not-allowed bg-slate-50">&gt;</button>
+                                    <select
+                                        class="ml-2 rounded border border-slate-300 bg-white px-2 py-1 text-[13px] outline-none">
+                                        <option>10 条/页</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="drawerWrap" class="drawer-mask hidden fixed inset-0 z-[90]">
+        <div class="absolute inset-y-0 right-0 w-[520px] bg-white px-7 py-6 shadow-2xl">
+            <div class="flex items-start justify-between">
+                <div>
+                    <div class="text-sm text-slate-400">告警记录详情</div>
+                    <h2 id="drawerTitle" class="mt-2 text-[26px] font-semibold text-slate-900"></h2>
+                </div>
+                <button type="button" onclick="closeDrawer()" class="text-xl text-slate-400"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="drawerContent" class="mt-6 space-y-4 text-sm text-slate-600"></div>
+        </div>
+    </div>
+
+    <script>
+        const records = [
+            { id: 1, name: '主站配电-2#H8 故障报警', type: '设备状态告警', level: '特别重大', time: '2026-03-07 21:45:18', status: '已生成处置单', workflow: '未匹配', ticket: 'GD-20260307-001', detail: '未命中工作流，自动生成待分派处置单。' },
+            { id: 2, name: '水泵房水泵运行异常', type: '设备事件告警', level: '一般', time: '2026-03-07 20:12:08', status: '已生成处置单', workflow: '水泵房运行异常流程', ticket: 'GD-20260307-002', detail: '已进入待接单状态。' },
+            { id: 3, name: '机房空调温湿度异常', type: '感知数据告警', level: '重大', time: '2026-03-07 19:41:20', status: '已生成处置单', workflow: '机房环控流程', ticket: 'GD-20260307-003', detail: '当前正在处理中。' },
+            { id: 4, name: '点型光电感烟探测器报警', type: '感知数据告警', level: '较大', time: '2026-03-07 18:31:54', status: '已生成处置单', workflow: '消防感知-较大流程', ticket: 'GD-20260307-004', detail: '已提交处理结果，等待第三方回写。' },
+            { id: 5, name: '消防联动通道异常', type: '设备事件告警', level: '重大', time: '2026-03-07 17:05:22', status: '告警中', workflow: '消防联动-重大流程', ticket: 'GD-20260307-005', detail: '第三方回写失败，处置单保留待回写状态。' },
+            { id: 6, name: '主站配电-1#H2 故障报警', type: '设备状态告警', level: '重大', time: '2026-03-07 16:15:48', status: '已关闭', workflow: '主站配电故障-重大流程', ticket: 'GD-20260307-006', detail: '处置和回写均已完成。' }
+        ];
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => toast.classList.add('hidden'), 2200);
+        }
+
+        function levelBadge(level) {
+            const map = {
+                '特别重大': 'bg-red-500 text-white',
+                '重大': 'bg-orange-500 text-white',
+                '较大': 'bg-amber-400 text-white',
+                '一般': 'bg-slate-300 text-white'
+            };
+            return `<span class="rounded-lg px-3 py-1 text-xs font-medium ${map[level] || 'bg-slate-100 text-slate-500'}">${level}</span>`;
+        }
+
+        function statusBadge(status) {
+            const map = {
+                '告警中': 'bg-red-50 text-danger',
+                '已生成处置单': 'bg-brand/10 text-brand',
+                '已关闭': 'bg-emerald-50 text-success'
+            };
+            return `<span class="rounded-full px-3 py-1 text-xs font-medium ${map[status] || 'bg-slate-100 text-slate-500'}">${status}</span>`;
+        }
+
+        function renderTable() {
+            const keyword = document.getElementById('keyword').value.trim();
+            const type = document.getElementById('type').value;
+            const level = document.getElementById('level').value;
+            const status = document.getElementById('recordStatus').value;
+            const rows = records.filter((item) => {
+                const hitKeyword = !keyword || item.name.includes(keyword) || item.ticket.includes(keyword);
+                const hitType = !type || item.type === type;
+                const hitLevel = !level || item.level === level;
+                const hitStatus = !status || item.status === status;
+                return hitKeyword && hitType && hitLevel && hitStatus;
+            });
+            document.getElementById('tbody').innerHTML = rows.map((item) => `
+                <tr>
+                    <td class="px-5 py-4 font-medium text-slate-900">${item.name}</td>
+                    <td class="px-5 py-4 text-slate-600">${item.type}<br>${levelBadge(item.level)}</td>
+                    <td class="px-5 py-4 text-slate-600">${item.time}</td>
+                    <td class="px-5 py-4">${statusBadge(item.status)}</td>
+                    <td class="px-5 py-4 ${item.workflow === '未匹配' ? 'text-warning' : 'text-slate-600'}">${item.workflow}</td>
+                    <td class="px-5 py-4">
+                        <a href="alarm_disposal.html" class="text-brand hover:underline">${item.ticket}</a>
+                    </td>
+                    <td class="px-5 py-4">
+                        <div class="flex gap-2">
+                            <button type="button" onclick="openDrawer(${item.id})" class="rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-600">详情</button>
+                            <a href="alarm_disposal.html" class="rounded-xl border border-brand/20 px-3 py-2 text-xs text-brand">查看处置单</a>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function resetFilter() {
+            document.getElementById('keyword').value = '';
+            document.getElementById('type').value = '';
+            document.getElementById('level').value = '';
+            document.getElementById('recordStatus').value = '';
+            renderTable();
+        }
+
+        function openDrawer(id) {
+            const item = records.find((record) => record.id === id);
+            document.getElementById('drawerTitle').textContent = item.name;
+            document.getElementById('drawerContent').innerHTML = `
+                <div class="rounded-[22px] bg-slate-50 p-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><div class="text-slate-400">告警类型</div><div class="mt-1 text-slate-900">${item.type}</div></div>
+                        <div><div class="text-slate-400">告警级别</div><div class="mt-1">${levelBadge(item.level)}</div></div>
+                        <div><div class="text-slate-400">记录状态</div><div class="mt-1">${statusBadge(item.status)}</div></div>
+                        <div><div class="text-slate-400">关联工单号</div><div class="mt-1 text-slate-900">${item.ticket}</div></div>
+                    </div>
+                </div>
+                <div class="rounded-[22px] border border-line p-4">
+                    <div class="text-sm text-slate-400">工作流匹配结果</div>
+                    <div class="mt-2 ${item.workflow === '未匹配' ? 'text-warning' : 'text-slate-900'}">${item.workflow}</div>
+                    <div class="mt-2 text-sm text-slate-500">${item.detail}</div>
+                </div>
+                <div class="rounded-[22px] border border-line p-4">
+                    <div class="text-sm text-slate-400">页面职责说明</div>
+                    <div class="mt-2 text-slate-500">告警记录页面仅用于查询原始告警和查看关联链路。处置动作统一在“告警配置 > 告警处置”执行。</div>
+                </div>
+            `;
+            document.getElementById('drawerWrap').classList.remove('hidden');
+        }
+
+        function closeDrawer() {
+            document.getElementById('drawerWrap').classList.add('hidden');
+        }
+
+        renderTable();
+    </script>
+</body>
+
+</html>

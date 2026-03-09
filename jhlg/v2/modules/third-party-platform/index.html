@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第三方平台管理 - 金华理工物联网平台二期</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .bbtn {
+            @apply px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+        }
+
+        .btn-primary {
+            @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+        }
+
+        .btn-secondary {
+            @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-blue-500;
+        }
+
+        .btn-danger {
+            @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+        }
+
+        .btn-warning {
+            @apply bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-400;
+        }
+
+        .input-field {
+            @apply w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border;
+        }
+
+        .label {
+            @apply block text-sm font-medium text-gray-700 mb-1;
+        }
+
+        .required::after {
+            content: "*";
+            @apply text-red-500 ml-1;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+
+<body class="h-screen flex overflow-hidden text-gray-800" x-data="thirdPartyPage()" x-init="init()">
+
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col hidden md:flex shrink-0">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800 shrink-0">
+            <svg class="w-8 h-8 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                </path>
+            </svg>
+            <span class="text-white text-lg font-bold tracking-wider">IoT Platform</span>
+        </div>
+        <div class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">第三方平台管理</div>
+        <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
+            <a href="index.html" class="flex items-center px-3 py-2.5 bg-blue-600 text-white rounded-md group">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                    </path>
+                </svg>
+                第三方平台
+            </a>
+            <a href="pages/api_docs.html"
+                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6.253v11.494m-9-5.747h18"></path>
+                </svg>
+                查看API
+            </a>
+            <a href="pages/api_governance.html"
+                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                    </path>
+                </svg>
+                接口治理
+            </a>
+            <a href="pages/data_sharing.html"
+                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2">
+                    </path>
+                </svg>
+                数据共享管理
+            </a>
+            <a href="javascript:void(0)"
+                @click="alert('关系配置沿用现有模块，本次新增需求未扩展独立页面')"
+                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                    </path>
+                </svg>
+                关系配置
+            </a>
+            <a href="javascript:void(0)"
+                @click="alert('数据源管理沿用现有模块，本次新增需求未扩展独立页面')"
+                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4">
+                    </path>
+                </svg>
+                数据源管理
+            </a>
+            <a href="pages/api_config.html"
+                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
+                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                API配置
+            </a>
+        </nav>
+        <div class="p-4 border-t border-slate-800 text-sm">
+            <div class="flex items-center">
+                <div
+                    class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold mr-3">
+                    A</div>
+                <div>
+                    <div class="font-medium text-white">Admin</div>
+                    <div class="text-xs text-slate-500">平台管理员</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-gray-50">
+        <header
+            class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 shadow-sm z-10">
+            <div>
+                <h1 class="text-xl font-semibold text-gray-800">第三方平台</h1>
+                <p class="text-xs text-gray-500 mt-1">承接数据应用登记、平台信息管理、设备应用登记、赋权和 API 映射交付。</p>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-gray-500">
+                <span class="px-2 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100">查看API + API配置 + 赋权 + 日志</span>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-auto p-6">
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6">
+                <form class="flex flex-wrap gap-4 items-end" @submit.prevent="applyPlatformFilters()">
+                    <div class="w-64">
+                        <label class="label text-xs">平台名称</label>
+                        <input type="text" class="input-field" placeholder="请输入平台名称" x-model="platformFilters.name">
+                    </div>
+                    <div class="w-48">
+                        <label class="label text-xs">状态</label>
+                        <select class="input-field" x-model="platformFilters.status">
+                            <option value="">全部</option>
+                            <option value="1">正常</option>
+                            <option value="0">禁用</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button type="submit" class="bbtn btn-primary shadow-sm flex items-center">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                            查询
+                        </button>
+                        <button type="button" class="bbtn btn-secondary" @click="resetPlatformFilters()">重置</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-base font-medium text-gray-800">平台列表</h2>
+                        <p class="text-xs text-gray-500 mt-1">默认按更新时间倒序，当前结果 <span class="font-semibold text-blue-600" x-text="filteredPlatforms.length"></span> 条。</p>
+                    </div>
+                    <button @click="openAddModal()" class="bbtn btn-primary flex items-center text-sm">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        新增平台
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200" x-show="filteredPlatforms.length > 0">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平台名称</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">接入方式</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">联系人</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">服务类型</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新时间</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="p in filteredPlatforms" :key="p.id">
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="p.name"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <span x-show="p.status === 1"
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">正常</span>
+                                        <span x-show="p.status === 0"
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">禁用</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100"
+                                            x-text="accessTypeLabel(p.accessType)"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="p.contactName + ' (' + p.contactPhone + ')'"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="serviceTypeLabel(p.serviceType)"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="p.updateTime"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button @click="openEditModal(p)" class="text-blue-600 hover:text-blue-900 mr-3">编辑</button>
+                                        <button @click="togglePlatformStatus(p)"
+                                            :class="p.status === 1 ? 'text-amber-600 hover:text-amber-700 mr-3' : 'text-green-600 hover:text-green-700 mr-3'"
+                                            x-text="p.status === 1 ? '禁用' : '启用'"></button>
+                                        <button @click="openAuthModal(p)" class="text-blue-600 hover:text-blue-900 mr-3" title="接口与设备权限">赋权</button>
+                                        <a class="text-blue-600 hover:text-blue-900 mr-3"
+                                            :href="'pages/api_docs.html?platform=' + encodeURIComponent(p.name)">查看API</a>
+                                        <button @click="deletePlatform(p.id)" class="text-red-600 hover:text-red-900">删除</button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+
+                    <div x-show="filteredPlatforms.length === 0" class="px-6 py-16 text-center text-sm text-gray-500">
+                        <div class="text-base font-medium text-gray-700 mb-2">暂无匹配平台</div>
+                        <div>请调整查询条件后重试，或点击“重置”恢复默认列表。</div>
+                    </div>
+                </div>
+
+                <div class="px-6 py-3 border-t border-gray-200 flex items-center justify-between">
+                    <div class="text-sm text-gray-500">共 <span class="font-medium text-gray-900" x-text="filteredPlatforms.length"></span> 条记录</div>
+                    <div class="flex space-x-1 border border-gray-200 rounded-md">
+                        <button class="px-3 py-1 bg-gray-50 text-gray-400 rounded-l-md" disabled>上一页</button>
+                        <button class="px-3 py-1 bg-blue-50 text-blue-600 border-l border-r border-gray-200">1</button>
+                        <button class="px-3 py-1 bg-white text-gray-600 hover:bg-gray-50 rounded-r-md" disabled>下一页</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div x-show="showPlatformModal" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
+        <div class="absolute inset-0 overflow-hidden">
+            <div x-show="showPlatformModal" x-transition.opacity class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+                @click="showPlatformModal = false"></div>
+            <div class="fixed inset-y-0 right-0 pl-10 max-w-full flex">
+                <div x-show="showPlatformModal"
+                    x-transition:enter="transform transition ease-in-out duration-300 sm:duration-500"
+                    x-transition:enter-start="translate-x-full"
+                    x-transition:enter-end="translate-x-0"
+                    x-transition:leave="transform transition ease-in-out duration-300 sm:duration-500"
+                    x-transition:leave-start="translate-x-0"
+                    x-transition:leave-end="translate-x-full"
+                    class="w-screen max-w-3xl">
+                    <div class="h-full flex flex-col bg-white shadow-xl overflow-y-auto">
+                        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between sticky top-0 z-10">
+                            <div>
+                                <h2 class="text-lg font-medium text-gray-900" x-text="modalMode === 'add' ? '新增第三方平台' : '编辑第三方平台'"></h2>
+                                <p class="text-xs text-gray-500 mt-1" x-text="modalMode === 'add' ? '统一录入接入参数与业务登记信息' : '回填当前平台信息并支持修改服务类型联动规则'"></p>
+                            </div>
+                            <button type="button" @click="showPlatformModal = false" class="text-gray-400 hover:text-gray-500">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="flex-1 px-6 py-6">
+                            <div x-show="formError" class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" x-text="formError"></div>
+
+                            <form class="space-y-6" @submit.prevent="savePlatform()">
+                                <div class="bg-white p-5 border border-gray-200 rounded-md shadow-sm">
+                                    <h3 class="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100 flex items-center">
+                                        <span class="w-1 h-4 bg-blue-500 rounded mr-2"></span>基础平台与接入信息
+                                    </h3>
+                                    <div class="grid grid-cols-1 gap-y-5 gap-x-4 sm:grid-cols-2 text-sm">
+                                        <div class="sm:col-span-2">
+                                            <label class="label required">平台名称</label>
+                                            <input type="text" class="input-field" placeholder="限制 1-100 字符" x-model="platformForm.name">
+                                        </div>
+                                        <div class="sm:col-span-2">
+                                            <label class="label required">接入方式</label>
+                                            <div class="flex space-x-4 mt-2">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" class="form-radio text-blue-600" name="accessType" value="api" x-model="platformForm.accessType">
+                                                    <span class="ml-2">API 服务</span>
+                                                </label>
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" class="form-radio text-blue-600" name="accessType" value="app" x-model="platformForm.accessType">
+                                                    <span class="ml-2">第三方应用</span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="sm:col-span-2 bg-slate-50 p-3 rounded border border-slate-200" x-show="platformForm.accessType === 'api'">
+                                            <div class="text-xs text-slate-500 mb-2">API 服务认证参数（系统自动分配）</div>
+                                            <div class="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label class="label text-xs">App Id</label>
+                                                    <input type="text" class="input-field bg-gray-100 text-gray-500" x-model="platformForm.appId" readonly>
+                                                </div>
+                                                <div>
+                                                    <label class="label text-xs">Secure Key</label>
+                                                    <input type="text" class="input-field bg-gray-100 text-gray-500" x-model="platformForm.secureKey" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="sm:col-span-2 bg-slate-50 p-3 rounded border border-slate-200" x-show="platformForm.accessType === 'app'">
+                                            <div class="text-xs text-slate-500 mb-2">第三方应用认证参数（OAuth2.0）</div>
+                                            <div class="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label class="label text-xs">Client ID</label>
+                                                    <input type="text" class="input-field bg-gray-100 text-gray-500" x-model="platformForm.clientId" readonly>
+                                                </div>
+                                                <div>
+                                                    <label class="label text-xs">Client Secret</label>
+                                                    <input type="text" class="input-field bg-gray-100 text-gray-500" x-model="platformForm.clientSecret" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-blue-50/30 p-5 border border-blue-100 rounded-md shadow-sm">
+                                    <h3 class="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100 flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <span class="w-1 h-4 bg-indigo-500 rounded mr-2"></span>业务登记信息
+                                        </div>
+                                        <span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">承接数据应用登记 / 平台信息管理 / 设备应用登记</span>
+                                    </h3>
+
+                                    <div class="grid grid-cols-1 gap-y-5 gap-x-4 sm:grid-cols-2 text-sm">
+                                        <div class="sm:col-span-2">
+                                            <label class="label required font-medium text-blue-800">服务类型</label>
+                                            <select class="input-field border-blue-300 focus:ring-blue-500" x-model="platformForm.serviceType">
+                                                <option value="data">数据服务</option>
+                                                <option value="control">控制服务</option>
+                                                <option value="mix">综合服务</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label class="label required">单位名称</label>
+                                            <input type="text" class="input-field" x-model="platformForm.organizationName">
+                                        </div>
+                                        <div>
+                                            <label class="label required">单位类型</label>
+                                            <select class="input-field" x-model="platformForm.organizationType">
+                                                <option value="企业">企业</option>
+                                                <option value="政府">政府</option>
+                                                <option value="事业单位">事业单位</option>
+                                                <option value="其他">其他</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label class="label required">联系人</label>
+                                            <input type="text" class="input-field" x-model="platformForm.contactName">
+                                        </div>
+                                        <div>
+                                            <label class="label required">联系电话</label>
+                                            <input type="text" class="input-field" x-model="platformForm.contactPhone">
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <label class="label">联系邮箱</label>
+                                            <input type="email" class="input-field" x-model="platformForm.contactEmail">
+                                        </div>
+
+                                        <div class="sm:col-span-2" x-show="platformForm.serviceType !== 'control'">
+                                            <label class="label" :class="{'required': platformForm.serviceType !== 'control'}">数据用途</label>
+                                            <textarea rows="2" class="input-field" placeholder="描述获取数据后的业务用途..." x-model="platformForm.dataUsage"></textarea>
+                                        </div>
+
+                                        <div class="sm:col-span-2" x-show="platformForm.serviceType !== 'data'">
+                                            <label class="label" :class="{'required': platformForm.serviceType !== 'data'}">管理产品范围</label>
+                                            <div class="border border-gray-300 rounded-md bg-white p-3">
+                                                <div class="grid grid-cols-2 gap-2 text-sm">
+                                                    <template x-for="product in availableProducts" :key="product">
+                                                        <label class="inline-flex items-center">
+                                                            <input type="checkbox" class="form-checkbox text-blue-600 rounded" :value="product" x-model="platformForm.managedProducts">
+                                                            <span class="ml-2" x-text="product"></span>
+                                                        </label>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                            <p class="text-xs text-slate-500 mt-1">控制服务 / 综合服务至少选择 1 项，用于设备应用登记台账展示。</p>
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <label class="label">设备所有权说明</label>
+                                            <input type="text" class="input-field" placeholder="补充说明设备及数据归属要求" x-model="platformForm.deviceOwnerScope">
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <label class="label">服务范围</label>
+                                            <input type="text" class="input-field" placeholder="简述业务服务范围" x-model="platformForm.serviceScope">
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <label class="label">服务内容</label>
+                                            <textarea rows="2" class="input-field" placeholder="简述业务服务内容" x-model="platformForm.serviceContent"></textarea>
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <label class="label">说明</label>
+                                            <textarea rows="2" class="input-field" placeholder="补充说明备注信息" x-model="platformForm.remark"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="shrink-0 px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                            <button type="button" class="bbtn btn-secondary" @click="showPlatformModal = false">取消</button>
+                            <button type="button" class="bbtn btn-primary" @click="savePlatform()">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="showAuthModal" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
+            <div x-show="showAuthModal" x-transition.opacity class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+                @click="showAuthModal = false"></div>
+
+            <div x-show="showAuthModal" x-transition
+                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">接口与设备赋权 - <span class="text-blue-600 text-sm" x-text="selectedPlatformName"></span></h3>
+                        <p class="text-xs text-gray-500 mt-1">通过 API 权限、产品、设备组、设备实例多维授权控制第三方访问范围。</p>
+                    </div>
+                    <button @click="showAuthModal = false" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="bg-white">
+                    <div class="border-b border-gray-200">
+                        <nav class="flex -mb-px" aria-label="Tabs">
+                            <button @click="authForm.activeTab = 'api'"
+                                :class="authForm.activeTab === 'api' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                class="w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm">
+                                API 接口权限
+                            </button>
+                            <button @click="authForm.activeTab = 'device'"
+                                :class="authForm.activeTab === 'device' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                class="w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm flex justify-center items-center">
+                                设备范围鉴权
+                                <span class="ml-2 bg-blue-100 text-blue-600 text-xs px-1.5 py-0.5 rounded">新增</span>
+                            </button>
+                        </nav>
+                    </div>
+
+                    <div class="p-6 h-[34rem] overflow-y-auto bg-gray-50">
+                        <div x-show="authError" class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" x-text="authError"></div>
+
+                        <div x-show="authForm.activeTab === 'api'" class="grid grid-cols-3 gap-4">
+                            <template x-for="category in apiCatalog" :key="category.key">
+                                <div class="border border-gray-200 rounded-lg bg-white p-4">
+                                    <div class="text-sm font-semibold text-gray-800 mb-3" x-text="category.name"></div>
+                                    <div class="space-y-3">
+                                        <template x-for="item in category.items" :key="item.id">
+                                            <label class="flex items-start rounded border border-gray-200 p-3 hover:bg-gray-50 cursor-pointer">
+                                                <input type="checkbox" class="mt-1 form-checkbox text-blue-600 rounded" :value="item.id" x-model="authForm.apiPermissionIds">
+                                                <div class="ml-3">
+                                                    <div class="text-sm font-medium text-gray-900" x-text="item.name"></div>
+                                                    <div class="text-xs text-gray-500 mt-1" x-text="item.path"></div>
+                                                    <div class="text-xs text-gray-400 mt-1" x-text="item.desc"></div>
+                                                </div>
+                                            </label>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <div x-show="authForm.activeTab === 'device'" style="display: none;">
+                            <div class="mb-4 bg-blue-50 border border-blue-200 p-3 rounded-md flex">
+                                <svg class="w-5 h-5 text-blue-500 mr-2 shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="text-sm text-blue-700">
+                                    <div class="font-medium mb-1">设备范围授权会与 API 权限共同生效</div>
+                                    <div>同一平台可同时配置按产品、按设备组、按设备实例三种维度，不再互斥切换。</div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="border border-gray-200 rounded-lg bg-white overflow-hidden">
+                                    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                                        <span class="text-sm font-semibold text-gray-800">按产品授权</span>
+                                        <button class="text-xs text-blue-600 hover:text-blue-700" @click="authForm.grantScopes.product = []">清空</button>
+                                    </div>
+                                    <div class="p-4 space-y-3 text-sm">
+                                        <template x-for="product in availableProducts" :key="product">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" class="form-checkbox text-blue-600 rounded" :value="product" x-model="authForm.grantScopes.product">
+                                                <span class="ml-2" x-text="product"></span>
+                                            </label>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <div class="border border-gray-200 rounded-lg bg-white overflow-hidden">
+                                    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                                        <span class="text-sm font-semibold text-gray-800">按设备组授权</span>
+                                        <button class="text-xs text-blue-600 hover:text-blue-700" @click="authForm.grantScopes.group = []">清空</button>
+                                    </div>
+                                    <div class="p-4 space-y-3 text-sm">
+                                        <template x-for="group in availableGroups" :key="group">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" class="form-checkbox text-blue-600 rounded" :value="group" x-model="authForm.grantScopes.group">
+                                                <span class="ml-2" x-text="group"></span>
+                                            </label>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <div class="border border-gray-200 rounded-lg bg-white overflow-hidden">
+                                    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                                        <span class="text-sm font-semibold text-gray-800">按设备实例授权</span>
+                                        <button class="text-xs text-blue-600 hover:text-blue-700" @click="authForm.grantScopes.instance = []">清空</button>
+                                    </div>
+                                    <div class="p-4 space-y-3 text-sm">
+                                        <template x-for="instance in availableInstances" :key="instance">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" class="form-checkbox text-blue-600 rounded" :value="instance" x-model="authForm.grantScopes.instance">
+                                                <span class="ml-2" x-text="instance"></span>
+                                            </label>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 grid grid-cols-3 gap-4 text-xs text-gray-600">
+                                <div class="rounded-md border border-blue-100 bg-blue-50 p-3">
+                                    <div class="font-semibold text-blue-700 mb-2">已授权产品</div>
+                                    <div x-text="authForm.grantScopes.product.length ? authForm.grantScopes.product.join('、') : '未选择'"></div>
+                                </div>
+                                <div class="rounded-md border border-blue-100 bg-blue-50 p-3">
+                                    <div class="font-semibold text-blue-700 mb-2">已授权设备组</div>
+                                    <div x-text="authForm.grantScopes.group.length ? authForm.grantScopes.group.join('、') : '未选择'"></div>
+                                </div>
+                                <div class="rounded-md border border-blue-100 bg-blue-50 p-3">
+                                    <div class="font-semibold text-blue-700 mb-2">已授权设备实例</div>
+                                    <div x-text="authForm.grantScopes.instance.length ? authForm.grantScopes.instance.join('、') : '未选择'"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
+                    <button type="button"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm"
+                        @click="saveAuth()">
+                        保存权限设置
+                    </button>
+                    <button type="button"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                        @click="showAuthModal = false">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function thirdPartyPage() {
+            return {
+                showPlatformModal: false,
+                showAuthModal: false,
+                modalMode: 'add',
+                selectedPlatformId: null,
+                selectedPlatformName: '',
+                formError: '',
+                authError: '',
+                platformFilters: {
+                    name: '',
+                    status: ''
+                },
+                availableProducts: ['智能水表', '环境监测设备', '路灯控制器', '智能电表'],
+                availableGroups: ['北区水表组', '南区环境监测组', '教学楼路灯组'],
+                availableInstances: ['dev_8829_abc', 'dev_9910_env', 'dev_1033_light'],
+                apiCatalog: [
+                    {
+                        key: 'catalog',
+                        name: '平台设备接入',
+                        items: [
+                            { id: 'device_list', name: '获取设备清单', path: '/api/v1/devices', desc: '获取已授权设备基本信息。' },
+                            { id: 'device_capability', name: '获取设备能力', path: '/api/v1/devices/capabilities', desc: '查询物模型、属性和指令能力。' }
+                        ]
+                    },
+                    {
+                        key: 'status',
+                        name: '状态与数据',
+                        items: [
+                            { id: 'device_status', name: '获取设备在线状态', path: '/api/v1/devices/status', desc: '查询单个或批量设备在线离线状态。' },
+                            { id: 'device_data', name: '获取设备实时数据', path: '/api/v1/data/latest', desc: '按授权范围拉取最新数据。' }
+                        ]
+                    },
+                    {
+                        key: 'control',
+                        name: '控制与反馈',
+                        items: [
+                            { id: 'command_send', name: '下发控制命令', path: '/api/v1/cmd/invoke', desc: '向授权设备下发控制指令。' },
+                            { id: 'command_feedback', name: '查询命令反馈', path: '/api/v1/cmd/feedback', desc: '查看命令执行结果和失败原因。' }
+                        ]
+                    }
+                ],
+                platforms: [
+                    {
+                        id: 1,
+                        name: '市教育局数据大屏',
+                        status: 1,
+                        accessType: 'api',
+                        contactName: '张三',
+                        contactPhone: '13800138000',
+                        contactEmail: 'edu-screen@example.com',
+                        organizationName: '市教育局',
+                        organizationType: '政府',
+                        dataUsage: '用于教育局设备大屏和监管统计看板。',
+                        serviceType: 'data',
+                        serviceScope: '校园物联数据可视化',
+                        serviceContent: '获取学校设备清单、状态和统计数据。',
+                        managedProducts: ['智能水表'],
+                        deviceOwnerScope: '学校拥有设备，教育局查看使用。',
+                        remark: '重点保障平台',
+                        appId: 'API_8f92jka',
+                        secureKey: '**************',
+                        clientId: 'APP_vbn123d',
+                        clientSecret: '**************',
+                        updateTime: '2026-03-08 10:30'
+                    },
+                    {
+                        id: 2,
+                        name: '校园一卡通系统',
+                        status: 1,
+                        accessType: 'app',
+                        contactName: '李四',
+                        contactPhone: '13900139000',
+                        contactEmail: 'card-center@example.com',
+                        organizationName: '一卡通运营中心',
+                        organizationType: '企业',
+                        dataUsage: '作为综合业务系统，需要获取设备状态并进行联动控制。',
+                        serviceType: 'mix',
+                        serviceScope: '宿舍门禁与公共区域设备协同',
+                        serviceContent: '同时消费状态数据并下发控制指令。',
+                        managedProducts: ['路灯控制器', '环境监测设备'],
+                        deviceOwnerScope: '一卡通平台负责业务调度，设备归校方所有。',
+                        remark: '综合服务试点',
+                        appId: 'API_mix_3321',
+                        secureKey: '**************',
+                        clientId: 'APP_mix_8891',
+                        clientSecret: '**************',
+                        updateTime: '2026-03-07 14:15'
+                    },
+                    {
+                        id: 3,
+                        name: '能源管控平台',
+                        status: 0,
+                        accessType: 'api',
+                        contactName: '王五',
+                        contactPhone: '13700137000',
+                        contactEmail: 'energy-ops@example.com',
+                        organizationName: '能源运维中心',
+                        organizationType: '事业单位',
+                        dataUsage: '',
+                        serviceType: 'control',
+                        serviceScope: '能源设备远程控制',
+                        serviceContent: '进行用电与能耗设备的远程策略控制。',
+                        managedProducts: ['智能电表', '路灯控制器'],
+                        deviceOwnerScope: '能源中心负责运维和控制策略。',
+                        remark: '当前禁用，待接口整改后恢复',
+                        appId: 'API_ctrl_5510',
+                        secureKey: '**************',
+                        clientId: 'APP_ctrl_5510',
+                        clientSecret: '**************',
+                        updateTime: '2026-03-05 09:20'
+                    }
+                ],
+                filteredPlatforms: [],
+                platformForm: {},
+                authForm: {
+                    activeTab: 'api',
+                    apiPermissionIds: ['device_list', 'device_status'],
+                    grantScopes: {
+                        product: ['智能水表'],
+                        group: ['北区水表组'],
+                        instance: ['dev_8829_abc']
+                    }
+                },
+                init() {
+                    this.resetPlatformForm();
+                    this.applyPlatformFilters();
+                },
+                accessTypeLabel(type) {
+                    return type === 'app' ? '第三方应用' : 'API服务';
+                },
+                serviceTypeLabel(type) {
+                    return type === 'data' ? '数据服务' : (type === 'control' ? '控制服务' : '综合服务');
+                },
+                nowText() {
+                    return '2026-03-09 11:20';
+                },
+                resetPlatformForm() {
+                    this.formError = '';
+                    this.platformForm = {
+                        name: '',
+                        accessType: 'api',
+                        contactName: '',
+                        contactPhone: '',
+                        contactEmail: '',
+                        organizationName: '',
+                        organizationType: '企业',
+                        dataUsage: '',
+                        serviceType: 'data',
+                        serviceScope: '',
+                        serviceContent: '',
+                        managedProducts: [],
+                        deviceOwnerScope: '',
+                        remark: '',
+                        appId: 'API_' + Math.random().toString(36).slice(2, 9),
+                        secureKey: '**************',
+                        clientId: 'APP_' + Math.random().toString(36).slice(2, 9),
+                        clientSecret: '**************'
+                    };
+                },
+                openAddModal() {
+                    this.modalMode = 'add';
+                    this.selectedPlatformId = null;
+                    this.resetPlatformForm();
+                    this.showPlatformModal = true;
+                },
+                openEditModal(platform) {
+                    this.modalMode = 'edit';
+                    this.selectedPlatformId = platform.id;
+                    this.formError = '';
+                    this.platformForm = {
+                        id: platform.id,
+                        name: platform.name,
+                        accessType: platform.accessType,
+                        contactName: platform.contactName,
+                        contactPhone: platform.contactPhone,
+                        contactEmail: platform.contactEmail,
+                        organizationName: platform.organizationName,
+                        organizationType: platform.organizationType,
+                        dataUsage: platform.dataUsage,
+                        serviceType: platform.serviceType,
+                        serviceScope: platform.serviceScope,
+                        serviceContent: platform.serviceContent,
+                        managedProducts: [...platform.managedProducts],
+                        deviceOwnerScope: platform.deviceOwnerScope,
+                        remark: platform.remark,
+                        appId: platform.appId,
+                        secureKey: platform.secureKey,
+                        clientId: platform.clientId,
+                        clientSecret: platform.clientSecret
+                    };
+                    this.showPlatformModal = true;
+                },
+                validatePlatformForm() {
+                    const phoneOk = /^[0-9-+() ]{7,20}$/.test(this.platformForm.contactPhone.trim());
+                    const emailOk = !this.platformForm.contactEmail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.platformForm.contactEmail.trim());
+                    const duplicated = this.platforms.some(item => item.name === this.platformForm.name.trim() && item.id !== this.selectedPlatformId);
+                    if (!this.platformForm.name.trim()) return '请输入平台名称';
+                    if (duplicated) return '平台名称已存在，请重新输入';
+                    if (!this.platformForm.organizationName.trim()) return '请输入单位名称';
+                    if (!this.platformForm.contactName.trim()) return '请输入联系人';
+                    if (!phoneOk) return '请输入正确的联系电话';
+                    if (!emailOk) return '请输入正确的邮箱地址';
+                    if (this.platformForm.serviceType !== 'control' && !this.platformForm.dataUsage.trim()) return '当前服务类型下，数据用途为必填项';
+                    if (this.platformForm.serviceType !== 'data' && this.platformForm.managedProducts.length === 0) return '当前服务类型下，请至少选择一个管理产品范围';
+                    return '';
+                },
+                savePlatform() {
+                    this.formError = this.validatePlatformForm();
+                    if (this.formError) return;
+
+                    const payload = {
+                        id: this.selectedPlatformId || Date.now(),
+                        name: this.platformForm.name.trim(),
+                        status: this.modalMode === 'add' ? 1 : this.platforms.find(item => item.id === this.selectedPlatformId).status,
+                        accessType: this.platformForm.accessType,
+                        contactName: this.platformForm.contactName.trim(),
+                        contactPhone: this.platformForm.contactPhone.trim(),
+                        contactEmail: this.platformForm.contactEmail.trim(),
+                        organizationName: this.platformForm.organizationName.trim(),
+                        organizationType: this.platformForm.organizationType,
+                        dataUsage: this.platformForm.dataUsage.trim(),
+                        serviceType: this.platformForm.serviceType,
+                        serviceScope: this.platformForm.serviceScope.trim(),
+                        serviceContent: this.platformForm.serviceContent.trim(),
+                        managedProducts: [...this.platformForm.managedProducts],
+                        deviceOwnerScope: this.platformForm.deviceOwnerScope.trim(),
+                        remark: this.platformForm.remark.trim(),
+                        appId: this.platformForm.appId,
+                        secureKey: this.platformForm.secureKey,
+                        clientId: this.platformForm.clientId,
+                        clientSecret: this.platformForm.clientSecret,
+                        updateTime: this.nowText()
+                    };
+
+                    if (this.modalMode === 'add') {
+                        this.platforms.unshift(payload);
+                    } else {
+                        const index = this.platforms.findIndex(item => item.id === this.selectedPlatformId);
+                        this.platforms.splice(index, 1, payload);
+                    }
+
+                    this.applyPlatformFilters();
+                    this.showPlatformModal = false;
+                    alert(this.modalMode === 'add' ? '第三方平台新增成功' : '第三方平台更新成功');
+                },
+                applyPlatformFilters() {
+                    const name = this.platformFilters.name.trim();
+                    const status = this.platformFilters.status;
+                    this.filteredPlatforms = this.platforms
+                        .filter(item => (!name || item.name.includes(name)) && (status === '' || String(item.status) === status))
+                        .sort((a, b) => b.updateTime.localeCompare(a.updateTime));
+                },
+                resetPlatformFilters() {
+                    this.platformFilters = { name: '', status: '' };
+                    this.applyPlatformFilters();
+                },
+                togglePlatformStatus(platform) {
+                    platform.status = platform.status === 1 ? 0 : 1;
+                    platform.updateTime = this.nowText();
+                    this.applyPlatformFilters();
+                    alert(platform.status === 1 ? '平台已启用' : '平台已禁用');
+                },
+                deletePlatform(id) {
+                    if (!confirm('确认删除当前第三方平台吗？')) return;
+                    this.platforms = this.platforms.filter(item => item.id !== id);
+                    this.applyPlatformFilters();
+                    alert('平台删除成功');
+                },
+                openAuthModal(platform) {
+                    this.authError = '';
+                    this.selectedPlatformId = platform.id;
+                    this.selectedPlatformName = platform.name;
+                    this.authForm.activeTab = 'api';
+                    this.authForm.apiPermissionIds = platform.status === 0 ? ['device_list'] : ['device_list', 'device_status'];
+                    this.authForm.grantScopes = {
+                        product: [...platform.managedProducts],
+                        group: platform.name === '校园一卡通系统' ? ['教学楼门禁组'] : ['北区水表组'],
+                        instance: platform.name === '能源管控平台' ? ['dev_1033_light'] : ['dev_8829_abc']
+                    };
+                    this.showAuthModal = true;
+                },
+                saveAuth() {
+                    this.authError = '';
+                    if (this.authForm.activeTab === 'device' && this.authForm.apiPermissionIds.length === 0) {
+                        this.authError = '请至少选择一个可访问接口后，再保存设备范围授权。';
+                        return;
+                    }
+                    if (
+                        this.authForm.activeTab === 'device' &&
+                        this.authForm.grantScopes.product.length === 0 &&
+                        this.authForm.grantScopes.group.length === 0 &&
+                        this.authForm.grantScopes.instance.length === 0
+                    ) {
+                        this.authError = '请至少选择一个产品、设备组或设备实例。';
+                        return;
+                    }
+                    this.showAuthModal = false;
+                    alert('权限分配已更新');
+                }
+            };
+        }
+    </script>
+</body>
+
+</html>
