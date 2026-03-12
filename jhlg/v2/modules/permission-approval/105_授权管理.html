@@ -84,7 +84,7 @@
                             <tr>
                                 <td>AUTH-20251020005</td>
                                 <td>消防通道监测</td>
-                                <td>标签: 行政楼 (含10设备)</td>
+                                <td>设备: 行政楼区域 (10个)</td>
                                 <td>2025-10-20 14:00</td>
                                 <td>2026-10-20 00:00</td>
                                 <td><span class="status-tag status-success">生效中</span></td>
@@ -140,26 +140,109 @@
 
     <!-- Authorization Detail Modal -->
     <div class="modal-overlay" id="authDetailModal">
-        <div class="modal-content" style="width: 600px;">
+        <div class="modal-content" style="width: 800px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
                 <h3 class="modal-title">授权详情</h3>
                 <button class="modal-close" onclick="closeAuthDetailModal()">×</button>
             </div>
             <div class="modal-body">
-                <div class="input-group" style="margin-top: 16px;">
-                    <label class="input-label">已授权设备清单 (10)</label>
-                    <div
-                        style="height: 150px; overflow-y: auto; background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 8px;">
-                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-正门球机</div>
-                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-大厅全景</div>
-                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-1F走廊A</div>
-                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-1F走廊B</div>
-                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-2F会议室</div>
-                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-2F走廊</div>
-                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-停车场入口</div>
-                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-停车场出口</div>
-                        <div style="padding: 4px; border-bottom: 1px solid #f0f0f0;">📹 行政楼-顶楼全景</div>
-                        <div style="padding: 4px;">📹 行政楼-后门枪机</div>
+                <!-- Authorization Info Card -->
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 8px; color: white; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-size: 12px; opacity: 0.9; margin-bottom: 4px;">授权ID</div>
+                            <div style="font-size: 18px; font-weight: 600;">AUTH-20251020005</div>
+                        </div>
+                        <span class="status-tag status-success" style="background: rgba(255,255,255,0.25); color: white; border: 1px solid rgba(255,255,255,0.3);">生效中</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px;">
+                        <div>
+                            <div style="opacity: 0.8; margin-bottom: 4px;">被授应用</div>
+                            <div style="font-weight: 500;">消防通道监测</div>
+                        </div>
+                        <div>
+                            <div style="opacity: 0.8; margin-bottom: 4px;">授权设备数</div>
+                            <div style="font-weight: 500;">10 台</div>
+                        </div>
+                        <div>
+                            <div style="opacity: 0.8; margin-bottom: 4px;">生效时间</div>
+                            <div style="font-weight: 500;">2025-10-20 14:00</div>
+                        </div>
+                        <div>
+                            <div style="opacity: 0.8; margin-bottom: 4px;">失效时间</div>
+                            <div style="font-weight: 500;">2026-10-20 00:00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Approval Info -->
+                <div style="background: #f8fafc; padding: 16px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #334155; display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 16px;">⚖️</span> 审批信息
+                    </h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; font-size: 13px;">
+                        <div>
+                            <div style="color: #64748b; margin-bottom: 4px;">关联申请单</div>
+                            <div style="color: #1e293b; font-weight: 500;">REQ202510200005</div>
+                        </div>
+                        <div>
+                            <div style="color: #64748b; margin-bottom: 4px;">审批人</div>
+                            <div style="color: #1e293b; font-weight: 500;">王管理员</div>
+                        </div>
+                        <div>
+                            <div style="color: #64748b; margin-bottom: 4px;">审批时间</div>
+                            <div style="color: #1e293b; font-weight: 500;">2025-10-20 14:00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Device List -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 style="margin: 0; font-size: 14px; color: #334155; display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 16px;">📹</span> 已授权设备清单
+                            <span style="background: #e0e7ff; color: #4f46e5; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">30</span>
+                        </h4>
+                        <input type="text" id="deviceSearchInput" class="glass-input" placeholder="🔍 搜索设备名称/编码..."
+                            style="width: 220px; font-size: 12px; padding: 6px 10px;" oninput="filterDetailDevices()">
+                    </div>
+
+                    <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden;">
+                        <!-- Device List Header -->
+                        <div style="display: grid; grid-template-columns: 50px 2fr 2fr 120px 100px; gap: 12px; padding: 10px 16px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 12px; font-weight: 600; color: #64748b;">
+                            <div style="text-align: center;">序号</div>
+                            <div>设备名称</div>
+                            <div>设备编码</div>
+                            <div>位置</div>
+                            <div style="text-align: center;">状态</div>
+                        </div>
+
+                        <!-- Device List Body -->
+                        <div id="deviceDetailList" style="min-height: 300px;">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <!-- Pagination -->
+                        <div style="padding: 12px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 12px; color: #64748b;">
+                                共 <span id="deviceTotalCount" style="color: #4f46e5; font-weight: 600;">30</span> 台设备
+                                <span style="margin-left: 16px;">在线 <span style="color: #16a34a; font-weight: 600;">27</span> 台</span>
+                                <span style="margin-left: 8px;">离线 <span style="color: #dc2626; font-weight: 600;">3</span> 台</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button id="prevPageBtn" class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="changePage(-1)">上一页</button>
+                                <div style="display: flex; gap: 4px;" id="pageNumbers">
+                                    <!-- Populated by JS -->
+                                </div>
+                                <button id="nextPageBtn" class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="changePage(1)">下一页</button>
+                                <select id="pageSizeSelect" class="glass-input" style="width: 100px; font-size: 12px; padding: 4px 8px;" onchange="changePageSize()">
+                                    <option value="5">5条/页</option>
+                                    <option value="10" selected>10条/页</option>
+                                    <option value="20">20条/页</option>
+                                    <option value="50">50条/页</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -173,14 +256,6 @@
     <script>
         function searchData() {
             showToast('数据已刷新');
-        }
-
-        function showDetail() {
-            document.getElementById('authDetailModal').classList.add('active');
-        }
-
-        function closeAuthDetailModal() {
-            document.getElementById('authDetailModal').classList.remove('active');
         }
 
         let currentRevokeRow = null;
@@ -218,6 +293,159 @@
                 statusTag.style.background = '#f1f5f9';
                 statusTag.style.color = '#64748b';
             }
+        }
+
+        // Device Detail Modal with Pagination
+        const allDevicesData = [
+            { name: "正门球机", code: "DEV-XZL-001", location: "行政楼", status: "online" },
+            { name: "大厅全景", code: "DEV-XZL-002", location: "行政楼", status: "online" },
+            { name: "1F走廊A", code: "DEV-XZL-003", location: "行政楼", status: "online" },
+            { name: "1F走廊B", code: "DEV-XZL-004", location: "行政楼", status: "offline" },
+            { name: "2F会议室", code: "DEV-XZL-005", location: "行政楼", status: "online" },
+            { name: "2F走廊", code: "DEV-XZL-006", location: "行政楼", status: "online" },
+            { name: "停车场入口", code: "DEV-XZL-007", location: "行政楼", status: "online" },
+            { name: "停车场出口", code: "DEV-XZL-008", location: "行政楼", status: "online" },
+            { name: "顶楼全景", code: "DEV-XZL-009", location: "行政楼", status: "online" },
+            { name: "后门枪机", code: "DEV-XZL-010", location: "行政楼", status: "online" },
+            { name: "东门球机", code: "DEV-JXL-001", location: "教学楼", status: "online" },
+            { name: "西门枪机", code: "DEV-JXL-002", location: "教学楼", status: "online" },
+            { name: "A栋大厅", code: "DEV-JXL-003", location: "教学楼", status: "online" },
+            { name: "B栋大厅", code: "DEV-JXL-004", location: "教学楼", status: "offline" },
+            { name: "C栋大厅", code: "DEV-JXL-005", location: "教学楼", status: "online" },
+            { name: "操场全景", code: "DEV-CYC-001", location: "操场", status: "online" },
+            { name: "篮球场", code: "DEV-CYC-002", location: "操场", status: "online" },
+            { name: "足球场", code: "DEV-CYC-003", location: "操场", status: "online" },
+            { name: "图书馆正门", code: "DEV-TSG-001", location: "图书馆", status: "online" },
+            { name: "图书馆阅览室", code: "DEV-TSG-002", location: "图书馆", status: "online" },
+            { name: "图书馆1F", code: "DEV-TSG-003", location: "图书馆", status: "offline" },
+            { name: "图书馆2F", code: "DEV-TSG-004", location: "图书馆", status: "online" },
+            { name: "宿舍楼A入口", code: "DEV-SSL-A01", location: "宿舍楼", status: "online" },
+            { name: "宿舍楼B入口", code: "DEV-SSL-B01", location: "宿舍楼", status: "online" },
+            { name: "宿舍楼C入口", code: "DEV-SSL-C01", location: "宿舍楼", status: "online" },
+            { name: "食堂一楼", code: "DEV-ST-101", location: "食堂", status: "online" },
+            { name: "食堂二楼", code: "DEV-ST-201", location: "食堂", status: "online" },
+            { name: "食堂三楼", code: "DEV-ST-301", location: "食堂", status: "online" },
+            { name: "实验楼大厅", code: "DEV-SYL-001", location: "实验楼", status: "online" },
+            { name: "实验楼走廊", code: "DEV-SYL-002", location: "实验楼", status: "online" }
+        ];
+
+        let filteredDevices = [...allDevicesData];
+        let currentPage = 1;
+        let pageSize = 10;
+
+        function showDetail() {
+            document.getElementById('authDetailModal').classList.add('active');
+            renderDeviceList();
+        }
+
+        function closeAuthDetailModal() {
+            document.getElementById('authDetailModal').classList.remove('active');
+        }
+
+        function renderDeviceList() {
+            const container = document.getElementById('deviceDetailList');
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageData = filteredDevices.slice(start, end);
+
+            if (pageData.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 60px 20px; color: #94a3b8; font-size: 14px;">暂无数据</div>';
+                return;
+            }
+
+            container.innerHTML = pageData.map((device, index) => {
+                const globalIndex = start + index + 1;
+                const statusColor = device.status === 'online' ? '#dcfce7' : '#fee2e2';
+                const statusTextColor = device.status === 'online' ? '#16a34a' : '#dc2626';
+                const statusText = device.status === 'online' ? '在线' : '离线';
+
+                return `
+                    <div class="device-detail-item" style="display: grid; grid-template-columns: 50px 2fr 2fr 120px 100px; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; font-size: 13px; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                        <div style="text-align: center; color: #94a3b8;">${globalIndex}</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 16px;">📹</span>
+                            <span style="color: #1e293b;">${device.name}</span>
+                        </div>
+                        <div style="color: #64748b; font-family: monospace; font-size: 12px;">${device.code}</div>
+                        <div style="color: #64748b;">${device.location}</div>
+                        <div style="text-align: center;">
+                            <span style="display: inline-block; padding: 2px 8px; background: ${statusColor}; color: ${statusTextColor}; border-radius: 4px; font-size: 11px; font-weight: 500;">● ${statusText}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            renderPagination();
+            updateStats();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredDevices.length / pageSize);
+            const pageNumbersContainer = document.getElementById('pageNumbers');
+
+            let pages = [];
+            if (totalPages <= 7) {
+                pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+            } else {
+                if (currentPage <= 4) {
+                    pages = [1, 2, 3, 4, 5, '...', totalPages];
+                } else if (currentPage >= totalPages - 3) {
+                    pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+                } else {
+                    pages = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+                }
+            }
+
+            pageNumbersContainer.innerHTML = pages.map(page => {
+                if (page === '...') {
+                    return '<span style="padding: 4px 8px; color: #94a3b8;">...</span>';
+                }
+                const isActive = page === currentPage;
+                return `<button class="btn ${isActive ? 'btn-primary' : 'btn-secondary'}" style="padding: 4px 10px; font-size: 12px; min-width: 32px;" onclick="goToPage(${page})">${page}</button>`;
+            }).join('');
+
+            document.getElementById('prevPageBtn').disabled = currentPage === 1;
+            document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+        }
+
+        function updateStats() {
+            const onlineCount = filteredDevices.filter(d => d.status === 'online').length;
+            const offlineCount = filteredDevices.filter(d => d.status === 'offline').length;
+
+            document.getElementById('deviceTotalCount').textContent = filteredDevices.length;
+
+            const statsHtml = `在线 <span style="color: #16a34a; font-weight: 600;">${onlineCount}</span> 台<span style="margin-left: 8px;">离线 <span style="color: #dc2626; font-weight: 600;">${offlineCount}</span> 台</span>`;
+            document.querySelector('#deviceDetailList').parentElement.querySelector('.pagination-stats')?.remove();
+        }
+
+        function changePage(delta) {
+            const totalPages = Math.ceil(filteredDevices.length / pageSize);
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderDeviceList();
+            }
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            renderDeviceList();
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSizeSelect').value);
+            currentPage = 1;
+            renderDeviceList();
+        }
+
+        function filterDetailDevices() {
+            const keyword = document.getElementById('deviceSearchInput').value.toLowerCase();
+            filteredDevices = allDevicesData.filter(device =>
+                device.name.toLowerCase().includes(keyword) ||
+                device.code.toLowerCase().includes(keyword)
+            );
+            currentPage = 1;
+            renderDeviceList();
         }
     </script>
 </body>

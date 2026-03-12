@@ -43,24 +43,23 @@
             <div class="content">
                 <section class="hero-card">
                     <div class="hero-copy">
-                        <h2>规则引擎产品原型</h2>
-                        <p>本模块聚合规则引擎新增功能原型，包括事件类型、数据上报、下发数据接收、协议解析接口、异常告警接口、目录发布与事件通知管理等页面。</p>
+                        <h2>规则引擎产品原型（拆开版）</h2>
+                        <p>本模块聚合规则引擎新增功能原型，采用"拆开版"架构，包括规则编排、场景联动（事件等级、事件类型、事件规则、事件通知）四大核心模块。</p>
                         <div class="hero-badges">
                             <span class="badge">规则编排</span>
-                            <span class="badge">事件类型</span>
-                            <span class="badge">数据上报</span>
-                            <span class="badge">目录发布</span>
-                            <span class="badge">事件通知</span>
+                            <span class="badge">场景联动</span>
+                            <span class="badge">事件管理</span>
+                            <span class="badge">拆开版</span>
                         </div>
                     </div>
                     <div class="hero-aside">
                         <div class="metric-box">
                             <div class="metric-label">模块页面</div>
-                            <div class="metric-value">8</div>
+                            <div class="metric-value">7</div>
                         </div>
                         <div class="metric-box">
                             <div class="metric-label">核心方向</div>
-                            <div class="metric-value">编排</div>
+                            <div class="metric-value">联动</div>
                         </div>
                     </div>
                 </section>
@@ -68,33 +67,15 @@
                 <section class="section-card">
                     <div class="section-header">
                         <div>
-                            <h3>页面入口</h3>
-                            <p>原型页面按模块首页和七个新增能力页面组织。</p>
+                            <h3>规则编排</h3>
+                            <p>规则编排主模块，包含规则列表和二次开发接口。</p>
                         </div>
                     </div>
                     <div class="prototype-grid">
                         <a class="prototype-card" href="modules/rule-engine/index.html">
-                            <strong>模块首页 / 规则编排</strong>
+                            <strong>规则编排列表</strong>
                             <p>规则编排主列表页，承接整个规则引擎模块的入口。</p>
                             <code>modules/rule-engine/index.html</code>
-                            <span class="card-link">打开页面 →</span>
-                        </a>
-                        <a class="prototype-card" href="modules/rule-engine/pages/event_type.html">
-                            <strong>事件类型管理</strong>
-                            <p>事件类型、等级和批量维护相关页面入口。</p>
-                            <code>modules/rule-engine/pages/event_type.html</code>
-                            <span class="card-link">打开页面 →</span>
-                        </a>
-                        <a class="prototype-card" href="modules/rule-engine/pages/data_upload.html">
-                            <strong>数据上报</strong>
-                            <p>展示平台对外提供的上报能力配置和说明。</p>
-                            <code>modules/rule-engine/pages/data_upload.html</code>
-                            <span class="card-link">打开页面 →</span>
-                        </a>
-                        <a class="prototype-card" href="modules/rule-engine/pages/data_receive.html">
-                            <strong>下发数据接收</strong>
-                            <p>展示平台接收下发数据的能力与配置界面。</p>
-                            <code>modules/rule-engine/pages/data_receive.html</code>
                             <span class="card-link">打开页面 →</span>
                         </a>
                         <a class="prototype-card" href="modules/rule-engine/pages/protocol_api.html">
@@ -109,18 +90,69 @@
                             <code>modules/rule-engine/pages/alarm_api.html</code>
                             <span class="card-link">打开页面 →</span>
                         </a>
-                        <a class="prototype-card" href="modules/rule-engine/pages/catalog_publish.html">
-                            <strong>目录发布</strong>
-                            <p>服务目录或能力目录发布原型页面。</p>
-                            <code>modules/rule-engine/pages/catalog_publish.html</code>
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <div class="section-header">
+                        <div>
+                            <h3>场景联动（拆开版）</h3>
+                            <p>场景联动核心模块，采用"拆开版"架构，事件等级与事件类型独立管理。</p>
+                        </div>
+                    </div>
+                    <div class="prototype-grid">
+                        <a class="prototype-card" href="modules/rule-engine/pages/event_level.html">
+                            <strong>事件等级管理</strong>
+                            <p>维护事件等级字典，定义等级编码、等级名称、严重程度、颜色标记和排序。</p>
+                            <code>modules/rule-engine/pages/event_level.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/rule-engine/pages/event_type.html">
+                            <strong>事件类型管理</strong>
+                            <p>维护事件类型主数据，通过引用事件等级而非自己维护等级属性。包含批量数据维护功能。</p>
+                            <code>modules/rule-engine/pages/event_type.html</code>
+                            <span class="card-link">打开页面 →</span>
+                        </a>
+                        <a class="prototype-card" href="modules/rule-engine/pages/event_rule.html">
+                            <strong>事件规则管理</strong>
+                            <p>复用现有场景联动详情页，在基础信息区新增事件类型、事件等级两个字段，执行动作继续沿用现有能力。</p>
+                            <code>modules/rule-engine/pages/event_rule.html</code>
                             <span class="card-link">打开页面 →</span>
                         </a>
                         <a class="prototype-card" href="modules/rule-engine/pages/event_notify.html">
                             <strong>事件通知管理</strong>
-                            <p>事件通知管理与查询能力原型。</p>
+                            <p>查看通知记录、手动发送通知和重发失败通知，定位为"通知记录中心 + 手动发送"。</p>
                             <code>modules/rule-engine/pages/event_notify.html</code>
                             <span class="card-link">打开页面 →</span>
                         </a>
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <div class="section-header">
+                        <div>
+                            <h3>设计说明</h3>
+                            <p>拆开版架构核心特点与数据关系。</p>
+                        </div>
+                    </div>
+                    <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; line-height: 1.8;">
+                        <h4 style="margin-top: 0; color: #333;">拆开版核心特点</h4>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>事件等级独立管理：</strong>等级字典统一维护，不会在多个事件类型里重复录入</li>
+                            <li><strong>事件类型引用等级：</strong>严重程度、颜色标记为只读展示字段，来源于关联的事件等级</li>
+                            <li><strong>事件规则最小改造：</strong>在现有场景联动详情页中仅新增事件类型、事件等级两个事件属性字段</li>
+                            <li><strong>通知管理改为记录中心：</strong>从"策略配置中心"改为"通知记录中心 + 手动发送"</li>
+                        </ul>
+                        <h4 style="margin-top: 20px; color: #333;">数据关系链路</h4>
+                        <p style="margin: 10px 0; padding: 15px; background: white; border-left: 4px solid #1890ff; font-family: monospace;">
+                            事件等级 → 事件类型 → 事件规则 → 生成通知记录 / 手动发送通知
+                        </p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>一个事件等级可被多个事件类型引用</li>
+                            <li>一个事件类型必须且仅能引用一个事件等级</li>
+                            <li>一个事件类型可被多个事件规则引用</li>
+                            <li>一个事件规则可生成多条通知记录</li>
+                        </ul>
                     </div>
                 </section>
             </div>

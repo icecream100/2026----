@@ -91,32 +91,44 @@
         <!-- Sidebar -->
         <aside class="w-[200px] h-full bg-navy flex-shrink-0 text-slate-300 overflow-y-auto border-r border-[#1a253a]">
             <nav class="py-2 text-[14px]">
-                <div class="bg-black/20 pb-1 mt-2">
-                    <div class="px-5 py-2 text-xs text-slate-500 font-medium">规则编排</div>
-                    <a href="../index.html" class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
-                            class="fa-solid fa-database absolute left-6 opacity-70"></i> <span>感知报文存储</span></a>
-                    <a href="data_upload.html" class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
-                            class="fa-solid fa-cloud-arrow-up absolute left-6 opacity-70"></i> <span>数据上报</span></a>
-                    <a href="data_receive.html"
-                        class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
-                            class="fa-solid fa-cloud-arrow-down absolute left-6 opacity-70"></i> <span>下发数据接收</span></a>
-                    <a href="protocol_api.html"
-                        class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
-                            class="fa-solid fa-layer-group absolute left-6 opacity-70"></i> <span>协议解析二次接口</span></a>
-                    <a href="alarm_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
-                            class="fa-solid fa-triangle-exclamation absolute left-6 opacity-70"></i>
-                        <span>异常告警二开接口</span></a>
-                    <a href="catalog_publish.html"
-                        class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
-                            class="fa-solid fa-book-open absolute left-6 opacity-70"></i> <span>目录发布</span></a>
+                <div>
+                    <div class="menu-item flex items-center justify-between px-5 py-3.5 cursor-pointer text-white">
+                        <div class="flex items-center gap-3"><i class="fa-solid fa-code-branch w-4"></i><span>规则引擎</span></div>
+                        <i class="fa-solid fa-caret-up text-[10px]"></i>
+                    </div>
+                    <div class="bg-black/20 pb-1">
+                        <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider">规则编排</div>
+                        <a href="../index.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-list w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>规则编排列表</span>
+                        </a>
+                        <a href="protocol_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-layer-group w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>协议解析二次接口</span>
+                        </a>
+                        <a href="alarm_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-triangle-exclamation w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>异常告警二开接口</span>
+                        </a>
 
-                    <div class="px-5 py-2 text-xs text-slate-500 font-medium mt-1">场景联动</div>
-                    <a href="event_type.html"
-                        class="submenu-item active flex items-center pl-[46px] pr-5 py-3 text-white block"><i
-                            class="fa-solid fa-tags absolute left-6 opacity-70"></i> <span>事件类型管理</span></a>
-                    <a href="event_notify.html"
-                        class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
-                            class="fa-solid fa-comment-dots absolute left-6 opacity-70"></i> <span>事件通知管理</span></a>
+                        <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider mt-1">场景联动</div>
+                        <a href="event_level.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-layer-group w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>事件等级管理</span>
+                        </a>
+                        <a href="event_type.html" class="submenu-item active flex items-center pl-[46px] pr-5 py-3 cursor-pointer text-[13px] relative block">
+                            <i class="fa-solid fa-tags w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>事件类型管理</span>
+                        </a>
+                        <a href="event_rule.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-diagram-project w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>事件规则管理</span>
+                        </a>
+                        <a href="event_notify.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-comment-dots w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>事件通知管理</span>
+                        </a>
+                    </div>
                 </div>
             </nav>
         </aside>

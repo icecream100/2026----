@@ -81,8 +81,8 @@
 
         <main class="flex-1 overflow-y-auto p-6 bg-slate custom-scrollbar relative">
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-4">
-                <div class="px-6 pt-4 border-b border-gray-200">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 mb-4">
+                <div class="px-6 pt-4 border-b border-slate-100">
                     <div class="flex space-x-8">
                         <button class="tab-btn pb-3 text-sm font-medium active"
                             onclick="switchMainTab('system')">系统分组</button>
@@ -93,17 +93,13 @@
 
                 <!-- 系统分组的内容 -->
                 <div id="tab-system" class="tab-content active p-6">
-                    <div
-                        class="bg-blue-50 border border-blue-200 text-blue-800 text-xs px-3 py-2 rounded mb-4 flex items-start">
-                        <i class="ph-fill ph-info text-primary mt-0.5 mr-1.5"></i>
-                        <span>系统分组基于设备当前属性实时聚合展示，仅供查看，不支持手工编辑。</span>
-                    </div>
+
 
                     <form class="grid grid-cols-4 gap-4 mb-4">
                         <div class="flex flex-col space-y-1">
-                            <label class="text-xs text-gray-600">分组维度</label>
+                            <label class="text-[13px] text-slate-500">分组维度</label>
                             <select
-                                class="w-full h-8 px-3 border border-gray-300 rounded focus:border-primary outline-none text-sm">
+                                class="w-full h-9 px-3 border border-slate-300 rounded focus:border-primary outline-none text-[13px] hover:border-primary/50 transition bg-white">
                                 <option value="">全部维度</option>
                                 <option value="type">按类型</option>
                                 <option value="industry">按行业</option>
@@ -112,42 +108,42 @@
                             </select>
                         </div>
                         <div class="flex flex-col space-y-1">
-                            <label class="text-xs text-gray-600">分组名称</label>
+                            <label class="text-[13px] text-slate-500">分组名称</label>
                             <input type="text" placeholder="关键字查询"
-                                class="w-full h-8 px-3 border border-gray-300 rounded focus:border-primary outline-none text-sm">
+                                class="w-full h-9 px-3 border border-slate-300 rounded focus:border-primary outline-none text-[13px] hover:border-primary/50 transition">
                         </div>
                         <div class="flex items-end space-x-2">
                             <button type="button"
-                                class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-sm hover:bg-primary-hover">查询</button>
+                                class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-[13px] hover:bg-primary-hover shadow-sm">查询</button>
                         </div>
                     </form>
 
-                    <div class="overflow-x-auto border border-gray-200 rounded">
-                        <table class="w-full text-left text-sm whitespace-nowrap">
-                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-700">
+                    <div class="overflow-x-auto border border-slate-100 rounded-lg">
+                        <table class="w-full text-left text-[13px] whitespace-nowrap">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-500">
                                 <tr>
-                                    <th class="p-3 font-medium">分组名称</th>
-                                    <th class="p-3 font-medium">系统分组维度</th>
-                                    <th class="p-3 font-medium">设备数量</th>
+                                    <th class="py-3 px-4 font-medium">分组名称</th>
+                                    <th class="py-3 px-4 font-medium">系统分组维度</th>
+                                    <th class="py-3 px-4 font-medium">设备数量</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                <tr class="hover:bg-blue-50/50">
-                                    <td class="p-3 text-gray-800">智能安防设备</td>
-                                    <td class="p-3 text-gray-600">按类型</td>
-                                    <td class="p-3 text-primary cursor-pointer hover:underline"
+                            <tbody class="divide-y divide-slate-100 text-slate-700">
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="py-3 px-4 font-medium text-slate-800">智能安防设备</td>
+                                    <td class="py-3 px-4 text-slate-500">按类型</td>
+                                    <td class="py-3 px-4 text-primary cursor-pointer hover:underline"
                                         onclick="openDeviceDetailDrawer('智能安防设备')">153</td>
                                 </tr>
-                                <tr class="hover:bg-blue-50/50">
-                                    <td class="p-3 text-gray-800">主校区南门</td>
-                                    <td class="p-3 text-gray-600">按区域</td>
-                                    <td class="p-3 text-primary cursor-pointer hover:underline"
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="py-3 px-4 font-medium text-slate-800">主校区南门</td>
+                                    <td class="py-3 px-4 text-slate-500">按区域</td>
+                                    <td class="py-3 px-4 text-primary cursor-pointer hover:underline"
                                         onclick="openDeviceDetailDrawer('主校区南门')">12</td>
                                 </tr>
-                                <tr class="hover:bg-blue-50/50">
-                                    <td class="p-3 text-gray-800">保卫处</td>
-                                    <td class="p-3 text-gray-600">按部门</td>
-                                    <td class="p-3 text-primary cursor-pointer hover:underline"
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="py-3 px-4 font-medium text-slate-800">保卫处</td>
+                                    <td class="py-3 px-4 text-slate-500">按部门</td>
+                                    <td class="py-3 px-4 text-primary cursor-pointer hover:underline"
                                         onclick="openDeviceDetailDrawer('保卫处')">45</td>
                                 </tr>
                             </tbody>
@@ -159,59 +155,57 @@
                 <div id="tab-custom" class="tab-content p-6">
                     <form class="grid grid-cols-4 gap-4 mb-4">
                         <div class="flex flex-col space-y-1">
-                            <label class="text-xs text-gray-600">分组名称</label>
+                            <label class="text-[13px] text-slate-500">分组名称</label>
                             <input type="text" placeholder="输入名称查询"
-                                class="w-full h-8 px-3 border border-gray-300 rounded focus:border-primary outline-none text-sm">
+                                class="w-full h-9 px-3 border border-slate-300 rounded focus:border-primary outline-none text-[13px] hover:border-primary/50 transition">
                         </div>
                         <div class="flex flex-col space-y-1">
-                            <label class="text-xs text-gray-600">创建人</label>
+                            <label class="text-[13px] text-slate-500">创建人</label>
                             <input type="text" placeholder="创建人姓名"
-                                class="w-full h-8 px-3 border border-gray-300 rounded focus:border-primary outline-none text-sm">
+                                class="w-full h-9 px-3 border border-slate-300 rounded focus:border-primary outline-none text-[13px] hover:border-primary/50 transition">
                         </div>
                         <div class="flex items-end justify-between col-span-2">
                             <div class="space-x-2">
                                 <button type="button"
-                                    class="px-4 py-1.5 border border-gray-300 rounded text-sm hover:border-primary">重置</button>
+                                    class="px-4 py-1.5 border border-slate-300 rounded text-[13px] text-slate-600 hover:border-primary hover:text-primary transition bg-white">重置</button>
                                 <button type="button"
-                                    class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-sm hover:bg-primary-hover">查询</button>
+                                    class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-[13px] hover:bg-primary-hover shadow-sm">查询</button>
                             </div>
                             <button type="button"
-                                class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-sm hover:bg-primary-hover flex items-center"
+                                class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-[13px] hover:bg-primary-hover flex items-center shadow-sm"
                                 onclick="openGroupDrawer()">
-                                <i class="ph ph-plus mr-1"></i> 新增系统分组
+                                <i class="ph ph-plus mr-1.5"></i> 新增系统分组
                             </button>
                         </div>
                     </form>
 
-                    <div class="overflow-x-auto border border-gray-200 rounded">
-                        <table class="w-full text-left text-sm whitespace-nowrap">
-                            <thead class="bg-gray-50 border-b border-gray-200 text-gray-700">
+                    <div class="overflow-x-auto border border-slate-100 rounded-lg">
+                        <table class="w-full text-left text-[13px] whitespace-nowrap">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-500">
                                 <tr>
-                                    <th class="p-3 font-medium">分组名称</th>
-                                    <th class="p-3 font-medium">分组维度</th>
-                                    <th class="p-3 font-medium truncate max-w-xs">分组说明</th>
-                                    <th class="p-3 font-medium text-center">成员设备数量</th>
-                                    <th class="p-3 font-medium">创建人</th>
-                                    <th class="p-3 font-medium">创建时间</th>
-                                    <th class="p-3 font-medium text-right">操作</th>
+                                    <th class="py-3 px-4 font-medium">分组名称</th>
+                                    <th class="py-3 px-4 font-medium">分组维度</th>
+                                    <th class="py-3 px-4 font-medium truncate max-w-xs">分组说明</th>
+                                    <th class="py-3 px-4 font-medium text-center">成员设备数量</th>
+                                    <th class="py-3 px-4 font-medium">创建人</th>
+                                    <th class="py-3 px-4 font-medium">创建时间</th>
+                                    <th class="py-3 px-4 font-medium text-right">操作</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                <tr class="hover:bg-blue-50/50">
-                                    <td class="p-3 font-medium text-gray-800">校庆重点巡检设备</td>
-                                    <td class="p-3 text-gray-600">自定义组</td>
-                                    <td class="p-3 text-gray-500 truncate max-w-xs">包含北门打卡机、南门闸机与体育馆周边监控</td>
-                                    <td class="p-3 text-center"><span
-                                            class="bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded-full font-medium">18</span>
-                                    </td>
-                                    <td class="p-3 text-gray-600">系统管理员</td>
-                                    <td class="p-3 text-gray-600">2026-03-05 14:00</td>
-                                    <td class="p-3 text-right space-x-2">
-                                        <button class="text-primary hover:text-primary-hover"
-                                            onclick="openGroupDrawer(true)">编辑</button>
-                                        <span class="text-gray-300">|</span>
-                                        <button class="text-red-500 hover:text-red-400"
-                                            onclick="if(confirm('即将删除自定义分组，此操作不删除实际设备主数据。确认继续？')) { alert('删除成功'); const tr = this.closest('tr'); if(tr) tr.remove(); }">删除</button>
+                            <tbody class="divide-y divide-slate-100 text-slate-700">
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="py-3 px-4 font-medium text-slate-800">校庆重点巡检设备</td>
+                                    <td class="py-3 px-4 text-slate-600">自定义组</td>
+                                    <td class="py-3 px-4 text-slate-500 truncate max-w-xs">包含北门打卡机、南门闸机与体育馆周边监控</td>
+                                    <td class="py-3 px-4 text-center"><span
+                                            class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full text-xs">5</span></td>
+                                    <td class="py-3 px-4 text-slate-600">张大伟</td>
+                                    <td class="py-3 px-4 text-slate-500">2026-03-01</td>
+                                    <td class="py-3 px-4 text-right space-x-2">
+                                        <button class="px-3 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:text-primary hover:border-primary transition shadow-sm"
+                                            onclick="openGroupDrawer()">编辑</button>
+                                        <button class="px-3 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:text-red-500 hover:border-red-500 transition shadow-sm"
+                                            onclick="confirm('确认删除？')">删除</button>
                                     </td>
                                 </tr>
                             </tbody>

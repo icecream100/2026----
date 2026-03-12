@@ -84,29 +84,25 @@
 
         <main class="flex-1 overflow-y-auto p-6 bg-slate custom-scrollbar relative">
 
-            <div
-                class="bg-blue-50 border border-blue-200 text-blue-800 text-sm px-4 py-3 rounded mb-4 flex items-start">
-                <i class="ph-fill ph-info text-primary mt-0.5 mr-2"></i>
-                <span>说明：此页面用于管理存量设备是否对外部开放服务及数据。启用后设备方可参与开放平台接口调用。</span>
-            </div>
+
 
             <!-- 搜索区 -->
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-4">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 mb-4">
                 <form class="grid grid-cols-4 gap-4">
                     <div class="flex flex-col space-y-1">
-                        <label class="text-sm text-gray-600">设备组织名称</label>
+                        <label class="text-[13px] text-slate-500">设备组织名称</label>
                         <input type="text" placeholder="如: 保卫处"
-                            class="w-full h-8 px-3 border border-gray-300 rounded focus:border-primary outline-none text-sm">
+                            class="w-full h-9 px-3 border border-slate-300 rounded focus:border-primary outline-none text-[13px] hover:border-primary/50 transition">
                     </div>
                     <div class="flex flex-col space-y-1">
-                        <label class="text-sm text-gray-600">设备名称 / ID</label>
+                        <label class="text-[13px] text-slate-500">设备名称 / ID</label>
                         <input type="text" placeholder="输入名称或ID"
-                            class="w-full h-8 px-3 border border-gray-300 rounded focus:border-primary outline-none text-sm">
+                            class="w-full h-9 px-3 border border-slate-300 rounded focus:border-primary outline-none text-[13px] hover:border-primary/50 transition">
                     </div>
                     <div class="flex flex-col space-y-1">
-                        <label class="text-sm text-gray-600">开放状态</label>
+                        <label class="text-[13px] text-slate-500">开放状态</label>
                         <select
-                            class="w-full h-8 px-3 border border-gray-300 rounded focus:border-primary outline-none text-sm">
+                            class="w-full h-9 px-3 border border-slate-300 rounded focus:border-primary outline-none text-[13px] hover:border-primary/50 transition bg-white">
                             <option value="">全部</option>
                             <option value="enabled">启用</option>
                             <option value="disabled">停用</option>
@@ -114,101 +110,105 @@
                     </div>
                     <div class="flex items-end justify-end space-x-2">
                         <button type="button"
-                            class="px-4 py-1.5 border border-gray-300 text-gray-700 rounded text-sm hover:border-primary transition-colors">重置</button>
+                            class="px-4 py-1.5 border border-slate-300 text-slate-600 rounded text-[13px] hover:border-primary hover:text-primary transition-colors bg-white">重置</button>
                         <button type="button"
-                            class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-sm hover:bg-primary-hover transition-colors">查询</button>
+                            class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-[13px] hover:bg-primary-hover transition-colors shadow-sm">查询</button>
                     </div>
                 </form>
             </div>
 
             <!-- 列表区 -->
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <div class="flex space-x-2 mb-4">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100 flex space-x-2">
                     <button
-                        class="px-4 py-1.5 border border-gray-300 text-gray-800 rounded text-sm hover:border-primary hover:text-primary transition-colors flex items-center"
+                        class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded text-[13px] hover:border-primary hover:text-primary transition-colors flex items-center bg-white shadow-sm"
                         onclick="batchAction('启用')">
-                        <i class="ph ph-play-circle mr-1"></i> 批量启用
+                        <i class="ph ph-play-circle mr-1.5"></i> 批量启用
                     </button>
                     <button
-                        class="px-4 py-1.5 border border-gray-300 text-gray-800 rounded text-sm hover:border-error hover:text-error transition-colors flex items-center"
+                        class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded text-[13px] hover:border-error hover:text-error transition-colors flex items-center bg-white shadow-sm"
                         onclick="batchAction('停用')">
-                        <i class="ph ph-stop-circle mr-1"></i> 批量停用
+                        <i class="ph ph-stop-circle mr-1.5"></i> 批量停用
                     </button>
                 </div>
 
-                <div class="overflow-x-auto border border-gray-200 rounded">
-                    <table class="w-full text-left text-sm whitespace-nowrap">
-                        <thead class="bg-slate border-b border-gray-200 text-gray-700">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-[13px] whitespace-nowrap">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-500">
                             <tr>
-                                <th class="p-3 w-10 text-center"><input type="checkbox" id="selectAll"
-                                        class="rounded border-gray-300 text-primary cursor-pointer"></th>
-                                <th class="p-3 font-medium">设备组织名称</th>
-                                <th class="p-3 font-medium">设备 ID / 名称</th>
-                                <th class="p-3 font-medium">所属产品</th>
-                                <th class="p-3 font-medium">设备类型</th>
-                                <th class="p-3 font-medium">开放状态</th>
-                                <th class="p-3 font-medium">更新时间</th>
+                                <th class="py-3 px-4 w-10 text-center"><input type="checkbox" id="selectAll"
+                                        class="rounded border-slate-300 text-primary cursor-pointer focus:ring-0"></th>
+                                <th class="py-3 px-4 font-medium">设备组织名称</th>
+                                <th class="py-3 px-4 font-medium">设备 ID / 名称</th>
+                                <th class="py-3 px-4 font-medium">所属产品</th>
+                                <th class="py-3 px-4 font-medium">设备类型</th>
+                                <th class="py-3 px-4 font-medium">开放状态</th>
+                                <th class="py-3 px-4 font-medium">更新时间</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200" id="tableBody">
-                            <tr class="hover:bg-blue-50/50">
-                                <td class="p-3 text-center"><input type="checkbox"
-                                        class="row-checkbox rounded border-gray-300 text-primary"></td>
-                                <td class="p-3 text-gray-800">浙江金华理工学院 / 保卫处</td>
-                                <td class="p-3">
-                                    <div class="font-medium text-gray-800">C2023-Cam-01</div>
-                                    <div class="text-gray-500 text-xs mt-0.5">主校区南门摄像头</div>
+                        <tbody class="text-slate-700" id="tableBody">
+                            <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <td class="py-3 px-4 text-center"><input type="checkbox"
+                                        class="row-checkbox rounded border-slate-300 text-primary cursor-pointer focus:ring-0"></td>
+                                <td class="py-3 px-4 text-slate-800">浙江金华理工学院 / 保卫处</td>
+                                <td class="py-3 px-4">
+                                    <div class="font-medium text-slate-800">C2023-Cam-01</div>
+                                    <div class="text-slate-500 text-xs mt-0.5">主校区南门摄像头</div>
                                 </td>
-                                <td class="p-3">智能安防摄像头</td>
-                                <td class="p-3">直连设备</td>
-                                <td class="p-3">
+                                <td class="py-3 px-4">智能安防摄像头</td>
+                                <td class="py-3 px-4">直连设备</td>
+                                <td class="py-3 px-4">
                                     <!-- Toggle -->
                                     <div
-                                        class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                        class="relative inline-block w-9 mr-2 align-middle select-none transition duration-200 ease-in">
                                         <input type="checkbox" name="toggle" id="toggle1"
-                                            class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                            class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 appearance-none cursor-pointer top-0.5 left-0.5"
                                             checked onclick="handleToggle(this, '主校区南门摄像头')" />
                                         <label for="toggle1"
-                                            class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                                            class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 cursor-pointer"></label>
                                     </div>
-                                    <span class="text-sm font-medium text-primary ml-1" id="status-toggle1">启用</span>
+                                    <span class="text-[13px] font-medium text-primary ml-1" id="status-toggle1">启用</span>
                                 </td>
-                                <td class="p-3 text-gray-600">2026-03-08 10:30:00</td>
+                                <td class="py-3 px-4 text-slate-500">2026-03-08 10:30:00</td>
                             </tr>
-                            <tr class="hover:bg-blue-50/50">
-                                <td class="p-3 text-center"><input type="checkbox"
-                                        class="row-checkbox rounded border-gray-300 text-primary"></td>
-                                <td class="p-3 text-gray-800">--</td>
-                                <td class="p-3">
-                                    <div class="font-medium text-gray-800">ENV-00129</div>
-                                    <div class="text-gray-500 text-xs mt-0.5">实验楼空气监测站</div>
+                            <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <td class="py-3 px-4 text-center"><input type="checkbox"
+                                        class="row-checkbox rounded border-slate-300 text-primary cursor-pointer focus:ring-0"></td>
+                                <td class="py-3 px-4 text-slate-800">--</td>
+                                <td class="py-3 px-4">
+                                    <div class="font-medium text-slate-800">ENV-00129</div>
+                                    <div class="text-slate-500 text-xs mt-0.5">实验楼空气监测站</div>
                                 </td>
-                                <td class="p-3">空气质量微站</td>
-                                <td class="p-3">网关子设备</td>
-                                <td class="p-3">
+                                <td class="py-3 px-4">空气质量微站</td>
+                                <td class="py-3 px-4">网关子设备</td>
+                                <td class="py-3 px-4">
                                     <div
-                                        class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                        class="relative inline-block w-9 mr-2 align-middle select-none transition duration-200 ease-in">
                                         <input type="checkbox" name="toggle" id="toggle2"
-                                            class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                            class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 appearance-none cursor-pointer top-0.5 left-0.5"
                                             onclick="handleToggle(this, '实验楼空气监测站')" />
                                         <label for="toggle2"
-                                            class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                                            class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-300 cursor-pointer"></label>
                                     </div>
-                                    <span class="text-sm font-medium text-gray-400 ml-1" id="status-toggle2">停用</span>
+                                    <span class="text-[13px] font-medium text-slate-400 ml-1" id="status-toggle2">停用</span>
                                 </td>
-                                <td class="p-3 text-gray-600">2026-03-07 14:20:11</td>
+                                <td class="py-3 px-4 text-slate-500">2026-03-07 14:20:11</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-
-                <!-- 分页 -->
-                <div class="flex justify-between items-center mt-4 text-sm text-gray-500">
-                    <div>共 <span class="text-gray-800 font-medium">128</span> 条记录</div>
-                    <div class="flex items-center space-x-2">
-                        <button class="px-2.5 py-1 border border-primary bg-primary text-white rounded">1</button>
-                        <button
-                            class="px-2.5 py-1 border border-gray-300 rounded bg-white hover:border-primary text-gray-700">2</button>
+                <!-- Pagination -->
+                <div class="px-4 py-3 border-t border-slate-100 flex items-center justify-between bg-white">
+                    <div class="text-[13px] text-slate-500">共 2 条记录</div>
+                    <div class="flex items-center gap-2">
+                        <button class="px-2 py-1 border border-slate-200 rounded text-[12px] text-slate-500 hover:bg-slate-50 disabled:opacity-50" disabled><i class="ph ph-caret-left"></i></button>
+                        <button class="px-2 py-1 bg-primary text-white border border-primary rounded text-[12px]">1</button>
+                        <button class="px-2 py-1 border border-slate-200 rounded text-[12px] text-slate-500 hover:bg-slate-50 disabled:opacity-50" disabled><i class="ph ph-caret-right"></i></button>
+                        <select class="border border-slate-200 rounded text-[12px] text-slate-500 py-1 px-1 outline-none bg-white">
+                            <option>10 条/页</option>
+                            <option>20 条/页</option>
+                            <option>50 条/页</option>
+                        </select>
                     </div>
                 </div>
             </div>

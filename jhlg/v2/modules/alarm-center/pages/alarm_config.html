@@ -177,70 +177,41 @@
             <!-- Dashboard Content Scrollable Area -->
             <div class="flex-1 overflow-y-auto p-5 relative custom-scrollbar">
                 <div class="max-w-[1600px] mx-auto">
-                    <section class="mb-4 flex items-center justify-between">
-                        <div>
-                            <p class="text-[13px] text-slate-500">
-                                定义规则和触发条件等告警配置能力。
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <button type="button" onclick="showToast('新增告警配置沿用现有实现，本原型不展开表单明细')"
-                                class="rounded bg-brand px-4 py-2 text-[13px] text-white hover:bg-brandHover transition">
-                                <i class="fa-solid fa-plus mr-1.5"></i>新增告警配置
-                            </button>
-                        </div>
-                    </section>
 
-                    <section class="mb-4 grid grid-cols-4 gap-4">
-                        <div
-                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
-                            <div class="text-[13px] text-slate-500">生效中规则</div>
-                            <div class="mt-2 text-[28px] font-bold text-slate-800 leading-tight">69</div>
-                            <div class="mt-1 text-[12px] text-slate-400">正常参与告警生成</div>
-                        </div>
-                        <div
-                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
-                            <div class="text-[13px] text-slate-500">禁用规则</div>
-                            <div class="mt-2 text-[28px] font-bold text-slate-800 leading-tight">12</div>
-                            <div class="mt-1 text-[12px] text-slate-400">不再生成新告警</div>
-                        </div>
-                        <div
-                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
-                            <div class="text-[13px] text-slate-500">已绑定工作流</div>
-                            <div class="mt-2 text-[28px] font-bold text-brand leading-tight">75</div>
-                            <div class="mt-1 text-[12px] text-slate-400">按类型 + 级别统一匹配</div>
-                        </div>
-                        <div
-                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
-                            <div class="text-[13px] text-slate-500">待补充工作流</div>
-                            <div class="mt-2 text-[28px] font-bold text-warning leading-tight">6</div>
-                            <div class="mt-1 text-[12px] text-slate-400">触发后将进入待分派处置单</div>
-                        </div>
-                    </section>
+
+
 
                     <section class="rounded-xl bg-white p-5 shadow-sm border border-slate-100">
-                        <div class="mb-4 flex flex-wrap items-center gap-3">
-                            <input id="keyword" type="text" placeholder="搜索规则名称 / 场景"
-                                class="w-64 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
-                            <select id="type"
-                                class="w-40 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
-                                <option value="">全部告警类型</option>
-                                <option value="设备状态告警">设备状态告警</option>
-                                <option value="设备事件告警">设备事件告警</option>
-                                <option value="感知数据告警">感知数据告警</option>
-                            </select>
-                            <select id="level"
-                                class="w-40 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
-                                <option value="">全部告警级别</option>
-                                <option value="特别重大">特别重大</option>
-                                <option value="重大">重大</option>
-                                <option value="较大">较大</option>
-                                <option value="一般">一般</option>
-                            </select>
-                            <button type="button" onclick="renderTable()"
-                                class="rounded bg-brand px-4 py-1.5 text-[13px] text-white hover:bg-brandHover transition">查询</button>
-                            <button type="button" onclick="resetFilter()"
-                                class="rounded border border-slate-300 px-4 py-1.5 text-[13px] text-slate-600 hover:border-brand hover:text-brand transition">重置</button>
+                        <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex flex-wrap items-center gap-3">
+                                <input id="keyword" type="text" placeholder="搜索规则名称 / 场景"
+                                    class="w-64 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                <select id="type"
+                                    class="w-40 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                    <option value="">全部告警类型</option>
+                                    <option value="设备状态告警">设备状态告警</option>
+                                    <option value="设备事件告警">设备事件告警</option>
+                                    <option value="感知数据告警">感知数据告警</option>
+                                </select>
+                                <select id="level"
+                                    class="w-40 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                    <option value="">全部告警级别</option>
+                                    <option value="特别重大">特别重大</option>
+                                    <option value="重大">重大</option>
+                                    <option value="较大">较大</option>
+                                    <option value="一般">一般</option>
+                                </select>
+                                <button type="button" onclick="renderTable()"
+                                    class="rounded bg-brand px-4 py-1.5 text-[13px] text-white hover:bg-brandHover transition">查询</button>
+                                <button type="button" onclick="resetFilter()"
+                                    class="rounded border border-slate-300 px-4 py-1.5 text-[13px] text-slate-600 hover:border-brand hover:text-brand transition">重置</button>
+                            </div>
+                            <div>
+                                <button type="button" onclick="showToast('新增告警配置沿用现有实现，本原型不展开表单明细')"
+                                    class="rounded bg-brand px-4 py-2 text-[13px] text-white hover:bg-brandHover transition">
+                                    <i class="fa-solid fa-plus mr-1.5"></i>新增告警配置
+                                </button>
+                            </div>
                         </div>
 
                         <div class="overflow-hidden border border-slate-200">

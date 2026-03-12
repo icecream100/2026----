@@ -160,14 +160,6 @@
                         style="padding: 12px; border: 1px dashed #ccc; border-radius: 6px; background: #f8fafc;">
                         <label class="input-label" style="font-weight: 600;"><span style="color:red">*</span>
                             数据范围</label>
-                        <div style="margin-bottom: 12px;">
-                            <label style="margin-right: 16px;">
-                                <input type="radio" name="scopeType" onchange="toggleScope('device')" checked> 按设备选择
-                            </label>
-                            <label>
-                                <input type="radio" name="scopeType" onchange="toggleScope('tag')"> 按标签选择
-                            </label>
-                        </div>
 
                         <!-- Device Transfer Panel (Hybrid Mode) -->
                         <div id="deviceScope" style="display: flex; gap: 12px;">
@@ -266,30 +258,6 @@
                                         style="text-align: center; padding: 40px 20px; color: #999; font-size: 13px;">
                                         请从左侧列表选择设备
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tag Select Placeholder -->
-                        <div id="tagScope" style="display: none;">
-                            <select class="glass-input" style="width: 100%;">
-                                <option>请选择标签...</option>
-                                <option>行政楼</option>
-                                <option>宿舍楼</option>
-                                <option>教学楼</option>
-                            </select>
-                            <div style="margin-top: 10px; border-top: 1px dashed #eee; padding-top: 8px;">
-                                <label
-                                    style="font-size: 12px; color: #666; display: block; margin-bottom: 6px;">授权模式</label>
-                                <div style="display: flex; gap: 16px;">
-                                    <label style="font-size: 13px; display: flex; align-items: center; gap: 4px;">
-                                        <input type="radio" name="authMode" value="dynamic" checked> 动态授权
-                                        <span style="color: #999; font-size: 12px;">(自动涵盖新增)</span>
-                                    </label>
-                                    <label style="font-size: 13px; display: flex; align-items: center; gap: 4px;">
-                                        <input type="radio" name="authMode" value="snapshot"> 快照授权
-                                        <span style="color: #999; font-size: 12px;">(固定当前)</span>
-                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -442,16 +410,6 @@
 
         function closeRequestModal() {
             document.getElementById('requestModal').classList.remove('active');
-        }
-
-        function toggleScope(type) {
-            if (type === 'device') {
-                document.getElementById('deviceScope').style.display = 'flex';
-                document.getElementById('tagScope').style.display = 'none';
-            } else {
-                document.getElementById('deviceScope').style.display = 'none';
-                document.getElementById('tagScope').style.display = 'block';
-            }
         }
 
         function toggleDevice(element, deviceName) {

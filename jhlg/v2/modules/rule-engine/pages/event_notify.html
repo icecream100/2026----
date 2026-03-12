@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1440">
@@ -10,273 +9,309 @@
     <script>
         tailwind.config = {
             theme: {
-                extend: { colors: { brand: '#2f5ee5', navy: '#0b162a' }, boxShadow: { card: '0 2px 8px rgba(0, 0, 0, 0.04)' } }
+                extend: {
+                    fontFamily: { sans: ['"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'] },
+                    colors: { brand: '#2f5ee5', navy: '#0b162a', danger: '#e83b3b', warning: '#fdb51c', success: '#3cc664' }
+                }
             }
         };
     </script>
     <style>
-        body {
-            background-color: #f0f2f5;
-            min-width: 1440px;
-        }
-
-        .submenu-item.active {
-            background-color: #2f5ee5;
-            color: white;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 36px;
-            height: 20px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 20px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: #2f5ee5;
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(16px);
-        }
+        body { background-color: #f0f2f5; min-width: 1440px; }
+        .submenu-item.active { background-color: #2f5ee5; color: white; }
     </style>
 </head>
-
 <body class="font-sans text-slate-800 antialiased overflow-hidden h-screen flex flex-col">
-
-    <header
-        class="h-[60px] bg-brand text-white flex items-center justify-between px-6 shrink-0 z-50 fixed w-full top-0">
+    <header class="h-[60px] bg-brand text-white flex items-center justify-between px-6 shrink-0 z-50 fixed w-full top-0">
         <div class="flex items-center gap-6">
             <div class="text-[17px] font-medium tracking-wide">物联网管理服务系统</div>
-            <button class="text-xl hover:bg-white/10 p-2 rounded ml-8"><i class="fa-solid fa-outdent"></i></button>
+            <button class="text-xl hover:bg-white/10 p-2 rounded transition ml-8"><i class="fa-solid fa-outdent"></i></button>
         </div>
-        <div class="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1 rounded">
-            <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs"><i
-                    class="fa-solid fa-user"></i></div>
-            <span class="text-sm">业务管理员</span>
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1 rounded transition">
+                <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs"><i class="fa-solid fa-user"></i></div>
+                <span class="text-sm">业务管理员</span>
+            </div>
         </div>
     </header>
 
     <div class="flex flex-1 pt-[60px] h-full">
-        <!-- Sidebar -->
-        <aside class="w-[200px] h-full bg-navy flex-shrink-0 text-slate-300 overflow-y-auto border-r border-[#1a253a]">
+        <aside class="w-[200px] h-full bg-navy flex-shrink-0 text-slate-300 overflow-y-auto overflow-x-hidden border-r border-[#1a253a]">
             <nav class="py-2 text-[14px]">
-                <div class="bg-black/20 pb-1 mt-2">
-                    <div class="px-5 py-2 text-xs text-slate-500 font-medium">规则编排</div>
-                    <a href="../index.html" class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
-                            class="fa-solid fa-database absolute left-6 opacity-70"></i> <span>感知报文存储</span></a>
-                    <a href="data_upload.html" class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
-                            class="fa-solid fa-cloud-arrow-up absolute left-6 opacity-70"></i> <span>数据上报</span></a>
-                    <a href="data_receive.html"
-                        class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
-                            class="fa-solid fa-cloud-arrow-down absolute left-6 opacity-70"></i> <span>下发数据接收</span></a>
-                    <a href="protocol_api.html"
-                        class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
-                            class="fa-solid fa-layer-group absolute left-6 opacity-70"></i> <span>协议解析二次接口</span></a>
-                    <a href="alarm_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
-                            class="fa-solid fa-triangle-exclamation absolute left-6 opacity-70"></i>
-                        <span>异常告警二开接口</span></a>
-                    <a href="catalog_publish.html"
-                        class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
-                            class="fa-solid fa-book-open absolute left-6 opacity-70"></i> <span>目录发布</span></a>
-
-                    <div class="px-5 py-2 text-xs text-slate-500 font-medium mt-1">场景联动</div>
-                    <a href="event_type.html" class="flex items-center pl-[46px] pr-5 py-2.5 hover:text-white block"><i
-                            class="fa-solid fa-tags absolute left-6 opacity-70"></i> <span>事件类型管理</span></a>
-                    <a href="event_notify.html"
-                        class="submenu-item active flex items-center pl-[46px] pr-5 py-3 text-white block"><i
-                            class="fa-solid fa-comment-dots absolute left-6 opacity-70"></i> <span>事件通知管理</span></a>
+                <div>
+                    <div class="menu-item flex items-center justify-between px-5 py-3.5 cursor-pointer text-white">
+                        <div class="flex items-center gap-3"><i class="fa-solid fa-code-branch w-4"></i><span>规则引擎</span></div>
+                        <i class="fa-solid fa-caret-up text-[10px]"></i>
+                    </div>
+                    <div class="bg-black/20 pb-1">
+                        <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider">规则编排</div>
+                        <a href="../index.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-list w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>规则编排列表</span>
+                        </a>
+                        <a href="protocol_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-layer-group w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>协议解析二次接口</span>
+                        </a>
+                        <a href="alarm_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-triangle-exclamation w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>异常告警二开接口</span>
+                        </a>
+                        <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider mt-1">场景联动</div>
+                        <a href="event_level.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-layer-group w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>事件等级管理</span>
+                        </a>
+                        <a href="event_type.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-tags w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>事件类型管理</span>
+                        </a>
+                        <a href="event_rule.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-diagram-project w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>事件规则管理</span>
+                        </a>
+                        <a href="event_notify.html" class="submenu-item active flex items-center pl-[46px] pr-5 py-3 cursor-pointer text-[13px] relative block">
+                            <i class="fa-solid fa-comment-dots w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>事件通知管理</span>
+                        </a>
+                    </div>
                 </div>
             </nav>
         </aside>
 
-        <!-- Main Content -->
         <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#f0f2f5]">
             <div class="h-12 flex items-center px-6 bg-white border-b border-slate-200 text-sm text-slate-500 shrink-0">
-                <span class="text-slate-800 font-medium">事件通知管理</span>
+                <span>规则引擎</span> <span class="mx-2 text-slate-300">/</span> <span>场景联动</span> <span class="mx-2 text-slate-300">/</span> <span class="text-slate-800 font-medium">事件通知管理</span>
             </div>
 
             <div class="flex-1 overflow-y-auto p-5">
-                <!-- Search Panel (with 事件通知查询 fields) -->
-                <div class="bg-white p-5 rounded shadow-card mb-4 min-w-[1000px]">
-                    <div class="grid grid-cols-5 gap-6">
-                        <div class="flex items-center gap-2"><label
-                                class="text-[13px] text-slate-600 shrink-0">关键字</label><input type="text"
-                                placeholder="通知名称" class="border rounded px-2 w-full text-[13px] py-1"></div>
-                        <div class="flex items-center gap-2"><label
-                                class="text-[13px] text-slate-600 shrink-0">事件类型</label><input type="text"
-                                placeholder="类型代码或名称" class="border rounded px-2 w-full text-[13px] py-1"></div>
-                        <div class="flex items-center gap-2"><label
-                                class="text-[13px] text-slate-600 shrink-0">通知方式</label><select
-                                class="border rounded px-2 w-full text-[13px] py-1 bg-white">
-                                <option>全部</option>
-                                <option>平台消息</option>
-                                <option>短信</option>
-                                <option>邮件</option>
-                            </select></div>
-                        <div class="flex items-center gap-2"><label
-                                class="text-[13px] text-slate-600 shrink-0">状态</label><select
-                                class="border rounded px-2 w-full text-[13px] py-1 bg-white">
-                                <option>全部</option>
-                                <option>启用</option>
-                                <option>停用</option>
-                            </select></div>
-                        <div class="flex justify-end gap-3 w-full"><button
-                                class="px-4 py-1.5 bg-brand text-white text-[13px] rounded">查询</button></div>
+                <!-- 查询区（事件通知查询功能） -->
+                <div class="bg-white p-5 rounded shadow-[0_2px_8px_rgba(0,0,0,0.04)] mb-4 min-w-[1000px]">
+                    <div class="grid grid-cols-5 gap-4">
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-24 text-right">标题/关键字</label>
+                            <input type="text" placeholder="输入关键字" class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right">事件类型</label>
+                            <select class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
+                                <option value="">全部</option>
+                                <option value="TYPE_001">设备离线</option>
+                                <option value="TYPE_002">网络异常</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right">通知方式</label>
+                            <select class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
+                                <option value="">全部</option>
+                                <option value="sms">短信</option>
+                                <option value="email">邮件</option>
+                                <option value="platform">平台消息</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right">发送状态</label>
+                            <select class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
+                                <option value="">全部</option>
+                                <option value="success">成功</option>
+                                <option value="failed">失败</option>
+                                <option value="sending">发送中</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right">发送来源</label>
+                            <select class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
+                                <option value="">全部</option>
+                                <option value="rule">规则触发</option>
+                                <option value="manual">手动发送</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-3 mt-4">
+                        <button class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:border-brand">重置</button>
+                        <button class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90">查询</button>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded shadow-card min-w-[1000px]">
+                <!-- 通知记录列表 -->
+                <div class="bg-white p-5 rounded shadow-[0_2px_8px_rgba(0,0,0,0.04)] min-w-[1000px]">
                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-[15px] font-bold">通知规则列表</h2>
-                        <button onclick="openModal()" class="px-4 py-1.5 bg-brand text-white text-[13px] rounded"><i
-                                class="fa-solid fa-plus mr-1"></i>新增通知</button>
+                        <h2 class="text-[15px] font-bold text-slate-800">通知记录列表</h2>
+                        <div class="flex gap-3">
+                            <button onclick="openManualModal()" class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90 flex items-center gap-2">
+                                <i class="fa-solid fa-paper-plane text-xs"></i> 手动发送
+                            </button>
+                            <button class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:border-brand flex items-center gap-2">
+                                <i class="fa-solid fa-download text-xs"></i> 导出
+                            </button>
+                        </div>
                     </div>
 
-                    <table class="w-full text-left border-collapse border border-slate-200">
-                        <thead class="bg-slate-50 text-[13px] text-slate-500 border-b border-slate-200">
-                            <tr>
-                                <th class="py-3 px-4 font-medium">通知名称</th>
-                                <th class="py-3 px-4 font-medium">事件类型联动</th>
-                                <th class="py-3 px-4 font-medium">通知方式</th>
-                                <th class="py-3 px-4 font-medium">接收者</th>
-                                <th class="py-3 px-4 font-medium min-w-[100px]">状态</th>
-                                <th class="py-3 px-4 font-medium">更新时间</th>
-                                <th class="py-3 px-4 w-[120px]">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-[13px] text-slate-700">
-                            <tr class="border-b">
-                                <td class="py-3 px-4 font-bold text-slate-800">紧急火警短信通报</td>
-                                <td class="py-3 px-4"><span
-                                        class="bg-slate-100 px-2 py-0.5 rounded text-xs text-slate-600">EVT-FIRE-01</span>
-                                    火警报警</td>
-                                <td class="py-3 px-4"><span
-                                        class="text-[12px] bg-blue-50 text-brand px-2 py-0.5 rounded border border-blue-100">短信</span>
-                                    <span
-                                        class="text-[12px] bg-blue-50 text-brand px-2 py-0.5 rounded border border-blue-100">平台消息</span>
-                                </td>
-                                <td class="py-3 px-4">安保部门, 消防站分管队长</td>
-                                <td class="py-3 px-4"><label class="switch"><input type="checkbox" checked><span
-                                            class="slider"></span></label></td>
-                                <td class="py-3 px-4 text-slate-400">03-07 11:20</td>
-                                <td class="py-3 px-4">
-                                    <button class="text-brand mr-2" onclick="openModal()">编辑</button>
-                                    <button class="text-red-500" onclick="alert('请先停用该规则后再删除')">删除</button>
-                                </td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="py-3 px-4 font-bold text-slate-800">离线设备邮件周报预警</td>
-                                <td class="py-3 px-4"><span
-                                        class="bg-slate-100 px-2 py-0.5 rounded text-xs text-slate-600">EVT-SYS-05</span>
-                                    设备离线</td>
-                                <td class="py-3 px-4"><span
-                                        class="text-[12px] bg-blue-50 text-brand px-2 py-0.5 rounded border border-blue-100">邮件</span>
-                                </td>
-                                <td class="py-3 px-4">运维主管 (sysadmin)</td>
-                                <td class="py-3 px-4"><label class="switch opacity-60"><input type="checkbox"><span
-                                            class="slider"></span></label></td>
-                                <td class="py-3 px-4 text-slate-400">03-07 10:00</td>
-                                <td class="py-3 px-4">
-                                    <button class="text-brand mr-2" onclick="openModal()">编辑</button>
-                                    <button class="text-red-500" onclick="confirm('该规则已停用，确认删除？')">删除</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="border border-slate-200 rounded overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-[13px] text-slate-500 border-b border-slate-200">
+                                    <th class="py-3 px-4 font-medium">通知标题</th>
+                                    <th class="py-3 px-4 font-medium">事件类型</th>
+                                    <th class="py-3 px-4 font-medium">等级</th>
+                                    <th class="py-3 px-4 font-medium">来源规则</th>
+                                    <th class="py-3 px-4 font-medium">发送来源</th>
+                                    <th class="py-3 px-4 font-medium">通知方式</th>
+                                    <th class="py-3 px-4 font-medium">接收者</th>
+                                    <th class="py-3 px-4 font-medium">发送状态</th>
+                                    <th class="py-3 px-4 font-medium">发送时间</th>
+                                    <th class="py-3 px-4 font-medium">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-[13px] text-slate-700">
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="py-3 px-4 text-slate-800">设备离线告警通知</td>
+                                    <td class="py-3 px-4">设备离线</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-orange-50 text-orange-600 rounded text-xs">重大</span></td>
+                                    <td class="py-3 px-4 text-slate-500">设备离线自动告警</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs">规则触发</span></td>
+                                    <td class="py-3 px-4">短信</td>
+                                    <td class="py-3 px-4 text-slate-500">张三、李四</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-green-50 text-green-600 rounded text-xs">成功</span></td>
+                                    <td class="py-3 px-4 text-slate-500">2024-03-12 16:45</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openDetailModal()" class="text-brand hover:underline mr-3">查看详情</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="py-3 px-4 text-slate-800">网络异常预警通知</td>
+                                    <td class="py-3 px-4">网络异常</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-yellow-50 text-yellow-600 rounded text-xs">较大</span></td>
+                                    <td class="py-3 px-4 text-slate-500">网络异常预警</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs">规则触发</span></td>
+                                    <td class="py-3 px-4">邮件</td>
+                                    <td class="py-3 px-4 text-slate-500">运维邮箱组</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-red-50 text-red-600 rounded text-xs">失败</span></td>
+                                    <td class="py-3 px-4 text-slate-500">2024-03-12 16:40</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openDetailModal()" class="text-brand hover:underline mr-3">查看详情</button>
+                                        <button class="text-orange-500 hover:underline">重发</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="py-3 px-4 text-slate-800">系统维护通知</td>
+                                    <td class="py-3 px-4">系统维护</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-green-50 text-green-600 rounded text-xs">一般</span></td>
+                                    <td class="py-3 px-4 text-slate-400">-</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-50 text-purple-600 rounded text-xs">手动发送</span></td>
+                                    <td class="py-3 px-4">平台消息</td>
+                                    <td class="py-3 px-4 text-slate-500">平台运维群</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-green-50 text-green-600 rounded text-xs">成功</span></td>
+                                    <td class="py-3 px-4 text-slate-500">2024-03-12 16:30</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openDetailModal()" class="text-brand hover:underline mr-3">查看详情</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex justify-between items-center mt-4 text-[13px] text-slate-600">
+                        <div>共 3 条记录</div>
+                        <div class="flex items-center gap-2">
+                            <button class="px-3 py-1 border border-slate-200 rounded hover:border-brand disabled:opacity-50" disabled>上一页</button>
+                            <span class="px-3 py-1 bg-brand text-white rounded">1</span>
+                            <button class="px-3 py-1 border border-slate-200 rounded hover:border-brand disabled:opacity-50" disabled>下一页</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Edit/Add Form Modal -->
-    <div id="modal" class="fixed inset-0 bg-black/40 z-[60] hidden flex items-center justify-center">
-        <div class="bg-white rounded shadow-xl w-[640px] max-h-[90vh] flex flex-col">
-            <div class="p-4 border-b font-bold flex justify-between shrink-0">事件通知配置<button onclick="closeModal()"><i
-                        class="fa-solid fa-xmark"></i></button></div>
-            <div class="p-4 overflow-y-auto w-full text-[13px] space-y-4">
-                <div><label class="block mb-1">通知名称 (*)</label><input type="text" class="w-full border rounded p-1.5">
-                </div>
-
-                <div>
-                    <label class="block mb-1">关联事件类型 (*)</label>
-                    <select class="w-full border rounded p-1.5 bg-white">
-                        <option>选择事件类型...</option>
-                        <option>EVT-FIRE-01 - 火警报警</option>
-                        <option>EVT-SYS-05 - 设备离线</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block mb-1">触发条件 (*) JSON表达式</label>
-                    <textarea
-                        class="w-full border rounded p-1.5 h-20 font-mono text-slate-500">{"operator": "AND", "conditions": []}</textarea>
-                </div>
-
-                <div>
-                    <label class="block mb-1">通知方式 (* 至少选一项)</label>
-                    <div class="flex gap-4">
-                        <label><input type="checkbox" checked> 平台消息</label>
-                        <label><input type="checkbox"> 短信</label>
-                        <label><input type="checkbox"> 邮件</label>
-                        <label><input type="checkbox"> 第三方推送</label>
+    <!-- 手动发送通知 Modal -->
+    <div id="manualModal" class="fixed inset-0 bg-black/40 z-[60] hidden flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-xl w-[640px] flex flex-col max-h-[90vh]">
+            <div class="h-12 border-b border-slate-100 flex items-center justify-between px-6 bg-slate-50">
+                <h3 class="text-[15px] font-bold text-slate-800">手动发送通知</h3>
+                <button onclick="closeManualModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="space-y-4">
+                    <div class="flex items-start gap-3">
+                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 通知标题</label>
+                        <input type="text" placeholder="请输入通知标题" class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 事件类型</label>
+                        <select class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                            <option value="">请选择事件类型</option>
+                            <option value="TYPE_001">设备离线（重大 / 橙色）</option>
+                            <option value="TYPE_002">网络异常（较大 / 黄色）</option>
+                            <option value="TYPE_003">数据异常（一般 / 绿色）</option>
+                        </select>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 通知方式</label>
+                        <select class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                            <option value="">请选择通知方式</option>
+                            <option value="sms">短信</option>
+                            <option value="email">邮件</option>
+                            <option value="platform">平台消息</option>
+                        </select>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 接收对象</label>
+                        <input type="text" placeholder="选择接收人或部门" class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 通知内容</label>
+                        <textarea placeholder="请输入通知内容" rows="4" class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand resize-none"></textarea>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2">附件或链接</label>
+                        <input type="text" placeholder="可选" class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
                     </div>
                 </div>
-
-                <div>
-                    <label class="block mb-1">接收者 (*)</label>
-                    <input type="text" placeholder="选择部门或人员 (使用逗号分隔或弹窗选择)" class="w-full border rounded p-1.5">
-                </div>
-
-                <div>
-                    <label class="block mb-1">通知模板内容 (支持变量占位符 ${var})</label>
-                    <textarea
-                        class="w-full border rounded p-1.5 h-20">设备[${deviceName}]发生告警[${eventTypeName}]，接收时间：${timestamp}，请尽快处理。</textarea>
-                </div>
-
-                <div class=""><label class="mr-4">状态 (*)</label><label class="mr-4"><input type="radio" name="st"
-                            checked> 启用</label><label><input type="radio" name="st"> 停用</label></div>
             </div>
-            <div class="p-4 border-t flex justify-end gap-3 bg-slate-50 shrink-0"><button
-                    class="px-4 py-1.5 border rounded bg-white text-slate-600" onclick="closeModal()">取消</button><button
-                    class="px-4 py-1.5 bg-brand text-white rounded" onclick="closeModal()">保存</button></div>
+            <div class="h-14 border-t border-slate-100 flex items-center justify-end gap-3 px-6 bg-slate-50">
+                <button onclick="closeManualModal()" class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:border-brand">取消</button>
+                <button class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看详情 Modal -->
+    <div id="detailModal" class="fixed inset-0 bg-black/40 z-[60] hidden flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-xl w-[700px] flex flex-col max-h-[90vh]">
+            <div class="h-12 border-b border-slate-100 flex items-center justify-between px-6 bg-slate-50">
+                <h3 class="text-[15px] font-bold text-slate-800">通知详情</h3>
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><span class="text-[13px] text-slate-500">通知标题：</span><span class="text-[13px] text-slate-800 font-medium">设备离线告警通知</span></div>
+                        <div><span class="text-[13px] text-slate-500">事件类型：</span><span class="text-[13px] text-slate-800">设备离线</span></div>
+                        <div><span class="text-[13px] text-slate-500">关联等级：</span><span class="px-2 py-0.5 bg-orange-50 text-orange-600 rounded text-xs">重大</span></div>
+                        <div><span class="text-[13px] text-slate-500">来源规则：</span><span class="text-[13px] text-slate-800">设备离线自动告警</span></div>
+                        <div><span class="text-[13px] text-slate-500">发送来源：</span><span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs">规则触发</span></div>
+                        <div><span class="text-[13px] text-slate-500">通知方式：</span><span class="text-[13px] text-slate-800">短信</span></div>
+                        <div><span class="text-[13px] text-slate-500">接收者：</span><span class="text-[13px] text-slate-800">张三、李四</span></div>
+                        <div><span class="text-[13px] text-slate-500">发送状态：</span><span class="px-2 py-0.5 bg-green-50 text-green-600 rounded text-xs">成功</span></div>
+                        <div><span class="text-[13px] text-slate-500">发送时间：</span><span class="text-[13px] text-slate-800">2024-03-12 16:45:30</span></div>
+                        <div><span class="text-[13px] text-slate-500">创建人：</span><span class="text-[13px] text-slate-800">系统</span></div>
+                    </div>
+                    <div class="border-t pt-4">
+                        <div class="text-[13px] text-slate-500 mb-2">通知内容：</div>
+                        <div class="bg-slate-50 p-3 rounded text-[13px] text-slate-700 leading-relaxed">
+                            【设备离线告警】您管理的设备"摄像头-001"已离线超过5分钟，请及时处理。<br>
+                            设备位置：1号楼3层<br>
+                            离线时间：2024-03-12 16:40:00<br>
+                            等级：重大
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="h-14 border-t border-slate-100 flex items-center justify-end gap-3 px-6 bg-slate-50">
+                <button onclick="closeDetailModal()" class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:border-brand">关闭</button>
+            </div>
         </div>
     </div>
 
     <script>
-        function openModal() { document.getElementById('modal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+        function openManualModal() { document.getElementById('manualModal').classList.remove('hidden'); }
+        function closeManualModal() { document.getElementById('manualModal').classList.add('hidden'); }
+        function openDetailModal() { document.getElementById('detailModal').classList.remove('hidden'); }
+        function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); }
     </script>
 </body>
-
 </html>

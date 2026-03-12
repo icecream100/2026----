@@ -181,79 +181,47 @@
             <!-- Dashboard Content Scrollable Area -->
             <div class="flex-1 overflow-y-auto p-5 relative custom-scrollbar">
                 <div class="max-w-[1600px] mx-auto">
-                    <section class="mb-4 flex items-center justify-between">
-                        <div>
-                            <p class="text-[13px] text-slate-500">
-                                工作流按“告警类型 + 告警级别”统一绑定，用于定义告警产生后的优先级、时效、通知方式、责任部门和第三方流转目标。
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <button type="button" onclick="openWorkflowModal()"
-                                class="rounded bg-brand px-4 py-1.5 text-[13px] text-white hover:bg-brandHover transition shadow-sm">
-                                <i class="fa-solid fa-plus mr-1.5"></i>新增工作流
-                            </button>
-                        </div>
-                    </section>
 
-                    <section class="mb-4 grid grid-cols-4 gap-4">
-                        <div
-                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
-                            <div class="text-[13px] text-slate-500">启用中工作流</div>
-                            <div id="enabledCount" class="mt-2 text-[28px] font-bold text-slate-800 leading-tight">0
-                            </div>
-                            <div class="mt-1 text-[12px] text-slate-400">参与新告警自动匹配</div>
-                        </div>
-                        <div
-                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
-                            <div class="text-[13px] text-slate-500">已启用第三方回写</div>
-                            <div id="callbackCount" class="mt-2 text-[28px] font-bold text-brand leading-tight">0</div>
-                            <div class="mt-1 text-[12px] text-slate-400">回写按工单号匹配</div>
-                        </div>
-                        <div
-                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
-                            <div class="text-[13px] text-slate-500">待补足绑定</div>
-                            <div class="mt-2 text-[28px] font-bold text-warning leading-tight">3</div>
-                            <div class="mt-1 text-[12px] text-slate-400">未命中工作流将进入待分派</div>
-                        </div>
-                        <div
-                            class="rounded-xl bg-white p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
-                            <div class="text-[13px] text-slate-500">本期约束</div>
-                            <div
-                                class="mt-2 text-[16px] font-bold text-slate-800 leading-tight flex items-center h-[34px]">
-                                一告警一处置单</div>
-                            <div class="mt-1 text-[12px] text-slate-400">不建设告警合并与人工重试入口</div>
-                        </div>
-                    </section>
+
+
 
                     <section class="rounded-xl bg-white p-5 shadow-sm border border-slate-100">
-                        <div class="mb-4 flex flex-wrap items-center gap-3">
-                            <input id="keyword" type="text" placeholder="搜索工作流名称"
-                                class="w-60 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
-                            <select id="type"
-                                class="w-36 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
-                                <option value="">全部告警类型</option>
-                                <option value="设备状态告警">设备状态告警</option>
-                                <option value="设备事件告警">设备事件告警</option>
-                                <option value="感知数据告警">感知数据告警</option>
-                            </select>
-                            <select id="level"
-                                class="w-36 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
-                                <option value="">全部告警级别</option>
-                                <option value="特别重大">特别重大</option>
-                                <option value="重大">重大</option>
-                                <option value="较大">较大</option>
-                                <option value="一般">一般</option>
-                            </select>
-                            <select id="status"
-                                class="w-36 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
-                                <option value="">全部状态</option>
-                                <option value="启用">启用</option>
-                                <option value="停用">停用</option>
-                            </select>
-                            <button type="button" onclick="renderWorkflows()"
-                                class="rounded bg-brand px-4 py-1.5 text-[13px] text-white hover:bg-brandHover transition">查询</button>
-                            <button type="button" onclick="resetFilter()"
-                                class="rounded border border-slate-300 px-4 py-1.5 text-[13px] text-slate-600 hover:border-brand hover:text-brand transition">重置</button>
+                        <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex flex-wrap items-center gap-3">
+                                <input id="keyword" type="text" placeholder="搜索工作流名称"
+                                    class="w-60 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                <select id="type"
+                                    class="w-36 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                    <option value="">全部告警类型</option>
+                                    <option value="设备状态告警">设备状态告警</option>
+                                    <option value="设备事件告警">设备事件告警</option>
+                                    <option value="感知数据告警">感知数据告警</option>
+                                </select>
+                                <select id="level"
+                                    class="w-36 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                    <option value="">全部告警级别</option>
+                                    <option value="特别重大">特别重大</option>
+                                    <option value="重大">重大</option>
+                                    <option value="较大">较大</option>
+                                    <option value="一般">一般</option>
+                                </select>
+                                <select id="status"
+                                    class="w-36 rounded border border-slate-300 bg-white px-3 py-1.5 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
+                                    <option value="">全部状态</option>
+                                    <option value="启用">启用</option>
+                                    <option value="停用">停用</option>
+                                </select>
+                                <button type="button" onclick="renderWorkflows()"
+                                    class="rounded bg-brand px-4 py-1.5 text-[13px] text-white hover:bg-brandHover transition">查询</button>
+                                <button type="button" onclick="resetFilter()"
+                                    class="rounded border border-slate-300 px-4 py-1.5 text-[13px] text-slate-600 hover:border-brand hover:text-brand transition">重置</button>
+                            </div>
+                            <div>
+                                <button type="button" onclick="openWorkflowModal()"
+                                    class="rounded bg-brand px-4 py-1.5 text-[13px] text-white hover:bg-brandHover transition shadow-sm">
+                                    <i class="fa-solid fa-plus mr-1.5"></i>新增工作流
+                                </button>
+                            </div>
                         </div>
 
                         <div class="overflow-hidden border border-slate-200">
@@ -266,7 +234,6 @@
                                         <th class="px-4 py-3 font-medium border-r border-slate-200">优先级</th>
                                         <th class="px-4 py-3 font-medium border-r border-slate-200">时效</th>
                                         <th class="px-4 py-3 font-medium border-r border-slate-200">责任部门 / 人</th>
-                                        <th class="px-4 py-3 font-medium border-r border-slate-200">第三方回写</th>
                                         <th class="px-4 py-3 font-medium border-r border-slate-200">状态</th>
                                         <th class="px-4 py-3 font-medium w-[180px]">操作</th>
                                     </tr>
@@ -341,31 +308,15 @@
                     class="rounded border border-slate-300 px-3 py-2 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
                 <input id="workflowThird" type="text" placeholder="第三方应用（可选）"
                     class="rounded border border-slate-300 px-3 py-2 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
-                <select id="workflowCallback"
-                    class="rounded border border-slate-300 px-3 py-2 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition bg-white">
-                    <option value="关">第三方回写：关</option>
-                    <option value="开">第三方回写：开</option>
-                </select>
                 <select id="workflowStatus"
                     class="rounded border border-slate-300 px-3 py-2 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition bg-white">
                     <option value="启用">状态：启用</option>
                     <option value="停用">状态：停用</option>
                 </select>
             </div>
-            <div class="mt-4 rounded bg-slate-50 p-4 border border-slate-200">
-                <div class="mb-2 text-[13px] text-slate-500">推送方式</div>
-                <div class="grid grid-cols-4 gap-3 text-[13px] text-slate-700">
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" value="平台消息"
-                            class="channel text-brand focus:ring-brand">平台消息</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" value="短信"
-                            class="channel text-brand focus:ring-brand">短信</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" value="邮件"
-                            class="channel text-brand focus:ring-brand">邮件</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" value="第三方应用"
-                            class="channel text-brand focus:ring-brand">第三方应用</label>
-                </div>
+            <div class="mt-4">
                 <textarea id="workflowRemark" rows="2" placeholder="备注信息（选填）"
-                    class="mt-3 w-full rounded border border-slate-300 px-3 py-2 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition"></textarea>
+                    class="w-full rounded border border-slate-300 px-3 py-2 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition"></textarea>
             </div>
             <div class="mt-6 flex justify-end gap-2">
                 <button type="button" onclick="closeWorkflowModal()"
@@ -378,11 +329,11 @@
 
     <script>
         const workflows = [
-            { id: 1, name: '主站配电故障-特别重大流程', type: '设备状态告警', level: '特别重大', priority: 'P1', sla: 5, dept: '供配电运维组', user: '刘晓东', third: '供配电工单平台', callback: '开', channels: ['平台消息', '短信', '第三方应用'], status: '启用', remark: '高压故障优先下发' },
-            { id: 2, name: '主站配电故障-重大流程', type: '设备状态告警', level: '重大', priority: 'P1', sla: 10, dept: '供配电运维组', user: '陈亮', third: '', callback: '关', channels: ['平台消息', '短信'], status: '启用', remark: '' },
-            { id: 3, name: '消防感知-较大流程', type: '感知数据告警', level: '较大', priority: 'P2', sla: 15, dept: '消防安全组', user: '王静', third: '消防联动平台', callback: '开', channels: ['平台消息', '第三方应用'], status: '启用', remark: '' },
-            { id: 4, name: '水泵房运行异常流程', type: '设备事件告警', level: '一般', priority: 'P3', sla: 30, dept: '机电保障组', user: '', third: '', callback: '关', channels: ['平台消息'], status: '停用', remark: '' },
-            { id: 5, name: '机房环控流程', type: '感知数据告警', level: '重大', priority: 'P2', sla: 20, dept: '机房保障组', user: '李峰', third: '', callback: '关', channels: ['平台消息', '短信'], status: '启用', remark: '' }
+            { id: 1, name: '主站配电故障-特别重大流程', type: '设备状态告警', level: '特别重大', priority: 'P1', sla: 5, dept: '供配电运维组', user: '刘晓东', third: '供配电工单平台', status: '启用', remark: '高压故障优先下发' },
+            { id: 2, name: '主站配电故障-重大流程', type: '设备状态告警', level: '重大', priority: 'P1', sla: 10, dept: '供配电运维组', user: '陈亮', third: '', status: '启用', remark: '' },
+            { id: 3, name: '消防感知-较大流程', type: '感知数据告警', level: '较大', priority: 'P2', sla: 15, dept: '消防安全组', user: '王静', third: '消防联动平台', status: '启用', remark: '' },
+            { id: 4, name: '水泵房运行异常流程', type: '设备事件告警', level: '一般', priority: 'P3', sla: 30, dept: '机电保障组', user: '', status: '停用', remark: '' },
+            { id: 5, name: '机房环控流程', type: '感知数据告警', level: '重大', priority: 'P2', sla: 20, dept: '机房保障组', user: '李峰', third: '', status: '启用', remark: '' }
         ];
 
         function showToast(message) {
@@ -409,16 +360,7 @@
                 : '<span class="rounded bg-slate-50 border border-slate-200 px-2 py-0.5 text-xs font-medium text-slate-500">停用</span>';
         }
 
-        function callbackBadge(value) {
-            return value === '开'
-                ? '<span class="rounded bg-blue-50 border border-brand/20 px-2 py-0.5 text-xs font-medium text-brand">开启</span>'
-                : '<span class="rounded bg-slate-50 border border-slate-200 px-2 py-0.5 text-xs font-medium text-slate-500">关闭</span>';
-        }
 
-        function updateSummary() {
-            document.getElementById('enabledCount').textContent = workflows.filter((item) => item.status === '启用').length;
-            document.getElementById('callbackCount').textContent = workflows.filter((item) => item.callback === '开').length;
-        }
 
         function renderWorkflows() {
             const keyword = document.getElementById('keyword').value.trim();
@@ -443,7 +385,6 @@
                         <div class="text-slate-800">${item.dept}</div>
                         <div class="text-[12px] text-slate-400 mt-0.5"><i class="fa-regular fa-user mr-1"></i>${item.user || '未指定'}</div>
                     </td>
-                    <td class="px-4 py-3 border-r border-slate-100">${callbackBadge(item.callback)}</td>
                     <td class="px-4 py-3 border-r border-slate-100">${statusBadge(item.status)}</td>
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -457,7 +398,6 @@
                 </tr>
             `).join('');
             document.getElementById('totalRowsCount').textContent = rows.length;
-            updateSummary();
         }
 
         function resetFilter() {
@@ -485,12 +425,8 @@
             document.getElementById('workflowDept').value = current ? current.dept : '';
             document.getElementById('workflowUser').value = current ? current.user : '';
             document.getElementById('workflowThird').value = current ? current.third : '';
-            document.getElementById('workflowCallback').value = current ? current.callback : '关';
             document.getElementById('workflowStatus').value = current ? current.status : '启用';
             document.getElementById('workflowRemark').value = current ? current.remark : '';
-            document.querySelectorAll('.channel').forEach((node) => {
-                node.checked = current ? current.channels.includes(node.value) : node.value === '平台消息';
-            });
         }
 
         function saveWorkflow() {
@@ -505,12 +441,10 @@
                 dept: document.getElementById('workflowDept').value,
                 user: document.getElementById('workflowUser').value.trim(),
                 third: document.getElementById('workflowThird').value.trim(),
-                callback: document.getElementById('workflowCallback').value,
                 status: document.getElementById('workflowStatus').value,
-                remark: document.getElementById('workflowRemark').value.trim(),
-                channels: Array.from(document.querySelectorAll('.channel:checked')).map((node) => node.value)
+                remark: document.getElementById('workflowRemark').value.trim()
             };
-            if (!payload.name || !payload.type || !payload.level || !payload.sla || !payload.dept || payload.channels.length === 0) {
+            if (!payload.name || !payload.type || !payload.level || !payload.sla || !payload.dept) {
                 showToast('请补全工作流必填信息');
                 return;
             }

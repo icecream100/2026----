@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1440">
+    <title>规则引擎 - 事件规则管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'] },
+                    colors: {
+                        brand: '#2f5ee5',
+                        navy: '#0b162a',
+                        panel: '#f4f6fb'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body { background-color: #f0f2f5; min-width: 1440px; }
+        .submenu-item.active { background-color: #2f5ee5; color: white; }
+        .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #2f5ee5; }
+        input:checked + .slider:before { transform: translateX(16px); }
+        .trigger-card { border: 1px solid #dbe2ef; background: #fff; transition: all .2s ease; }
+        .trigger-card.active { border-color: #2f5ee5; box-shadow: 0 0 0 2px rgba(47, 94, 229, 0.08); background: #f8fbff; }
+        .trigger-card.disabled { opacity: .46; }
+        .soft-panel { border: 1px solid #dbe7ff; background: #f5f8ff; }
+        .tab-chip.active { background: #2f5ee5; color: #fff; border-color: #2f5ee5; }
+    </style>
+</head>
+<body class="font-sans text-slate-800 antialiased overflow-hidden h-screen flex flex-col">
+    <header class="h-[60px] bg-brand text-white flex items-center justify-between px-6 shrink-0 z-50 fixed w-full top-0">
+        <div class="flex items-center gap-6">
+            <div class="text-[17px] font-medium tracking-wide">物联网管理服务系统</div>
+            <button class="text-xl hover:bg-white/10 p-2 rounded transition ml-8"><i class="fa-solid fa-outdent"></i></button>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1 rounded transition">
+                <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs"><i class="fa-solid fa-user"></i></div>
+                <span class="text-sm">业务管理员</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 pt-[60px] h-full">
+        <aside class="w-[200px] h-full bg-navy flex-shrink-0 text-slate-300 overflow-y-auto overflow-x-hidden border-r border-[#1a253a]">
+            <nav class="py-2 text-[14px]">
+                <div>
+                    <div class="menu-item flex items-center justify-between px-5 py-3.5 cursor-pointer text-white">
+                        <div class="flex items-center gap-3"><i class="fa-solid fa-code-branch w-4"></i><span>规则引擎</span></div>
+                        <i class="fa-solid fa-caret-up text-[10px]"></i>
+                    </div>
+                    <div class="bg-black/20 pb-1">
+                        <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider">规则编排</div>
+                        <a href="../index.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-list w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>规则编排列表</span>
+                        </a>
+                        <a href="protocol_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-layer-group w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>协议解析二次接口</span>
+                        </a>
+                        <a href="alarm_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-triangle-exclamation w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>异常告警二开接口</span>
+                        </a>
+                        <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider mt-1">场景联动</div>
+                        <a href="event_level.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-layer-group w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>事件等级管理</span>
+                        </a>
+                        <a href="event_type.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-tags w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>事件类型管理</span>
+                        </a>
+                        <a href="event_rule.html" class="submenu-item active flex items-center pl-[46px] pr-5 py-3 cursor-pointer text-[13px] relative block">
+                            <i class="fa-solid fa-diagram-project w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>事件规则管理</span>
+                        </a>
+                        <a href="event_notify.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-comment-dots w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>事件通知管理</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#f0f2f5]">
+            <div class="h-12 flex items-center px-6 bg-white border-b border-slate-200 text-sm text-slate-500 shrink-0">
+                <span>规则引擎</span> <span class="mx-2 text-slate-300">/</span> <span>场景联动</span> <span class="mx-2 text-slate-300">/</span> <span class="text-slate-800 font-medium">事件规则管理</span>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-5">
+                <div class="bg-white p-5 rounded shadow-[0_2px_8px_rgba(0,0,0,0.04)] mb-4 min-w-[1000px]">
+                    <div class="grid grid-cols-5 gap-6">
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right">规则名称</label>
+                            <input type="text" placeholder="输入规则名称" class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right">事件类型</label>
+                            <select class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
+                                <option value="">全部</option>
+                                <option value="TYPE_001">设备离线</option>
+                                <option value="TYPE_002">网络异常</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right">事件等级</label>
+                            <select class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
+                                <option value="">全部</option>
+                                <option value="L1">一般</option>
+                                <option value="L2">较大</option>
+                                <option value="L3">重大</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right">状态</label>
+                            <select class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
+                                <option value="">全部</option>
+                                <option value="1">启用</option>
+                                <option value="0">停用</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-end gap-3">
+                            <button class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:border-brand">重置</button>
+                            <button class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90">查询</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded shadow-[0_2px_8px_rgba(0,0,0,0.04)] min-w-[1000px]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-[15px] font-bold text-slate-800">事件规则列表</h2>
+                        <button onclick="openModal()" class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90 flex items-center gap-2">
+                            <i class="fa-solid fa-plus text-xs"></i> 新增规则
+                        </button>
+                    </div>
+
+                    <div class="border border-slate-200 rounded overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-[13px] text-slate-500 border-b border-slate-200">
+                                    <th class="py-3 px-4 font-medium">规则名称</th>
+                                    <th class="py-3 px-4 font-medium">事件类型</th>
+                                    <th class="py-3 px-4 font-medium">事件等级</th>
+                                    <th class="py-3 px-4 font-medium">触发方式</th>
+                                    <th class="py-3 px-4 font-medium">执行动作</th>
+                                    <th class="py-3 px-4 font-medium">状态</th>
+                                    <th class="py-3 px-4 font-medium">更新时间</th>
+                                    <th class="py-3 px-4 font-medium">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-[13px] text-slate-700">
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="py-3 px-4 text-slate-800 font-medium">设备离线自动告警</td>
+                                    <td class="py-3 px-4">设备离线</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-orange-50 text-orange-600 rounded text-xs">重大</span></td>
+                                    <td class="py-3 px-4 text-slate-500">设备触发</td>
+                                    <td class="py-3 px-4 text-slate-500">消息通知 / 邮件</td>
+                                    <td class="py-3 px-4"><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                                    <td class="py-3 px-4 text-slate-500">2024-03-12 16:30</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openModal()" class="text-brand hover:underline mr-3">编辑</button>
+                                        <button class="text-red-500 hover:underline">删除</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="py-3 px-4 text-slate-800 font-medium">网络异常预警</td>
+                                    <td class="py-3 px-4">网络异常</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-yellow-50 text-yellow-600 rounded text-xs">较大</span></td>
+                                    <td class="py-3 px-4 text-slate-500">定时触发</td>
+                                    <td class="py-3 px-4 text-slate-500">平台消息</td>
+                                    <td class="py-3 px-4"><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                                    <td class="py-3 px-4 text-slate-500">2024-03-12 16:25</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openModal()" class="text-brand hover:underline mr-3">编辑</button>
+                                        <button class="text-red-500 hover:underline">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modal" class="fixed inset-0 bg-black/45 z-[60] hidden items-center justify-center">
+        <div class="w-[1260px] h-[88vh] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
+            <div class="h-12 border-b border-slate-100 bg-slate-50 flex items-center justify-between px-6 shrink-0">
+                <div class="flex items-center gap-3">
+                    <span class="text-[15px] font-bold text-slate-800">新增事件规则</span>
+                    <span class="text-[12px] text-slate-400">对齐现网场景联动详情布局</span>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-hidden bg-[#eef2f7]">
+                <div class="px-5 pt-4 pb-2">
+                    <div class="flex items-end gap-1">
+                        <div class="bg-white text-slate-500 text-[14px] px-8 py-3 rounded-t-lg border border-b-0 border-slate-200 shadow-sm">首页</div>
+                        <div class="bg-brand text-white text-[14px] px-8 py-3 rounded-t-lg border border-b-0 border-brand shadow-sm flex items-center gap-2">
+                            <span>事件规则详情</span>
+                            <i class="fa-solid fa-xmark text-[12px] opacity-80"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-5 pb-5 h-[calc(88vh-96px)] overflow-y-auto">
+                    <div class="grid grid-cols-[minmax(0,1fr)_340px] gap-5 min-w-[1140px]">
+                        <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
+                                <span class="w-1 h-5 bg-brand rounded-full"></span>
+                                <h3 class="text-[15px] font-bold text-slate-800">基础信息</h3>
+                            </div>
+
+                            <div class="p-6 space-y-6">
+                                <div class="grid grid-cols-[88px_minmax(0,1fr)] gap-x-4 gap-y-4 items-start">
+                                    <label class="text-[13px] text-slate-600 text-right pt-2"><span class="text-red-500">*</span> 名称</label>
+                                    <input type="text" placeholder="请输入名称" class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+
+                                    <label class="text-[13px] text-slate-600 text-right pt-2"><span class="text-red-500">*</span> 事件类型</label>
+                                    <select id="ruleEventType" onchange="syncEventLevel()" class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                        <option value="" data-level="">请选择事件类型</option>
+                                        <option value="TYPE_001" data-level="重大">设备离线</option>
+                                        <option value="TYPE_002" data-level="较大">网络异常</option>
+                                        <option value="TYPE_003" data-level="一般">数据异常</option>
+                                    </select>
+
+                                    <label class="text-[13px] text-slate-600 text-right pt-2"><span class="text-red-500">*</span> 事件等级</label>
+                                    <input id="ruleEventLevel" type="text" placeholder="由事件类型自动带出" readonly class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] bg-slate-50 text-slate-500">
+                                </div>
+
+                                <div>
+                                    <div class="text-[13px] text-slate-600 mb-3"><span class="text-red-500">*</span> 触发方式</div>
+                                    <div class="grid grid-cols-3 gap-5">
+                                        <button type="button" id="trigger-device" onclick="setTriggerType('device')" class="trigger-card active rounded-xl p-4 text-left">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <div>
+                                                    <div class="text-[16px] font-semibold text-slate-800">设备触发</div>
+                                                    <div class="text-[11px] uppercase tracking-wide text-slate-400 mt-1">Device Trigger</div>
+                                                </div>
+                                                <div class="w-14 h-14 rounded-xl bg-brand text-white flex items-center justify-center shadow-md shadow-brand/20">
+                                                    <i class="fa-solid fa-server text-xl"></i>
+                                                </div>
+                                            </div>
+                                            <div class="text-[12px] text-slate-500 leading-6">适用于设备、设备组或产品触发联动，结构贴近现网详情页展示。</div>
+                                        </button>
+                                        <button type="button" id="trigger-manual" onclick="setTriggerType('manual')" class="trigger-card disabled rounded-xl p-4 text-left">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <div>
+                                                    <div class="text-[16px] font-semibold text-slate-700">手动触发</div>
+                                                    <div class="text-[11px] uppercase tracking-wide text-slate-400 mt-1">Manual Trigger</div>
+                                                </div>
+                                                <div class="w-14 h-14 rounded-xl bg-slate-200 text-slate-500 flex items-center justify-center">
+                                                    <i class="fa-solid fa-hand-pointer text-xl"></i>
+                                                </div>
+                                            </div>
+                                            <div class="text-[12px] text-slate-400 leading-6">当前原型保留现网卡片结构，供手动执行规则时使用。</div>
+                                        </button>
+                                        <button type="button" id="trigger-timing" onclick="setTriggerType('timing')" class="trigger-card disabled rounded-xl p-4 text-left">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <div>
+                                                    <div class="text-[16px] font-semibold text-slate-700">定时触发</div>
+                                                    <div class="text-[11px] uppercase tracking-wide text-slate-400 mt-1">Timing Trigger</div>
+                                                </div>
+                                                <div class="w-14 h-14 rounded-xl bg-slate-200 text-slate-500 flex items-center justify-center">
+                                                    <i class="fa-regular fa-clock text-xl"></i>
+                                                </div>
+                                            </div>
+                                            <div class="text-[12px] text-slate-400 leading-6">支持周期触发和定时触发，交互形式与现网保持一致。</div>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-4 gap-4">
+                                    <div>
+                                        <div class="text-[12px] text-slate-500 mb-2">产品</div>
+                                        <select class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                            <option>中电电能表产品</option>
+                                            <option>视频监控产品</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <div class="text-[12px] text-slate-500 mb-2">设备范围</div>
+                                        <select class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                            <option>全部设备</option>
+                                            <option>固定设备</option>
+                                            <option>设备组</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <div class="text-[12px] text-slate-500 mb-2">触发对象</div>
+                                        <input type="text" value="全部设备" class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                    </div>
+                                    <div>
+                                        <div class="text-[12px] text-slate-500 mb-2">触发事件</div>
+                                        <select class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                            <option>设备上线</option>
+                                            <option>设备离线</option>
+                                            <option>数据异常</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="text-[13px] font-semibold text-slate-700">触发条件</div>
+                                        <div class="flex items-center gap-2 text-[12px] text-slate-500">
+                                            <span>关闭防抖</span>
+                                            <label class="switch">
+                                                <input type="checkbox">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-panel border border-slate-200 rounded-xl p-5">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div class="text-[14px] font-medium text-slate-700">分组 1</div>
+                                            <button class="w-8 h-8 rounded border border-red-200 text-red-500 hover:bg-red-50"><i class="fa-regular fa-trash-can"></i></button>
+                                        </div>
+
+                                        <div class="grid grid-cols-[220px_120px_140px_minmax(0,1fr)_44px] gap-3 items-center">
+                                            <select class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                                <option>系统时间（服务器时间）</option>
+                                                <option>设备状态</option>
+                                                <option>上报值</option>
+                                            </select>
+                                            <select class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                                <option>等于</option>
+                                                <option>大于</option>
+                                                <option>包含</option>
+                                            </select>
+                                            <select class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                                <option>手动输入</option>
+                                                <option>系统变量</option>
+                                            </select>
+                                            <div class="relative">
+                                                <input type="text" placeholder="请选择过滤条件值" class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                                <i class="fa-regular fa-calendar absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                                            </div>
+                                            <button class="w-11 h-11 rounded border border-brand text-brand hover:bg-brand hover:text-white"><i class="fa-solid fa-minus"></i></button>
+                                        </div>
+
+                                        <button class="w-full mt-4 border border-slate-200 rounded-lg py-2 text-[13px] text-brand hover:bg-white">
+                                            <i class="fa-solid fa-plus mr-2 text-xs"></i>添加条件
+                                        </button>
+                                    </div>
+
+                                    <button class="w-full mt-4 border border-slate-200 bg-white rounded-lg py-2 text-[13px] text-brand hover:bg-brand hover:text-white transition-colors">
+                                        <i class="fa-solid fa-plus mr-2 text-xs"></i>添加分组
+                                    </button>
+                                </div>
+
+                                <div>
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <span class="text-[13px] font-semibold text-slate-700">执行方式</span>
+                                        <button type="button" id="mode-serial" onclick="setActionMode('serial')" class="tab-chip border border-slate-200 rounded-md px-4 py-1.5 text-[13px] text-slate-600">串行</button>
+                                        <button type="button" id="mode-parallel" onclick="setActionMode('parallel')" class="tab-chip active border border-brand rounded-md px-4 py-1.5 text-[13px]">并行</button>
+                                    </div>
+
+                                    <div class="border border-slate-200 rounded-xl p-5 bg-white">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div class="text-[14px] font-medium text-slate-700">执行动作：1</div>
+                                            <div class="flex gap-2">
+                                                <button class="w-8 h-8 rounded border border-slate-200 text-slate-500 hover:border-brand"><i class="fa-solid fa-arrow-up"></i></button>
+                                                <button class="w-8 h-8 rounded border border-slate-200 text-slate-500 hover:border-brand"><i class="fa-solid fa-arrow-down"></i></button>
+                                                <button class="px-3 h-8 rounded border border-red-200 text-red-500 hover:bg-red-50">删除</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-4 gap-4">
+                                            <div>
+                                                <div class="text-[12px] text-slate-500 mb-2">动作类型</div>
+                                                <select class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                                    <option>消息通知</option>
+                                                    <option>设备输出</option>
+                                                    <option>延迟执行</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <div class="text-[12px] text-slate-500 mb-2">通知方式</div>
+                                                <select class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                                    <option>邮件</option>
+                                                    <option>短信</option>
+                                                    <option>平台消息</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <div class="text-[12px] text-slate-500 mb-2">接收对象</div>
+                                                <select class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                                    <option>管理员邮箱</option>
+                                                    <option>运维负责人</option>
+                                                    <option>平台运维群</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <div class="text-[12px] text-slate-500 mb-2">通知模板</div>
+                                                <select class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                                    <option>物联网平台邮件通知</option>
+                                                    <option>设备离线通知模板</option>
+                                                    <option>网络异常预警模板</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button class="w-full mt-4 border border-slate-200 bg-white rounded-lg py-2 text-[13px] text-brand hover:bg-brand hover:text-white transition-colors">
+                                        <i class="fa-solid fa-plus mr-2 text-xs"></i>添加
+                                    </button>
+                                </div>
+
+                                <div>
+                                    <div class="text-[13px] font-semibold text-slate-700 mb-3">说明</div>
+                                    <textarea rows="4" placeholder="请输入说明" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-[13px] outline-none focus:border-brand resize-none"></textarea>
+                                </div>
+                            </div>
+                        </section>
+
+                        <aside class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-fit sticky top-0">
+                            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50">
+                                <h3 class="text-[15px] font-bold text-slate-800">说明</h3>
+                            </div>
+                            <div class="p-6 text-[13px] leading-7 text-slate-600 space-y-6">
+                                <section>
+                                    <div class="text-[18px] font-semibold text-slate-800 mb-2">1. 概述</div>
+                                    <p>事件规则管理用于在现有场景联动能力上补充业务属性。本次原型仅新增 <span class="font-medium text-slate-800">事件类型</span>、<span class="font-medium text-slate-800">事件等级</span> 两个字段，其余触发和执行逻辑继续复用现网结构。</p>
+                                </section>
+
+                                <section>
+                                    <div class="text-[18px] font-semibold text-slate-800 mb-2">2. 配置说明</div>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <div class="font-medium text-slate-800 mb-1">2.1 事件属性</div>
+                                            <p>事件类型由用户选择，事件等级由事件类型自动带出并只读展示，避免事件和等级口径不一致。</p>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium text-slate-800 mb-1">2.2 设备触发</div>
+                                            <p>适用于产品、设备组和设备实例执行联动。产品、设备范围、触发对象和触发事件均继续沿用现有页面交互。</p>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium text-slate-800 mb-1">2.3 执行动作</div>
+                                            <p>消息通知、设备输出、延迟执行等动作在执行动作区块配置。若选择消息通知，邮件、短信、平台消息等参数也在该区块内完成设置。</p>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <div class="soft-panel rounded-lg px-4 py-3">
+                                    <div class="flex items-start gap-3">
+                                        <i class="fa-regular fa-circle-question text-brand mt-1"></i>
+                                        <div class="text-[12px] leading-6 text-slate-600">
+                                            说明：只有当事件类型已关联事件等级时，规则才允许保存；若历史规则未关联事件类型，则需补齐后再保存。
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-14 border-t border-slate-100 bg-white flex items-center justify-end gap-3 px-6 shrink-0">
+                <button onclick="closeModal()" class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:border-brand">取消</button>
+                <button class="px-6 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('modal').classList.remove('flex');
+        }
+
+        function syncEventLevel() {
+            const typeSelect = document.getElementById('ruleEventType');
+            const levelInput = document.getElementById('ruleEventLevel');
+            const selected = typeSelect.options[typeSelect.selectedIndex];
+            levelInput.value = selected ? (selected.dataset.level || '') : '';
+        }
+
+        function setTriggerType(type) {
+            const types = ['device', 'manual', 'timing'];
+            types.forEach((item) => {
+                const card = document.getElementById(`trigger-${item}`);
+                card.classList.remove('active', 'disabled');
+                if (item !== type) card.classList.add('disabled');
+            });
+            document.getElementById(`trigger-${type}`).classList.add('active');
+        }
+
+        function setActionMode(mode) {
+            const serial = document.getElementById('mode-serial');
+            const parallel = document.getElementById('mode-parallel');
+            serial.classList.remove('active');
+            parallel.classList.remove('active');
+            if (mode === 'serial') {
+                serial.classList.add('active');
+            } else {
+                parallel.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

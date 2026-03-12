@@ -62,29 +62,20 @@
         </header>
 
         <main class="flex-1 overflow-y-auto p-6 bg-slate custom-scrollbar relative">
-            <div
-                class="bg-blue-50 border border-blue-200 text-blue-800 text-sm px-4 py-3 rounded mb-4 flex items-start">
-                <i class="ph-fill ph-info text-primary mt-0.5 mr-2"></i>
-                <span>基于设备类型的物模型（属性、事件）提取感知数据项，发布为目录后，第三方应用可通过标准接口获取类型设备的感知数据规范。</span>
-            </div>
+
 
             <!-- 搜索区 -->
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-4">
-                <form class="grid grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 mb-4">
+                <form class="grid grid-cols-3 gap-4">
                     <div class="flex flex-col space-y-1">
-                        <label class="text-sm text-gray-600">设备类型</label>
+                        <label class="text-[13px] text-slate-500">设备类型</label>
                         <input type="text" placeholder="输入设备类型"
-                            class="w-full h-8 px-3 border border-gray-300 rounded focus:border-primary outline-none text-sm">
+                            class="w-full h-9 px-3 border border-slate-300 rounded focus:border-primary outline-none text-[13px] hover:border-primary/50 transition">
                     </div>
                     <div class="flex flex-col space-y-1">
-                        <label class="text-sm text-gray-600">所属产品</label>
-                        <input type="text" placeholder="输入产品名称"
-                            class="w-full h-8 px-3 border border-gray-300 rounded focus:border-primary outline-none text-sm">
-                    </div>
-                    <div class="flex flex-col space-y-1">
-                        <label class="text-sm text-gray-600">发布状态</label>
+                        <label class="text-[13px] text-slate-500">发布状态</label>
                         <select
-                            class="w-full h-8 px-3 border border-gray-300 rounded focus:border-primary outline-none text-sm">
+                            class="w-full h-9 px-3 border border-slate-300 rounded focus:border-primary outline-none text-[13px] hover:border-primary/50 transition bg-white">
                             <option value="">全部</option>
                             <option value="published">已发布</option>
                             <option value="unpublished">已停用 / 未发布</option>
@@ -92,70 +83,79 @@
                     </div>
                     <div class="flex items-end justify-end space-x-2">
                         <button type="button"
-                            class="px-4 py-1.5 border border-gray-300 text-gray-700 rounded text-sm hover:border-primary transition-colors">重置</button>
+                            class="px-4 py-1.5 border border-slate-300 text-slate-600 rounded text-[13px] hover:border-primary hover:text-primary transition-colors bg-white">重置</button>
                         <button type="button"
-                            class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-sm hover:bg-primary-hover transition-colors">查询</button>
+                            class="px-4 py-1.5 bg-primary text-white border border-primary rounded text-[13px] hover:bg-primary-hover transition-colors shadow-sm">查询</button>
                     </div>
                 </form>
             </div>
 
             <!-- 列表区 -->
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <div class="overflow-x-auto border border-gray-200 rounded">
-                    <table class="w-full text-left text-sm whitespace-nowrap">
-                        <thead class="bg-slate border-b border-gray-200 text-gray-700">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-[13px] whitespace-nowrap">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-500">
                             <tr>
-                                <th class="p-3 font-medium">设备类型</th>
-                                <th class="p-3 font-medium">所属产品</th>
-                                <th class="p-3 font-medium">目录名称</th>
-                                <th class="p-3 font-medium text-center">目录项数量</th>
-                                <th class="p-3 font-medium text-center">发布状态</th>
-                                <th class="p-3 font-medium">更新时间</th>
-                                <th class="p-3 font-medium text-right">操作</th>
+                                <th class="py-3 px-4 font-medium">设备类型</th>
+                                <th class="py-3 px-4 font-medium">目录名称</th>
+                                <th class="py-3 px-4 font-medium text-center">目录项数量</th>
+                                <th class="py-3 px-4 font-medium text-center">发布状态</th>
+                                <th class="py-3 px-4 font-medium">更新时间</th>
+                                <th class="py-3 px-4 font-medium">操作</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            <tr class="hover:bg-blue-50/50">
-                                <td class="p-3 font-medium text-gray-800">标准安防摄像头</td>
-                                <td class="p-3 text-gray-600">智能安防摄像头 (等3款)</td>
-                                <td class="p-3 text-gray-800">标准安防摄像头数据目录</td>
-                                <td class="p-3 text-center"><span
-                                        class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full text-xs">24项</span>
+                        <tbody class="text-slate-700">
+                            <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <td class="py-3 px-4 font-medium text-slate-800">标准安防摄像头</td>
+                                <td class="py-3 px-4 text-slate-800">标准安防摄像头数据目录</td>
+                                <td class="py-3 px-4 text-center"><span
+                                        class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">24项</span>
                                 </td>
-                                <td class="p-3 text-center">
+                                <td class="py-3 px-4 text-center">
                                     <span
                                         class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700 border border-green-200">已发布</span>
                                 </td>
-                                <td class="p-3 text-gray-600">2026-03-08 11:00:00</td>
-                                <td class="p-3 text-right space-x-2">
-                                    <button class="text-primary hover:text-primary-hover"
-                                        onclick="openCatalogDrawer('标准安防摄像头', '标准安防摄像头数据目录', '已发布')">查看目录</button>
-                                    <span class="text-gray-300">|</span>
-                                    <button class="text-error hover:text-red-400"
+                                <td class="py-3 px-4 text-slate-500">2026-03-08 11:00:00</td>
+                                <td class="py-3 px-4 space-x-2">
+                                    <button class="px-3 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:text-primary hover:border-primary transition shadow-sm"
+                                        onclick="openCatalogDrawer('标准安防摄像头', '标准安防摄像头数据目录', '已发布')">详情</button>
+                                    <button class="px-3 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:text-red-500 hover:border-red-500 transition shadow-sm"
                                         onclick="confirmAction(this, '停用', '标准安防摄像头数据目录')">停用</button>
                                 </td>
                             </tr>
-                            <tr class="hover:bg-blue-50/50">
-                                <td class="p-3 font-medium text-gray-800">室外微站</td>
-                                <td class="p-3 text-gray-600">空气质量微站</td>
-                                <td class="p-3 text-gray-800">室外微站数据目录</td>
-                                <td class="p-3 text-center"><span
-                                        class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full text-xs">8项</span></td>
-                                <td class="p-3 text-center">
+                            <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <td class="py-3 px-4 font-medium text-slate-800">室外微站</td>
+                                <td class="py-3 px-4 text-slate-800">室外微站数据目录</td>
+                                <td class="py-3 px-4 text-center"><span
+                                        class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">8项</span></td>
+                                <td class="py-3 px-4 text-center">
                                     <span
-                                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">已停用</span>
+                                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">已停用</span>
                                 </td>
-                                <td class="p-3 text-gray-600">2026-03-01 09:30:15</td>
-                                <td class="p-3 text-right space-x-2">
-                                    <button class="text-primary hover:text-primary-hover"
-                                        onclick="openCatalogDrawer('室外微站', '室外微站数据目录', '已停用')">查看目录</button>
-                                    <span class="text-gray-300">|</span>
-                                    <button class="text-primary hover:text-primary-hover"
+                                <td class="py-3 px-4 text-slate-500">2026-03-01 09:30:15</td>
+                                <td class="py-3 px-4 space-x-2">
+                                    <button class="px-3 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:text-primary hover:border-primary transition shadow-sm"
+                                        onclick="openCatalogDrawer('室外微站', '室外微站数据目录', '已停用')">详情</button>
+                                    <button class="px-3 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:text-primary hover:border-primary transition shadow-sm"
                                         onclick="confirmAction(this, '发布', '室外微站数据目录')">发布</button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <!-- Pagination -->
+                <div class="px-4 py-3 border-t border-slate-100 flex items-center justify-between bg-white">
+                    <div class="text-[13px] text-slate-500">共 2 条记录</div>
+                    <div class="flex items-center gap-2">
+                        <button class="px-2 py-1 border border-slate-200 rounded text-[12px] text-slate-500 hover:bg-slate-50 disabled:opacity-50" disabled><i class="ph ph-caret-left"></i></button>
+                        <button class="px-2 py-1 bg-primary text-white border border-primary rounded text-[12px]">1</button>
+                        <button class="px-2 py-1 border border-slate-200 rounded text-[12px] text-slate-500 hover:bg-slate-50 disabled:opacity-50" disabled><i class="ph ph-caret-right"></i></button>
+                        <select class="border border-slate-200 rounded text-[12px] text-slate-500 py-1 px-1 outline-none bg-white">
+                            <option>10 条/页</option>
+                            <option>20 条/页</option>
+                            <option>50 条/页</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </main>
@@ -181,55 +181,52 @@
             </div>
 
             <div class="flex-1 overflow-y-auto p-6 bg-white custom-scrollbar">
-                <div class="mb-3 flex justify-between items-end">
-                    <h4 class="font-medium text-gray-800 text-sm">包含感知数据项 (共 <span class="text-primary">8</span> 项)</h4>
-                    <span class="text-xs text-gray-400">目前来源于该设备类型的物模型定义(非指令)</span>
-                </div>
-                <div class="border border-gray-200 rounded">
-                    <table class="w-full text-left text-sm whitespace-nowrap">
-                        <thead class="bg-slate border-b border-gray-200">
-                            <tr>
-                                <th class="p-2 font-medium">目录项名称</th>
-                                <th class="p-2 font-medium">标识 (Identifier)</th>
-                                <th class="p-2 font-medium">来源类型</th>
-                                <th class="p-2 font-medium">数据类型</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <tr>
-                                <td class="p-2 text-gray-800">PM2.5 浓度</td>
-                                <td class="p-2 font-mono text-xs text-gray-600">pm25</td>
-                                <td class="p-2 "><span
-                                        class="text-xs px-1.5 py-0.5 bg-blue-50 text-blue-600 border border-blue-200 rounded">属性</span>
-                                </td>
-                                <td class="p-2 text-gray-600">float</td>
-                            </tr>
-                            <tr>
-                                <td class="p-2 text-gray-800">PM10 浓度</td>
-                                <td class="p-2 font-mono text-xs text-gray-600">pm10</td>
-                                <td class="p-2 "><span
-                                        class="text-xs px-1.5 py-0.5 bg-blue-50 text-blue-600 border border-blue-200 rounded">属性</span>
-                                </td>
-                                <td class="p-2 text-gray-600">float</td>
-                            </tr>
-                            <tr>
-                                <td class="p-2 text-gray-800">温度</td>
-                                <td class="p-2 font-mono text-xs text-gray-600">temperature</td>
-                                <td class="p-2 "><span
-                                        class="text-xs px-1.5 py-0.5 bg-blue-50 text-blue-600 border border-blue-200 rounded">属性</span>
-                                </td>
-                                <td class="p-2 text-gray-600">double</td>
-                            </tr>
-                            <tr>
-                                <td class="p-2 text-gray-800">设备高温报警</td>
-                                <td class="p-2 font-mono text-xs text-gray-600">HighTempAlarm</td>
-                                <td class="p-2"><span
-                                        class="text-xs px-1.5 py-0.5 bg-orange-50 text-orange-600 border border-orange-200 rounded">事件</span>
-                                </td>
-                                <td class="p-2 text-gray-600">struct</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- 设备列表 -->
+                <div class="mb-6">
+                    <h4 class="font-medium text-gray-800 text-sm mb-3">关联设备列表</h4>
+                    <div class="border border-gray-200 rounded">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-slate border-b border-gray-200">
+                                <tr>
+                                    <th class="p-2 font-medium">设备名称</th>
+                                    <th class="p-2 font-medium">设备编码</th>
+                                    <th class="p-2 font-medium">在线状态</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="p-2 text-gray-800">主校区南门摄像头</td>
+                                    <td class="p-2 font-mono text-xs text-gray-600">C2023-Cam-01</td>
+                                    <td class="p-2">
+                                        <span class="inline-flex items-center">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
+                                            <span class="text-success text-xs">在线</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="p-2 text-gray-800">东校区大门监控</td>
+                                    <td class="p-2 font-mono text-xs text-gray-600">C2023-Cam-02</td>
+                                    <td class="p-2">
+                                        <span class="inline-flex items-center">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
+                                            <span class="text-success text-xs">在线</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="p-2 text-gray-800">图书馆入口摄像头</td>
+                                    <td class="p-2 font-mono text-xs text-gray-600">C2023-Cam-03</td>
+                                    <td class="p-2">
+                                        <span class="inline-flex items-center">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-1.5"></span>
+                                            <span class="text-gray-500 text-xs">离线</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 

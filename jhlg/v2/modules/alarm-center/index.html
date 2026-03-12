@@ -225,10 +225,10 @@
                             </div>
                         </div>
 
-                        <!-- Card 2: 告警配置 -->
+                        <!-- Card 2: 事件监听 -->
                         <div
                             class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex flex-col relative overflow-hidden transition-shadow hover:shadow-md">
-                            <h3 class="text-slate-800 text-[14px] font-bold mb-3">告警配置</h3>
+                            <h3 class="text-slate-800 text-[14px] font-bold mb-3">事件监听</h3>
                             <div class="flex justify-between items-center mb-4">
                                 <span
                                     class="text-4xl font-bold text-slate-800 tracking-tight relative z-10 w-1/2">81</span>
@@ -278,53 +278,6 @@
                             </div>
                         </div>
 
-                        <!-- Card 3: 事件监听 -->
-                        <div
-                            class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex flex-col relative overflow-hidden transition-shadow hover:shadow-md ring-1 ring-brand/10 bg-gradient-to-br from-white to-brand/[0.02]">
-                            <div class="flex justify-between items-start mb-3">
-                                <div class="flex items-center gap-2">
-                                    <h3 class="text-slate-800 text-[14px] font-bold">事件监听</h3>
-                                    <span
-                                        class="px-1.5 py-[1px] rounded bg-brand/10 text-brand text-[10px] scale-90 -ml-1 border border-brand/20">新功能</span>
-                                </div>
-                                <div class="text-[11px] text-slate-400 font-mono" title="最近更新时间: 2026-03-09 10:48">
-                                    10:48:55
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-end mb-4 relative z-10">
-                                <span class="text-4xl font-bold text-brand tracking-tight drop-shadow-sm">125</span>
-                                <div
-                                    class="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center relative">
-                                    <div
-                                        class="absolute inset-0 rounded-full animate-ping opacity-20 bg-brand hover:scale-105">
-                                    </div>
-                                    <i class="fa-solid fa-satellite-dish text-lg"></i>
-                                </div>
-                            </div>
-                            <div class="mt-auto pt-4 flex items-center gap-3 text-[12px] flex-wrap relative z-10">
-                                <div
-                                    class="flex items-center text-slate-500 bg-slate-50 px-2.5 py-1 rounded border border-slate-100 hover:border-success/30 transition-colors">
-                                    <span
-                                        class="w-1.5 h-1.5 rounded-full bg-success mr-1.5 shadow-[0_0_4px_theme(colors.success)]"></span>
-                                    <span>运行中 <span class="font-bold text-slate-700 ml-1">120</span></span>
-                                </div>
-                                <div
-                                    class="flex items-center text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5"></span>
-                                    <span>停用 <span class="font-bold text-slate-700 ml-1">2</span></span>
-                                </div>
-                                <div class="flex items-center text-danger font-medium bg-danger/5 px-2 py-1 rounded border border-danger/10 hover:border-danger/30 transition-colors cursor-help"
-                                    title="存在异常的监听器">
-                                    <span
-                                        class="w-1.5 h-1.5 rounded-full bg-danger mr-1.5 animate-pulse shadow-[0_0_4px_theme(colors.danger)]"></span>
-                                    <span>异常 <span class="font-bold ml-1 text-[13px]">3</span></span>
-                                </div>
-                            </div>
-                            <!-- Subtle decorative bg -->
-                            <div
-                                class="absolute -right-4 -bottom-4 w-24 h-24 bg-brand/[0.03] rounded-full blur-xl pointer-events-none">
-                            </div>
-                        </div>
 
                         <!-- Card 4: 最新告警 -->
                         <div
@@ -396,17 +349,9 @@
                         <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center gap-4">
                                 <span class="font-bold text-slate-800 text-[15px]">告警统计</span>
-                                <div class="relative">
-                                    <select
-                                        class="appearance-none border border-slate-200 text-slate-600 text-[13px] rounded px-3 py-1.5 pr-8 bg-white focus:outline-brand hover:border-brand/40 outline-none w-[160px]">
-                                        <option>设备</option>
-                                        <option>网关</option>
-                                    </select>
-                                    <i
-                                        class="fa-solid fa-angle-down absolute right-3 top-2.5 text-slate-400 text-xs pointer-events-none"></i>
-                                </div>
                             </div>
-                            <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-slate-600 text-[13px]">统计时间范围</span>
                                 <div class="btn-group-toggle flex">
                                     <button class="btn">今日</button>
                                     <button class="btn active">近一周</button>
@@ -415,9 +360,12 @@
                                 </div>
                                 <div
                                     class="border border-slate-200 text-slate-600 rounded flex items-center bg-white px-3 py-1.5 text-[13px] cursor-pointer hover:border-brand/40">
-                                    <span>2026-03-01 22:28:46 ~ 2026-03-07 22:28:46</span>
+                                    <span>2026-03-01 ~ 2026-03-07</span>
                                     <i class="fa-regular fa-calendar ml-3 text-slate-400"></i>
                                 </div>
+                                <button class="px-4 py-1.5 bg-brand text-white rounded text-[13px] hover:bg-brandHover transition-colors shadow-sm">
+                                    <i class="fa-solid fa-magnifying-glass mr-1.5"></i>查询
+                                </button>
                             </div>
                         </div>
 

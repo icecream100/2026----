@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1440">
+    <title>规则引擎 - 事件等级管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"PingFang SC"', '"Microsoft YaHei"', 'sans-serif']
+                    },
+                    colors: {
+                        brand: '#2f5ee5',
+                        navy: '#0b162a',
+                        sidebarActive: '#2f5ee5',
+                        panel: '#f0f2f5',
+                        danger: '#e83b3b',
+                        warning: '#fdb51c',
+                        success: '#3cc664'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            background-color: #f0f2f5;
+            min-width: 1440px;
+        }
+
+        .submenu-item.active {
+            background-color: #2f5ee5;
+            color: white;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #2f5ee5;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(16px);
+        }
+
+        .color-badge {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+
+<body class="font-sans text-slate-800 antialiased overflow-hidden h-screen flex flex-col">
+
+    <header class="h-[60px] bg-brand text-white flex items-center justify-between px-6 shrink-0 z-50 fixed w-full top-0">
+        <div class="flex items-center gap-6">
+            <div class="text-[17px] font-medium tracking-wide">物联网管理服务系统</div>
+            <button class="text-xl hover:bg-white/10 p-2 rounded transition ml-8"><i class="fa-solid fa-outdent"></i></button>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1 rounded transition">
+                <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs"><i class="fa-solid fa-user"></i></div>
+                <span class="text-sm">业务管理员</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 pt-[60px] h-full">
+        <!-- Sidebar -->
+        <aside class="w-[200px] h-full bg-navy flex-shrink-0 text-slate-300 overflow-y-auto overflow-x-hidden border-r border-[#1a253a]">
+            <nav class="py-2 text-[14px]">
+                <div>
+                    <div class="menu-item flex items-center justify-between px-5 py-3.5 cursor-pointer text-white">
+                        <div class="flex items-center gap-3"><i class="fa-solid fa-code-branch w-4"></i><span>规则引擎</span></div>
+                        <i class="fa-solid fa-caret-up text-[10px]"></i>
+                    </div>
+                    <div class="bg-black/20 pb-1">
+                        <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider">规则编排</div>
+                        <a href="../index.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-list w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>规则编排列表</span>
+                        </a>
+                        <a href="protocol_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-layer-group w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>协议解析二次接口</span>
+                        </a>
+                        <a href="alarm_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-triangle-exclamation w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>异常告警二开接口</span>
+                        </a>
+
+                        <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider mt-1">场景联动</div>
+                        <a href="event_level.html" class="submenu-item active flex items-center pl-[46px] pr-5 py-3 cursor-pointer text-[13px] relative block">
+                            <i class="fa-solid fa-layer-group w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>事件等级管理</span>
+                        </a>
+                        <a href="event_type.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-tags w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>事件类型管理</span>
+                        </a>
+                        <a href="event_rule.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-diagram-project w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>事件规则管理</span>
+                        </a>
+                        <a href="event_notify.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                            <i class="fa-solid fa-comment-dots w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                            <span>事件通知管理</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#f0f2f5]">
+            <div class="h-12 flex items-center px-6 bg-white border-b border-slate-200 text-sm text-slate-500 shrink-0">
+                <span>规则引擎</span> <span class="mx-2 text-slate-300">/</span> <span>场景联动</span> <span class="mx-2 text-slate-300">/</span> <span class="text-slate-800 font-medium">事件等级管理</span>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-5">
+                <!-- 查询区 -->
+                <div class="bg-white p-5 rounded shadow-[0_2px_8px_rgba(0,0,0,0.04)] mb-4 min-w-[1000px]">
+                    <div class="grid grid-cols-4 gap-6">
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right">等级名称</label>
+                            <input type="text" placeholder="输入等级名称" class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right">严重程度</label>
+                            <select class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
+                                <option value="">全部</option>
+                                <option value="low">低</option>
+                                <option value="medium">中</option>
+                                <option value="high">高</option>
+                                <option value="urgent">紧急</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right">颜色标记</label>
+                            <select class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
+                                <option value="">全部</option>
+                                <option value="red">红色</option>
+                                <option value="orange">橙色</option>
+                                <option value="yellow">黄色</option>
+                                <option value="green">绿色</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-end gap-3 w-full">
+                            <button class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:border-brand">重置</button>
+                            <button class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90">查询</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 列表区 -->
+                <div class="bg-white p-5 rounded shadow-[0_2px_8px_rgba(0,0,0,0.04)] min-w-[1000px]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-[15px] font-bold text-slate-800">事件等级列表</h2>
+                        <div class="flex gap-3">
+                            <button onclick="openModal()" class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90 flex items-center gap-2">
+                                <i class="fa-solid fa-plus text-xs"></i> 新增等级
+                            </button>
+                            <button class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:border-brand flex items-center gap-2">
+                                <i class="fa-solid fa-download text-xs"></i> 导出
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="border border-slate-200 rounded overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-[13px] text-slate-500 border-b border-slate-200">
+                                    <th class="py-3 px-4 font-medium">等级编码</th>
+                                    <th class="py-3 px-4 font-medium">等级名称</th>
+                                    <th class="py-3 px-4 font-medium">严重程度</th>
+                                    <th class="py-3 px-4 font-medium">颜色标记</th>
+                                    <th class="py-3 px-4 font-medium">排序号</th>
+                                    <th class="py-3 px-4 font-medium">状态</th>
+                                    <th class="py-3 px-4 font-medium">更新时间</th>
+                                    <th class="py-3 px-4 font-medium">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-[13px] text-slate-700">
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="py-3 px-4 font-mono text-[12px]">LEVEL_001</td>
+                                    <td class="py-3 px-4 text-slate-800 font-medium">特别重大</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-red-50 text-red-600 rounded text-xs">紧急</span></td>
+                                    <td class="py-3 px-4"><span class="color-badge" style="background-color: #e83b3b;"></span> <span class="ml-2">红色</span></td>
+                                    <td class="py-3 px-4">1</td>
+                                    <td class="py-3 px-4">
+                                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                                    </td>
+                                    <td class="py-3 px-4 text-slate-500">2024-03-12 14:30</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openModal()" class="text-brand hover:underline mr-3">编辑</button>
+                                        <button class="text-red-500 hover:underline">删除</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="py-3 px-4 font-mono text-[12px]">LEVEL_002</td>
+                                    <td class="py-3 px-4 text-slate-800 font-medium">重大</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-orange-50 text-orange-600 rounded text-xs">高</span></td>
+                                    <td class="py-3 px-4"><span class="color-badge" style="background-color: #fdb51c;"></span> <span class="ml-2">橙色</span></td>
+                                    <td class="py-3 px-4">2</td>
+                                    <td class="py-3 px-4">
+                                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                                    </td>
+                                    <td class="py-3 px-4 text-slate-500">2024-03-12 14:25</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openModal()" class="text-brand hover:underline mr-3">编辑</button>
+                                        <button class="text-red-500 hover:underline">删除</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="py-3 px-4 font-mono text-[12px]">LEVEL_003</td>
+                                    <td class="py-3 px-4 text-slate-800 font-medium">较大</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-yellow-50 text-yellow-600 rounded text-xs">中</span></td>
+                                    <td class="py-3 px-4"><span class="color-badge" style="background-color: #fadb14;"></span> <span class="ml-2">黄色</span></td>
+                                    <td class="py-3 px-4">3</td>
+                                    <td class="py-3 px-4">
+                                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                                    </td>
+                                    <td class="py-3 px-4 text-slate-500">2024-03-12 14:20</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openModal()" class="text-brand hover:underline mr-3">编辑</button>
+                                        <button class="text-red-500 hover:underline">删除</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="py-3 px-4 font-mono text-[12px]">LEVEL_004</td>
+                                    <td class="py-3 px-4 text-slate-800 font-medium">一般</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-green-50 text-green-600 rounded text-xs">低</span></td>
+                                    <td class="py-3 px-4"><span class="color-badge" style="background-color: #3cc664;"></span> <span class="ml-2">绿色</span></td>
+                                    <td class="py-3 px-4">4</td>
+                                    <td class="py-3 px-4">
+                                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                                    </td>
+                                    <td class="py-3 px-4 text-slate-500">2024-03-12 14:15</td>
+                                    <td class="py-3 px-4">
+                                        <button onclick="openModal()" class="text-brand hover:underline mr-3">编辑</button>
+                                        <button class="text-red-500 hover:underline">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex justify-between items-center mt-4 text-[13px] text-slate-600">
+                        <div>共 4 条记录</div>
+                        <div class="flex items-center gap-2">
+                            <button class="px-3 py-1 border border-slate-200 rounded hover:border-brand disabled:opacity-50" disabled>上一页</button>
+                            <span class="px-3 py-1 bg-brand text-white rounded">1</span>
+                            <button class="px-3 py-1 border border-slate-200 rounded hover:border-brand disabled:opacity-50" disabled>下一页</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Form -->
+    <div id="modal" class="fixed inset-0 bg-black/40 z-[60] hidden flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-xl w-[640px] flex flex-col max-h-[90vh]">
+            <div class="h-12 border-b border-slate-100 flex items-center justify-between px-6 bg-slate-50">
+                <h3 class="text-[15px] font-bold text-slate-800">新增事件等级</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="space-y-4">
+                    <div class="flex items-start gap-3">
+                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 等级编码</label>
+                        <input type="text" placeholder="请输入等级编码" class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 等级名称</label>
+                        <input type="text" placeholder="请输入等级名称" class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 严重程度</label>
+                        <select class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                            <option value="">请选择严重程度</option>
+                            <option value="low">低</option>
+                            <option value="medium">中</option>
+                            <option value="high">高</option>
+                            <option value="urgent">紧急</option>
+                        </select>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 颜色标记</label>
+                        <select class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                            <option value="">请选择颜色标记</option>
+                            <option value="red">红色</option>
+                            <option value="orange">橙色</option>
+                            <option value="yellow">黄色</option>
+                            <option value="green">绿色</option>
+                            <option value="blue">蓝色</option>
+                        </select>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 排序号</label>
+                        <input type="number" placeholder="1-999" min="1" max="999" class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2">说明</label>
+                        <textarea placeholder="请输入说明" rows="3" class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand resize-none"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="h-14 border-t border-slate-100 flex items-center justify-end gap-3 px-6 bg-slate-50">
+                <button onclick="closeModal()" class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:border-brand">取消</button>
+                <button class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+    </script>
+
+</body>
+
+</html>
