@@ -108,7 +108,7 @@
                         </a>
                         <a href="alarm_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
                             <i class="fa-solid fa-triangle-exclamation w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
-                            <span>异常告警二开接口</span>
+                            <span>异常告警二次开发接口</span>
                         </a>
 
                         <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider mt-1">场景联动</div>
@@ -140,35 +140,34 @@
             </div>
 
             <div class="flex-1 overflow-y-auto p-5">
-                <!-- Search Panel (with 事件等级查询 fields) -->
+                <!-- Search Panel -->
                 <div class="bg-white p-5 rounded shadow-card mb-4">
                     <div class="grid grid-cols-5 gap-6">
                         <div class="flex items-center gap-2"><label
                                 class="text-[13px] text-slate-600 shrink-0">类型名称</label><input type="text"
                                 placeholder="关键字" class="border rounded px-2 w-full text-[13px] py-1"></div>
                         <div class="flex items-center gap-2"><label
-                                class="text-[13px] text-slate-600 shrink-0">等级名称</label><input type="text"
-                                placeholder="如: 一般, 重大" class="border rounded px-2 w-full text-[13px] py-1"></div>
+                                class="text-[13px] text-slate-600 shrink-0">事件分类</label><input type="text"
+                                placeholder="如: 消防安全" class="border rounded px-2 w-full text-[13px] py-1"></div>
                         <div class="flex items-center gap-2"><label
-                                class="text-[13px] text-slate-600 shrink-0">严重程度</label><select
+                                class="text-[13px] text-slate-600 shrink-0">状态</label><select
                                 class="border rounded px-2 w-full text-[13px] py-1 bg-white">
                                 <option>全部</option>
-                                <option>低</option>
-                                <option>中</option>
-                                <option>高</option>
-                                <option>紧急</option>
+                                <option>启用</option>
+                                <option>禁用</option>
                             </select></div>
                         <div class="flex items-center gap-2"><label
-                                class="text-[13px] text-slate-600 shrink-0">颜色标记</label><select
+                                class="text-[13px] text-slate-600 shrink-0">更新时间</label><select
                                 class="border rounded px-2 w-full text-[13px] py-1 bg-white">
                                 <option>全部</option>
-                                <option>红</option>
-                                <option>橙</option>
-                                <option>黄</option>
-                                <option>绿</option>
+                                <option>最近7天</option>
+                                <option>最近30天</option>
+                                <option>本季度</option>
                             </select></div>
-                        <div class="flex justify-end gap-3 w-full"><button
-                                class="px-4 py-1.5 bg-brand text-white text-[13px] rounded">查询</button></div>
+                        <div class="flex justify-end gap-3 w-full">
+                            <button class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded">重置</button>
+                            <button class="px-4 py-1.5 bg-brand text-white text-[13px] rounded">查询</button>
+                        </div>
                     </div>
                 </div>
 
@@ -197,9 +196,6 @@
                                 <th class="py-3 px-4 font-medium">编码</th>
                                 <th class="py-3 px-4 font-medium">名称</th>
                                 <th class="py-3 px-4 font-medium">分类</th>
-                                <th class="py-3 px-4 font-medium">等级</th>
-                                <th class="py-3 px-4 font-medium">严重程度</th>
-                                <th class="py-3 px-4 font-medium">颜色</th>
                                 <th class="py-3 px-4 font-medium">状态</th>
                                 <th class="py-3 px-4 font-medium">更新时间</th>
                                 <th class="py-3 px-4 w-[120px]">操作</th>
@@ -210,10 +206,6 @@
                                 <td class="py-3 px-4 text-slate-500">EVT-FIRE-01</td>
                                 <td class="py-3 px-4 font-bold">火警报警</td>
                                 <td class="py-3 px-4">消防安全</td>
-                                <td class="py-3 px-4">特别重大</td>
-                                <td class="py-3 px-4 text-red-500 font-bold">紧急</td>
-                                <td class="py-3 px-4"><span
-                                        class="w-3 h-3 rounded-full bg-red-500 inline-block shadow"></span></td>
                                 <td class="py-3 px-4"><label class="switch"><input type="checkbox" checked><span
                                             class="slider"></span></label></td>
                                 <td class="py-3 px-4 text-slate-400">03-07 10:00</td>
@@ -226,10 +218,6 @@
                                 <td class="py-3 px-4 text-slate-500">EVT-SYS-05</td>
                                 <td class="py-3 px-4 font-bold">设备离线</td>
                                 <td class="py-3 px-4">系统运维</td>
-                                <td class="py-3 px-4">一般警告</td>
-                                <td class="py-3 px-4 text-yellow-500 font-bold">低</td>
-                                <td class="py-3 px-4"><span
-                                        class="w-3 h-3 rounded-full bg-yellow-400 inline-block shadow"></span></td>
                                 <td class="py-3 px-4"><label class="switch"><input type="checkbox" checked><span
                                             class="slider"></span></label></td>
                                 <td class="py-3 px-4 text-slate-400">03-07 09:30</td>
@@ -254,20 +242,6 @@
                 <div class="col-span-2"><label>编码 (*)</label><input type="text" class="w-full border rounded p-1"></div>
                 <div><label>名称 (*)</label><input type="text" class="w-full border rounded p-1"></div>
                 <div><label>分类 (*)</label><input type="text" class="w-full border rounded p-1"></div>
-                <div><label>等级名称 (*)</label><input type="text" placeholder="如: 一般、重大" class="w-full border rounded p-1">
-                </div>
-                <div><label>严重程度 (*)</label><select class="w-full border rounded p-1 bg-white h-7">
-                        <option>低</option>
-                        <option>中</option>
-                        <option>高</option>
-                        <option>紧急</option>
-                    </select></div>
-                <div><label>颜色标记 (*)</label><select class="w-full border rounded p-1 bg-white h-7">
-                        <option>红</option>
-                        <option>橙</option>
-                        <option>黄</option>
-                        <option>绿</option>
-                    </select></div>
                 <div class="col-span-2"><label>状态 (*)</label>
                     <div class="flex gap-4 mt-1"><label><input type="radio" name="st" checked> 启用</label><label><input
                                 type="radio" name="st"> 停用</label></div>
@@ -290,7 +264,7 @@
                 <div>
                     <label class="block mb-2 font-medium">请选择已填好的模板文件：</label>
                     <input type="file" accept=".xlsx,.csv" class="w-full border p-2 rounded bg-slate-50 cursor-pointer">
-                    <p class="text-xs text-slate-400 mt-2">支持 xlsx 或 csv 文件，单次最多1000条，重复编码将自动覆盖更新。</p>
+                    <p class="text-xs text-slate-400 mt-2">支持 xlsx 或 csv 文件，单次最多1000条，重复编码将自动覆盖更新，不再依赖等级编码。</p>
                 </div>
                 <!-- Mock upload success state -->
                 <div class="bg-green-50 text-green-700 p-3 rounded text-xs hidden" id="importResult">

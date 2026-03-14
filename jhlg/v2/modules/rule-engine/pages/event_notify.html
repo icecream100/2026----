@@ -19,6 +19,7 @@
     <style>
         body { background-color: #f0f2f5; min-width: 1440px; }
         .submenu-item.active { background-color: #2f5ee5; color: white; }
+        .target-type-btn.active { background-color: #2f5ee5; color: white; border-color: #2f5ee5; }
     </style>
 </head>
 <body class="font-sans text-slate-800 antialiased overflow-hidden h-screen flex flex-col">
@@ -52,7 +53,7 @@
                             <i class="fa-solid fa-layer-group w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>协议解析二次接口</span>
                         </a>
                         <a href="alarm_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
-                            <i class="fa-solid fa-triangle-exclamation w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>异常告警二开接口</span>
+                            <i class="fa-solid fa-triangle-exclamation w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>异常告警二次开发接口</span>
                         </a>
                         <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider mt-1">场景联动</div>
                         <a href="event_level.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
@@ -80,7 +81,7 @@
             <div class="flex-1 overflow-y-auto p-5">
                 <!-- 查询区（事件通知查询功能） -->
                 <div class="bg-white p-5 rounded shadow-[0_2px_8px_rgba(0,0,0,0.04)] mb-4 min-w-[1000px]">
-                    <div class="grid grid-cols-5 gap-4">
+                    <div class="grid grid-cols-6 gap-4">
                         <div class="flex items-center gap-3">
                             <label class="text-[13px] text-slate-600 w-24 text-right">标题/关键字</label>
                             <input type="text" placeholder="输入关键字" class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
@@ -94,11 +95,19 @@
                             </select>
                         </div>
                         <div class="flex items-center gap-3">
+                            <label class="text-[13px] text-slate-600 w-16 text-right">事件等级</label>
+                            <select class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
+                                <option value="">全部</option>
+                                <option value="L1">一般</option>
+                                <option value="L2">较大</option>
+                                <option value="L3">重大</option>
+                                <option value="L4">特别重大</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-3">
                             <label class="text-[13px] text-slate-600 w-16 text-right">通知方式</label>
                             <select class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
                                 <option value="">全部</option>
-                                <option value="sms">短信</option>
-                                <option value="email">邮件</option>
                                 <option value="platform">平台消息</option>
                             </select>
                         </div>
@@ -116,7 +125,7 @@
                             <select class="flex-1 border border-slate-200 rounded px-3 py-1.5 text-[13px] outline-none focus:border-brand">
                                 <option value="">全部</option>
                                 <option value="rule">规则触发</option>
-                                <option value="manual">手动发送</option>
+                                <option value="manual">新增通知</option>
                             </select>
                         </div>
                     </div>
@@ -131,8 +140,8 @@
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-[15px] font-bold text-slate-800">通知记录列表</h2>
                         <div class="flex gap-3">
-                            <button onclick="openManualModal()" class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90 flex items-center gap-2">
-                                <i class="fa-solid fa-paper-plane text-xs"></i> 手动发送
+                            <button onclick="openNotifyModal()" class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90 flex items-center gap-2">
+                                <i class="fa-solid fa-paper-plane text-xs"></i> 新增通知
                             </button>
                             <button class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:border-brand flex items-center gap-2">
                                 <i class="fa-solid fa-download text-xs"></i> 导出
@@ -146,7 +155,7 @@
                                 <tr class="bg-slate-50 text-[13px] text-slate-500 border-b border-slate-200">
                                     <th class="py-3 px-4 font-medium">通知标题</th>
                                     <th class="py-3 px-4 font-medium">事件类型</th>
-                                    <th class="py-3 px-4 font-medium">等级</th>
+                                    <th class="py-3 px-4 font-medium">事件等级</th>
                                     <th class="py-3 px-4 font-medium">来源规则</th>
                                     <th class="py-3 px-4 font-medium">发送来源</th>
                                     <th class="py-3 px-4 font-medium">通知方式</th>
@@ -163,7 +172,7 @@
                                     <td class="py-3 px-4"><span class="px-2 py-0.5 bg-orange-50 text-orange-600 rounded text-xs">重大</span></td>
                                     <td class="py-3 px-4 text-slate-500">设备离线自动告警</td>
                                     <td class="py-3 px-4"><span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs">规则触发</span></td>
-                                    <td class="py-3 px-4">短信</td>
+                                    <td class="py-3 px-4">平台消息</td>
                                     <td class="py-3 px-4 text-slate-500">张三、李四</td>
                                     <td class="py-3 px-4"><span class="px-2 py-0.5 bg-green-50 text-green-600 rounded text-xs">成功</span></td>
                                     <td class="py-3 px-4 text-slate-500">2024-03-12 16:45</td>
@@ -177,13 +186,12 @@
                                     <td class="py-3 px-4"><span class="px-2 py-0.5 bg-yellow-50 text-yellow-600 rounded text-xs">较大</span></td>
                                     <td class="py-3 px-4 text-slate-500">网络异常预警</td>
                                     <td class="py-3 px-4"><span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs">规则触发</span></td>
-                                    <td class="py-3 px-4">邮件</td>
+                                    <td class="py-3 px-4">平台消息</td>
                                     <td class="py-3 px-4 text-slate-500">运维邮箱组</td>
                                     <td class="py-3 px-4"><span class="px-2 py-0.5 bg-red-50 text-red-600 rounded text-xs">失败</span></td>
                                     <td class="py-3 px-4 text-slate-500">2024-03-12 16:40</td>
                                     <td class="py-3 px-4">
-                                        <button onclick="openDetailModal()" class="text-brand hover:underline mr-3">查看详情</button>
-                                        <button class="text-orange-500 hover:underline">重发</button>
+                                        <button onclick="openDetailModal()" class="text-brand hover:underline">查看详情</button>
                                     </td>
                                 </tr>
                                 <tr class="border-b border-slate-100 hover:bg-slate-50">
@@ -191,7 +199,7 @@
                                     <td class="py-3 px-4">系统维护</td>
                                     <td class="py-3 px-4"><span class="px-2 py-0.5 bg-green-50 text-green-600 rounded text-xs">一般</span></td>
                                     <td class="py-3 px-4 text-slate-400">-</td>
-                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-50 text-purple-600 rounded text-xs">手动发送</span></td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 bg-purple-50 text-purple-600 rounded text-xs">新增通知</span></td>
                                     <td class="py-3 px-4">平台消息</td>
                                     <td class="py-3 px-4 text-slate-500">平台运维群</td>
                                     <td class="py-3 px-4"><span class="px-2 py-0.5 bg-green-50 text-green-600 rounded text-xs">成功</span></td>
@@ -217,12 +225,12 @@
         </main>
     </div>
 
-    <!-- 手动发送通知 Modal -->
-    <div id="manualModal" class="fixed inset-0 bg-black/40 z-[60] hidden flex items-center justify-center">
+    <!-- 新增通知 Modal -->
+    <div id="notifyModal" class="fixed inset-0 bg-black/40 z-[60] hidden flex items-center justify-center">
         <div class="bg-white rounded-xl shadow-xl w-[640px] flex flex-col max-h-[90vh]">
             <div class="h-12 border-b border-slate-100 flex items-center justify-between px-6 bg-slate-50">
-                <h3 class="text-[15px] font-bold text-slate-800">手动发送通知</h3>
-                <button onclick="closeManualModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+                <h3 class="text-[15px] font-bold text-slate-800">新增通知</h3>
+                <button onclick="closeNotifyModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto p-6">
                 <div class="space-y-4">
@@ -234,23 +242,54 @@
                         <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 事件类型</label>
                         <select class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
                             <option value="">请选择事件类型</option>
-                            <option value="TYPE_001">设备离线（重大 / 橙色）</option>
-                            <option value="TYPE_002">网络异常（较大 / 黄色）</option>
-                            <option value="TYPE_003">数据异常（一般 / 绿色）</option>
+                            <option value="TYPE_001">设备离线</option>
+                            <option value="TYPE_002">网络异常</option>
+                            <option value="TYPE_003">数据异常</option>
+                        </select>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2">事件等级</label>
+                        <select class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                            <option value="">请选择事件等级（可空）</option>
+                            <option value="L1">一般</option>
+                            <option value="L2">较大</option>
+                            <option value="L3">重大</option>
+                            <option value="L4">特别重大</option>
                         </select>
                     </div>
                     <div class="flex items-start gap-3">
                         <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 通知方式</label>
-                        <select class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
-                            <option value="">请选择通知方式</option>
-                            <option value="sms">短信</option>
-                            <option value="email">邮件</option>
-                            <option value="platform">平台消息</option>
-                        </select>
+                        <div class="flex-1">
+                            <div class="border border-slate-200 rounded px-3 py-2 text-[13px] bg-slate-50 text-slate-700">平台消息</div>
+                            <div class="text-xs text-slate-400 mt-1">当前版本仅支持站内平台消息通知。</div>
+                        </div>
                     </div>
                     <div class="flex items-start gap-3">
-                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 接收对象</label>
-                        <input type="text" placeholder="选择接收人或部门" class="flex-1 border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                        <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 通知对象</label>
+                        <div class="flex-1 space-y-3">
+                            <div class="flex items-center gap-2">
+                                <button id="targetTypeDepartment" type="button" onclick="setTargetType('department')" class="target-type-btn active px-3 py-1.5 border border-brand text-[13px] rounded-full text-brand">部门</button>
+                                <button id="targetTypeUser" type="button" onclick="setTargetType('user')" class="target-type-btn px-3 py-1.5 border border-slate-200 text-[13px] rounded-full text-slate-600">用户</button>
+                                <span class="text-xs text-slate-400">请先选择通知对象类型，再搜索并选择具体对象</span>
+                            </div>
+                            <div class="relative">
+                                <input
+                                    id="targetSearchInput"
+                                    type="text"
+                                    placeholder="请输入部门名称搜索"
+                                    onfocus="renderTargetOptions()"
+                                    oninput="renderTargetOptions()"
+                                    class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand"
+                                >
+                                <div id="targetDropdown" class="hidden absolute z-10 left-0 right-0 mt-2 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden">
+                                    <div class="px-3 py-2 text-[12px] text-slate-400 border-b border-slate-100">输入关键字后，从下方搜索结果中选择</div>
+                                    <div id="targetDropdownList" class="max-h-44 overflow-y-auto"></div>
+                                </div>
+                            </div>
+                            <div id="selectedTargets" class="min-h-9 flex flex-wrap gap-2 rounded border border-dashed border-slate-200 px-3 py-2 bg-slate-50">
+                                <span class="text-[12px] text-slate-400">尚未选择通知对象</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="flex items-start gap-3">
                         <label class="text-[13px] text-slate-600 w-24 text-right pt-2"><span class="text-red-500">*</span> 通知内容</label>
@@ -263,8 +302,8 @@
                 </div>
             </div>
             <div class="h-14 border-t border-slate-100 flex items-center justify-end gap-3 px-6 bg-slate-50">
-                <button onclick="closeManualModal()" class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:border-brand">取消</button>
-                <button class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90">发送</button>
+                <button onclick="closeNotifyModal()" class="px-4 py-1.5 border border-slate-200 text-slate-600 text-[13px] rounded hover:border-brand">取消</button>
+                <button class="px-4 py-1.5 bg-brand text-white text-[13px] rounded hover:bg-brand/90">新增通知</button>
             </div>
         </div>
     </div>
@@ -281,14 +320,16 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div><span class="text-[13px] text-slate-500">通知标题：</span><span class="text-[13px] text-slate-800 font-medium">设备离线告警通知</span></div>
                         <div><span class="text-[13px] text-slate-500">事件类型：</span><span class="text-[13px] text-slate-800">设备离线</span></div>
-                        <div><span class="text-[13px] text-slate-500">关联等级：</span><span class="px-2 py-0.5 bg-orange-50 text-orange-600 rounded text-xs">重大</span></div>
+                        <div><span class="text-[13px] text-slate-500">事件等级：</span><span class="px-2 py-0.5 bg-orange-50 text-orange-600 rounded text-xs">重大</span></div>
                         <div><span class="text-[13px] text-slate-500">来源规则：</span><span class="text-[13px] text-slate-800">设备离线自动告警</span></div>
                         <div><span class="text-[13px] text-slate-500">发送来源：</span><span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs">规则触发</span></div>
-                        <div><span class="text-[13px] text-slate-500">通知方式：</span><span class="text-[13px] text-slate-800">短信</span></div>
-                        <div><span class="text-[13px] text-slate-500">接收者：</span><span class="text-[13px] text-slate-800">张三、李四</span></div>
+                        <div><span class="text-[13px] text-slate-500">通知方式：</span><span class="text-[13px] text-slate-800">平台消息</span></div>
+                        <div><span class="text-[13px] text-slate-500">通知对象类型：</span><span class="text-[13px] text-slate-800">用户</span></div>
+                        <div><span class="text-[13px] text-slate-500">通知对象：</span><span class="text-[13px] text-slate-800">张三、李四</span></div>
                         <div><span class="text-[13px] text-slate-500">发送状态：</span><span class="px-2 py-0.5 bg-green-50 text-green-600 rounded text-xs">成功</span></div>
                         <div><span class="text-[13px] text-slate-500">发送时间：</span><span class="text-[13px] text-slate-800">2024-03-12 16:45:30</span></div>
                         <div><span class="text-[13px] text-slate-500">创建人：</span><span class="text-[13px] text-slate-800">系统</span></div>
+                        <div><span class="text-[13px] text-slate-500">附件或链接：</span><span class="text-[13px] text-slate-400">无</span></div>
                     </div>
                     <div class="border-t pt-4">
                         <div class="text-[13px] text-slate-500 mb-2">通知内容：</div>
@@ -308,10 +349,101 @@
     </div>
 
     <script>
-        function openManualModal() { document.getElementById('manualModal').classList.remove('hidden'); }
-        function closeManualModal() { document.getElementById('manualModal').classList.add('hidden'); }
+        const targetOptions = {
+            department: ['后勤保障部', '信息化中心', '安保处', '设备运维部', '教学保障中心', '学生工作处'],
+            user: ['张三', '李四', '王五', '赵六', '陈晓敏', '周运维']
+        };
+        let currentTargetType = 'department';
+        let selectedTargets = [];
+
+        function openNotifyModal() {
+            document.getElementById('notifyModal').classList.remove('hidden');
+            renderTargetOptions();
+        }
+
+        function closeNotifyModal() {
+            document.getElementById('notifyModal').classList.add('hidden');
+            hideTargetDropdown();
+        }
+
         function openDetailModal() { document.getElementById('detailModal').classList.remove('hidden'); }
         function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); }
+
+        function setTargetType(type) {
+            currentTargetType = type;
+            selectedTargets = [];
+            document.getElementById('targetTypeDepartment').classList.toggle('active', type === 'department');
+            document.getElementById('targetTypeDepartment').classList.toggle('border-slate-200', type !== 'department');
+            document.getElementById('targetTypeDepartment').classList.toggle('text-slate-600', type !== 'department');
+            document.getElementById('targetTypeDepartment').classList.toggle('border-brand', type === 'department');
+            document.getElementById('targetTypeDepartment').classList.toggle('text-brand', type === 'department');
+            document.getElementById('targetTypeUser').classList.toggle('active', type === 'user');
+            document.getElementById('targetTypeUser').classList.toggle('border-slate-200', type !== 'user');
+            document.getElementById('targetTypeUser').classList.toggle('text-slate-600', type !== 'user');
+            document.getElementById('targetTypeUser').classList.toggle('border-brand', type === 'user');
+            document.getElementById('targetTypeUser').classList.toggle('text-brand', type === 'user');
+            document.getElementById('targetSearchInput').value = '';
+            document.getElementById('targetSearchInput').placeholder = type === 'department' ? '请输入部门名称搜索' : '请输入用户姓名搜索';
+            renderSelectedTargets();
+            renderTargetOptions();
+        }
+
+        function renderTargetOptions() {
+            const keyword = document.getElementById('targetSearchInput').value.trim().toLowerCase();
+            const dropdown = document.getElementById('targetDropdown');
+            const list = document.getElementById('targetDropdownList');
+            const available = targetOptions[currentTargetType]
+                .filter(item => item.toLowerCase().includes(keyword))
+                .filter(item => !selectedTargets.includes(item));
+
+            if (!available.length) {
+                list.innerHTML = '<div class="px-3 py-2 text-[12px] text-slate-400">未搜索到可选对象</div>';
+            } else {
+                list.innerHTML = available.map(item =>
+                    `<button type="button" onclick="selectTarget('${item}')" class="w-full text-left px-3 py-2 text-[13px] text-slate-700 hover:bg-slate-50">${item}</button>`
+                ).join('');
+            }
+            dropdown.classList.remove('hidden');
+        }
+
+        function hideTargetDropdown() {
+            document.getElementById('targetDropdown').classList.add('hidden');
+        }
+
+        function selectTarget(item) {
+            if (!selectedTargets.includes(item)) {
+                selectedTargets.push(item);
+            }
+            document.getElementById('targetSearchInput').value = '';
+            renderSelectedTargets();
+            renderTargetOptions();
+        }
+
+        function removeTarget(item) {
+            selectedTargets = selectedTargets.filter(target => target !== item);
+            renderSelectedTargets();
+            renderTargetOptions();
+        }
+
+        function renderSelectedTargets() {
+            const container = document.getElementById('selectedTargets');
+            if (!selectedTargets.length) {
+                container.innerHTML = '<span class="text-[12px] text-slate-400">尚未选择通知对象</span>';
+                return;
+            }
+            container.innerHTML = selectedTargets.map(item =>
+                `<span class="inline-flex items-center gap-1 px-2 py-1 bg-brand/10 text-brand rounded-full text-[12px]">${item}<button type="button" onclick="removeTarget('${item}')" class="hover:text-danger"><i class="fa-solid fa-xmark text-[10px]"></i></button></span>`
+            ).join('');
+        }
+
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('targetDropdown');
+            const searchInput = document.getElementById('targetSearchInput');
+            if (!dropdown || !searchInput) return;
+            if (!dropdown.contains(event.target) && event.target !== searchInput) {
+                hideTargetDropdown();
+            }
+        });
     </script>
 </body>
 </html>

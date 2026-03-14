@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1440">
@@ -12,7 +11,14 @@
             theme: {
                 extend: {
                     fontFamily: { sans: ['"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'] },
-                    colors: { brand: '#2f5ee5', navy: '#0b162a' }
+                    colors: {
+                        brand: '#2f5ee5',
+                        navy: '#0b162a',
+                        panel: '#f0f2f5'
+                    },
+                    boxShadow: {
+                        card: '0 2px 10px rgba(15, 23, 42, 0.06)'
+                    }
                 }
             }
         };
@@ -27,74 +33,99 @@
             background-color: #2f5ee5;
             color: white;
         }
+
+        .switch {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            width: 114px;
+            height: 40px;
+            padding: 0 8px;
+            border-radius: 9999px;
+            background: #dbe4ff;
+            color: #2f5ee5;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all .2s ease;
+        }
+
+        .switch.off {
+            background: #dbe4ff;
+            color: #2f5ee5;
+        }
+
+        .switch.on {
+            background: #2f5ee5;
+            color: white;
+        }
+
+        .switch::after {
+            content: "";
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 32px;
+            height: 32px;
+            border-radius: 9999px;
+            background: white;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
+            transition: all .2s ease;
+        }
+
+        .switch.on::after {
+            right: 78px;
+        }
     </style>
 </head>
-
 <body class="font-sans text-slate-800 antialiased overflow-hidden h-screen flex flex-col">
-
-    <header
-        class="h-[60px] bg-brand text-white flex items-center justify-between px-6 shrink-0 z-50 fixed w-full top-0">
+    <header class="h-[60px] bg-brand text-white flex items-center justify-between px-6 shrink-0 z-50 fixed w-full top-0">
         <div class="flex items-center gap-6">
             <div class="text-[17px] font-medium tracking-wide">物联网管理服务系统</div>
-            <button class="text-xl hover:bg-white/10 p-2 rounded transition ml-8"><i
-                    class="fa-solid fa-outdent"></i></button>
+            <button class="text-xl hover:bg-white/10 p-2 rounded transition ml-8"><i class="fa-solid fa-outdent"></i></button>
         </div>
         <div class="flex items-center gap-6">
             <div class="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1 rounded">
-                <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs"><i
-                        class="fa-solid fa-user"></i></div>
+                <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs"><i class="fa-solid fa-user"></i></div>
                 <span class="text-sm">集成开发人员</span>
             </div>
         </div>
     </header>
 
     <div class="flex flex-1 pt-[60px] h-full">
-        <!-- Sidebar -->
-        <aside
-            class="w-[200px] h-full bg-navy flex-shrink-0 text-slate-300 overflow-y-auto overflow-x-hidden border-r border-[#1a253a]">
-            <!-- Nav contents hidden for brevity as it's identical -->
+        <aside class="w-[200px] h-full bg-navy flex-shrink-0 text-slate-300 overflow-y-auto overflow-x-hidden border-r border-[#1a253a]">
             <nav class="py-2 text-[14px]">
                 <div class="menu-item flex items-center justify-between px-5 py-3.5 cursor-pointer text-white">
-                    <div class="flex items-center gap-3"><i class="fa-solid fa-code-branch w-4"></i><span>规则引擎</span>
-                    </div>
+                    <div class="flex items-center gap-3"><i class="fa-solid fa-code-branch w-4"></i><span>规则引擎</span></div>
                     <i class="fa-solid fa-caret-up text-[10px]"></i>
                 </div>
                 <div class="bg-black/20 pb-1">
                     <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider">规则编排</div>
-                    <a href="../index.html"
-                        class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                    <a href="../index.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
                         <i class="fa-solid fa-list w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
                         <span>规则编排列表</span>
                     </a>
-                    <a href="protocol_api.html"
-                        class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                    <a href="protocol_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
                         <i class="fa-solid fa-layer-group w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
                         <span>协议解析二次接口</span>
                     </a>
-                    <a href="alarm_api.html"
-                        class="submenu-item active flex items-center pl-[46px] pr-5 py-3 cursor-pointer text-[13px] relative block">
-                        <i
-                            class="fa-solid fa-triangle-exclamation w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
-                        <span>异常告警二开接口</span>
+                    <a href="alarm_api.html" class="submenu-item active flex items-center pl-[46px] pr-5 py-3 cursor-pointer text-[13px] relative block">
+                        <i class="fa-solid fa-triangle-exclamation w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
+                        <span>异常告警二次开发接口</span>
                     </a>
                     <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider mt-1">场景联动</div>
-                    <a href="event_level.html"
-                        class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                    <a href="event_level.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
                         <i class="fa-solid fa-layer-group w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
                         <span>事件等级管理</span>
                     </a>
-                    <a href="event_type.html"
-                        class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                    <a href="event_type.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
                         <i class="fa-solid fa-tags w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
                         <span>事件类型管理</span>
                     </a>
-                    <a href="event_rule.html"
-                        class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                    <a href="event_rule.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
                         <i class="fa-solid fa-diagram-project w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
                         <span>事件规则管理</span>
                     </a>
-                    <a href="event_notify.html"
-                        class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
+                    <a href="event_notify.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
                         <i class="fa-solid fa-comment-dots w-4 text-center absolute left-6 text-[12px] opacity-70"></i>
                         <span>事件通知管理</span>
                     </a>
@@ -102,105 +133,366 @@
             </nav>
         </aside>
 
-        <!-- Main Content -->
-        <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#f0f2f5]">
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-panel">
             <div class="h-12 flex items-center px-6 bg-white border-b border-slate-200 text-sm text-slate-500 shrink-0">
+                <span>规则引擎</span>
+                <span class="mx-2 text-slate-300">/</span>
+                <span>规则编排</span>
+                <span class="mx-2 text-slate-300">/</span>
                 <span class="text-slate-800 font-medium">异常告警二次开发接口</span>
             </div>
 
             <div class="flex-1 overflow-y-auto p-5">
-                <!-- Search Panel -->
-                <div class="bg-white p-5 rounded shadow-[0_2px_8px_rgba(0,0,0,0.04)] mb-4">
-                    <div class="grid grid-cols-4 gap-6">
-                        <div class="flex items-center gap-3">
-                            <label class="text-[13px] text-slate-600 shrink-0">接口名称</label>
-                            <input type="text" class="border border-slate-200 rounded px-3 py-1.5 text-[13px] w-full">
+                <div class="grid grid-cols-[minmax(0,1.3fr)_520px] gap-5 min-w-[1180px]">
+                    <section class="space-y-5">
+                        <div class="bg-white rounded-2xl shadow-card border border-slate-200">
+                            <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-1.5 h-6 rounded-full bg-brand"></span>
+                                    <h2 class="text-[18px] font-semibold text-slate-800">告警数据输出</h2>
+                                    <button class="text-slate-400 hover:text-slate-500 text-[15px]"><i class="fa-regular fa-circle-question"></i></button>
+                                </div>
+                                <button class="text-brand text-[15px] font-medium hover:text-brand/80" onclick="openModal('output')">
+                                    <i class="fa-regular fa-pen-to-square mr-2"></i>编辑
+                                </button>
+                            </div>
+                            <div class="p-6">
+                                <div class="grid grid-cols-4 border border-slate-200 rounded-xl overflow-hidden text-[14px]">
+                                    <div class="px-6 py-6 bg-slate-50 text-slate-700 border-r border-slate-200">kafka地址</div>
+                                    <div class="px-6 py-6 border-r border-slate-200 flex items-center gap-3">
+                                        <span id="outputAddressDot" class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                                        <span id="outputKafkaAddress" class="text-slate-700">kafka://10.30.2.18:9092</span>
+                                    </div>
+                                    <div class="px-6 py-6 bg-slate-50 text-slate-700 border-r border-slate-200">topic</div>
+                                    <div class="px-6 py-6 text-slate-700" id="outputTopic">alarm.data.output</div>
+                                    <div class="px-6 py-6 bg-slate-50 text-slate-700 border-t border-r border-slate-200">状态</div>
+                                    <div class="px-6 py-6 border-t flex items-center gap-3 col-span-3">
+                                        <span id="outputStatusDot" class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                                        <span id="outputStatusText" class="text-slate-700">禁用</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <label class="text-[13px] text-slate-600 shrink-0">状态</label>
-                            <select class="border border-slate-200 rounded px-3 py-1.5 text-[13px] w-full bg-white">
-                                <option>全部</option>
-                                <option>启用</option>
-                                <option>停用</option>
-                            </select>
-                        </div>
-                        <div class="flex justify-end gap-3 w-full col-start-4">
-                            <button class="px-4 py-1.5 bg-brand text-white text-[13px] rounded">查询</button>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Table Panel -->
-                <div class="bg-white p-5 rounded shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-[15px] font-bold">接口列表</h2>
-                        <button onclick="openModal()" class="px-4 py-1.5 bg-brand text-white text-[13px] rounded"><i
-                                class="fa-solid fa-plus text-xs"></i> 新增配置</button>
-                    </div>
+                        <div class="bg-white rounded-2xl shadow-card border border-slate-200">
+                            <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-1.5 h-6 rounded-full bg-brand"></span>
+                                    <h2 class="text-[18px] font-semibold text-slate-800">告警处理结果输入</h2>
+                                    <button class="text-slate-400 hover:text-slate-500 text-[15px]"><i class="fa-regular fa-circle-question"></i></button>
+                                </div>
+                                <button class="text-brand text-[15px] font-medium hover:text-brand/80" onclick="openModal('input')">
+                                    <i class="fa-regular fa-pen-to-square mr-2"></i>编辑
+                                </button>
+                            </div>
+                            <div class="p-6">
+                                <div class="grid grid-cols-4 border border-slate-200 rounded-xl overflow-hidden text-[14px]">
+                                    <div class="px-6 py-6 bg-slate-50 text-slate-700 border-r border-slate-200">kafka地址</div>
+                                    <div class="px-6 py-6 border-r border-slate-200 flex items-center gap-3">
+                                        <span id="inputAddressDot" class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                                        <span id="inputKafkaAddress" class="text-slate-700">kafka://10.30.2.18:9092</span>
+                                    </div>
+                                    <div class="px-6 py-6 bg-slate-50 text-slate-700 border-r border-slate-200">topic</div>
+                                    <div class="px-6 py-6 text-slate-700" id="inputTopic">alarm.handle.result</div>
+                                    <div class="px-6 py-6 bg-slate-50 text-slate-700 border-t border-r border-slate-200">状态</div>
+                                    <div class="px-6 py-6 border-t flex items-center gap-3 col-span-3">
+                                        <span id="inputStatusDot" class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                                        <span id="inputStatusText" class="text-slate-700">禁用</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
-                    <table class="w-full text-left border-collapse border border-slate-200">
-                        <thead>
-                            <tr class="bg-slate-50 text-[13px] text-slate-500 border-b border-slate-200">
-                                <th class="py-3 px-4 font-medium">接口名称</th>
-                                <th class="py-3 px-4 font-medium">适用告警类型</th>
-                                <th class="py-3 px-4 font-medium">调用地址</th>
-                                <th class="py-3 px-4 font-medium">状态</th>
-                                <th class="py-3 px-4 font-medium">最近调用结果</th>
-                                <th class="py-3 px-4 font-medium w-[180px]">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-[13px] text-slate-700">
-                            <tr class="border-b border-slate-100 hover:bg-slate-50">
-                                <td class="py-3 px-4 text-brand font-medium">消防告警流转系统对接</td>
-                                <td class="py-3 px-4"><span
-                                        class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded mr-1">火警</span><span
-                                        class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded">故障</span></td>
-                                <td class="py-3 px-4 text-slate-500 font-mono">http://fire-sys:9000/api/hook</td>
-                                <td class="py-3 px-4 text-green-600">启用</td>
-                                <td class="py-3 px-4 text-green-600">成功</td>
-                                <td class="py-3 px-4">
-                                    <button class="text-brand mr-3" onclick="alert('TODO:查看说明')">说明</button>
-                                    <button class="text-brand mr-3" onclick="openModal()">编辑</button>
-                                    <button class="text-red-500" onclick="confirm('确认删除？')">删除</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <aside class="bg-white rounded-2xl shadow-card border border-slate-200 p-6">
+                        <h2 class="text-[18px] font-semibold text-slate-800">功能图示</h2>
+                        <div class="mt-5 bg-slate-50 rounded-2xl p-5">
+                            <div class="flex items-center justify-between gap-4 text-center">
+                                <div class="w-[104px]">
+                                    <div class="h-[118px] rounded-xl bg-white border border-slate-200 flex flex-col items-center justify-center gap-2 text-slate-500">
+                                        <i class="fa-solid fa-triangle-exclamation text-[20px]"></i>
+                                        <span class="text-[13px] leading-5">告警数据</span>
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-[72px] text-slate-400">
+                                    <div class="text-[12px] text-brand/70 mb-1">推送</div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="flex-1 h-[2px] bg-slate-300"></span>
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </div>
+                                </div>
+                                <div class="w-[112px] h-[300px] rounded-2xl bg-brand text-white flex flex-col items-center justify-center gap-4">
+                                    <i class="fa-brands fa-kickstarter text-[32px]"></i>
+                                    <span class="text-[18px] font-medium">kafka</span>
+                                </div>
+                                <div class="flex-1 min-w-[72px] text-slate-400">
+                                    <div class="text-[12px] text-brand/70 mb-1">订阅</div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="flex-1 h-[2px] bg-slate-300"></span>
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </div>
+                                    <div class="text-[12px] text-brand/70 mt-[84px] mb-1">推送</div>
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-arrow-left"></i>
+                                        <span class="flex-1 h-[2px] bg-slate-300"></span>
+                                    </div>
+                                </div>
+                                <div class="w-[118px]">
+                                    <div class="h-[118px] rounded-xl bg-white border border-slate-200 flex flex-col items-center justify-center gap-2 text-slate-500">
+                                        <i class="fa-solid fa-desktop text-[20px]"></i>
+                                        <span class="text-[13px] leading-5">三方系统<br>告警处理</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <h3 class="text-[18px] font-semibold text-slate-800">功能说明</h3>
+                            <div class="mt-3 text-[14px] text-slate-600 leading-8">
+                                1、平台支持将告警数据输出到 Kafka，第三方系统可订阅 Kafka 中的告警数据并进行业务处理。<br>
+                                2、第三方系统处理完成后，可将处理结果回传到指定 Topic，平台订阅后回写处理状态。<br>
+                                3、输出与输入为两套独立配置，可分别启停和维护。
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <h3 class="text-[16px] font-semibold text-slate-800">输出参数</h3>
+                            <div class="overflow-hidden mt-3 rounded-xl border border-slate-200">
+                                <table class="w-full text-left text-[13px]">
+                                    <thead class="bg-[#edf3ff] text-slate-600">
+                                        <tr>
+                                            <th class="px-4 py-3 font-medium">名称</th>
+                                            <th class="px-4 py-3 font-medium">标识</th>
+                                            <th class="px-4 py-3 font-medium">类型</th>
+                                            <th class="px-4 py-3 font-medium">说明</th>
+                                            <th class="px-4 py-3 font-medium">示例值</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-slate-700">
+                                        <tr class="border-t border-slate-200">
+                                            <td class="px-4 py-3">告警名称</td>
+                                            <td class="px-4 py-3">alarmName</td>
+                                            <td class="px-4 py-3">string</td>
+                                            <td class="px-4 py-3">推送的告警名称</td>
+                                            <td class="px-4 py-3">烟感告警</td>
+                                        </tr>
+                                        <tr class="border-t border-slate-200">
+                                            <td class="px-4 py-3">告警编码</td>
+                                            <td class="px-4 py-3">alarmCode</td>
+                                            <td class="px-4 py-3">string</td>
+                                            <td class="px-4 py-3">推送的告警类型编码</td>
+                                            <td class="px-4 py-3">16051117</td>
+                                        </tr>
+                                        <tr class="border-t border-slate-200">
+                                            <td class="px-4 py-3">告警唯一ID</td>
+                                            <td class="px-4 py-3">alarmId</td>
+                                            <td class="px-4 py-3">string</td>
+                                            <td class="px-4 py-3">告警记录唯一主键</td>
+                                            <td class="px-4 py-3">15159928</td>
+                                        </tr>
+                                        <tr class="border-t border-slate-200">
+                                            <td class="px-4 py-3">设备ID</td>
+                                            <td class="px-4 py-3">deviceId</td>
+                                            <td class="px-4 py-3">string</td>
+                                            <td class="px-4 py-3">触发告警的设备标识</td>
+                                            <td class="px-4 py-3">ba33a59c</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <h3 class="text-[16px] font-semibold text-slate-800">输入参数</h3>
+                            <div class="overflow-hidden mt-3 rounded-xl border border-slate-200">
+                                <table class="w-full text-left text-[13px]">
+                                    <thead class="bg-[#edf3ff] text-slate-600">
+                                        <tr>
+                                            <th class="px-4 py-3 font-medium">名称</th>
+                                            <th class="px-4 py-3 font-medium">标识</th>
+                                            <th class="px-4 py-3 font-medium">类型</th>
+                                            <th class="px-4 py-3 font-medium">说明</th>
+                                            <th class="px-4 py-3 font-medium">示例值</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-slate-700">
+                                        <tr class="border-t border-slate-200">
+                                            <td class="px-4 py-3">告警唯一ID</td>
+                                            <td class="px-4 py-3">alarmId</td>
+                                            <td class="px-4 py-3">string</td>
+                                            <td class="px-4 py-3">对应平台输出的告警标识</td>
+                                            <td class="px-4 py-3">15159928</td>
+                                        </tr>
+                                        <tr class="border-t border-slate-200">
+                                            <td class="px-4 py-3">处理状态</td>
+                                            <td class="px-4 py-3">handleStatus</td>
+                                            <td class="px-4 py-3">string</td>
+                                            <td class="px-4 py-3">第三方处理结果</td>
+                                            <td class="px-4 py-3">已处理</td>
+                                        </tr>
+                                        <tr class="border-t border-slate-200">
+                                            <td class="px-4 py-3">处理人</td>
+                                            <td class="px-4 py-3">handleUser</td>
+                                            <td class="px-4 py-3">string</td>
+                                            <td class="px-4 py-3">第三方系统处理人</td>
+                                            <td class="px-4 py-3">张三</td>
+                                        </tr>
+                                        <tr class="border-t border-slate-200">
+                                            <td class="px-4 py-3">处理说明</td>
+                                            <td class="px-4 py-3">handleRemark</td>
+                                            <td class="px-4 py-3">string</td>
+                                            <td class="px-4 py-3">处理备注</td>
+                                            <td class="px-4 py-3">已通知现场核查</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 grid grid-cols-2 gap-4">
+                            <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
+                                <div class="text-[14px] font-medium text-slate-800">告警输出示例</div>
+                                <pre class="mt-3 text-[12px] leading-6 text-slate-600">{
+  "alarmId": "15159928",
+  "alarmName": "烟感告警",
+  "alarmCode": "16051117",
+  "deviceId": "ba33a59c"
+}</pre>
+                            </div>
+                            <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
+                                <div class="text-[14px] font-medium text-slate-800">处理结果输入示例</div>
+                                <pre class="mt-3 text-[12px] leading-6 text-slate-600">{
+  "alarmId": "15159928",
+  "handleStatus": "已处理",
+  "handleUser": "张三",
+  "handleRemark": "现场已确认"
+}</pre>
+                            </div>
+                        </div>
+                    </aside>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Simple Form Modal -->
-    <div id="modal" class="fixed inset-0 bg-black/40 z-[60] hidden flex items-center justify-center">
-        <div class="bg-white rounded shadow-xl w-[500px]">
-            <div class="p-4 border-b border-slate-100 font-bold flex justify-between">配置告警二开接口<button
-                    onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="p-4 space-y-3 test-[13px]">
-                <div><label>名称</label><input type="text" class="w-full border rounded p-1 mt-1"></div>
-                <div><label>告警类型</label><select multiple class="w-full border rounded p-1 mt-1 bg-white h-16">
-                        <option>火警</option>
-                        <option>安防越界</option>
-                        <option>漏水</option>
-                    </select></div>
-                <div><label>调用地址</label><input type="text" class="w-full border rounded p-1 mt-1 font-mono text-sm">
-                </div>
-                <div class="flex gap-4">
-                    <div class="flex-1"><label>超时(ms)</label><input type="number" value="3000"
-                            class="w-full border rounded p-1 mt-1"></div>
-                    <div class="flex-1"><label>重试次数</label><input type="number" value="3"
-                            class="w-full border rounded p-1 mt-1"></div>
+    <div id="configModal" class="fixed inset-0 bg-black/45 z-[70] hidden items-center justify-center px-6">
+        <div class="w-[1320px] max-w-full bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div class="px-12 py-8 border-b border-slate-200 flex items-center justify-between">
+                <h3 class="text-[20px] font-semibold text-slate-800">编辑</h3>
+                <button class="text-slate-400 hover:text-slate-600 text-[18px]" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="px-16 py-14">
+                <div class="space-y-16">
+                    <div class="grid grid-cols-[180px_minmax(0,1fr)] items-center gap-x-10">
+                        <label class="text-[16px] text-slate-700 text-right">kafka地址：</label>
+                        <input id="modalKafkaAddress" type="text" class="h-[62px] rounded-xl border border-slate-300 px-5 text-[16px] outline-none focus:border-brand">
+                    </div>
+                    <div class="grid grid-cols-[180px_minmax(0,1fr)] items-center gap-x-10">
+                        <label class="text-[16px] text-slate-700 text-right">topic：</label>
+                        <input id="modalTopic" type="text" class="h-[62px] rounded-xl border border-slate-300 px-5 text-[16px] outline-none focus:border-brand">
+                    </div>
+                    <div class="grid grid-cols-[180px_minmax(0,1fr)] items-center gap-x-10">
+                        <label class="text-[16px] text-slate-700 text-right">状态：</label>
+                        <button id="modalStatusToggle" class="switch off justify-start pl-4" type="button" onclick="toggleModalStatus()">禁用</button>
+                    </div>
                 </div>
             </div>
-            <div class="p-4 border-t border-slate-100 flex justify-end gap-3"><button class="px-3"
-                    onclick="closeModal()">取消</button><button class="px-3 bg-brand text-white rounded"
-                    onclick="closeModal()">保存</button></div>
+            <div class="px-12 py-5 border-t border-slate-200 flex justify-end gap-4 bg-slate-50">
+                <button class="px-10 h-[48px] rounded-xl border border-slate-300 text-[16px] text-slate-700 hover:bg-white" onclick="closeModal()">取消</button>
+                <button class="px-10 h-[48px] rounded-xl bg-brand text-white text-[16px] hover:bg-brand/90" onclick="saveConfig()">确定</button>
+            </div>
         </div>
     </div>
+
+    <div id="toast" class="fixed top-5 right-5 hidden items-center gap-3 bg-[#0f172a] text-white px-4 py-3 rounded-xl shadow-2xl z-[80]">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastText" class="text-[13px]"></span>
+    </div>
+
     <script>
-        function openModal() { document.getElementById('modal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+        const configs = {
+            output: {
+                title: '告警数据输出',
+                kafkaAddress: 'kafka://10.30.2.18:9092',
+                topic: 'alarm.data.output',
+                enabled: false
+            },
+            input: {
+                title: '告警处理结果输入',
+                kafkaAddress: 'kafka://10.30.2.18:9092',
+                topic: 'alarm.handle.result',
+                enabled: false
+            }
+        };
+
+        let currentKey = 'output';
+        let modalEnabled = false;
+        let toastTimer = null;
+
+        function applyConfig(key) {
+            const config = configs[key];
+            document.getElementById(`${key}KafkaAddress`).textContent = config.kafkaAddress;
+            document.getElementById(`${key}Topic`).textContent = config.topic;
+            document.getElementById(`${key}StatusText`).textContent = config.enabled ? '启用' : '禁用';
+            document.getElementById(`${key}StatusDot`).className = `w-2.5 h-2.5 rounded-full ${config.enabled ? 'bg-emerald-500' : 'bg-red-500'}`;
+            document.getElementById(`${key}AddressDot`).className = `w-2.5 h-2.5 rounded-full ${config.enabled ? 'bg-emerald-500' : 'bg-red-500'}`;
+        }
+
+        function openModal(key) {
+            currentKey = key;
+            const config = configs[key];
+            document.getElementById('modalKafkaAddress').value = config.kafkaAddress;
+            document.getElementById('modalTopic').value = config.topic;
+            modalEnabled = config.enabled;
+            renderModalStatus();
+            document.getElementById('configModal').classList.remove('hidden');
+            document.getElementById('configModal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('configModal').classList.add('hidden');
+            document.getElementById('configModal').classList.remove('flex');
+        }
+
+        function toggleModalStatus() {
+            modalEnabled = !modalEnabled;
+            renderModalStatus();
+        }
+
+        function renderModalStatus() {
+            const button = document.getElementById('modalStatusToggle');
+            button.textContent = modalEnabled ? '启用' : '禁用';
+            button.classList.toggle('on', modalEnabled);
+            button.classList.toggle('off', !modalEnabled);
+            button.classList.toggle('justify-start', !modalEnabled);
+            button.classList.toggle('pl-4', !modalEnabled);
+            button.classList.toggle('justify-end', modalEnabled);
+            button.classList.toggle('pr-4', modalEnabled);
+        }
+
+        function saveConfig() {
+            configs[currentKey].kafkaAddress = document.getElementById('modalKafkaAddress').value || '--';
+            configs[currentKey].topic = document.getElementById('modalTopic').value || '--';
+            configs[currentKey].enabled = modalEnabled;
+            applyConfig(currentKey);
+            closeModal();
+            showToast(`${configs[currentKey].title}已更新（原型演示）`);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastText').textContent = message;
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 2200);
+        }
+
+        applyConfig('output');
+        applyConfig('input');
     </script>
 </body>
-
 </html>

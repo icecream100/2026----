@@ -67,7 +67,7 @@
                             <i class="fa-solid fa-layer-group w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>协议解析二次接口</span>
                         </a>
                         <a href="alarm_api.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
-                            <i class="fa-solid fa-triangle-exclamation w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>异常告警二开接口</span>
+                            <i class="fa-solid fa-triangle-exclamation w-4 text-center absolute left-6 text-[12px] opacity-70"></i><span>异常告警二次开发接口</span>
                         </a>
                         <div class="px-5 py-2 text-xs text-slate-500 font-medium tracking-wider mt-1">场景联动</div>
                         <a href="event_level.html" class="flex items-center pl-[46px] pr-5 py-2.5 cursor-pointer hover:text-white text-[13px] relative block">
@@ -223,15 +223,21 @@
                                     <input type="text" placeholder="请输入名称" class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
 
                                     <label class="text-[13px] text-slate-600 text-right pt-2"><span class="text-red-500">*</span> 事件类型</label>
-                                    <select id="ruleEventType" onchange="syncEventLevel()" class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
-                                        <option value="" data-level="">请选择事件类型</option>
-                                        <option value="TYPE_001" data-level="重大">设备离线</option>
-                                        <option value="TYPE_002" data-level="较大">网络异常</option>
-                                        <option value="TYPE_003" data-level="一般">数据异常</option>
+                                    <select id="ruleEventType" class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                        <option value="">请选择事件类型</option>
+                                        <option value="TYPE_001">设备离线</option>
+                                        <option value="TYPE_002">网络异常</option>
+                                        <option value="TYPE_003">数据异常</option>
                                     </select>
 
                                     <label class="text-[13px] text-slate-600 text-right pt-2"><span class="text-red-500">*</span> 事件等级</label>
-                                    <input id="ruleEventLevel" type="text" placeholder="由事件类型自动带出" readonly class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] bg-slate-50 text-slate-500">
+                                    <select id="ruleEventLevel" class="w-full border border-slate-200 rounded px-3 py-2 text-[13px] outline-none focus:border-brand">
+                                        <option value="">请选择事件等级</option>
+                                        <option value="L1">一般</option>
+                                        <option value="L2">较大</option>
+                                        <option value="L3">重大</option>
+                                        <option value="L4">特别重大</option>
+                                    </select>
                                 </div>
 
                                 <div>
@@ -436,7 +442,7 @@
                                     <div class="space-y-4">
                                         <div>
                                             <div class="font-medium text-slate-800 mb-1">2.1 事件属性</div>
-                                            <p>事件类型由用户选择，事件等级由事件类型自动带出并只读展示，避免事件和等级口径不一致。</p>
+                                            <p>事件类型与事件等级由用户分别选择，二者不做强关联，可按实际业务自由组合。</p>
                                         </div>
                                         <div>
                                             <div class="font-medium text-slate-800 mb-1">2.2 设备触发</div>
@@ -453,7 +459,7 @@
                                     <div class="flex items-start gap-3">
                                         <i class="fa-regular fa-circle-question text-brand mt-1"></i>
                                         <div class="text-[12px] leading-6 text-slate-600">
-                                            说明：只有当事件类型已关联事件等级时，规则才允许保存；若历史规则未关联事件类型，则需补齐后再保存。
+                                            说明：保存规则时必须同时选择事件类型和事件等级；若历史规则缺失任一字段，则需补齐后再保存。
                                         </div>
                                     </div>
                                 </div>
@@ -479,13 +485,6 @@
         function closeModal() {
             document.getElementById('modal').classList.add('hidden');
             document.getElementById('modal').classList.remove('flex');
-        }
-
-        function syncEventLevel() {
-            const typeSelect = document.getElementById('ruleEventType');
-            const levelInput = document.getElementById('ruleEventLevel');
-            const selected = typeSelect.options[typeSelect.selectedIndex];
-            levelInput.value = selected ? (selected.dataset.level || '') : '';
         }
 
         function setTriggerType(type) {
