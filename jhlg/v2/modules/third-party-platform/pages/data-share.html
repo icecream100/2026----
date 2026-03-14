@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据统计</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../assets/prototype-theme.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="page-body" x-data="statsPage()" x-init="init()">
+    <div class="page-shell">
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <h2 class="panel-title display-font">数据统计</h2>
+                    <p class="panel-subtitle">支持按时间范围、第三方平台、共享类型和 API/服务名称组合筛选。</p>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-secondary" @click="resetFilters">重置</button>
+                    <button class="btn btn-primary" @click="refreshView">查询</button>
+                </div>
+            </div>
+            <div class="control-grid">
+                <div>
+                    <label class="field-label">时间范围</label>
+                    <select class="select" x-model="filters.range" @change="refreshView">
+                        <option value="7d">最近 7 天</option>
+                        <option value="30d">最近 30 天</option>
+                        <option value="90d">最近 90 天</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">第三方平台</label>
+                    <select class="select" x-model="filters.platform">
+                        <option value="">全部平台</option>
+                        <option value="市一网统管平台">市一网统管平台</option>
+                        <option value="通广路灯管养系统">通广路灯管养系统</option>
+                        <option value="环保监测大屏">环保监测大屏</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">共享类型</label>
+                    <select class="select" x-model="filters.shareType">
+                        <option value="">全部类型</option>
+                        <option value="环境监测">环境监测</option>
+                        <option value="设备告警">设备告警</option>
+                        <option value="设备控制">设备控制</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">API / 服务名称</label>
+                    <input class="field" type="text" placeholder="请输入 API / 服务名称" x-model="filters.keyword">
+                </div>
+            </div>
+        </section>
+
+        <section class="stat-grid">
+            <div class="stat-card">
+                <p class="stat-label">调用次数</p>
+                <p class="stat-value display-font" x-text="summary.callCount"></p>
+                <div class="stat-meta">较上周期 <span class="text-emerald-600" x-text="summary.callTrend"></span></div>
+            </div>
+            <div class="stat-card">
+                <p class="stat-label">访问平台数</p>
+                <p class="stat-value display-font" x-text="summary.platformCount"></p>
+                <div class="stat-meta">活跃平台更集中</div>
+            </div>
+            <div class="stat-card">
+                <p class="stat-label">数据包总大小</p>
+                <p class="stat-value display-font" x-text="summary.packetSize"></p>
+                <div class="stat-meta">较上周期 <span class="text-emerald-600" x-text="summary.sizeTrend"></span></div>
+            </div>
+            <div class="stat-card">
+                <p class="stat-label">失败率</p>
+                <p class="stat-value display-font text-red-500" x-text="summary.failRate"></p>
+                <div class="stat-meta">调用次数为 0 时固定显示 0%</div>
+            </div>
+        </section>
+
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <h2 class="panel-title display-font">访问量统计</h2>
+                    <p class="panel-subtitle">统计表支持按平台、共享类型和 API 名称维度聚合展示，默认按调用次数倒序。</p>
+                </div>
+            </div>
+
+            <div class="table-shell">
+                <div class="table-scroll">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>维度名称</th>
+                                <th>调用次数</th>
+                                <th>成功次数</th>
+                                <th>失败次数</th>
+                                <th>失败率</th>
+                                <th>数据包总大小(KB)</th>
+                                <th>平均响应时长(ms)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="item in filteredStats" :key="item.name">
+                                <tr>
+                                    <td class="font-bold" x-text="item.name"></td>
+                                    <td x-text="item.calls"></td>
+                                    <td x-text="item.success"></td>
+                                    <td x-text="item.fail"></td>
+                                    <td x-text="item.failRate"></td>
+                                    <td x-text="item.size"></td>
+                                    <td x-text="item.avgRt"></td>
+                                </tr>
+                            </template>
+                            <tr x-show="filteredStats.length === 0">
+                                <td colspan="7" class="py-14 text-center muted">暂无统计数据</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid gap-4 xl:grid-cols-2">
+            <div class="panel-card">
+                <div class="panel-head">
+                    <div>
+                        <h2 class="panel-title display-font">调用次数趋势</h2>
+                        <p class="panel-subtitle">趋势图粒度会随时间范围自动变化，避免长时间范围下图表点位过密。</p>
+                    </div>
+                </div>
+                <div class="h-[320px]">
+                    <canvas id="callsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-head">
+                    <div>
+                        <h2 class="panel-title display-font">失败率与数据包大小趋势</h2>
+                        <p class="panel-subtitle">支持观察失败率波动与数据包大小变化，用于识别异常高峰与容量变化。</p>
+                    </div>
+                </div>
+                <div class="h-[320px]">
+                    <canvas id="qualityChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <template x-if="toast.show">
+        <div class="toast success">
+            <i class="fa-solid fa-circle-check"></i>
+            <span x-text="toast.message"></span>
+        </div>
+    </template>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('statsPage', () => ({
+                filters: { range: '30d', platform: '', shareType: '', keyword: '' },
+                toast: { show: false, message: '' },
+                callsChart: null,
+                qualityChart: null,
+                summary: {
+                    callCount: '142,593',
+                    callTrend: '+12.6%',
+                    platformCount: '3',
+                    packetSize: '458.2MB',
+                    sizeTrend: '+8.1%',
+                    failRate: '1.8%'
+                },
+                stats: [
+                    { name: '市一网统管平台', platform: '市一网统管平台', shareType: '环境监测', keyword: '环境监测信息接口', calls: '61,284', success: '60,811', fail: '473', failRate: '0.77%', size: '183,420', avgRt: '126' },
+                    { name: '通广路灯管养系统', platform: '通广路灯管养系统', shareType: '设备控制', keyword: '路灯控制接口', calls: '42,108', success: '40,981', fail: '1,127', failRate: '2.68%', size: '126,200', avgRt: '212' },
+                    { name: '环保监测大屏', platform: '环保监测大屏', shareType: '设备告警', keyword: '设备告警接口', calls: '39,201', success: '38,061', fail: '1,140', failRate: '2.91%', size: '148,580', avgRt: '178' }
+                ],
+
+                init() {
+                    this.renderCharts();
+                },
+
+                get filteredStats() {
+                    return this.stats.filter((item) => {
+                        const matchPlatform = !this.filters.platform || item.platform === this.filters.platform;
+                        const matchType = !this.filters.shareType || item.shareType === this.filters.shareType;
+                        const matchKeyword = !this.filters.keyword || item.keyword.includes(this.filters.keyword) || item.name.includes(this.filters.keyword);
+                        return matchPlatform && matchType && matchKeyword;
+                    });
+                },
+
+                resetFilters() {
+                    this.filters = { range: '30d', platform: '', shareType: '', keyword: '' };
+                    this.refreshView();
+                },
+
+                refreshView() {
+                    this.renderCharts();
+                    this.showToast('统计视图已刷新');
+                },
+
+                chartLabels() {
+                    if (this.filters.range === '7d') return ['03-08', '03-09', '03-10', '03-11', '03-12', '03-13', '03-14'];
+                    if (this.filters.range === '90d') return ['第1周', '第2周', '第3周', '第4周', '第5周', '第6周'];
+                    return ['02-14', '02-18', '02-22', '02-26', '03-02', '03-06', '03-10', '03-14'];
+                },
+
+                renderCharts() {
+                    const labels = this.chartLabels();
+                    const callsData = this.filters.range === '7d' ? [1200, 1480, 1390, 1550, 1620, 1710, 1840] :
+                        (this.filters.range === '90d' ? [10200, 11800, 12300, 13200, 14120, 15280] : [9200, 10860, 11320, 11980, 12440, 13120, 13840, 14590]);
+                    const failRateData = this.filters.range === '7d' ? [1.2, 1.1, 1.6, 1.4, 1.9, 1.7, 1.8] :
+                        (this.filters.range === '90d' ? [1.8, 1.6, 1.9, 2.1, 1.7, 1.8] : [1.4, 1.6, 1.3, 1.7, 1.8, 1.5, 1.9, 1.8]);
+                    const sizeData = this.filters.range === '7d' ? [32, 35, 31, 37, 39, 42, 45] :
+                        (this.filters.range === '90d' ? [188, 201, 214, 226, 239, 252] : [88, 94, 101, 109, 117, 122, 131, 146]);
+
+                    if (this.callsChart) this.callsChart.destroy();
+                    if (this.qualityChart) this.qualityChart.destroy();
+
+                    this.callsChart = new Chart(document.getElementById('callsChart'), {
+                        type: 'line',
+                        data: {
+                            labels,
+                            datasets: [{
+                                label: '调用次数',
+                                data: callsData,
+                                borderColor: '#165dff',
+                                backgroundColor: 'rgba(22, 93, 255, 0.14)',
+                                fill: true,
+                                tension: 0.38,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#165dff'
+                            }]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { grid: { color: '#e8eef7' }, ticks: { color: '#6b7a90' } },
+                                x: { grid: { display: false }, ticks: { color: '#6b7a90' } }
+                            }
+                        }
+                    });
+
+                    this.qualityChart = new Chart(document.getElementById('qualityChart'), {
+                        data: {
+                            labels,
+                            datasets: [
+                                {
+                                    type: 'bar',
+                                    label: '数据包大小(KB)',
+                                    data: sizeData,
+                                    backgroundColor: 'rgba(22, 163, 74, 0.3)',
+                                    borderRadius: 10,
+                                    yAxisID: 'y'
+                                },
+                                {
+                                    type: 'line',
+                                    label: '失败率(%)',
+                                    data: failRateData,
+                                    borderColor: '#dc2626',
+                                    backgroundColor: '#dc2626',
+                                    tension: 0.35,
+                                    pointRadius: 4,
+                                    yAxisID: 'y1'
+                                }
+                            ]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+                            scales: {
+                                y: { position: 'left', grid: { color: '#e8eef7' }, ticks: { color: '#6b7a90' } },
+                                y1: { position: 'right', grid: { display: false }, ticks: { color: '#6b7a90' } },
+                                x: { grid: { display: false }, ticks: { color: '#6b7a90' } }
+                            }
+                        }
+                    });
+                },
+
+                showToast(message) {
+                    this.toast = { show: true, message };
+                    setTimeout(() => {
+                        this.toast.show = false;
+                    }, 1800);
+                }
+            }));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第三方平台及授权管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="../assets/prototype-theme.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="page-body" x-data="platformPage()" x-init="init()">
+    <div class="page-shell">
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <h2 class="panel-title display-font">平台检索</h2>
+                    <p class="panel-subtitle">按照名称和状态筛选平台列表，主流程操作集中在列表行内完成。</p>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-secondary" @click="resetSearch"><i class="fa-solid fa-rotate-left"></i>重置</button>
+                    <button class="btn btn-primary" @click="searchList"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+                </div>
+            </div>
+            <div class="control-grid">
+                <div>
+                    <label class="field-label">名称</label>
+                    <input class="field" type="text" placeholder="请输入平台名称" x-model="search.name">
+                </div>
+                <div>
+                    <label class="field-label">状态</label>
+                    <select class="select" x-model="search.status">
+                        <option value="">全部状态</option>
+                        <option value="启用">启用</option>
+                        <option value="禁用">禁用</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <h2 class="panel-title display-font">平台列表</h2>
+                    <p class="panel-subtitle">列表行内统一承载授权、编辑、查看 API、设备管理、启停和删除动作。</p>
+                </div>
+                <button class="btn btn-primary" @click="openModal('add')"><i class="fa-solid fa-plus"></i>新增平台</button>
+            </div>
+
+            <div class="table-shell">
+                <div class="table-scroll">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>名称</th>
+                                <th>状态</th>
+                                <th>开放接入方式</th>
+                                <th>联系人</th>
+                                <th>服务类型</th>
+                                <th>更新时间</th>
+                                <th>说明</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="item in filteredList" :key="item.id">
+                                <tr>
+                                    <td>
+                                        <div class="font-bold" x-text="item.name"></div>
+                                        <div class="muted text-xs mt-2" x-text="item.orgName"></div>
+                                    </td>
+                                    <td>
+                                        <span class="status-pill" :class="item.status === '启用' ? 'success' : 'disabled'">
+                                            <i class="fa-solid fa-circle text-[8px]"></i>
+                                            <span x-text="item.status"></span>
+                                        </span>
+                                    </td>
+                                    <td><span x-text="item.accessType || '未配置'"></span></td>
+                                    <td>
+                                        <div x-text="item.contact"></div>
+                                        <div class="muted text-xs mt-1" x-text="item.phone"></div>
+                                    </td>
+                                    <td x-text="item.serviceType"></td>
+                                    <td class="muted" x-text="item.updateTime"></td>
+                                    <td class="muted max-w-[260px]" x-text="item.desc"></td>
+                                    <td>
+                                        <div class="flex flex-wrap gap-3 text-[13px]">
+                                            <a class="link-btn" :href="`auth.html?platform=${item.id}`">授权</a>
+                                            <button class="link-btn" @click="openModal('edit', item)">编辑</button>
+                                            <a class="link-btn" :href="`view-api.html?platform=${item.id}`">查看API</a>
+                                            <a class="link-btn" :href="`device.html?platform=${item.id}`">设备管理</a>
+                                            <button class="link-btn" @click="toggleStatus(item)" x-text="item.status === '启用' ? '禁用' : '启用'"></button>
+                                            <button class="link-btn danger" @click="removeItem(item)">删除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr x-show="filteredList.length === 0">
+                                <td colspan="8" class="py-14 text-center muted">暂无第三方平台</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="pagination">
+                <div class="page-meta">共 <span class="font-bold text-slate-800" x-text="filteredList.length"></span> 条，默认按更新时间倒序</div>
+                <div class="page-pills">
+                    <span class="page-pill"><i class="fa-solid fa-chevron-left text-xs"></i></span>
+                    <span class="page-pill active">1</span>
+                    <span class="page-pill"><i class="fa-solid fa-chevron-right text-xs"></i></span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <template x-if="modal.open">
+        <div>
+            <div class="modal-backdrop" @click="closeModal"></div>
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div>
+                        <h2 class="modal-title display-font" x-text="modal.mode === 'add' ? '新增第三方平台' : '编辑第三方平台'"></h2>
+                        <p class="panel-subtitle">按最新 PRD 保留主体信息、开放接入方式和授权前置字段，不再在平台侧维护独立接口配置页。</p>
+                    </div>
+                    <button class="btn btn-ghost" @click="closeModal"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="section-card">
+                        <h3 class="section-title display-font">基本信息</h3>
+                        <div class="form-grid">
+                            <div>
+                                <label class="field-label">平台名称 <span class="required">*</span></label>
+                                <input class="field" type="text" x-model="form.name" placeholder="请输入平台名称">
+                            </div>
+                            <div>
+                                <label class="field-label">开放接入方式</label>
+                                <select class="select" x-model="form.accessType">
+                                    <option value="">未配置</option>
+                                    <option value="API服务">API服务</option>
+                                    <option value="第三方应用">第三方应用</option>
+                                </select>
+                            </div>
+                            <div class="full-span">
+                                <label class="field-label">说明</label>
+                                <textarea class="textarea" x-model="form.remark" placeholder="补充平台接入说明、服务边界或对接背景"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <h3 class="section-title display-font">单位信息</h3>
+                        <div class="form-grid">
+                            <div>
+                                <label class="field-label">单位名称 <span class="required">*</span></label>
+                                <input class="field" type="text" x-model="form.orgName" placeholder="请输入单位名称">
+                            </div>
+                            <div>
+                                <label class="field-label">单位类型 <span class="required">*</span></label>
+                                <select class="select" x-model="form.orgType">
+                                    <option value="政府机关">政府机关</option>
+                                    <option value="事业单位">事业单位</option>
+                                    <option value="企业">企业</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="field-label">联系人 <span class="required">*</span></label>
+                                <input class="field" type="text" x-model="form.contact" placeholder="请输入联系人">
+                            </div>
+                            <div>
+                                <label class="field-label">联系电话 <span class="required">*</span></label>
+                                <input class="field" type="text" x-model="form.phone" placeholder="请输入手机号">
+                            </div>
+                            <div class="full-span">
+                                <label class="field-label">联系邮箱</label>
+                                <input class="field" type="email" x-model="form.email" placeholder="请输入邮箱">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <h3 class="section-title display-font">业务信息</h3>
+                        <div class="form-grid">
+                            <div>
+                                <label class="field-label">服务类型 <span class="required">*</span></label>
+                                <select class="select" x-model="form.serviceType">
+                                    <option value="数据服务">数据服务</option>
+                                    <option value="控制服务">控制服务</option>
+                                    <option value="综合服务">综合服务</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="field-label">服务范围</label>
+                                <input class="field" type="text" x-model="form.serviceScope" placeholder="如：高新区环境监测站点">
+                            </div>
+                            <div class="full-span">
+                                <label class="field-label">服务内容</label>
+                                <textarea class="textarea" x-model="form.serviceContent" placeholder="描述平台将使用哪些能力、面向哪些业务"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <h3 class="section-title display-font">设备信息</h3>
+                        <div class="form-grid">
+                            <div class="full-span">
+                                <label class="field-label">设备所有权说明</label>
+                                <textarea class="textarea" x-model="form.deviceOwnership" placeholder="说明设备归属和运维边界"></textarea>
+                            </div>
+                            <div class="full-span">
+                                <label class="field-label">管理产品范围</label>
+                                <div class="grid gap-3 md:grid-cols-3">
+                                    <label class="chip !justify-start"><input type="checkbox" value="智能路灯产品" x-model="form.productScopes">智能路灯产品</label>
+                                    <label class="chip !justify-start"><input type="checkbox" value="环境监测终端" x-model="form.productScopes">环境监测终端</label>
+                                    <label class="chip !justify-start"><input type="checkbox" value="智慧门禁网关" x-model="form.productScopes">智慧门禁网关</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card" x-show="form.accessType === 'API服务'">
+                        <h3 class="section-title display-font">API服务参数</h3>
+                        <div class="form-grid">
+                            <div>
+                                <label class="field-label">appId</label>
+                                <input class="field" type="text" value="系统自动生成" disabled>
+                            </div>
+                            <div>
+                                <label class="field-label">secureKey <span class="required">*</span></label>
+                                <input class="field" type="password" value="••••••••••••" disabled>
+                            </div>
+                            <div>
+                                <label class="field-label">回调地址</label>
+                                <input class="field" type="text" placeholder="https://callback.example.com">
+                            </div>
+                            <div>
+                                <label class="field-label">角色</label>
+                                <select class="select">
+                                    <option>平台应用</option>
+                                    <option>第三方系统</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card" x-show="form.accessType === '第三方应用'">
+                        <h3 class="section-title display-font">第三方应用参数</h3>
+                        <div class="form-grid">
+                            <div>
+                                <label class="field-label">认证方式</label>
+                                <select class="select">
+                                    <option>OAuth 2.0</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="field-label">scope</label>
+                                <input class="field" type="text" placeholder="openid profile">
+                            </div>
+                            <div>
+                                <label class="field-label">client_id <span class="required">*</span></label>
+                                <input class="field" type="text" placeholder="请输入 client_id">
+                            </div>
+                            <div>
+                                <label class="field-label">client_secret <span class="required">*</span></label>
+                                <input class="field" type="password" placeholder="请输入 client_secret">
+                            </div>
+                            <div>
+                                <label class="field-label">授权地址</label>
+                                <input class="field" type="text" placeholder="https://oauth.example.com/authorize">
+                            </div>
+                            <div>
+                                <label class="field-label">token地址</label>
+                                <input class="field" type="text" placeholder="https://oauth.example.com/token">
+                            </div>
+                            <div class="full-span">
+                                <label class="field-label">用户信息地址</label>
+                                <input class="field" type="text" placeholder="https://oauth.example.com/userinfo">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @click="closeModal">取消</button>
+                    <button class="btn btn-primary" @click="savePlatform">确定</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template x-if="toast.show">
+        <div class="toast" :class="toast.type === 'error' ? 'error' : 'success'">
+            <i class="fa-solid" :class="toast.type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'"></i>
+            <span x-text="toast.message"></span>
+        </div>
+    </template>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('platformPage', () => ({
+                list: [
+                    { id: 1, name: '市一网统管平台', status: '启用', accessType: 'API服务', contact: '张主任', phone: '13800000001', serviceType: '综合服务', updateTime: '2026-03-14 09:30:00', desc: '面向城市大脑接入设备状态、告警和控制接口。', orgName: '市政府大数据中心', orgType: '政府机关', email: 'ioc@example.com', serviceScope: '全市市政设施', serviceContent: '统一接入设备状态、告警和环境数据。', deviceOwnership: '设备归属监管单位，按产品范围授权。', productScopes: ['智能路灯产品', '环境监测终端'], remark: '城市大脑 IOC 对接平台。' },
+                    { id: 2, name: '通广路灯管养系统', status: '禁用', accessType: 'API服务', contact: '李工', phone: '13800000002', serviceType: '控制服务', updateTime: '2026-03-13 18:12:00', desc: '负责城东片区路灯控制和工单联动。', orgName: '通广城市照明科技有限公司', orgType: '企业', email: 'ops@tongguang.com', serviceScope: '城东片区路灯', serviceContent: '提供设备控制和状态获取。', deviceOwnership: '受托运维单位，仅管理授权设备。', productScopes: ['智能路灯产品'], remark: '运维接入平台。' },
+                    { id: 3, name: '环保监测大屏', status: '启用', accessType: '第三方应用', contact: '王站长', phone: '13800000003', serviceType: '数据服务', updateTime: '2026-03-12 16:18:00', desc: '高新区环境监测数据展示与分析大屏。', orgName: '高新区环境监测站', orgType: '事业单位', email: 'env@example.com', serviceScope: '高新区环境监测站点', serviceContent: '拉取温湿度、PM2.5、噪声趋势数据。', deviceOwnership: '', productScopes: ['环境监测终端'], remark: '用于环保数据展示。' }
+                ],
+                filteredList: [],
+                search: { name: '', status: '' },
+                modal: { open: false, mode: 'add' },
+                form: {},
+                toast: { show: false, message: '', type: 'success' },
+
+                init() {
+                    this.filteredList = [...this.list];
+                    this.resetForm();
+                },
+
+                searchList() {
+                    this.filteredList = this.list.filter((item) => {
+                        const matchName = !this.search.name || item.name.includes(this.search.name);
+                        const matchStatus = !this.search.status || item.status === this.search.status;
+                        return matchName && matchStatus;
+                    });
+                },
+
+                resetSearch() {
+                    this.search = { name: '', status: '' };
+                    this.filteredList = [...this.list];
+                },
+
+                resetForm() {
+                    this.form = {
+                        id: null,
+                        name: '',
+                        accessType: '',
+                        orgName: '',
+                        orgType: '政府机关',
+                        contact: '',
+                        phone: '',
+                        email: '',
+                        serviceType: '数据服务',
+                        serviceScope: '',
+                        serviceContent: '',
+                        deviceOwnership: '',
+                        productScopes: [],
+                        remark: ''
+                    };
+                },
+
+                openModal(mode, item = null) {
+                    this.modal = { open: true, mode };
+                    if (mode === 'edit' && item) {
+                        this.form = { ...item, remark: item.remark || item.desc, productScopes: [...(item.productScopes || [])] };
+                    } else {
+                        this.resetForm();
+                    }
+                },
+
+                closeModal() {
+                    this.modal.open = false;
+                },
+
+                savePlatform() {
+                    if (!this.form.name || !this.form.orgName || !this.form.contact || !this.form.phone) {
+                        this.showToast('请先填写平台名称、单位名称、联系人和联系电话', 'error');
+                        return;
+                    }
+
+                    const payload = {
+                        ...this.form,
+                        desc: this.form.remark || this.form.serviceContent || this.form.serviceScope || '第三方平台接入说明',
+                        updateTime: '2026-03-14 09:30:00',
+                        status: this.form.status || '启用'
+                    };
+
+                    if (this.modal.mode === 'add') {
+                        payload.id = Date.now();
+                        this.list.unshift(payload);
+                        this.showToast('新增成功', 'success');
+                    } else {
+                        const index = this.list.findIndex((item) => item.id === payload.id);
+                        if (index !== -1) {
+                            this.list.splice(index, 1, payload);
+                            this.showToast('编辑成功', 'success');
+                        }
+                    }
+
+                    this.searchList();
+                    this.closeModal();
+                },
+
+                toggleStatus(item) {
+                    item.status = item.status === '启用' ? '禁用' : '启用';
+                    item.updateTime = '2026-03-14 09:30:00';
+                    this.showToast(`平台已${item.status}`, 'success');
+                    this.searchList();
+                },
+
+                removeItem(item) {
+                    if (window.confirm(`确定删除平台【${item.name}】吗？删除后不可恢复。`)) {
+                        this.list = this.list.filter((row) => row.id !== item.id);
+                        this.searchList();
+                        this.showToast('删除成功', 'success');
+                    }
+                },
+
+                showToast(message, type = 'success') {
+                    this.toast = { show: true, message, type };
+                    setTimeout(() => {
+                        this.toast.show = false;
+                    }, 2200);
+                }
+            }));
+        });
+    </script>
+</body>
+</html>

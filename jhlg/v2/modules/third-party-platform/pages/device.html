@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平台设备管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="../assets/prototype-theme.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="page-body" x-data="devicePage()" x-init="init()">
+    <div class="page-shell">
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <a href="platform.html" class="link-btn"><i class="fa-solid fa-arrow-left mr-2"></i>返回平台列表</a>
+                    <h2 class="panel-title display-font mt-4">平台设备管理</h2>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-secondary" @click="showToast('已按当前条件筛选设备')"><i class="fa-solid fa-filter"></i>筛选结果</button>
+                    <button class="btn btn-primary" @click="syncDevices"><i class="fa-solid fa-arrows-rotate"></i><span x-text="isSyncing ? '同步中...' : '同步设备清单'"></span></button>
+                </div>
+            </div>
+            <div class="subtabs mb-5">
+                <button class="subtab-btn" :class="{ 'active': activeTab === 'list' }" @click="activeTab = 'list'">设备清单</button>
+                <button class="subtab-btn" :class="{ 'active': activeTab === 'capability' }" @click="activeTab = 'capability'">设备能力</button>
+                <button class="subtab-btn" :class="{ 'active': activeTab === 'status' }" @click="activeTab = 'status'">设备状态</button>
+            </div>
+
+            <template x-if="activeTab === 'list'">
+                <div class="space-y-4">
+                    <div class="panel-head !mb-0">
+                        <div>
+                            <h2 class="panel-title display-font">设备清单</h2>
+                            <p class="panel-subtitle">支持按设备名称、在线状态、可控标识和共享标识筛选，并从行内进入设备能力与状态查看。</p>
+                        </div>
+                    </div>
+                    <div class="section-card">
+                        <div class="control-grid">
+                            <div>
+                                <label class="field-label">设备名称</label>
+                                <input class="field" type="text" placeholder="请输入设备名称" x-model="filters.name">
+                            </div>
+                            <div>
+                                <label class="field-label">在线状态</label>
+                                <select class="select" x-model="filters.online">
+                                    <option value="">全部</option>
+                                    <option value="1">在线</option>
+                                    <option value="0">离线</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="field-label">可控标识</label>
+                                <select class="select" x-model="filters.controllable">
+                                    <option value="">全部</option>
+                                    <option value="1">是</option>
+                                    <option value="0">否</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="field-label">共享标识</label>
+                                <select class="select" x-model="filters.shareable">
+                                    <option value="">全部</option>
+                                    <option value="1">是</option>
+                                    <option value="0">否</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-shell">
+                        <div class="table-scroll">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>设备名称</th>
+                                        <th>设备ID</th>
+                                        <th>型号</th>
+                                        <th>所属产品</th>
+                                        <th>在线状态</th>
+                                        <th>可控标识</th>
+                                        <th>共享标识</th>
+                                        <th>最后同步时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="item in filteredDevices" :key="item.id">
+                                        <tr>
+                                            <td class="font-bold" x-text="item.name"></td>
+                                            <td class="font-mono text-xs muted" x-text="item.deviceId"></td>
+                                            <td x-text="item.model"></td>
+                                            <td x-text="item.product"></td>
+                                            <td>
+                                                <span class="status-pill" :class="item.online ? 'success' : 'disabled'" x-text="item.online ? '在线' : '离线'"></span>
+                                            </td>
+                                            <td x-text="item.controllable ? '是' : '否'"></td>
+                                            <td x-text="item.shareable ? '是' : '否'"></td>
+                                            <td class="muted" x-text="item.syncTime"></td>
+                                            <td>
+                                                <div class="flex flex-wrap gap-3 text-[13px]">
+                                                    <button class="link-btn" @click="openCapability(item)">查看能力</button>
+                                                    <button class="link-btn" @click="openStatus(item)">查看状态</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="activeTab === 'capability'">
+                <div class="space-y-4">
+                    <div class="panel-head !mb-0">
+                        <div>
+                            <h2 class="panel-title display-font">设备能力</h2>
+                            <p class="panel-subtitle">展示设备基础信息、属性列表和功能列表，支持按设备切换查看。</p>
+                        </div>
+                        <div class="w-full max-w-[340px]">
+                            <label class="field-label">当前设备</label>
+                            <select class="select" x-model="selectedDeviceId" @change="selectDevice">
+                                <template x-for="item in devices" :key="`device-${item.id}`">
+                                    <option :value="String(item.id)" x-text="`${item.name} (${item.deviceId})`"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="kv-grid">
+                        <div class="kv-card">
+                            <div class="kv-label">设备名称</div>
+                            <div class="kv-value" x-text="selectedDevice.name"></div>
+                        </div>
+                        <div class="kv-card">
+                            <div class="kv-label">所属产品</div>
+                            <div class="kv-value" x-text="selectedDevice.product"></div>
+                        </div>
+                        <div class="kv-card">
+                            <div class="kv-label">设备ID</div>
+                            <div class="kv-value font-mono text-sm" x-text="selectedDevice.deviceId"></div>
+                        </div>
+                        <div class="kv-card">
+                            <div class="kv-label">可控标识</div>
+                            <div class="kv-value" x-text="selectedDevice.controllable ? '可控' : '不可控'"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-4 xl:grid-cols-2">
+                        <div class="section-card !mb-0">
+                            <h3 class="section-title display-font">属性列表</h3>
+                            <div class="table-shell">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>属性名称</th>
+                                            <th>标识符</th>
+                                            <th>类型</th>
+                                            <th>读写模式</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="item in selectedDevice.properties || []" :key="item.identifier">
+                                            <tr>
+                                                <td class="font-bold" x-text="item.name"></td>
+                                                <td class="font-mono text-xs muted" x-text="item.identifier"></td>
+                                                <td x-text="item.type"></td>
+                                                <td x-text="item.mode"></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="section-card !mb-0">
+                            <h3 class="section-title display-font">功能列表</h3>
+                            <div class="table-shell">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>功能名称</th>
+                                            <th>标识符</th>
+                                            <th>类型</th>
+                                            <th>说明</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="item in selectedDevice.capabilities || []" :key="item.identifier">
+                                            <tr>
+                                                <td class="font-bold" x-text="item.name"></td>
+                                                <td class="font-mono text-xs muted" x-text="item.identifier"></td>
+                                                <td x-text="item.kind"></td>
+                                                <td class="muted" x-text="item.desc"></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="activeTab === 'status'">
+                <div class="space-y-4">
+                    <div class="panel-head !mb-0">
+                        <div>
+                            <h2 class="panel-title display-font">设备状态</h2>
+                            <p class="panel-subtitle">展示设备运行状态、最后上线时间、最后离线时间和最后数据上报时间。</p>
+                        </div>
+                        <div class="w-full max-w-[260px]">
+                            <label class="field-label">在线状态</label>
+                            <select class="select" x-model="statusFilter">
+                                <option value="">全部</option>
+                                <option value="1">在线</option>
+                                <option value="0">离线</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-shell">
+                        <div class="table-scroll">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>设备名称</th>
+                                        <th>设备ID</th>
+                                        <th>在线状态</th>
+                                        <th>最后上线时间</th>
+                                        <th>最后离线时间</th>
+                                        <th>最后数据上报时间</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="item in statusDevices" :key="`status-${item.id}`">
+                                        <tr>
+                                            <td class="font-bold" x-text="item.name"></td>
+                                            <td class="font-mono text-xs muted" x-text="item.deviceId"></td>
+                                            <td><span class="status-pill" :class="item.online ? 'success' : 'disabled'" x-text="item.online ? '在线' : '离线'"></span></td>
+                                            <td x-text="item.lastOnline"></td>
+                                            <td x-text="item.lastOffline"></td>
+                                            <td x-text="item.lastReport"></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </section>
+    </div>
+
+    <template x-if="toast.show">
+        <div class="toast success">
+            <i class="fa-solid fa-circle-check"></i>
+            <span x-text="toast.message"></span>
+        </div>
+    </template>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('devicePage', () => ({
+                platform: { name: '市一网统管平台' },
+                activeTab: 'list',
+                filters: { name: '', online: '', controllable: '', shareable: '' },
+                statusFilter: '',
+                selectedDeviceId: '1',
+                selectedDevice: {},
+                isSyncing: false,
+                toast: { show: false, message: '' },
+                devices: [
+                    { id: 1, name: '9号楼2号灯控器', deviceId: 'LIT-A01-x891', model: 'M-L-01', product: '智能路灯监控终端', online: true, controllable: true, shareable: true, syncTime: '2026-03-14 09:20:10', lastOnline: '2026-03-14 09:18:12', lastOffline: '2026-03-11 22:10:05', lastReport: '2026-03-14 09:19:56', properties: [{ name: '亮度', identifier: 'brightness', type: 'int', mode: '读写' }, { name: '工作状态', identifier: 'work_status', type: 'enum', mode: '只读' }], capabilities: [{ name: '开关控制', identifier: 'switch_control', kind: '服务', desc: '控制设备开关状态。' }, { name: '离线告警', identifier: 'offline_alarm', kind: '事件', desc: '设备离线时上报告警。' }] },
+                    { id: 2, name: '高新区气象站A-01', deviceId: 'ENV-A01-002', model: 'S-TH-V1', product: '环境监测终端', online: true, controllable: false, shareable: true, syncTime: '2026-03-14 09:20:10', lastOnline: '2026-03-14 08:00:00', lastOffline: '--', lastReport: '2026-03-14 09:16:18', properties: [{ name: '温度', identifier: 'temperature', type: 'float', mode: '只读' }, { name: '湿度', identifier: 'humidity', type: 'float', mode: '只读' }], capabilities: [{ name: '高温告警', identifier: 'high_temp_evt', kind: '事件', desc: '温度超阈值时自动上报。' }] },
+                    { id: 3, name: '6号楼门禁网关', deviceId: 'ACS-GW-001', model: 'GW-Core-2', product: '智慧门禁网关', online: false, controllable: false, shareable: false, syncTime: '2026-03-13 18:30:20', lastOnline: '2026-03-12 18:30:12', lastOffline: '2026-03-12 18:45:40', lastReport: '2026-03-12 18:44:22', properties: [{ name: '在线人数', identifier: 'online_count', type: 'int', mode: '只读' }], capabilities: [{ name: '通信异常', identifier: 'comm_error', kind: '事件', desc: '通信链路异常时上报。' }] }
+                ],
+
+                init() {
+                    const params = new URLSearchParams(window.location.search);
+                    const platformId = params.get('platform') || '1';
+                    const platformMap = {
+                        '1': { name: '市一网统管平台' },
+                        '2': { name: '通广路灯管养系统' },
+                        '3': { name: '环保监测大屏' }
+                    };
+                    this.platform = platformMap[platformId] || platformMap['1'];
+                    this.selectDevice();
+                },
+
+                get filteredDevices() {
+                    return this.devices.filter((item) => {
+                        const matchName = !this.filters.name || item.name.includes(this.filters.name);
+                        const matchOnline = !this.filters.online || String(Number(item.online)) === this.filters.online;
+                        const matchControl = !this.filters.controllable || String(Number(item.controllable)) === this.filters.controllable;
+                        const matchShare = !this.filters.shareable || String(Number(item.shareable)) === this.filters.shareable;
+                        return matchName && matchOnline && matchControl && matchShare;
+                    });
+                },
+
+                get statusDevices() {
+                    return this.devices.filter((item) => !this.statusFilter || String(Number(item.online)) === this.statusFilter);
+                },
+
+                selectDevice() {
+                    this.selectedDevice = this.devices.find((item) => String(item.id) === String(this.selectedDeviceId)) || this.devices[0];
+                },
+
+                openCapability(item) {
+                    this.selectedDeviceId = String(item.id);
+                    this.selectDevice();
+                    this.activeTab = 'capability';
+                },
+
+                openStatus(item) {
+                    this.statusFilter = item.online ? '1' : '0';
+                    this.activeTab = 'status';
+                },
+
+                syncDevices() {
+                    this.isSyncing = true;
+                    setTimeout(() => {
+                        this.isSyncing = false;
+                        this.showToast('同步完成，共获取 3 台设备');
+                    }, 1200);
+                },
+
+                showToast(message) {
+                    this.toast = { show: true, message };
+                    setTimeout(() => {
+                        this.toast.show = false;
+                    }, 2200);
+                }
+            }));
+        });
+    </script>
+</body>
+</html>

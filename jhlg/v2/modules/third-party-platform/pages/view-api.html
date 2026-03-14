@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平台 API 列表</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="../assets/prototype-theme.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="page-body" x-data="platformApiPage()" x-init="init()">
+    <div class="page-shell">
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <a href="platform.html" class="link-btn"><i class="fa-solid fa-arrow-left mr-2"></i>返回平台列表</a>
+                    <h2 class="panel-title display-font mt-4">平台 API 列表</h2>
+                </div>
+                <a class="btn btn-light" href="api.html"><i class="fa-solid fa-arrow-up-right-from-square"></i>进入 API 管理</a>
+            </div>
+        </section>
+
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <h2 class="panel-title display-font">筛选条件</h2>
+                    <p class="panel-subtitle">支持按接口名称/地址和状态查看当前平台可见的 API 资产。</p>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-secondary" @click="resetSearch">重置</button>
+                    <button class="btn btn-primary" @click="searchList">查询</button>
+                </div>
+            </div>
+            <div class="control-grid">
+                <div>
+                    <label class="field-label">接口名称 / 地址</label>
+                    <input class="field" type="text" placeholder="请输入接口名称或路径" x-model="search.keyword">
+                </div>
+                <div>
+                    <label class="field-label">状态</label>
+                    <select class="select" x-model="search.status">
+                        <option value="">全部状态</option>
+                        <option value="草稿">草稿</option>
+                        <option value="已发布">已发布</option>
+                        <option value="已停用">已停用</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <h2 class="panel-title display-font">接口列表</h2>
+                    <p class="panel-subtitle">行内支持编辑、调试、发布、停用和删除，动作最终都归口到 API 管理模块。</p>
+                </div>
+            </div>
+
+            <div class="table-shell">
+                <div class="table-scroll">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>接口名称</th>
+                                <th>请求方式</th>
+                                <th>接口地址</th>
+                                <th>鉴权方式</th>
+                                <th>版本号</th>
+                                <th>状态</th>
+                                <th>最后测试结果</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="item in filteredList" :key="item.id">
+                                <tr>
+                                    <td>
+                                        <div class="font-bold" x-text="item.name"></div>
+                                        <div class="muted text-xs mt-2" x-text="item.desc"></div>
+                                    </td>
+                                    <td>
+                                        <span class="method-pill" :class="item.method.toLowerCase()" x-text="item.method"></span>
+                                    </td>
+                                    <td class="font-mono text-xs text-slate-600" x-text="item.url"></td>
+                                    <td x-text="item.authType"></td>
+                                    <td class="font-mono text-xs" x-text="item.version"></td>
+                                    <td>
+                                        <span class="status-pill" :class="statusClass(item.status)" x-text="item.status"></span>
+                                    </td>
+                                    <td>
+                                        <div class="flex items-center gap-2 text-sm">
+                                            <i class="fa-solid" :class="item.lastResult === '成功' ? 'fa-circle-check text-emerald-600' : (item.lastResult === '失败' ? 'fa-circle-xmark text-red-500' : 'fa-circle text-slate-300')"></i>
+                                            <span x-text="item.lastResult"></span>
+                                            <span class="muted text-xs" x-show="item.lastMeta" x-text="item.lastMeta"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="flex flex-wrap gap-3 text-[13px]">
+                                            <a class="link-btn" :href="`api.html?mode=edit&id=${item.id}`">编辑</a>
+                                            <a class="link-btn" :href="`api.html?mode=debug&id=${item.id}`">调试</a>
+                                            <button class="link-btn" x-show="item.status !== '已发布'" @click="item.status = '已发布'; showToast('接口已发布')">发布</button>
+                                            <button class="link-btn" x-show="item.status === '已发布'" @click="item.status = '已停用'; showToast('接口已停用')">停用</button>
+                                            <button class="link-btn danger" @click="removeItem(item)">删除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr x-show="filteredList.length === 0">
+                                <td colspan="8" class="py-14 text-center muted">暂无当前平台的 API 数据</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="pagination">
+                <div class="page-meta">当前平台共 <span class="font-bold text-slate-800" x-text="filteredList.length"></span> 个 API</div>
+                <div class="page-pills">
+                    <span class="page-pill"><i class="fa-solid fa-chevron-left text-xs"></i></span>
+                    <span class="page-pill active">1</span>
+                    <span class="page-pill"><i class="fa-solid fa-chevron-right text-xs"></i></span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <template x-if="toast.show">
+        <div class="toast success">
+            <i class="fa-solid fa-circle-check"></i>
+            <span x-text="toast.message"></span>
+        </div>
+    </template>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('platformApiPage', () => ({
+                platform: { name: '市一网统管平台' },
+                search: { keyword: '', status: '' },
+                list: [
+                    { id: 1, platformId: '1', name: '环境监测信息接口', method: 'GET', url: '/api/open/v1/environment', authType: 'API Key', version: 'v1.0', status: '已发布', lastResult: '成功', lastMeta: '(32ms)', desc: '获取授权环境监测数据。' },
+                    { id: 2, platformId: '1', name: '设备告警接口', method: 'POST', url: '/api/open/v1/device/alarm', authType: 'OAuth', version: 'v1.1', status: '草稿', lastResult: '未测试', lastMeta: '', desc: '上报或获取告警事件。' },
+                    { id: 3, platformId: '1', name: '设备状态接口', method: 'GET', url: '/api/open/v1/device/status', authType: 'API Key', version: 'v2.0', status: '已停用', lastResult: '失败', lastMeta: '(超时)', desc: '获取设备在线状态与最近上报时间。' },
+                    { id: 4, platformId: '2', name: '路灯控制接口', method: 'POST', url: '/api/open/v1/device/command', authType: 'OAuth', version: 'v1.0', status: '已发布', lastResult: '成功', lastMeta: '(28ms)', desc: '面向路灯控制系统下发控制命令。' }
+                ],
+                filteredList: [],
+                toast: { show: false, message: '' },
+
+                init() {
+                    const params = new URLSearchParams(window.location.search);
+                    const platformId = params.get('platform') || '1';
+                    const platformMap = {
+                        '1': { name: '市一网统管平台' },
+                        '2': { name: '通广路灯管养系统' },
+                        '3': { name: '环保监测大屏' }
+                    };
+                    this.platform = platformMap[platformId] || platformMap['1'];
+                    this.filteredList = this.list.filter((item) => item.platformId === platformId);
+                    this.platformId = platformId;
+                },
+
+                searchList() {
+                    this.filteredList = this.list.filter((item) => {
+                        const matchPlatform = item.platformId === this.platformId;
+                        const matchKeyword = !this.search.keyword || item.name.includes(this.search.keyword) || item.url.includes(this.search.keyword);
+                        const matchStatus = !this.search.status || item.status === this.search.status;
+                        return matchPlatform && matchKeyword && matchStatus;
+                    });
+                },
+
+                resetSearch() {
+                    this.search = { keyword: '', status: '' };
+                    this.searchList();
+                },
+
+                removeItem(item) {
+                    if (window.confirm(`确定删除接口【${item.name}】吗？`)) {
+                        this.list = this.list.filter((row) => row.id !== item.id);
+                        this.searchList();
+                        this.showToast('接口已删除');
+                    }
+                },
+
+                statusClass(status) {
+                    return status === '已发布' ? 'success' : (status === '草稿' ? 'warning' : 'disabled');
+                },
+
+                showToast(message) {
+                    this.toast = { show: true, message };
+                    setTimeout(() => {
+                        this.toast.show = false;
+                    }, 2200);
+                }
+            }));
+        });
+    </script>
+</body>
+</html>

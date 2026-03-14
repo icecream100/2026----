@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平台授权</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="../assets/prototype-theme.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="page-body" x-data="authPage()" x-init="init()">
+    <div class="page-shell">
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <a href="platform.html" class="link-btn"><i class="fa-solid fa-arrow-left mr-2"></i>返回平台列表</a>
+                    <h2 class="panel-title display-font mt-4">平台授权</h2>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-secondary" @click="closeWizard"><i class="fa-regular fa-circle-xmark"></i>关闭</button>
+                    <button class="btn btn-primary" @click="saveCurrentStep"><i class="fa-regular fa-floppy-disk"></i>保存当前步骤</button>
+                </div>
+            </div>
+            <div class="stepper">
+                <template x-for="step in steps" :key="step.id">
+                    <div class="step-card" :class="{ 'active': activeStep === step.id, 'done': currentStepIndex > step.order }">
+                        <div class="step-no" x-text="currentStepIndex > step.order ? '✓' : step.order + 1"></div>
+                        <div class="step-name display-font" x-text="step.name"></div>
+                        <div class="step-desc" x-text="step.desc"></div>
+                    </div>
+                </template>
+            </div>
+
+            <template x-if="activeStep === 'api'">
+                <div class="space-y-4">
+                    <div class="panel-head !mb-0">
+                        <div>
+                            <h2 class="panel-title display-font">API授权</h2>
+                            <p class="panel-subtitle">按 API 分组查看可授权接口，支持单条开关和批量开启/关闭。</p>
+                        </div>
+                        <div class="btn-row">
+                            <button class="btn btn-light" @click="batchToggleApi(true)">批量开启</button>
+                            <button class="btn btn-danger" @click="batchToggleApi(false)">批量关闭</button>
+                        </div>
+                    </div>
+
+                    <div class="split-layout">
+                        <div class="section-card !mb-0">
+                            <h3 class="section-title">API 分组</h3>
+                            <div class="stack-list">
+                                <template x-for="group in apiGroups" :key="group.id">
+                                    <div class="stack-item" :class="{ 'active': selectedApiGroup === group.id }" @click="selectedApiGroup = group.id">
+                                        <div class="font-bold" x-text="group.name"></div>
+                                        <div class="muted text-xs mt-2" x-text="group.desc"></div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        <div class="section-card !mb-0">
+                            <div class="control-grid !grid-cols-3">
+                                <div>
+                                    <label class="field-label">API 名称</label>
+                                    <input class="field" type="text" placeholder="请输入 API 名称" x-model="apiSearch.keyword">
+                                </div>
+                                <div class="full-span md:!col-span-2 flex items-end justify-end gap-3">
+                                    <button class="btn btn-secondary" @click="apiSearch.keyword = ''">重置</button>
+                                    <button class="btn btn-primary" @click="showToast('已按条件筛选 API 授权')">查询</button>
+                                </div>
+                            </div>
+
+                            <div class="table-shell mt-5">
+                                <div class="table-scroll">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>API</th>
+                                                <th>说明</th>
+                                                <th>授权状态</th>
+                                                <th>发布者</th>
+                                                <th>发布时间</th>
+                                                <th>调用次数</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template x-for="item in filteredApis" :key="item.id">
+                                                <tr>
+                                                    <td>
+                                                        <div class="font-bold" x-text="item.name"></div>
+                                                        <div class="muted text-xs mt-2" x-text="item.path"></div>
+                                                    </td>
+                                                    <td class="muted" x-text="item.desc"></td>
+                                                    <td><button class="toggle" :class="{ 'on': item.enabled }" @click="item.enabled = !item.enabled"></button></td>
+                                                    <td x-text="item.publisher"></td>
+                                                    <td class="muted" x-text="item.publishTime"></td>
+                                                    <td x-text="item.calls"></td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="activeStep === 'product'">
+                <div class="space-y-4">
+                    <div class="panel-head !mb-0">
+                        <div>
+                            <h2 class="panel-title display-font">产品授权</h2>
+                            <p class="panel-subtitle">按标准产品分类筛选授权范围，支持产品级别的批量开关控制。</p>
+                        </div>
+                        <div class="btn-row">
+                            <button class="btn btn-light" @click="batchToggleProducts(true)">批量开启</button>
+                            <button class="btn btn-danger" @click="batchToggleProducts(false)">批量关闭</button>
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="control-grid">
+                            <div>
+                                <label class="field-label">产品分类</label>
+                                <select class="select" x-model="productSearch.category">
+                                    <option value="">全部分类</option>
+                                    <option value="照明">照明</option>
+                                    <option value="环境监测">环境监测</option>
+                                    <option value="门禁">门禁</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="field-label">产品名称</label>
+                                <input class="field" type="text" placeholder="请输入产品名称" x-model="productSearch.keyword">
+                            </div>
+                            <div class="flex items-end justify-end gap-3">
+                                <button class="btn btn-secondary" @click="productSearch = { category: '', keyword: '' }">重置</button>
+                                <button class="btn btn-primary" @click="showToast('已按条件筛选产品授权')">查询</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-shell">
+                        <div class="table-scroll">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>标准产品名称</th>
+                                        <th>产品分类</th>
+                                        <th>说明</th>
+                                        <th>授权状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="item in filteredProducts" :key="item.id">
+                                        <tr>
+                                            <td class="font-bold" x-text="item.name"></td>
+                                            <td x-text="item.category"></td>
+                                            <td class="muted" x-text="item.desc"></td>
+                                            <td><button class="toggle" :class="{ 'on': item.enabled }" @click="item.enabled = !item.enabled"></button></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="activeStep === 'device'">
+                <div class="space-y-4">
+                    <div class="panel-head !mb-0">
+                        <div>
+                            <h2 class="panel-title display-font">设备授权</h2>
+                            <p class="panel-subtitle">设备授权范围必须是已授权产品的子集，左侧展示已选产品，右侧按设备名称和所属产品筛选设备。</p>
+                        </div>
+                        <div class="btn-row">
+                            <button class="btn btn-light" @click="batchToggleDevices(true)">批量开启</button>
+                            <button class="btn btn-danger" @click="batchToggleDevices(false)">批量关闭</button>
+                        </div>
+                    </div>
+
+                    <div class="split-layout">
+                        <div class="section-card !mb-0">
+                            <h3 class="section-title">已选产品</h3>
+                            <div class="stack-list">
+                                <template x-for="item in enabledProducts" :key="item.id">
+                                    <div class="stack-item" :class="{ 'active': selectedProduct === item.id }" @click="selectedProduct = item.id">
+                                        <div class="font-bold" x-text="item.name"></div>
+                                        <div class="muted text-xs mt-2" x-text="item.category"></div>
+                                    </div>
+                                </template>
+                                <div class="muted text-sm" x-show="enabledProducts.length === 0">请先在上一步启用至少一个产品。</div>
+                            </div>
+                        </div>
+
+                        <div class="section-card !mb-0">
+                            <div class="control-grid">
+                                <div>
+                                    <label class="field-label">设备名称</label>
+                                    <input class="field" type="text" placeholder="请输入设备名称" x-model="deviceSearch.keyword">
+                                </div>
+                                <div>
+                                    <label class="field-label">所属产品</label>
+                                    <select class="select" x-model="deviceSearch.product">
+                                        <option value="">全部产品</option>
+                                        <template x-for="item in enabledProducts" :key="`option-${item.id}`">
+                                            <option :value="item.name" x-text="item.name"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div class="flex items-end justify-end gap-3">
+                                    <button class="btn btn-secondary" @click="deviceSearch = { keyword: '', product: '' }">重置</button>
+                                    <button class="btn btn-primary" @click="showToast('已按条件筛选设备授权')">查询</button>
+                                </div>
+                            </div>
+
+                            <div class="table-shell mt-5">
+                                <div class="table-scroll">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>设备名称</th>
+                                                <th>所属产品</th>
+                                                <th>说明</th>
+                                                <th>授权状态</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template x-for="item in filteredDevices" :key="item.id">
+                                                <tr>
+                                                    <td class="font-bold" x-text="item.name"></td>
+                                                    <td x-text="item.product"></td>
+                                                    <td class="muted" x-text="item.desc"></td>
+                                                    <td><button class="toggle" :class="{ 'on': item.enabled }" @click="item.enabled = !item.enabled"></button></td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <div class="flex justify-between items-center mt-6">
+                <button class="btn btn-secondary" @click="prevStep" :disabled="currentStepIndex === 0"><i class="fa-solid fa-arrow-left"></i>上一步</button>
+                <div class="btn-row">
+                    <button class="btn btn-secondary" @click="closeWizard">关闭</button>
+                    <button class="btn btn-primary" x-show="currentStepIndex < steps.length - 1" @click="nextStep">下一步<i class="fa-solid fa-arrow-right"></i></button>
+                    <button class="btn btn-primary" x-show="currentStepIndex === steps.length - 1" @click="finishAuth"><i class="fa-solid fa-check"></i>完成授权</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <template x-if="toast.show">
+        <div class="toast success">
+            <i class="fa-solid fa-circle-check"></i>
+            <span x-text="toast.message"></span>
+        </div>
+    </template>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('authPage', () => ({
+                platform: { name: '市一网统管平台', accessType: 'API服务' },
+                steps: [
+                    { id: 'api', order: 0, name: 'API授权', desc: '按接口分组控制 API 授权范围' },
+                    { id: 'product', order: 1, name: '产品授权', desc: '按标准产品控制资源授权边界' },
+                    { id: 'device', order: 2, name: '设备授权', desc: '在已授权产品内进一步细化设备范围' }
+                ],
+                activeStep: 'api',
+                apiGroups: [
+                    { id: 'default', name: '默认分组', desc: '常规开放接口' },
+                    { id: 'alarm', name: '设备告警', desc: '告警与状态相关接口' },
+                    { id: 'env', name: '环境监测', desc: '环境数据查询与趋势接口' }
+                ],
+                selectedApiGroup: 'default',
+                apiSearch: { keyword: '' },
+                productSearch: { category: '', keyword: '' },
+                deviceSearch: { keyword: '', product: '' },
+                selectedProduct: null,
+                apis: [
+                    { id: 1, group: 'default', name: '环境监测信息接口', path: '/api/open/v1/environment', desc: '拉取授权环境监测数据。', enabled: true, publisher: '超级管理员', publishTime: '2026-03-11 21:06:39', calls: 1204 },
+                    { id: 2, group: 'default', name: '设备告警接口', path: '/api/open/v1/device/alarm', desc: '读取授权设备告警事件。', enabled: true, publisher: '超级管理员', publishTime: '2026-03-10 14:20:00', calls: 863 },
+                    { id: 3, group: 'alarm', name: '设备状态接口', path: '/api/open/v1/device/status', desc: '查询设备在线状态和最近上报时间。', enabled: false, publisher: '超级管理员', publishTime: '2026-03-09 18:12:00', calls: 462 },
+                    { id: 4, group: 'env', name: '趋势分析接口', path: '/api/open/v1/environment/trend', desc: '按时间范围返回趋势数据。', enabled: true, publisher: '超级管理员', publishTime: '2026-03-08 09:30:00', calls: 205 }
+                ],
+                products: [
+                    { id: 11, name: '智能路灯监控终端', category: '照明', desc: '路灯控制与状态采集产品。', enabled: true },
+                    { id: 12, name: '环境监测终端', category: '环境监测', desc: '采集温湿度、PM2.5、噪声等数据。', enabled: true },
+                    { id: 13, name: '智慧门禁网关', category: '门禁', desc: '门禁状态与开门记录接入。', enabled: false }
+                ],
+                devices: [
+                    { id: 101, product: '智能路灯监控终端', name: '9号楼2号灯控器', desc: '支持开关灯与亮度调节。', enabled: true },
+                    { id: 102, product: '智能路灯监控终端', name: '6号楼4号灯控器', desc: '支持路灯回路控制。', enabled: true },
+                    { id: 103, product: '环境监测终端', name: '高新区气象站A-01', desc: '实时上报环境监测数据。', enabled: true },
+                    { id: 104, product: '环境监测终端', name: '高新区气象站A-02', desc: '提供站点对比与趋势查询。', enabled: false }
+                ],
+                toast: { show: false, message: '' },
+
+                init() {
+                    const params = new URLSearchParams(window.location.search);
+                    const platformId = params.get('platform') || '1';
+                    const platformMap = {
+                        '1': { name: '市一网统管平台', accessType: 'API服务' },
+                        '2': { name: '通广路灯管养系统', accessType: 'API服务' },
+                        '3': { name: '环保监测大屏', accessType: '第三方应用' }
+                    };
+                    this.platform = platformMap[platformId] || platformMap['1'];
+                    this.selectedProduct = this.enabledProducts[0]?.id || null;
+                },
+
+                get currentStepIndex() {
+                    return this.steps.findIndex((item) => item.id === this.activeStep);
+                },
+
+                get filteredApis() {
+                    return this.apis.filter((item) => {
+                        const matchGroup = item.group === this.selectedApiGroup;
+                        const matchKeyword = !this.apiSearch.keyword || item.name.includes(this.apiSearch.keyword);
+                        return matchGroup && matchKeyword;
+                    });
+                },
+
+                get filteredProducts() {
+                    return this.products.filter((item) => {
+                        const matchCategory = !this.productSearch.category || item.category === this.productSearch.category;
+                        const matchKeyword = !this.productSearch.keyword || item.name.includes(this.productSearch.keyword);
+                        return matchCategory && matchKeyword;
+                    });
+                },
+
+                get enabledProducts() {
+                    return this.products.filter((item) => item.enabled);
+                },
+
+                get filteredDevices() {
+                    return this.devices.filter((item) => {
+                        const matchKeyword = !this.deviceSearch.keyword || item.name.includes(this.deviceSearch.keyword);
+                        const matchProduct = !this.deviceSearch.product || item.product === this.deviceSearch.product;
+                        const allowedProducts = this.enabledProducts.map((row) => row.name);
+                        return matchKeyword && matchProduct && allowedProducts.includes(item.product);
+                    });
+                },
+
+                nextStep() {
+                    this.saveCurrentStep(false);
+                    if (this.currentStepIndex < this.steps.length - 1) {
+                        this.activeStep = this.steps[this.currentStepIndex + 1].id;
+                        if (this.activeStep === 'device' && this.enabledProducts.length > 0) {
+                            this.selectedProduct = this.enabledProducts[0].id;
+                        }
+                    }
+                },
+
+                prevStep() {
+                    if (this.currentStepIndex > 0) {
+                        this.activeStep = this.steps[this.currentStepIndex - 1].id;
+                    }
+                },
+
+                saveCurrentStep(showMessage = true) {
+                    if (showMessage) {
+                        this.showToast(`已保存${this.steps[this.currentStepIndex].name}`);
+                    }
+                },
+
+                finishAuth() {
+                    this.showToast('授权配置已完成并保存');
+                },
+
+                batchToggleApi(enabled) {
+                    this.filteredApis.forEach((item) => {
+                        item.enabled = enabled;
+                    });
+                },
+
+                batchToggleProducts(enabled) {
+                    this.filteredProducts.forEach((item) => {
+                        item.enabled = enabled;
+                    });
+                },
+
+                batchToggleDevices(enabled) {
+                    this.filteredDevices.forEach((item) => {
+                        item.enabled = enabled;
+                    });
+                },
+
+                closeWizard() {
+                    window.location.href = 'platform.html';
+                },
+
+                showToast(message) {
+                    this.toast = { show: true, message };
+                    setTimeout(() => {
+                        this.toast.show = false;
+                    }, 2200);
+                }
+            }));
+        });
+    </script>
+</body>
+</html>

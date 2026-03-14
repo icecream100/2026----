@@ -4,9 +4,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>第三方平台管理 - 二期产品原型</title>
+    <title>第三方平台管理 - 二期产品原型 v1.1</title>
     <link rel="stylesheet" href="assets/styles.css">
     <script src="assets/script.js" defer></script>
+    <style>
+        .section-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-header h3::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .hero-card {
+            background:
+                radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 28%),
+                linear-gradient(135deg, #ffffff 0%, #f8fbff 55%, #eef5ff 100%);
+        }
+
+        .hero-copy h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: #dbeafe;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .prototype-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .prototype-card strong {
+            font-size: 16px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .prototype-card .status-tag {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #e0f2fe;
+            color: #0284c7;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .prototype-card p {
+            flex: 1;
+            margin-bottom: 16px;
+        }
+
+        .prototype-card .card-footer {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 12px;
+            gap: 12px;
+        }
+
+        .prototype-card code {
+            font-size: 11px;
+            color: #94a3b8;
+            background: transparent;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
 </head>
 
 <body>
@@ -16,12 +104,11 @@
                 <div class="brand-logo">II</div>
                 <div class="brand-text">
                     <strong>金华理工二期原型</strong>
-                    <span>统一导航包 / GitHub 共享版</span>
+                    <span>第三方平台管理 / v1.1</span>
                 </div>
             </div>
             <nav class="nav-menu">
                 <div class="nav-section-title">模块导航</div>
-                
                 <a class="nav-item" href="201_告警中心.html"><span class="nav-index">201</span><span>告警中心</span></a>
                 <a class="nav-item" href="202_规则引擎.html"><span class="nav-index">202</span><span>规则引擎</span></a>
                 <a class="nav-item" href="203_设备管理.html"><span class="nav-index">203</span><span>设备管理</span></a>
@@ -35,33 +122,25 @@
             <header class="topbar">
                 <div class="topbar-title-group">
                     <h1>第三方平台管理</h1>
-                    <p>统一入口页，收拢第三方平台、API 文档、接口治理、数据共享管理和 API 配置原型页面。</p>
+                    <p>v1.1 原型入口页，仅保留 4 个最新功能模块入口。</p>
                 </div>
-                <div class="topbar-meta">模块编号 205</div>
+                <div class="topbar-meta">PRD v1.1 / 模块编号 205</div>
             </header>
 
             <div class="content">
                 <section class="hero-card">
                     <div class="hero-copy">
-                        <h2>第三方平台管理产品原型</h2>
-                        <p>本模块覆盖第三方平台登记、接口鉴权与赋权、API 文档、接口治理、数据共享管理和 API 配置等页面，形成 PRD 4.2-4.6 的完整演示链路。</p>
+                        <div class="hero-label">4 个入口</div>
+                        <h2>第三方平台管理模块</h2>
+                        <p>
+                            当前页只保留最新 v1.1 的 4 个原型入口：第三方平台及授权管理、API管理、接口治理、数据统计。
+                            旧版互联配置、独立 API 配置、数据共享管理等入口不再作为主流程展示。
+                        </p>
                         <div class="hero-badges">
-                            <span class="badge">第三方平台</span>
+                            <span class="badge">第三方平台及授权管理</span>
+                            <span class="badge">API管理</span>
                             <span class="badge">接口治理</span>
-                            <span class="badge">数据共享管理</span>
-                            <span class="badge">API 文档</span>
-                            <span class="badge">赋权</span>
-                            <span class="badge">API 配置</span>
-                        </div>
-                    </div>
-                    <div class="hero-aside">
-                        <div class="metric-box">
-                            <div class="metric-label">模块页面</div>
-                            <div class="metric-value">5</div>
-                        </div>
-                        <div class="metric-box">
-                            <div class="metric-label">底座方式</div>
-                            <div class="metric-value">复用</div>
+                            <span class="badge">数据统计</span>
                         </div>
                     </div>
                 </section>
@@ -69,43 +148,64 @@
                 <section class="section-card">
                     <div class="section-header">
                         <div>
-                            <h3>页面入口</h3>
-                            <p>建议从第三方平台首页进入，再切换到 API 文档、接口治理、数据共享管理和 API 配置。</p>
+                            <h3>功能入口</h3>
+                            <p>点击下方任一入口即可进入对应模块起始页。</p>
                         </div>
                     </div>
                     <div class="prototype-grid">
-                        <a class="prototype-card" href="modules/third-party-platform/index.html">
-                            <strong>第三方平台 / 模块首页</strong>
-                            <p>展示第三方平台列表、新增/编辑、启停、赋权和 API 文档入口。</p>
-                            <code>modules/third-party-platform/index.html</code>
-                            <span class="card-link">打开页面 →</span>
+                        <a class="prototype-card" href="modules/third-party-platform/index.html?page=platform">
+                            <strong>
+                                第三方平台及授权管理
+                                <span class="status-tag">v1.1</span>
+                            </strong>
+                            <p>平台主体建档、平台列表、三步授权、平台 API 列表、平台设备管理。</p>
+                            <div class="card-footer">
+                                <code>modules/third-party-platform/index.html?page=platform</code>
+                                <span class="card-link">进入 →</span>
+                            </div>
                         </a>
-                        <a class="prototype-card" href="modules/third-party-platform/pages/api_docs.html">
-                            <strong>API 文档</strong>
-                            <p>展示设备清单、状态、实时数据、命令控制和命令反馈的接口文档。</p>
-                            <code>modules/third-party-platform/pages/api_docs.html</code>
-                            <span class="card-link">打开页面 →</span>
+
+                        <a class="prototype-card" href="modules/third-party-platform/index.html?page=api">
+                            <strong>
+                                API管理
+                                <span class="status-tag">v1.1</span>
+                            </strong>
+                            <p>API 列表、所属平台、接口录入向导、文档查看、调试能力。</p>
+                            <div class="card-footer">
+                                <code>modules/third-party-platform/index.html?page=api</code>
+                                <span class="card-link">进入 →</span>
+                            </div>
                         </a>
-                        <a class="prototype-card" href="modules/third-party-platform/pages/api_governance.html">
-                            <strong>接口治理</strong>
-                            <p>展示接口监控、接口日志、版本维护和性能优化能力。</p>
-                            <code>modules/third-party-platform/pages/api_governance.html</code>
-                            <span class="card-link">打开页面 →</span>
+
+                        <a class="prototype-card" href="modules/third-party-platform/index.html?page=governance">
+                            <strong>
+                                接口治理
+                                <span class="status-tag">v1.1</span>
+                            </strong>
+                            <p>接口监控、接口日志、接口版本管理、接口性能、在线调试。</p>
+                            <div class="card-footer">
+                                <code>modules/third-party-platform/index.html?page=governance</code>
+                                <span class="card-link">进入 →</span>
+                            </div>
                         </a>
-                        <a class="prototype-card" href="modules/third-party-platform/pages/data_sharing.html">
-                            <strong>数据共享管理</strong>
-                            <p>展示服务目录、共享调用、共享配置、共享统计和趋势分析。</p>
-                            <code>modules/third-party-platform/pages/data_sharing.html</code>
-                            <span class="card-link">打开页面 →</span>
-                        </a>
-                        <a class="prototype-card" href="modules/third-party-platform/pages/api_config.html">
-                            <strong>API 配置</strong>
-                            <p>展示开放接口配置、认证方式、限流和启停控制页面。</p>
-                            <code>modules/third-party-platform/pages/api_config.html</code>
-                            <span class="card-link">打开页面 →</span>
+
+                        <a class="prototype-card" href="modules/third-party-platform/index.html?page=stats">
+                            <strong>
+                                数据统计
+                                <span class="status-tag">v1.1</span>
+                            </strong>
+                            <p>统计分析单页，查看概览指标、访问统计和趋势图。</p>
+                            <div class="card-footer">
+                                <code>modules/third-party-platform/index.html?page=stats</code>
+                                <span class="card-link">进入 →</span>
+                            </div>
                         </a>
                     </div>
                 </section>
+
+                <div class="footer-note">
+                    第三方平台管理二期原型总导航页 · 对应最新 PRD v1.1 · 仅保留 4 个功能入口
+                </div>
             </div>
         </main>
     </div>

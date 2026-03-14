@@ -109,7 +109,7 @@
                         </a>
                         <a class="prototype-card" href="modules/rule-engine/pages/event_type.html">
                             <strong>事件类型管理</strong>
-                            <p>维护事件类型主数据，通过引用事件等级而非自己维护等级属性。包含批量数据维护功能。</p>
+                            <p>维护事件类型主数据，独立维护类型编码、名称、分类和状态。包含批量数据维护功能。</p>
                             <code>modules/rule-engine/pages/event_type.html</code>
                             <span class="card-link">打开页面 →</span>
                         </a>
@@ -138,19 +138,19 @@
                     <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; line-height: 1.8;">
                         <h4 style="margin-top: 0; color: #333;">拆开版核心特点</h4>
                         <ul style="margin: 10px 0; padding-left: 20px;">
-                            <li><strong>事件等级独立管理：</strong>等级字典统一维护，不会在多个事件类型里重复录入</li>
-                            <li><strong>事件类型引用等级：</strong>严重程度、颜色标记为只读展示字段，来源于关联的事件等级</li>
+                            <li><strong>事件等级独立管理：</strong>等级字典统一维护，供事件规则单独选择</li>
+                            <li><strong>事件类型独立管理：</strong>事件类型不再绑定等级，独立维护分类、编码和状态</li>
                             <li><strong>事件规则最小改造：</strong>在现有场景联动详情页中仅新增事件类型、事件等级两个事件属性字段</li>
                             <li><strong>通知管理改为记录中心：</strong>从"策略配置中心"改为"通知记录中心 + 手动发送"</li>
                         </ul>
                         <h4 style="margin-top: 20px; color: #333;">数据关系链路</h4>
                         <p style="margin: 10px 0; padding: 15px; background: white; border-left: 4px solid #1890ff; font-family: monospace;">
-                            事件等级 → 事件类型 → 事件规则 → 生成通知记录 / 手动发送通知
+                            事件等级 + 事件类型 → 事件规则 → 生成通知记录 / 手动发送通知
                         </p>
                         <ul style="margin: 10px 0; padding-left: 20px;">
-                            <li>一个事件等级可被多个事件类型引用</li>
-                            <li>一个事件类型必须且仅能引用一个事件等级</li>
+                            <li>一个事件等级可被多个事件规则引用</li>
                             <li>一个事件类型可被多个事件规则引用</li>
+                            <li>一个事件规则必须同时选择一个事件类型和一个事件等级</li>
                             <li>一个事件规则可生成多条通知记录</li>
                         </ul>
                     </div>

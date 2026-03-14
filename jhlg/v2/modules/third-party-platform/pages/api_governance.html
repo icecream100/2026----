@@ -1,837 +1,593 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>接口治理 - 第三方平台管理</title>
+    <title>接口治理</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-        body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background-color: #f3f4f6;
-        }
-
-        .bbtn {
-            @apply px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
-        }
-
-        .btn-primary {
-            @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
-        }
-
-        .btn-secondary {
-            @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-blue-500;
-        }
-
-        .input-field {
-            @apply w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border;
-        }
-
-        .label {
-            @apply block text-sm font-medium text-gray-700 mb-1;
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-    </style>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="../assets/prototype-theme.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-
-<body class="h-screen flex overflow-hidden text-gray-800" x-data="apiGovernancePage()" x-init="init()">
-
-    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col hidden md:flex shrink-0">
-        <div class="h-16 flex items-center px-6 border-b border-slate-800 shrink-0">
-            <svg class="w-8 h-8 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
-                </path>
-            </svg>
-            <span class="text-white text-lg font-bold tracking-wider">IoT Platform</span>
-        </div>
-        <div class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">第三方平台管理</div>
-        <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
-            <a href="../index.html"
-                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
-                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-                    </path>
-                </svg>
-                第三方平台
-            </a>
-            <a href="api_docs.html"
-                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
-                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 6.253v11.494m-9-5.747h18"></path>
-                </svg>
-                API 文档
-            </a>
-            <a href="api_governance.html" class="flex items-center px-3 py-2.5 bg-blue-600 text-white rounded-md group">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                    </path>
-                </svg>
-                接口治理
-            </a>
-            <a href="data_sharing.html"
-                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
-                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2">
-                    </path>
-                </svg>
-                数据共享管理
-            </a>
-            <a href="api_config.html"
-                class="flex items-center px-3 py-2.5 text-slate-300 hover:bg-slate-800 hover:text-white rounded-md group transition-colors">
-                <svg class="w-5 h-5 mr-3 text-slate-400 group-hover:text-slate-300" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35A1.724 1.724 0 005.38 7.753c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.573-1.066z">
-                    </path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-                API 配置
-            </a>
-        </nav>
-    </aside>
-
-    <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-gray-50">
-        <header
-            class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 shadow-sm z-10">
-            <div>
-                <h1 class="text-xl font-semibold text-gray-800">接口治理</h1>
+<body class="page-body" x-data="governancePage()" x-init="init()">
+    <div class="page-shell">
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <h2 class="panel-title display-font">接口治理</h2>
+                </div>
             </div>
-            <div class="text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full">Mock 演示数据</div>
-        </header>
-
-        <div class="flex-1 overflow-auto flex flex-col pt-6 px-6">
-            <div class="bg-white rounded-t-lg border-b border-gray-200 px-2 flex shrink-0">
-                <button @click="activeTab = 'monitor'"
-                    :class="activeTab === 'monitor' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                    class="px-6 py-4 text-sm font-medium border-b-2 transition-colors">接口监控</button>
-                <button @click="activeTab = 'logs'"
-                    :class="activeTab === 'logs' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                    class="px-6 py-4 text-sm font-medium border-b-2 transition-colors">接口日志记录</button>
-                <button @click="activeTab = 'version'"
-                    :class="activeTab === 'version' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                    class="px-6 py-4 text-sm font-medium border-b-2 transition-colors">接口版本管理</button>
-                <button @click="activeTab = 'perf'"
-                    :class="activeTab === 'perf' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                    class="px-6 py-4 text-sm font-medium border-b-2 transition-colors">接口性能优化</button>
+            <div class="subtabs mb-5">
+                <button class="subtab-btn" :class="{ 'active': activeTab === 'monitor' }" @click="activeTab = 'monitor'">接口监控</button>
+                <button class="subtab-btn" :class="{ 'active': activeTab === 'log' }" @click="activeTab = 'log'">接口日志</button>
+                <button class="subtab-btn" :class="{ 'active': activeTab === 'version' }" @click="activeTab = 'version'">接口版本管理</button>
+                <button class="subtab-btn" :class="{ 'active': activeTab === 'perf' }" @click="activeTab = 'perf'">接口性能</button>
+                <button class="subtab-btn" :class="{ 'active': activeTab === 'debug' }" @click="activeTab = 'debug'">在线调试</button>
             </div>
 
-            <div
-                class="bg-white flex-1 rounded-b-lg shadow-sm border border-t-0 border-gray-100 p-6 overflow-y-auto mb-6">
+            <template x-if="activeTab === 'monitor'">
+                <div class="space-y-4">
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <p class="stat-label">监控接口总数</p>
+                            <p class="stat-value display-font">18</p>
+                            <div class="stat-meta">最近刷新：<span x-text="lastRefresh"></span></div>
+                        </div>
+                        <div class="stat-card">
+                            <p class="stat-label">正常接口</p>
+                            <p class="stat-value display-font text-emerald-600">13</p>
+                            <div class="stat-meta">成功率稳定</div>
+                        </div>
+                        <div class="stat-card">
+                            <p class="stat-label">异常接口</p>
+                            <p class="stat-value display-font text-red-500">3</p>
+                            <div class="stat-meta">需优先排查</div>
+                        </div>
+                        <div class="stat-card">
+                            <p class="stat-label">未知接口</p>
+                            <p class="stat-value display-font text-amber-500">2</p>
+                            <div class="stat-meta">等待新数据</div>
+                        </div>
+                    </div>
 
-                <div x-show="activeTab === 'monitor'" style="display: none;" x-transition.opacity>
-                    <form class="flex flex-wrap gap-4 items-end mb-6 bg-gray-50 p-4 rounded border border-gray-100">
-                        <div class="w-48">
-                            <label class="label text-xs">平台名称</label>
-                            <input x-model.trim="monitorFilters.platform" type="text" class="input-field"
-                                placeholder="所属第三方平台">
+                    <div class="section-card">
+                        <div class="control-grid">
+                            <div>
+                                <label class="field-label">接口名称</label>
+                                <input class="field" type="text" placeholder="请输入接口名称" x-model="monitorFilters.name">
+                            </div>
+                            <div>
+                                <label class="field-label">所属平台</label>
+                                <select class="select" x-model="monitorFilters.platform">
+                                    <option value="">全部平台</option>
+                                    <option value="市一网统管平台">市一网统管平台</option>
+                                    <option value="通广路灯管养系统">通广路灯管养系统</option>
+                                    <option value="环保监测大屏">环保监测大屏</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="field-label">运行状态</label>
+                                <select class="select" x-model="monitorFilters.status">
+                                    <option value="">全部</option>
+                                    <option value="正常">正常</option>
+                                    <option value="异常">异常</option>
+                                    <option value="未知">未知</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end justify-end gap-3">
+                                <button class="btn btn-secondary" @click="monitorFilters = { name: '', platform: '', status: '' }">重置</button>
+                                <button class="btn btn-primary" @click="showToast('已刷新接口监控')">查询</button>
+                            </div>
                         </div>
-                        <div class="w-48">
-                            <label class="label text-xs">接口名称</label>
-                            <input x-model.trim="monitorFilters.api" type="text" class="input-field"
-                                placeholder="输入接口名称">
-                        </div>
-                        <div class="w-32">
-                            <label class="label text-xs">当前状态</label>
-                            <select x-model="monitorFilters.status" class="input-field">
-                                <option value="">全部</option>
-                                <option value="正常">正常</option>
-                                <option value="异常">异常</option>
-                            </select>
-                        </div>
-                        <div class="w-40">
-                            <label class="label text-xs">时间范围</label>
-                            <select x-model="monitorFilters.range" class="input-field">
-                                <option value="1h">最近 1 小时</option>
-                                <option value="1d">最近 1 天</option>
-                                <option value="7d">最近 7 天</option>
-                                <option value="30d">最近 30 天</option>
-                            </select>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button type="button" class="bbtn btn-primary" @click="applyMonitorFilters()">查询</button>
-                            <button type="button" class="bbtn btn-secondary" @click="resetMonitorFilters()">重置</button>
-                        </div>
-                    </form>
+                    </div>
 
-                    <div class="overflow-x-auto ring-1 ring-gray-200 sm:rounded-lg">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">平台名称
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">接口名称
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">接口路径
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">当前状态
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">成功率</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">错误率</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">最近调用时间
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <template x-for="item in filteredMonitorRows" :key="item.id">
-                                    <tr class="hover:bg-gray-50 text-sm">
-                                        <td class="px-6 py-4" x-text="item.platformName"></td>
-                                        <td class="px-6 py-4 text-blue-600" x-text="item.apiName"></td>
-                                        <td class="px-6 py-4 text-gray-500 font-mono text-xs" x-text="item.apiPath"></td>
-                                        <td class="px-6 py-4">
-                                            <span class="px-2 py-1 rounded-full text-xs"
-                                                :class="item.status === '正常' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800 font-bold animate-pulse'"
-                                                x-text="item.status"></span>
-                                        </td>
-                                        <td class="px-6 py-4"
-                                            :class="item.status === '正常' ? 'text-green-600' : 'text-orange-500'"
-                                            x-text="item.successRate"></td>
-                                        <td class="px-6 py-4" :class="item.errorRate.startsWith('0') ? '' : 'text-red-600 font-mono'"
-                                            x-text="item.errorRate"></td>
-                                        <td class="px-6 py-4 text-gray-500" x-text="item.lastCalled"></td>
+                    <div class="table-shell">
+                        <div class="table-scroll">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>接口名称</th>
+                                        <th>所属平台</th>
+                                        <th>运行状态</th>
+                                        <th>成功率</th>
+                                        <th>错误率</th>
+                                        <th>最近调用时间</th>
+                                        <th>平均响应时长</th>
                                     </tr>
-                                </template>
-                                <tr x-show="filteredMonitorRows.length === 0">
-                                    <td colspan="7" class="px-6 py-12 text-center text-sm text-gray-400">未查询到符合条件的接口监控数据</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <template x-for="item in filteredMonitor" :key="item.id">
+                                        <tr>
+                                            <td class="font-bold" x-text="item.name"></td>
+                                            <td x-text="item.platform"></td>
+                                            <td><span class="status-pill" :class="item.status === '正常' ? 'success' : (item.status === '异常' ? 'danger' : 'warning')" x-text="item.status"></span></td>
+                                            <td x-text="item.successRate"></td>
+                                            <td x-text="item.errorRate"></td>
+                                            <td class="muted" x-text="item.lastCall"></td>
+                                            <td x-text="item.avgRt"></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
+            </template>
 
-                <div x-show="activeTab === 'logs'" style="display: none;" x-transition.opacity>
-                    <form class="flex flex-wrap gap-4 items-end mb-6 bg-gray-50 p-4 rounded border border-gray-100">
-                        <div class="w-48">
-                            <label class="label text-xs">平台名称</label>
-                            <input x-model.trim="logFilters.platform" type="text" class="input-field"
-                                placeholder="所属第三方平台">
+            <template x-if="activeTab === 'log'">
+                <div class="space-y-4">
+                    <div class="section-card">
+                        <div class="control-grid">
+                            <div>
+                                <label class="field-label">平台名称</label>
+                                <select class="select" x-model="logFilters.platform">
+                                    <option value="">全部平台</option>
+                                    <option value="市一网统管平台">市一网统管平台</option>
+                                    <option value="通广路灯管养系统">通广路灯管养系统</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="field-label">接口名称</label>
+                                <input class="field" type="text" placeholder="请输入接口名称" x-model="logFilters.name">
+                            </div>
+                            <div>
+                                <label class="field-label">调用状态</label>
+                                <select class="select" x-model="logFilters.status">
+                                    <option value="">全部</option>
+                                    <option value="成功">成功</option>
+                                    <option value="失败">失败</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="field-label">时间范围</label>
+                                <select class="select" x-model="logFilters.range">
+                                    <option value="7d">最近 7 天</option>
+                                    <option value="30d">最近 30 天</option>
+                                    <option value="90d">最近 90 天</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="w-48">
-                            <label class="label text-xs">接口名称</label>
-                            <input x-model.trim="logFilters.api" type="text" class="input-field"
-                                placeholder="输入接口名称">
-                        </div>
-                        <div class="w-32">
-                            <label class="label text-xs">调用状态</label>
-                            <select x-model="logFilters.status" class="input-field">
-                                <option value="">全部</option>
-                                <option value="成功">成功</option>
-                                <option value="失败">失败</option>
-                            </select>
-                        </div>
-                        <div class="w-40">
-                            <label class="label text-xs">时间范围</label>
-                            <select x-model="logFilters.range" class="input-field">
-                                <option value="">全部</option>
-                                <option value="1d">最近 1 天</option>
-                                <option value="7d">最近 7 天</option>
-                                <option value="30d">最近 30 天</option>
-                            </select>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button type="button" class="bbtn btn-primary" @click="applyLogFilters()">查询</button>
-                            <button type="button" class="bbtn btn-secondary" @click="resetLogFilters()">重置</button>
-                        </div>
-                    </form>
+                    </div>
 
-                    <div class="overflow-x-auto ring-1 ring-gray-200 sm:rounded-lg">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">日志ID
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">平台名称
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">接口名称
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">请求时间
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">响应时间
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">调用状态
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">失败原因
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200 text-sm">
-                                <template x-for="item in filteredLogRows" :key="item.id">
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 font-mono text-xs text-gray-500" x-text="item.logId"></td>
-                                        <td class="px-6 py-4" x-text="item.platformName"></td>
-                                        <td class="px-6 py-4 text-blue-600" x-text="item.apiName"></td>
-                                        <td class="px-6 py-4" x-text="item.requestTime"></td>
-                                        <td class="px-6 py-4 font-mono" x-text="item.responseTime"></td>
-                                        <td class="px-6 py-4">
-                                            <span class="px-2 py-0.5 rounded text-xs"
-                                                :class="item.status === '成功' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                                                x-text="item.status"></span>
-                                        </td>
-                                        <td class="px-6 py-4 max-w-xs truncate"
-                                            :class="item.status === '失败' ? 'text-red-600' : 'text-gray-400'"
-                                            x-text="item.failureReason || '-'"></td>
-                                        <td class="px-6 py-4">
-                                            <button type="button" class="text-blue-600 hover:text-blue-800"
-                                                @click="openLogDrawer(item)">详情</button>
-                                        </td>
+                    <div class="table-shell">
+                        <div class="table-scroll">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>调用时间</th>
+                                        <th>平台名称</th>
+                                        <th>接口名称</th>
+                                        <th>请求方式</th>
+                                        <th>调用状态</th>
+                                        <th>错误码</th>
+                                        <th>响应时长</th>
+                                        <th>操作</th>
                                     </tr>
-                                </template>
-                                <tr x-show="filteredLogRows.length === 0">
-                                    <td colspan="8" class="px-6 py-12 text-center text-sm text-gray-400">未查询到符合条件的接口日志</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div x-show="activeTab === 'version'" style="display: none;" x-transition.opacity>
-                    <div class="mb-4 flex flex-wrap justify-between gap-3">
-                        <div class="w-72">
-                            <input x-model.trim="versionKeyword" @input="applyVersionFilters()" type="text" class="input-field" placeholder="搜索接口名称...">
+                                </thead>
+                                <tbody>
+                                    <template x-for="item in filteredLogs" :key="item.id">
+                                        <tr>
+                                            <td class="muted" x-text="item.time"></td>
+                                            <td x-text="item.platform"></td>
+                                            <td class="font-mono text-xs" x-text="item.path"></td>
+                                            <td><span class="method-pill" :class="item.method.toLowerCase()" x-text="item.method"></span></td>
+                                            <td><span class="status-pill" :class="item.status === '成功' ? 'success' : 'danger'" x-text="item.status"></span></td>
+                                            <td x-text="item.errorCode || '--'"></td>
+                                            <td x-text="item.duration"></td>
+                                            <td><button class="link-btn" @click="openLogDetail(item)">查看详情</button></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="flex gap-2">
-                            <button type="button" class="bbtn btn-secondary" @click="resetVersionFilters()">重置</button>
-                            <button type="button" class="bbtn btn-primary" @click="openVersionModal()">新增版本</button>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto ring-1 ring-gray-200 sm:rounded-lg">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">接口名称
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">版本号</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">默认版本
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">说明</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200 text-sm">
-                                <template x-for="item in filteredVersionRows" :key="item.id">
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 font-medium" x-text="item.apiName"></td>
-                                        <td class="px-6 py-4">
-                                            <span class="bg-gray-100 px-2 py-1 rounded font-mono text-xs text-gray-700"
-                                                x-text="item.version"></span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="text-xs font-medium"
-                                                :class="item.isDefault ? 'text-blue-600' : 'text-gray-400'"
-                                                x-text="item.isDefault ? '是' : '否'"></span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="text-xs font-medium"
-                                                :class="item.status === '启用' ? 'text-green-600' : item.status === '停用' ? 'text-orange-500' : 'text-gray-400'"
-                                                x-text="item.status"></span>
-                                        </td>
-                                        <td class="px-6 py-4 text-gray-500" x-text="item.desc"></td>
-                                        <td class="px-6 py-4">
-                                            <button type="button" class="text-blue-600 hover:text-blue-800"
-                                                @click="openVersionModal(item)">编辑</button>
-                                        </td>
-                                    </tr>
-                                </template>
-                                <tr x-show="filteredVersionRows.length === 0">
-                                    <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-400">未查询到符合条件的接口版本</td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
+            </template>
 
-                <div x-show="activeTab === 'perf'" style="display: none;" x-transition.opacity>
-                    <div class="mb-4 bg-blue-50 p-3 rounded text-sm text-blue-800 flex items-start">
-                        <svg class="w-5 h-5 text-blue-500 mr-2 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        性能参数保存后对第三方平台发起的新请求立即生效。历史日志不受影响。
-                    </div>
-
-                    <div class="overflow-x-auto ring-1 ring-gray-200 sm:rounded-lg">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">接口名称
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">超时时间(ms)
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">重试次数
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                        限流阈值(次/分)</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">近1天平均响应
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200 text-sm">
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 font-medium text-gray-900">下发控制命令</td>
-                                    <td class="px-6 py-4"><input type="number"
-                                            class="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500"
-                                            value="5000"></td>
-                                    <td class="px-6 py-4"><input type="number"
-                                            class="w-16 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500"
-                                            value="0"></td>
-                                    <td class="px-6 py-4"><input type="number"
-                                            class="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500"
-                                            value="600"></td>
-                                    <td class="px-6 py-4 text-gray-600 font-mono">142 ms</td>
-                                    <td class="px-6 py-4">
-                                        <button type="button" class="bbtn btn-primary px-3 py-1"
-                                            @click="alert('性能参数已生效')">保存</button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 font-medium text-gray-900">拉取历史环境数据</td>
-                                    <td class="px-6 py-4"><input type="number"
-                                            class="w-24 px-2 py-1 border border-red-300 rounded text-sm focus:ring-red-500 focus:border-red-500 ring-1 ring-red-200"
-                                            value="30000"></td>
-                                    <td class="px-6 py-4"><input type="number"
-                                            class="w-16 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500"
-                                            value="1"></td>
-                                    <td class="px-6 py-4"><input type="number"
-                                            class="w-24 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500"
-                                            value="20"></td>
-                                    <td class="px-6 py-4 text-red-600 font-bold font-mono">4890 ms</td>
-                                    <td class="px-6 py-4">
-                                        <button type="button" class="bbtn btn-primary px-3 py-1"
-                                            @click="alert('性能参数已生效')">保存</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </main>
-
-    <div x-show="showVersionModal" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showVersionModal = false"></div>
-
-            <div
-                class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900" x-text="versionModalTitle"></h3>
-                </div>
-
-                <div class="px-6 py-4 space-y-4">
-                    <div>
-                        <label class="label">接口名称</label>
-                        <input type="text" class="input-field" x-model.trim="versionForm.apiName" placeholder="输入接口名称">
-                    </div>
-                    <div>
-                        <label class="label">版本号</label>
-                        <input type="text" class="input-field font-mono" x-model.trim="versionForm.version"
-                            placeholder="例如 v1.3">
-                    </div>
-                    <div class="flex items-center justify-between bg-blue-50 p-3 rounded">
+            <template x-if="activeTab === 'version'">
+                <div class="space-y-4">
+                    <div class="panel-head !mb-0">
                         <div>
-                            <span class="block text-sm font-medium text-gray-900">设为默认版本</span>
-                            <span class="block text-xs text-blue-700">同一接口仅允许一个默认版本</span>
+                            <h2 class="panel-title display-font">接口版本管理</h2>
+                            <p class="panel-subtitle">同一接口仅允许存在一个默认版本，状态为“废弃”时不可设为默认。</p>
                         </div>
-                        <input type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded"
-                            x-model="versionForm.isDefault">
+                        <div class="btn-row">
+                            <button class="btn btn-secondary" @click="versionSearch = ''">重置</button>
+                            <button class="btn btn-primary" @click="openVersionModal()"><i class="fa-solid fa-plus"></i>新增版本</button>
+                        </div>
                     </div>
-                    <div>
-                        <label class="label">状态</label>
-                        <select class="input-field" x-model="versionForm.status">
-                            <option value="启用">启用</option>
-                            <option value="停用">停用</option>
-                            <option value="废弃">废弃</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="label">说明</label>
-                        <textarea class="input-field" rows="2" x-model.trim="versionForm.desc"
-                            placeholder="输入版本变更说明"></textarea>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
-                    <button type="button"
-                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm"
-                        @click="saveVersion()">确定</button>
-                    <button type="button"
-                        class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                        @click="showVersionModal = false">取消</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div x-show="showLogDrawer" style="display: none;" class="fixed inset-0 overflow-hidden z-50">
-        <div class="absolute inset-0 overflow-hidden">
-            <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showLogDrawer = false"></div>
-            <div class="fixed inset-y-0 right-0 pl-10 max-w-full flex">
-                <div class="w-screen max-w-2xl transform transition-transform bg-white shadow-xl">
-                    <div class="h-full flex flex-col py-6 shadow-xl overflow-y-scroll bg-white">
-                        <div class="px-4 sm:px-6 flex items-start justify-between">
-                            <h2 class="text-lg font-medium text-gray-900">日志详细信息</h2>
-                            <div class="ml-3 h-7 flex items-center">
-                                <button type="button"
-                                    class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none"
-                                    @click="showLogDrawer = false">
-                                    <span class="sr-only">关闭面板</span>
-                                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
+                    <div class="section-card">
+                        <div class="control-grid !grid-cols-2">
+                            <div>
+                                <label class="field-label">接口名称</label>
+                                <input class="field" type="text" placeholder="请输入接口名称" x-model="versionSearch">
                             </div>
                         </div>
-                        <div class="mt-6 relative flex-1 px-4 sm:px-6" x-show="selectedLog">
-                            <div class="space-y-6">
+                    </div>
+
+                    <div class="table-shell">
+                        <div class="table-scroll">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>接口名称</th>
+                                        <th>版本号</th>
+                                        <th>默认版本</th>
+                                        <th>状态</th>
+                                        <th>说明</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="item in filteredVersions" :key="item.id">
+                                        <tr>
+                                            <td class="font-bold" x-text="item.name"></td>
+                                            <td class="font-mono text-xs" x-text="item.version"></td>
+                                            <td x-text="item.isDefault ? '是' : '否'"></td>
+                                            <td><span class="status-pill" :class="item.status === '启用' ? 'success' : (item.status === '停用' ? 'warning' : 'disabled')" x-text="item.status"></span></td>
+                                            <td class="muted" x-text="item.remark"></td>
+                                            <td><button class="link-btn" @click="openVersionModal(item)">编辑</button></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="activeTab === 'perf'">
+                <div class="space-y-4">
+                    <div class="notice warning">
+                        <i class="fa-solid fa-gauge-high mt-1"></i>
+                        <div>性能参数保存后仅对新请求生效，历史日志不受影响。当前页面支持超时时间、重试次数和限流阈值的行内维护。</div>
+                    </div>
+                    <div class="table-shell">
+                        <div class="table-scroll">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>接口名称</th>
+                                        <th>超时时间(ms)</th>
+                                        <th>重试次数</th>
+                                        <th>限流阈值(次/分)</th>
+                                        <th>近1天平均响应</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="item in perfConfig" :key="item.name">
+                                        <tr>
+                                            <td class="font-bold" x-text="item.name"></td>
+                                            <td><input class="field !h-[40px]" type="number" x-model="item.timeout"></td>
+                                            <td><input class="field !h-[40px]" type="number" x-model="item.retry"></td>
+                                            <td><input class="field !h-[40px]" type="number" x-model="item.limit"></td>
+                                            <td x-text="item.avgRt"></td>
+                                            <td><button class="btn btn-light !h-[38px]" @click="showToast('性能参数已保存')">保存</button></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="activeTab === 'debug'">
+                <div class="space-y-4">
+                    <div class="split-layout">
+                        <div class="section-card !mb-0">
+                            <h3 class="section-title display-font">目标平台与设备</h3>
+                            <div class="space-y-4">
                                 <div>
-                                    <h3 class="text-sm font-medium text-gray-500">基本信息</h3>
-                                    <div
-                                        class="mt-2 text-sm text-gray-900 bg-gray-50 p-4 rounded-md grid grid-cols-2 gap-4">
-                                        <div><span class="text-gray-500">日志ID:</span> <span x-text="selectedLog?.logId"></span></div>
-                                        <div><span class="text-gray-500">平台名称:</span> <span x-text="selectedLog?.platformName"></span></div>
-                                        <div><span class="text-gray-500">接口名称:</span> <span x-text="selectedLog?.apiName"></span></div>
-                                        <div><span class="text-gray-500">请求时间:</span> <span x-text="selectedLog?.requestTime"></span></div>
-                                        <div><span class="text-gray-500">调用状态:</span>
-                                            <span :class="selectedLog?.status === '成功' ? 'text-green-600' : 'text-red-600'"
-                                                x-text="selectedLog?.status"></span>
+                                    <label class="field-label">目标平台</label>
+                                    <select class="select" x-model="debug.platform">
+                                        <option value="市一网统管平台">市一网统管平台</option>
+                                        <option value="通广路灯管养系统">通广路灯管养系统</option>
+                                    </select>
+                                </div>
+                                <div class="stack-list">
+                                    <template x-for="item in debugDevices" :key="item.id">
+                                        <div class="stack-item" :class="{ 'active': debug.deviceId === item.id }" @click="debug.deviceId = item.id; debug.command = item.commands[0]">
+                                            <div class="font-bold" x-text="item.name"></div>
+                                            <div class="muted text-xs mt-2" x-text="item.product"></div>
                                         </div>
-                                        <div><span class="text-gray-500">响应时间:</span> <span x-text="selectedLog?.responseTime"></span></div>
-                                    </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-card !mb-0">
+                            <div class="panel-head !mb-0">
+                                <div>
+                                    <h3 class="section-title display-font !mb-2">在线调试</h3>
+                                    <p class="panel-subtitle">选择设备和命令后填写参数，发送后展示请求报文、响应报文和执行状态。</p>
+                                </div>
+                            </div>
+                            <div class="form-grid">
+                                <div>
+                                    <label class="field-label">命令类型</label>
+                                    <select class="select" x-model="debug.command">
+                                        <template x-for="item in currentDebugDevice.commands" :key="item">
+                                            <option :value="item" x-text="item"></option>
+                                        </template>
+                                    </select>
                                 </div>
                                 <div>
-                                    <h3 class="text-sm font-medium text-gray-500">请求信息 (Request)</h3>
-                                    <pre class="mt-2 bg-slate-900 text-slate-300 p-4 rounded-md text-xs font-mono overflow-x-auto"
-                                        x-text="selectedLog?.requestBody"></pre>
+                                    <label class="field-label">执行状态</label>
+                                    <input class="field" type="text" :value="debug.status" disabled>
                                 </div>
-                                <div>
-                                    <h3 class="text-sm font-medium text-gray-500">响应信息 (Response)</h3>
-                                    <pre class="mt-2 bg-slate-900 text-slate-300 p-4 rounded-md text-xs font-mono overflow-x-auto"
-                                        x-text="selectedLog?.responseBody"></pre>
+                                <div class="full-span">
+                                    <label class="field-label">参数模板</label>
+                                    <textarea class="textarea" x-model="debug.payload"></textarea>
                                 </div>
+                            </div>
+                            <div class="btn-row mt-4 justify-end">
+                                <button class="btn btn-primary" @click="sendCommand"><i class="fa-solid fa-paper-plane"></i>发送</button>
+                            </div>
+                            <div class="section-card mt-5 !mb-0">
+                                <h3 class="section-title display-font">响应报文</h3>
+                                <pre class="code-block" x-text="debug.response"></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card !mb-0">
+                        <h3 class="section-title display-font">命令历史</h3>
+                        <div class="table-shell">
+                            <div class="table-scroll">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>执行时间</th>
+                                            <th>目标设备</th>
+                                            <th>命令类型</th>
+                                            <th>执行状态</th>
+                                            <th>响应时长</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="item in debugHistory" :key="item.id">
+                                            <tr>
+                                                <td class="muted" x-text="item.time"></td>
+                                                <td x-text="item.device"></td>
+                                                <td x-text="item.command"></td>
+                                                <td><span class="status-pill" :class="item.status === '成功' ? 'success' : (item.status === '失败' ? 'danger' : 'warning')" x-text="item.status"></span></td>
+                                                <td x-text="item.duration"></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
+            </template>
+        </section>
+    </div>
+
+    <template x-if="logDetail.open">
+        <div>
+            <div class="modal-backdrop" @click="logDetail.open = false"></div>
+            <div class="drawer">
+                <div class="modal-header">
+                    <div>
+                        <h2 class="modal-title display-font">日志详情</h2>
+                        <p class="panel-subtitle" x-text="logDetail.item?.path"></p>
+                    </div>
+                    <button class="btn btn-ghost" @click="logDetail.open = false"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="kv-grid">
+                        <div class="kv-card"><div class="kv-label">调用时间</div><div class="kv-value" x-text="logDetail.item?.time"></div></div>
+                        <div class="kv-card"><div class="kv-label">调用状态</div><div class="kv-value" x-text="logDetail.item?.status"></div></div>
+                    </div>
+                    <div class="section-card mt-4">
+                        <h3 class="section-title display-font">请求信息</h3>
+                        <pre class="code-block" x-text="logDetail.item?.request"></pre>
+                    </div>
+                    <div class="section-card !mb-0">
+                        <h3 class="section-title display-font">响应信息</h3>
+                        <pre class="code-block" x-text="logDetail.item?.response"></pre>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </template>
+
+    <template x-if="versionModal.open">
+        <div>
+            <div class="modal-backdrop" @click="versionModal.open = false"></div>
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div>
+                        <h2 class="modal-title display-font" x-text="versionModal.item ? '编辑版本' : '新增版本'"></h2>
+                        <p class="panel-subtitle">同一接口仅允许一个默认版本，废弃状态不可设置为默认。</p>
+                    </div>
+                    <button class="btn btn-ghost" @click="versionModal.open = false"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="section-card !mb-0">
+                        <div class="form-grid">
+                            <div>
+                                <label class="field-label">接口名称</label>
+                                <input class="field" type="text" x-model="versionForm.name">
+                            </div>
+                            <div>
+                                <label class="field-label">版本号</label>
+                                <input class="field" type="text" x-model="versionForm.version">
+                            </div>
+                            <div>
+                                <label class="field-label">状态</label>
+                                <select class="select" x-model="versionForm.status">
+                                    <option value="启用">启用</option>
+                                    <option value="停用">停用</option>
+                                    <option value="废弃">废弃</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <label class="chip !justify-start"><input type="checkbox" x-model="versionForm.isDefault"> 设为默认版本</label>
+                            </div>
+                            <div class="full-span">
+                                <label class="field-label">说明</label>
+                                <textarea class="textarea" x-model="versionForm.remark"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @click="versionModal.open = false">取消</button>
+                    <button class="btn btn-primary" @click="saveVersion">保存</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template x-if="toast.show">
+        <div class="toast" :class="toast.type === 'error' ? 'error' : 'success'">
+            <i class="fa-solid" :class="toast.type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'"></i>
+            <span x-text="toast.message"></span>
+        </div>
+    </template>
 
     <script>
-        function apiGovernancePage() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('governancePage', () => ({
                 activeTab: 'monitor',
-                showLogDrawer: false,
-                showVersionModal: false,
-                versionModalTitle: '新增接口版本',
-                selectedLog: null,
-                monitorFilters: {
-                    platform: '',
-                    api: '',
-                    status: '',
-                    range: ''
-                },
-                logFilters: {
-                    platform: '',
-                    api: '',
-                    status: '',
-                    range: ''
-                },
-                versionKeyword: '',
-                versionForm: {
-                    id: null,
-                    apiName: '',
-                    version: 'v1.0',
-                    isDefault: false,
-                    status: '启用',
-                    desc: ''
-                },
-                monitorRows: [
-                    {
-                        id: 1,
-                        platformName: '市教育局数据大屏',
-                        apiName: '获取设备清单',
-                        apiPath: '/api/v1/devices',
-                        status: '正常',
-                        successRate: '99.98%',
-                        errorRate: '0.02%',
-                        lastCalled: '2026-03-09 11:30:11'
-                    },
-                    {
-                        id: 2,
-                        platformName: '能源管控平台',
-                        apiName: '下发控制命令',
-                        apiPath: '/api/v1/cmd/invoke',
-                        status: '异常',
-                        successRate: '82.10%',
-                        errorRate: '17.90%',
-                        lastCalled: '2026-03-09 11:25:44'
-                    },
-                    {
-                        id: 3,
-                        platformName: '校园安防中枢',
-                        apiName: '查询命令反馈',
-                        apiPath: '/api/v1/cmd/result',
-                        status: '正常',
-                        successRate: '99.62%',
-                        errorRate: '0.38%',
-                        lastCalled: '2026-03-09 11:18:05'
-                    },
-                    {
-                        id: 4,
-                        platformName: '环保监督平台',
-                        apiName: '获取设备实时数据',
-                        apiPath: '/api/v1/device/realtime',
-                        status: '正常',
-                        successRate: '98.73%',
-                        errorRate: '1.27%',
-                        lastCalled: '2026-03-08 09:12:33'
-                    }
+                lastRefresh: '2026-03-14 09:30:00',
+                monitorFilters: { name: '', platform: '', status: '' },
+                logFilters: { platform: '', name: '', status: '', range: '7d' },
+                versionSearch: '',
+                logDetail: { open: false, item: null },
+                versionModal: { open: false, item: null },
+                versionForm: { name: '', version: '', status: '启用', isDefault: false, remark: '' },
+                toast: { show: false, message: '', type: 'success' },
+                monitorList: [
+                    { id: 1, name: '环境监测信息接口', platform: '市一网统管平台', status: '正常', successRate: '99.6%', errorRate: '0.4%', lastCall: '2026-03-14 09:28:12', avgRt: '128ms' },
+                    { id: 2, name: '设备告警接口', platform: '市一网统管平台', status: '异常', successRate: '78.1%', errorRate: '21.9%', lastCall: '2026-03-14 09:27:41', avgRt: '632ms' },
+                    { id: 3, name: '设备状态接口', platform: '环保监测大屏', status: '未知', successRate: '--', errorRate: '--', lastCall: '2026-03-13 22:17:00', avgRt: '--' }
                 ],
-                logRows: [
-                    {
-                        id: 1,
-                        logId: 'REQ-291039818',
-                        platformName: '能源管控平台',
-                        apiName: '下发控制命令',
-                        requestTime: '2026-03-09 11:25:44',
-                        responseTime: '2026-03-09 11:25:44',
-                        status: '成功',
-                        failureReason: '',
-                        requestBody: 'POST /api/v1/cmd/invoke HTTP/1.1\nHost: api.iot.example.com\nContent-Type: application/json\nAuthorization: Bearer xxxxx.yyyyy.zzzzz\n\n{\n  "device_id": "dev_8829_abc",\n  "command": "power_off",\n  "params": {\n    "force": true\n  }\n}',
-                        responseBody: 'HTTP/1.1 200 OK\nContent-Type: application/json\n\n{\n  "code": 0,\n  "message": "success",\n  "trace_id": "REQ-291039818"\n}'
-                    },
-                    {
-                        id: 2,
-                        logId: 'REQ-291039815',
-                        platformName: '能源管控平台',
-                        apiName: '下发控制命令',
-                        requestTime: '2026-03-09 11:24:12',
-                        responseTime: '2026-03-09 11:24:16',
-                        status: '失败',
-                        failureReason: 'Device Offline (设备离线，指令无法送达)',
-                        requestBody: 'POST /api/v1/cmd/invoke HTTP/1.1\nHost: api.iot.example.com\nContent-Type: application/json\nAuthorization: Bearer xxxxx.yyyyy.zzzzz\n\n{\n  "device_id": "dev_8829_abc",\n  "command": "power_off",\n  "params": {\n    "force": true\n  }\n}',
-                        responseBody: 'HTTP/1.1 504 Gateway Timeout\nContent-Type: application/json\n\n{\n  "code": 504001,\n  "message": "Device Offline",\n  "details": "设备处于离线状态，指令无法送达"\n}'
-                    },
-                    {
-                        id: 3,
-                        logId: 'REQ-291039799',
-                        platformName: '市教育局数据大屏',
-                        apiName: '获取设备清单',
-                        requestTime: '2026-03-09 10:58:09',
-                        responseTime: '2026-03-09 10:58:09',
-                        status: '成功',
-                        failureReason: '',
-                        requestBody: 'GET /api/v1/devices?page=1&size=20 HTTP/1.1\nHost: api.iot.example.com\nAuthorization: Bearer xxxxx.yyyyy.zzzzz',
-                        responseBody: 'HTTP/1.1 200 OK\nContent-Type: application/json\n\n{\n  "code": 0,\n  "message": "success",\n  "data": {\n    "total": 20,\n    "items": []\n  }\n}'
-                    },
-                    {
-                        id: 4,
-                        logId: 'REQ-291038911',
-                        platformName: '环保监督平台',
-                        apiName: '获取设备实时数据',
-                        requestTime: '2026-03-07 09:12:33',
-                        responseTime: '2026-03-07 09:12:33',
-                        status: '成功',
-                        failureReason: '',
-                        requestBody: 'GET /api/v1/device/realtime?device_id=air_001 HTTP/1.1\nHost: api.iot.example.com\nAuthorization: Bearer xxxxx.yyyyy.zzzzz',
-                        responseBody: 'HTTP/1.1 200 OK\nContent-Type: application/json\n\n{\n  "code": 0,\n  "message": "success",\n  "data": {\n    "device_id": "air_001",\n    "value": 28.1\n  }\n}'
-                    }
+                logs: [
+                    { id: 11, time: '2026-03-14 09:21:36', platform: '市一网统管平台', path: '/api/open/v1/environment', method: 'GET', status: '成功', errorCode: '', duration: '36ms', request: 'GET /api/open/v1/environment?pageNo=1', response: '{ "code": 0, "message": "OK" }' },
+                    { id: 12, time: '2026-03-14 09:18:05', platform: '通广路灯管养系统', path: '/api/open/v1/device/command', method: 'POST', status: '失败', errorCode: 'TIMEOUT', duration: '1500ms', request: 'POST /api/open/v1/device/command', response: '{ "code": 500, "message": "timeout" }' }
                 ],
-                versionRows: [
-                    {
-                        id: 1,
-                        apiName: '获取设备清单',
-                        version: 'v1.2',
-                        isDefault: true,
-                        status: '启用',
-                        desc: '增加设备组过滤参数'
-                    },
-                    {
-                        id: 2,
-                        apiName: '获取设备清单',
-                        version: 'v1.0',
-                        isDefault: false,
-                        status: '废弃',
-                        desc: '初始版本（不再支持）'
-                    },
-                    {
-                        id: 3,
-                        apiName: '下发控制命令',
-                        version: 'v2.1',
-                        isDefault: true,
-                        status: '启用',
-                        desc: '补充命令反馈 traceId 返回'
-                    }
+                versions: [
+                    { id: 21, name: '环境监测信息接口', version: 'v1.0', isDefault: true, status: '启用', remark: '稳定发布版本' },
+                    { id: 22, name: '环境监测信息接口', version: 'v2.0', isDefault: false, status: '停用', remark: '待联调版本' },
+                    { id: 23, name: '设备告警接口', version: 'v1.1', isDefault: true, status: '启用', remark: '支持告警扩展字段' }
                 ],
-                filteredMonitorRows: [],
-                filteredLogRows: [],
-                filteredVersionRows: [],
+                perfConfig: [
+                    { name: '环境监测信息接口', timeout: 5000, retry: 1, limit: 600, avgRt: '128ms' },
+                    { name: '设备告警接口', timeout: 8000, retry: 2, limit: 300, avgRt: '632ms' },
+                    { name: '设备状态接口', timeout: 5000, retry: 0, limit: 480, avgRt: '212ms' }
+                ],
+                debug: {
+                    platform: '市一网统管平台',
+                    deviceId: 101,
+                    command: 'switch_control',
+                    status: '未执行',
+                    payload: '{\n  "switch": "on"\n}',
+                    response: '{\n  "code": 0,\n  "message": "等待发送"\n}'
+                },
+                debugDevices: [
+                    { id: 101, name: '9号楼2号灯控器', product: '智能路灯监控终端', commands: ['switch_control', 'brightness_adjust'] },
+                    { id: 102, name: '高新区气象站A-01', product: '环境监测终端', commands: ['report_pull'] }
+                ],
+                debugHistory: [
+                    { id: 301, time: '2026-03-14 09:24:11', device: '9号楼2号灯控器', command: 'switch_control', status: '成功', duration: '28ms' },
+                    { id: 302, time: '2026-03-14 09:12:44', device: '高新区气象站A-01', command: 'report_pull', status: '失败', duration: '888ms' }
+                ],
+
                 init() {
-                    this.resetMonitorFilters();
-                    this.resetLogFilters();
-                    this.resetVersionFilters();
+                    this.refreshTimer = setInterval(() => {
+                        this.lastRefresh = '2026-03-14 09:30:00';
+                    }, 60000);
                 },
-                normalize(value) {
-                    return (value || '').toLowerCase();
-                },
-                inRange(dateTime, range) {
-                    if (!range) {
-                        return true;
-                    }
-                    const base = new Date('2026-03-09T12:00:00');
-                    const target = new Date(dateTime.replace(' ', 'T'));
-                    const diff = base - target;
-                    const day = 24 * 60 * 60 * 1000;
-                    if (range === '1h') {
-                        return diff <= 60 * 60 * 1000;
-                    }
-                    if (range === '1d') {
-                        return diff <= day;
-                    }
-                    if (range === '7d') {
-                        return diff <= 7 * day;
-                    }
-                    if (range === '30d') {
-                        return diff <= 30 * day;
-                    }
-                    return true;
-                },
-                applyMonitorFilters() {
-                    this.filteredMonitorRows = this.monitorRows.filter((item) => {
-                        const platformMatch = !this.monitorFilters.platform || this.normalize(item.platformName).includes(this.normalize(this.monitorFilters.platform));
-                        const apiMatch = !this.monitorFilters.api || this.normalize(item.apiName).includes(this.normalize(this.monitorFilters.api));
-                        const statusMatch = !this.monitorFilters.status || item.status === this.monitorFilters.status;
-                        const rangeMatch = this.inRange(item.lastCalled, this.monitorFilters.range);
-                        return platformMatch && apiMatch && statusMatch && rangeMatch;
+
+                get filteredMonitor() {
+                    return this.monitorList.filter((item) => {
+                        const matchName = !this.monitorFilters.name || item.name.includes(this.monitorFilters.name);
+                        const matchPlatform = !this.monitorFilters.platform || item.platform === this.monitorFilters.platform;
+                        const matchStatus = !this.monitorFilters.status || item.status === this.monitorFilters.status;
+                        return matchName && matchPlatform && matchStatus;
                     });
                 },
-                resetMonitorFilters() {
-                    this.monitorFilters = {
-                        platform: '',
-                        api: '',
-                        status: '',
-                        range: '1h'
-                    };
-                    this.applyMonitorFilters();
-                },
-                applyLogFilters() {
-                    this.filteredLogRows = this.logRows.filter((item) => {
-                        const platformMatch = !this.logFilters.platform || this.normalize(item.platformName).includes(this.normalize(this.logFilters.platform));
-                        const apiMatch = !this.logFilters.api || this.normalize(item.apiName).includes(this.normalize(this.logFilters.api));
-                        const statusMatch = !this.logFilters.status || item.status === this.logFilters.status;
-                        const rangeMatch = this.inRange(item.requestTime, this.logFilters.range);
-                        return platformMatch && apiMatch && statusMatch && rangeMatch;
+
+                get filteredLogs() {
+                    return this.logs.filter((item) => {
+                        const matchPlatform = !this.logFilters.platform || item.platform === this.logFilters.platform;
+                        const matchName = !this.logFilters.name || item.path.includes(this.logFilters.name);
+                        const matchStatus = !this.logFilters.status || item.status === this.logFilters.status;
+                        return matchPlatform && matchName && matchStatus;
                     });
                 },
-                resetLogFilters() {
-                    this.logFilters = {
-                        platform: '',
-                        api: '',
-                        status: '',
-                        range: ''
-                    };
-                    this.filteredLogRows = [...this.logRows];
+
+                get filteredVersions() {
+                    return this.versions.filter((item) => !this.versionSearch || item.name.includes(this.versionSearch));
                 },
-                openLogDrawer(item) {
-                    this.selectedLog = item;
-                    this.showLogDrawer = true;
+
+                get currentDebugDevice() {
+                    return this.debugDevices.find((item) => item.id === this.debug.deviceId) || this.debugDevices[0];
                 },
-                applyVersionFilters() {
-                    this.filteredVersionRows = this.versionRows.filter((item) => {
-                        return !this.versionKeyword || this.normalize(item.apiName).includes(this.normalize(this.versionKeyword));
-                    });
+
+                openLogDetail(item) {
+                    this.logDetail = { open: true, item };
                 },
-                resetVersionFilters() {
-                    this.versionKeyword = '';
-                    this.filteredVersionRows = [...this.versionRows];
-                },
+
                 openVersionModal(item = null) {
-                    if (item) {
-                        this.versionModalTitle = '编辑接口版本';
-                        this.versionForm = { ...item };
-                    } else {
-                        this.versionModalTitle = '新增接口版本';
-                        this.versionForm = {
-                            id: null,
-                            apiName: '',
-                            version: 'v1.0',
-                            isDefault: false,
-                            status: '启用',
-                            desc: ''
-                        };
-                    }
-                    this.showVersionModal = true;
+                    this.versionModal = { open: true, item };
+                    this.versionForm = item ? { ...item } : { name: '', version: '', status: '启用', isDefault: false, remark: '' };
                 },
+
                 saveVersion() {
-                    if (!this.versionForm.apiName || !this.versionForm.version) {
-                        alert('请输入接口名称和版本号');
+                    if (!this.versionForm.name || !this.versionForm.version) {
+                        this.showToast('请先填写接口名称和版本号', 'error');
                         return;
                     }
                     if (this.versionForm.status === '废弃' && this.versionForm.isDefault) {
-                        alert('废弃版本不可设为默认版本');
+                        this.showToast('废弃版本不可设为默认版本', 'error');
                         return;
                     }
+
                     if (this.versionForm.isDefault) {
-                        this.versionRows = this.versionRows.map((item) => {
-                            if (item.apiName === this.versionForm.apiName) {
-                                return { ...item, isDefault: false };
-                            }
-                            return item;
+                        this.versions.forEach((item) => {
+                            if (item.name === this.versionForm.name) item.isDefault = false;
                         });
                     }
-                    if (this.versionForm.id) {
-                        this.versionRows = this.versionRows.map((item) => item.id === this.versionForm.id ? { ...this.versionForm } : item);
+
+                    if (this.versionModal.item) {
+                        const index = this.versions.findIndex((item) => item.id === this.versionModal.item.id);
+                        this.versions.splice(index, 1, { ...this.versionForm, id: this.versionModal.item.id });
                     } else {
-                        this.versionRows.unshift({
-                            ...this.versionForm,
-                            id: Date.now()
-                        });
+                        this.versions.unshift({ ...this.versionForm, id: Date.now() });
                     }
-                    this.applyVersionFilters();
-                    this.showVersionModal = false;
-                    alert('版本更新成功');
+
+                    this.versionModal.open = false;
+                    this.showToast('版本信息已保存');
+                },
+
+                sendCommand() {
+                    this.debug.status = '成功';
+                    this.debug.response = `{\n  "code": 0,\n  "message": "命令已发送",\n  "command": "${this.debug.command}",\n  "duration": "32ms"\n}`;
+                    this.debugHistory.unshift({
+                        id: Date.now(),
+                        time: '2026-03-14 09:30:00',
+                        device: this.currentDebugDevice.name,
+                        command: this.debug.command,
+                        status: '成功',
+                        duration: '32ms'
+                    });
+                    this.showToast('在线调试请求已发送');
+                },
+
+                showToast(message, type = 'success') {
+                    this.toast = { show: true, message, type };
+                    setTimeout(() => {
+                        this.toast.show = false;
+                    }, 2200);
                 }
-            }
-        }
+            }));
+        });
     </script>
 </body>
-
 </html>

@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="../assets/prototype-theme.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="page-body" x-data="apiManager()" x-init="init()">
+    <div class="page-shell">
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <h2 class="panel-title display-font">API管理</h2>
+                    <p class="panel-subtitle">默认按更新时间倒序展示 API 列表，支持按名称、创建人和更多组合条件筛选。</p>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-secondary" @click="toggleMoreFilters"><i class="fa-solid fa-sliders"></i><span x-text="showMoreFilters ? '收起更多' : '展开更多'"></span></button>
+                    <button class="btn btn-secondary" @click="resetSearch">重置</button>
+                    <button class="btn btn-primary" @click="applySearch">搜索</button>
+                    <button class="btn btn-primary" @click="openWizard('add')"><i class="fa-solid fa-plus"></i>录入接口</button>
+                </div>
+            </div>
+            <div class="control-grid">
+                <div>
+                    <label class="field-label">API 名称</label>
+                    <input class="field" type="text" placeholder="请输入 API 名称" x-model="search.apiName">
+                </div>
+                <div>
+                    <label class="field-label">创建人</label>
+                    <input class="field" type="text" placeholder="请输入创建人" x-model="search.creator">
+                </div>
+            </div>
+
+            <div class="control-grid mt-4" x-show="showMoreFilters" style="display: none;">
+                <div>
+                    <label class="field-label">所属平台</label>
+                    <select class="select" x-model="search.platform">
+                        <option value="">全部平台</option>
+                        <option value="市一网统管平台">市一网统管平台</option>
+                        <option value="通广路灯管养系统">通广路灯管养系统</option>
+                        <option value="环保监测大屏">环保监测大屏</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">所属分组</label>
+                    <select class="select" x-model="search.group">
+                        <option value="">全部分组</option>
+                        <option value="默认分组">默认分组</option>
+                        <option value="设备告警">设备告警</option>
+                        <option value="环境监测">环境监测</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label">Method</label>
+                    <select class="select" x-model="search.method">
+                        <option value="">全部</option>
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="DELETE">DELETE</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel-card">
+            <div class="panel-head">
+                <div>
+                    <h2 class="panel-title display-font">API 列表</h2>
+                    <p class="panel-subtitle">列表新增了“所属平台”字段，查看操作进入文档/调试双页签详情。</p>
+                </div>
+            </div>
+
+            <div class="table-shell">
+                <div class="table-scroll">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>API名称</th>
+                                <th>所属平台</th>
+                                <th>所属分组</th>
+                                <th>说明</th>
+                                <th>创建人</th>
+                                <th>创建时间</th>
+                                <th>更新时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="item in filteredApis" :key="item.id">
+                                <tr>
+                                    <td>
+                                        <div class="font-bold" x-text="item.name"></div>
+                                        <div class="muted text-xs mt-2" x-text="`${item.method} ${item.path}`"></div>
+                                    </td>
+                                    <td x-text="item.platform"></td>
+                                    <td x-text="item.group"></td>
+                                    <td class="muted max-w-[240px]" x-text="item.desc"></td>
+                                    <td x-text="item.creator"></td>
+                                    <td class="muted" x-text="item.createTime"></td>
+                                    <td class="muted" x-text="item.updateTime"></td>
+                                    <td>
+                                        <div class="flex flex-wrap gap-3 text-[13px]">
+                                            <button class="link-btn" @click="openDetail(item, 'doc')">查看</button>
+                                            <button class="link-btn" @click="openWizard('edit', item)">编辑</button>
+                                            <button class="link-btn danger" @click="removeApi(item)">删除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="pagination">
+                <div class="page-meta">共 <span class="font-bold text-slate-800" x-text="filteredApis.length"></span> 个 API</div>
+                <div class="page-pills">
+                    <span class="page-pill"><i class="fa-solid fa-chevron-left text-xs"></i></span>
+                    <span class="page-pill active">1</span>
+                    <span class="page-pill"><i class="fa-solid fa-chevron-right text-xs"></i></span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <template x-if="wizard.open">
+        <div>
+            <div class="modal-backdrop" @click="closeWizard"></div>
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div>
+                        <h2 class="modal-title display-font" x-text="wizard.mode === 'add' ? '录入接口' : '编辑 API'"></h2>
+                        <p class="panel-subtitle">通过向导完成基础信息、请求定义、返回结果配置；保存后即可在详情页调试。</p>
+                    </div>
+                    <button class="btn btn-ghost" @click="closeWizard"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="stepper">
+                        <template x-for="step in wizardSteps" :key="step.id">
+                            <div class="step-card" :class="{ 'active': wizard.step === step.id, 'done': wizardOrder(step.id) < wizardOrder(wizard.step) }">
+                                <div class="step-no" x-text="wizardOrder(step.id) < wizardOrder(wizard.step) ? '✓' : wizardOrder(step.id) + 1"></div>
+                                <div class="step-name display-font" x-text="step.name"></div>
+                                <div class="step-desc" x-text="step.desc"></div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <template x-if="wizard.step === 'basic'">
+                        <div class="section-card">
+                            <h3 class="section-title display-font">填写基本信息</h3>
+                            <div class="form-grid">
+                                <div>
+                                    <label class="field-label">API 名称 <span class="required">*</span></label>
+                                    <input class="field" type="text" x-model="form.name" placeholder="请输入 API 名称">
+                                </div>
+                                <div>
+                                    <label class="field-label">所属平台 <span class="required">*</span></label>
+                                    <select class="select" x-model="form.platform">
+                                        <option value="">请选择所属平台</option>
+                                        <option value="市一网统管平台">市一网统管平台</option>
+                                        <option value="通广路灯管养系统">通广路灯管养系统</option>
+                                        <option value="环保监测大屏">环保监测大屏</option>
+                                    </select>
+                                </div>
+                                <div class="full-span">
+                                    <label class="field-label">说明 <span class="required">*</span></label>
+                                    <textarea class="textarea" x-model="form.desc" placeholder="请输入接口说明"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template x-if="wizard.step === 'request'">
+                        <div class="space-y-4">
+                            <div class="section-card">
+                                <h3 class="section-title display-font">定义 API 请求</h3>
+                                <div class="form-grid">
+                                    <div>
+                                        <label class="field-label">所属分组 <span class="required">*</span></label>
+                                        <select class="select" x-model="form.group">
+                                            <option value="">请选择所属分组</option>
+                                            <option value="默认分组">默认分组</option>
+                                            <option value="设备告警">设备告警</option>
+                                            <option value="环境监测">环境监测</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="field-label">Method <span class="required">*</span></label>
+                                        <select class="select" x-model="form.method">
+                                            <option value="GET">GET</option>
+                                            <option value="POST">POST</option>
+                                            <option value="PUT">PUT</option>
+                                            <option value="DELETE">DELETE</option>
+                                        </select>
+                                    </div>
+                                    <div class="full-span">
+                                        <label class="field-label">请求 Path <span class="required">*</span></label>
+                                        <input class="field" type="text" x-model="form.path" placeholder="/api/open/v1/resource/{id}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="section-card">
+                                <div class="flex items-center justify-between gap-4">
+                                    <div>
+                                        <h3 class="section-title display-font !mb-2">请求参数设置</h3>
+                                        <p class="muted text-sm">支持 Body / Query / Headers / Path 四类参数页签，Body 支持 form、json、raw 模式。</p>
+                                    </div>
+                                    <div class="subtabs">
+                                        <button class="subtab-btn" :class="{ 'active': requestTab === 'body' }" @click="requestTab = 'body'">Body</button>
+                                        <button class="subtab-btn" :class="{ 'active': requestTab === 'query' }" @click="requestTab = 'query'">Query</button>
+                                        <button class="subtab-btn" :class="{ 'active': requestTab === 'headers' }" @click="requestTab = 'headers'">Headers</button>
+                                        <button class="subtab-btn" :class="{ 'active': requestTab === 'path' }" @click="requestTab = 'path'">Path</button>
+                                    </div>
+                                </div>
+
+                                <div class="mt-5 space-y-4" x-show="requestTab === 'body'">
+                                    <div class="subtabs">
+                                        <button class="subtab-btn" :class="{ 'active': form.bodyMode === 'form' }" @click="form.bodyMode = 'form'">form</button>
+                                        <button class="subtab-btn" :class="{ 'active': form.bodyMode === 'json' }" @click="form.bodyMode = 'json'">json</button>
+                                        <button class="subtab-btn" :class="{ 'active': form.bodyMode === 'raw' }" @click="form.bodyMode = 'raw'">raw</button>
+                                    </div>
+                                    <div class="table-shell">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>参数名</th>
+                                                    <th>参数类型</th>
+                                                    <th>必填</th>
+                                                    <th>说明</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <template x-for="item in form.bodyParams" :key="item.name">
+                                                    <tr>
+                                                        <td class="font-mono text-xs" x-text="item.name"></td>
+                                                        <td x-text="item.type"></td>
+                                                        <td x-text="item.required ? '是' : '否'"></td>
+                                                        <td class="muted" x-text="item.desc"></td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div>
+                                        <label class="field-label">body 示例</label>
+                                        <textarea class="textarea" x-model="form.bodyExample" placeholder="请输入 body 示例"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="table-shell mt-5" x-show="requestTab !== 'body'">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>参数名</th>
+                                                <th>参数值 / 类型</th>
+                                                <th>说明</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template x-for="item in currentRequestParams" :key="item.name">
+                                                <tr>
+                                                    <td class="font-mono text-xs" x-text="item.name"></td>
+                                                    <td x-text="item.value"></td>
+                                                    <td class="muted" x-text="item.desc"></td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template x-if="wizard.step === 'response'">
+                        <div class="space-y-4">
+                            <div class="section-card">
+                                <h3 class="section-title display-font">定义返回结果</h3>
+                                <div class="notice">
+                                    <i class="fa-solid fa-code mt-1 text-blue-600"></i>
+                                    <div>支持导入 JSON、模板/预览切换、节点启停和备注编辑。此处原型用结构表格展示核心配置项。</div>
+                                </div>
+                                <div class="table-shell mt-5">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>字段</th>
+                                                <th>类型</th>
+                                                <th>备注</th>
+                                                <th>启用</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template x-for="item in form.responseSchema" :key="item.field">
+                                                <tr>
+                                                    <td class="font-mono text-xs" x-text="item.field"></td>
+                                                    <td x-text="item.type"></td>
+                                                    <td class="muted" x-text="item.remark"></td>
+                                                    <td><button class="toggle" :class="{ 'on': item.enabled }" @click="item.enabled = !item.enabled"></button></td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="section-card">
+                                <div class="form-grid">
+                                    <div>
+                                        <label class="field-label">成功响应示例 <span class="required">*</span></label>
+                                        <textarea class="textarea" x-model="form.successExample"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="field-label">失败响应示例</label>
+                                        <textarea class="textarea" x-model="form.failExample"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template x-if="wizard.step === 'finish'">
+                        <div class="section-card">
+                            <h3 class="section-title display-font">完成</h3>
+                            <div class="kv-grid">
+                                <div class="kv-card">
+                                    <div class="kv-label">API 名称</div>
+                                    <div class="kv-value" x-text="form.name || '--'"></div>
+                                </div>
+                                <div class="kv-card">
+                                    <div class="kv-label">所属平台</div>
+                                    <div class="kv-value" x-text="form.platform || '--'"></div>
+                                </div>
+                                <div class="kv-card">
+                                    <div class="kv-label">Method</div>
+                                    <div class="kv-value" x-text="form.method || '--'"></div>
+                                </div>
+                                <div class="kv-card">
+                                    <div class="kv-label">请求 Path</div>
+                                    <div class="kv-value font-mono text-sm" x-text="form.path || '--'"></div>
+                                </div>
+                            </div>
+                            <div class="notice success mt-5">
+                                <i class="fa-solid fa-circle-check mt-1"></i>
+                                <div>保存完成后，该 API 会出现在列表中，并可在详情页直接进入 `文档 / 调试` 查看与联调。</div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @click="closeWizard">取消</button>
+                    <button class="btn btn-secondary" @click="prevWizardStep" :disabled="wizard.step === 'basic'">上一步</button>
+                    <button class="btn btn-primary" x-show="wizard.step !== 'finish'" @click="nextWizardStep">下一步</button>
+                    <button class="btn btn-primary" x-show="wizard.step === 'finish'" @click="saveApi"><i class="fa-solid fa-check"></i>完成并返回列表</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template x-if="detail.open">
+        <div>
+            <div class="modal-backdrop" @click="closeDetail"></div>
+            <div class="drawer">
+                <div class="modal-header">
+                    <div>
+                        <h2 class="modal-title display-font" x-text="detail.item?.name || 'API 详情'"></h2>
+                        <p class="panel-subtitle" x-text="detail.item ? `${detail.item.method} ${detail.item.path}` : ''"></p>
+                    </div>
+                    <button class="btn btn-ghost" @click="closeDetail"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="subtabs mb-5">
+                        <button class="subtab-btn" :class="{ 'active': detail.tab === 'doc' }" @click="detail.tab = 'doc'">文档</button>
+                        <button class="subtab-btn" :class="{ 'active': detail.tab === 'debug' }" @click="detail.tab = 'debug'">调试</button>
+                    </div>
+
+                    <template x-if="detail.tab === 'doc'">
+                        <div class="space-y-4">
+                            <div class="kv-grid">
+                                <div class="kv-card">
+                                    <div class="kv-label">请求方式</div>
+                                    <div class="kv-value" x-text="detail.item?.method"></div>
+                                </div>
+                                <div class="kv-card">
+                                    <div class="kv-label">所属平台</div>
+                                    <div class="kv-value" x-text="detail.item?.platform"></div>
+                                </div>
+                                <div class="kv-card full-span">
+                                    <div class="kv-label">请求路径</div>
+                                    <div class="kv-value font-mono text-sm" x-text="detail.item?.path"></div>
+                                </div>
+                            </div>
+                            <div class="section-card !mb-0">
+                                <h3 class="section-title display-font">请求参数</h3>
+                                <div class="table-shell">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>参数名</th>
+                                                <th>类型</th>
+                                                <th>必填</th>
+                                                <th>说明</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template x-for="item in detail.item?.docParams || []" :key="item.name">
+                                                <tr>
+                                                    <td class="font-mono text-xs" x-text="item.name"></td>
+                                                    <td x-text="item.type"></td>
+                                                    <td x-text="item.required"></td>
+                                                    <td class="muted" x-text="item.desc"></td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template x-if="detail.tab === 'debug'">
+                        <div class="space-y-4">
+                            <div class="section-card">
+                                <div class="kv-grid">
+                                    <div class="kv-card">
+                                        <div class="kv-label">最近测试结果</div>
+                                        <div class="kv-value" x-text="detail.item?.lastTestResult || '未测试'"></div>
+                                    </div>
+                                    <div class="kv-card">
+                                        <div class="kv-label">最近测试时间</div>
+                                        <div class="kv-value" x-text="detail.item?.lastTestTime || '--'"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="section-card">
+                                <h3 class="section-title display-font">调试参数</h3>
+                                <div class="form-grid">
+                                    <div>
+                                        <label class="field-label">Method</label>
+                                        <input class="field" type="text" :value="detail.item?.method" disabled>
+                                    </div>
+                                    <div>
+                                        <label class="field-label">Path</label>
+                                        <input class="field" type="text" :value="detail.item?.path" disabled>
+                                    </div>
+                                    <div class="full-span">
+                                        <label class="field-label">Headers / Query / Body</label>
+                                        <textarea class="textarea" x-model="debugForm.payload" placeholder='{"token":"demo","pageNo":1}'></textarea>
+                                    </div>
+                                </div>
+                                <div class="btn-row mt-4 justify-end">
+                                    <button class="btn btn-primary" @click="sendDebug"><i class="fa-solid fa-paper-plane"></i>发送</button>
+                                </div>
+                            </div>
+                            <div class="section-card !mb-0">
+                                <h3 class="section-title display-font">响应内容</h3>
+                                <pre class="code-block" x-text="debugForm.response"></pre>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template x-if="toast.show">
+        <div class="toast" :class="toast.type === 'error' ? 'error' : 'success'">
+            <i class="fa-solid" :class="toast.type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'"></i>
+            <span x-text="toast.message"></span>
+        </div>
+    </template>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('apiManager', () => ({
+                showMoreFilters: false,
+                search: { apiName: '', creator: '', platform: '', group: '', method: '' },
+                requestTab: 'body',
+                wizard: { open: false, mode: 'add', step: 'basic', currentId: null },
+                detail: { open: false, tab: 'doc', item: null },
+                debugForm: { payload: '{\n  "pageNo": 1,\n  "pageSize": 20\n}', response: '{\n  "code": 0,\n  "message": "OK",\n  "data": []\n}' },
+                toast: { show: false, message: '', type: 'success' },
+                wizardSteps: [
+                    { id: 'basic', name: '填写基本信息', desc: '配置 API 名称、所属平台和说明' },
+                    { id: 'request', name: '定义API请求', desc: '配置请求路径、Method 和参数' },
+                    { id: 'response', name: '定义返回结果', desc: '配置返回结构和响应示例' },
+                    { id: 'finish', name: '完成', desc: '确认内容并返回列表' }
+                ],
+                form: {},
+                apis: [
+                    { id: 1, name: '环境监测信息接口', platform: '市一网统管平台', group: '默认分组', desc: '提供授权环境监测数据查询能力。', creator: '超级管理员', createTime: '2026-03-11 21:06:39', updateTime: '2026-03-14 09:30:00', method: 'GET', path: '/api/open/v1/environment', lastTestResult: '成功', lastTestTime: '2026-03-14 09:18:12', docParams: [{ name: 'pageNo', type: 'int', required: '是', desc: '页码，从 1 开始。' }, { name: 'pageSize', type: 'int', required: '是', desc: '每页条数，最大 200。' }] },
+                    { id: 2, name: '设备告警接口', platform: '市一网统管平台', group: '设备告警', desc: '返回授权设备的告警事件。', creator: '超级管理员', createTime: '2026-03-10 16:20:00', updateTime: '2026-03-13 18:10:00', method: 'POST', path: '/api/open/v1/device/alarm', lastTestResult: '未测试', lastTestTime: '', docParams: [{ name: 'deviceId', type: 'string', required: '否', desc: '按设备过滤。' }] },
+                    { id: 3, name: '设备状态接口', platform: '环保监测大屏', group: '环境监测', desc: '查询设备状态与最后上报时间。', creator: '平台管理员-王敏', createTime: '2026-03-08 12:00:00', updateTime: '2026-03-13 10:45:00', method: 'GET', path: '/api/open/v1/device/status', lastTestResult: '失败', lastTestTime: '2026-03-13 10:42:00', docParams: [{ name: 'deviceId', type: 'string', required: '是', desc: '设备唯一标识。' }] }
+                ],
+                filteredApis: [],
+
+                init() {
+                    this.filteredApis = [...this.apis];
+                    this.resetForm();
+
+                    const params = new URLSearchParams(window.location.search);
+                    const id = Number(params.get('id'));
+                    const mode = params.get('mode');
+                    if (id && mode) {
+                        const target = this.apis.find((item) => item.id === id);
+                        if (target) {
+                            if (mode === 'edit') {
+                                this.openWizard('edit', target);
+                            }
+                            if (mode === 'debug') {
+                                this.openDetail(target, 'debug');
+                            }
+                        }
+                    }
+                },
+
+                resetForm(item = null) {
+                    this.form = item ? {
+                        id: item.id,
+                        name: item.name,
+                        platform: item.platform,
+                        group: item.group,
+                        desc: item.desc,
+                        method: item.method,
+                        path: item.path,
+                        bodyMode: 'json',
+                        bodyExample: '{\n  "deviceId": "ENV-A01-002"\n}',
+                        bodyParams: [{ name: 'deviceId', type: 'string', required: true, desc: '设备唯一标识' }],
+                        queryParams: [{ name: 'pageNo', value: 'int', desc: '分页页码' }],
+                        headers: [{ name: 'Authorization', value: 'Bearer token', desc: '访问令牌' }],
+                        pathParams: [{ name: 'id', value: 'string', desc: '路径参数' }],
+                        responseSchema: [{ field: 'code', type: 'int', remark: '业务状态码', enabled: true }, { field: 'data', type: 'object', remark: '业务数据对象', enabled: true }],
+                        successExample: '{\n  "code": 0,\n  "data": {}\n}',
+                        failExample: '{\n  "code": 500,\n  "message": "error"\n}'
+                    } : {
+                        id: null,
+                        name: '',
+                        platform: '',
+                        group: '',
+                        desc: '',
+                        method: 'GET',
+                        path: '',
+                        bodyMode: 'json',
+                        bodyExample: '{\n  "pageNo": 1,\n  "pageSize": 20\n}',
+                        bodyParams: [{ name: 'pageNo', type: 'int', required: true, desc: '页码' }, { name: 'pageSize', type: 'int', required: true, desc: '每页条数' }],
+                        queryParams: [{ name: 'keyword', value: 'string', desc: '关键字检索' }],
+                        headers: [{ name: 'Authorization', value: 'Bearer token', desc: '访问令牌' }],
+                        pathParams: [{ name: 'id', value: 'string', desc: '路径参数' }],
+                        responseSchema: [{ field: 'code', type: 'int', remark: '业务状态码', enabled: true }, { field: 'data', type: 'object', remark: '业务数据对象', enabled: true }],
+                        successExample: '{\n  "code": 0,\n  "message": "success"\n}',
+                        failExample: '{\n  "code": 500,\n  "message": "error"\n}'
+                    };
+                },
+
+                get currentRequestParams() {
+                    if (this.requestTab === 'query') return this.form.queryParams;
+                    if (this.requestTab === 'headers') return this.form.headers;
+                    return this.form.pathParams;
+                },
+
+                toggleMoreFilters() {
+                    this.showMoreFilters = !this.showMoreFilters;
+                },
+
+                applySearch() {
+                    this.filteredApis = this.apis.filter((item) => {
+                        const matchName = !this.search.apiName || item.name.includes(this.search.apiName);
+                        const matchCreator = !this.search.creator || item.creator.includes(this.search.creator);
+                        const matchPlatform = !this.search.platform || item.platform === this.search.platform;
+                        const matchGroup = !this.search.group || item.group === this.search.group;
+                        const matchMethod = !this.search.method || item.method === this.search.method;
+                        return matchName && matchCreator && matchPlatform && matchGroup && matchMethod;
+                    });
+                },
+
+                resetSearch() {
+                    this.search = { apiName: '', creator: '', platform: '', group: '', method: '' };
+                    this.filteredApis = [...this.apis];
+                },
+
+                wizardOrder(id) {
+                    return this.wizardSteps.findIndex((item) => item.id === id);
+                },
+
+                openWizard(mode, item = null) {
+                    this.wizard = { open: true, mode, step: 'basic', currentId: item?.id || null };
+                    this.resetForm(item);
+                    this.requestTab = 'body';
+                },
+
+                closeWizard() {
+                    this.wizard.open = false;
+                },
+
+                prevWizardStep() {
+                    const current = this.wizardOrder(this.wizard.step);
+                    if (current > 0) {
+                        this.wizard.step = this.wizardSteps[current - 1].id;
+                    }
+                },
+
+                nextWizardStep() {
+                    if (this.wizard.step === 'basic' && (!this.form.name || !this.form.platform || !this.form.desc)) {
+                        this.showToast('请先完成基本信息填写', 'error');
+                        return;
+                    }
+                    if (this.wizard.step === 'request' && (!this.form.group || !this.form.path || !this.form.method)) {
+                        this.showToast('请先完成 API 请求定义', 'error');
+                        return;
+                    }
+                    const current = this.wizardOrder(this.wizard.step);
+                    if (current < this.wizardSteps.length - 1) {
+                        this.wizard.step = this.wizardSteps[current + 1].id;
+                    }
+                },
+
+                saveApi() {
+                    const now = '2026-03-14 09:30:00';
+                    const payload = {
+                        id: this.form.id || Date.now(),
+                        name: this.form.name,
+                        platform: this.form.platform,
+                        group: this.form.group,
+                        desc: this.form.desc,
+                        creator: this.wizard.mode === 'add' ? '超级管理员' : (this.apis.find((item) => item.id === this.form.id)?.creator || '超级管理员'),
+                        createTime: this.wizard.mode === 'add' ? now : (this.apis.find((item) => item.id === this.form.id)?.createTime || now),
+                        updateTime: now,
+                        method: this.form.method,
+                        path: this.form.path,
+                        lastTestResult: '未测试',
+                        lastTestTime: '',
+                        docParams: this.form.bodyParams.map((item) => ({ name: item.name, type: item.type, required: item.required ? '是' : '否', desc: item.desc }))
+                    };
+
+                    if (this.wizard.mode === 'add') {
+                        this.apis.unshift(payload);
+                    } else {
+                        const index = this.apis.findIndex((item) => item.id === payload.id);
+                        if (index !== -1) this.apis.splice(index, 1, payload);
+                    }
+
+                    this.filteredApis = [...this.apis];
+                    this.wizard.open = false;
+                    this.showToast(this.wizard.mode === 'add' ? 'API 已新增' : 'API 已更新');
+                },
+
+                openDetail(item, tab = 'doc') {
+                    this.detail = { open: true, tab, item };
+                    this.debugForm.payload = '{\n  "pageNo": 1,\n  "pageSize": 20\n}';
+                    this.debugForm.response = '{\n  "code": 0,\n  "message": "OK",\n  "data": []\n}';
+                },
+
+                closeDetail() {
+                    this.detail.open = false;
+                },
+
+                sendDebug() {
+                    if (!this.detail.item) return;
+                    this.debugForm.response = `{\n  "code": 0,\n  "message": "调试成功",\n  "path": "${this.detail.item.path}",\n  "duration": "36ms"\n}`;
+                    this.detail.item.lastTestResult = '成功';
+                    this.detail.item.lastTestTime = '2026-03-14 09:28:30';
+                    this.showToast('调试请求已发送');
+                },
+
+                removeApi(item) {
+                    if (window.confirm(`确定删除 API【${item.name}】吗？`)) {
+                        this.apis = this.apis.filter((row) => row.id !== item.id);
+                        this.filteredApis = [...this.apis];
+                        this.showToast('API 已删除');
+                    }
+                },
+
+                showToast(message, type = 'success') {
+                    this.toast = { show: true, message, type };
+                    setTimeout(() => {
+                        this.toast.show = false;
+                    }, 2200);
+                }
+            }));
+        });
+    </script>
+</body>
+</html>
