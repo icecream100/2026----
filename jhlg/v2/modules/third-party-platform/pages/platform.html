@@ -135,12 +135,80 @@
                             </div>
                             <div>
                                 <label class="field-label">开放接入方式</label>
-                                <select class="select" x-model="form.accessType">
+                                <select class="select" x-model="form.accessType" @change="toggleAccessType">
                                     <option value="">未配置</option>
                                     <option value="API服务">API服务</option>
                                     <option value="第三方应用">第三方应用</option>
                                 </select>
                             </div>
+
+                            <!-- API服务参数 -->
+                            <div class="full-span" id="apiServiceParams" style="display: none;">
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+                                    <div class="text-sm font-bold text-blue-900 mb-3">API服务参数</div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="field-label">appId</label>
+                                            <input class="field" type="text" value="系统自动生成" disabled>
+                                        </div>
+                                        <div>
+                                            <label class="field-label">secureKey <span class="required">*</span></label>
+                                            <input class="field" type="password" value="••••••••••••" disabled>
+                                        </div>
+                                        <div>
+                                            <label class="field-label">回调地址</label>
+                                            <input class="field" type="text" placeholder="https://callback.example.com">
+                                        </div>
+                                        <div>
+                                            <label class="field-label">角色</label>
+                                            <select class="select">
+                                                <option>平台应用</option>
+                                                <option>第三方系统</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 第三方应用参数 -->
+                            <div class="full-span" id="thirdPartyParams" style="display: none;">
+                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 space-y-3">
+                                    <div class="text-sm font-bold text-purple-900 mb-3">第三方应用参数</div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="field-label">认证方式</label>
+                                            <select class="select">
+                                                <option>OAuth 2.0</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="field-label">scope</label>
+                                            <input class="field" type="text" placeholder="openid profile">
+                                        </div>
+                                        <div>
+                                            <label class="field-label">client_id <span class="required">*</span></label>
+                                            <input class="field" type="text" placeholder="请输入 client_id">
+                                        </div>
+                                        <div>
+                                            <label class="field-label">client_secret <span class="required">*</span></label>
+                                            <input class="field" type="password" placeholder="请输入 client_secret">
+                                        </div>
+                                        <div>
+                                            <label class="field-label">授权地址</label>
+                                            <input class="field" type="text" placeholder="https://oauth.example.com/authorize">
+                                        </div>
+                                        <div>
+                                            <label class="field-label">token地址</label>
+                                            <input class="field" type="text" placeholder="https://oauth.example.com/token">
+                                        </div>
+                                        <div class="col-span-2">
+                                            <label class="field-label">用户信息地址</label>
+                                            <input class="field" type="text" placeholder="https://oauth.example.com/userinfo">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="full-span">
                                 <label class="field-label">说明</label>
                                 <textarea class="textarea" x-model="form.remark" placeholder="补充平台接入说明、服务边界或对接背景"></textarea>
@@ -184,19 +252,19 @@
                         <div class="form-grid">
                             <div>
                                 <label class="field-label">服务类型 <span class="required">*</span></label>
-                                <select class="select" x-model="form.serviceType">
+                                <select class="select" x-model="form.serviceType" @change="updateServiceFields">
                                     <option value="数据服务">数据服务</option>
                                     <option value="控制服务">控制服务</option>
                                     <option value="综合服务">综合服务</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="field-label">服务范围</label>
-                                <input class="field" type="text" x-model="form.serviceScope" placeholder="如：高新区环境监测站点">
+                                <label class="field-label" id="serviceScopeLabel">服务范围</label>
+                                <input class="field" type="text" x-model="form.serviceScope" id="serviceScopeInput" placeholder="如：高新区环境监测站点">
                             </div>
                             <div class="full-span">
-                                <label class="field-label">服务内容</label>
-                                <textarea class="textarea" x-model="form.serviceContent" placeholder="描述平台将使用哪些能力、面向哪些业务"></textarea>
+                                <label class="field-label" id="serviceContentLabel">服务内容</label>
+                                <textarea class="textarea" x-model="form.serviceContent" id="serviceContentInput" placeholder="描述平台将使用哪些能力、面向哪些业务"></textarea>
                             </div>
                         </div>
                     </div>
@@ -215,67 +283,6 @@
                                     <label class="chip !justify-start"><input type="checkbox" value="环境监测终端" x-model="form.productScopes">环境监测终端</label>
                                     <label class="chip !justify-start"><input type="checkbox" value="智慧门禁网关" x-model="form.productScopes">智慧门禁网关</label>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section-card" x-show="form.accessType === 'API服务'">
-                        <h3 class="section-title display-font">API服务参数</h3>
-                        <div class="form-grid">
-                            <div>
-                                <label class="field-label">appId</label>
-                                <input class="field" type="text" value="系统自动生成" disabled>
-                            </div>
-                            <div>
-                                <label class="field-label">secureKey <span class="required">*</span></label>
-                                <input class="field" type="password" value="••••••••••••" disabled>
-                            </div>
-                            <div>
-                                <label class="field-label">回调地址</label>
-                                <input class="field" type="text" placeholder="https://callback.example.com">
-                            </div>
-                            <div>
-                                <label class="field-label">角色</label>
-                                <select class="select">
-                                    <option>平台应用</option>
-                                    <option>第三方系统</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section-card" x-show="form.accessType === '第三方应用'">
-                        <h3 class="section-title display-font">第三方应用参数</h3>
-                        <div class="form-grid">
-                            <div>
-                                <label class="field-label">认证方式</label>
-                                <select class="select">
-                                    <option>OAuth 2.0</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="field-label">scope</label>
-                                <input class="field" type="text" placeholder="openid profile">
-                            </div>
-                            <div>
-                                <label class="field-label">client_id <span class="required">*</span></label>
-                                <input class="field" type="text" placeholder="请输入 client_id">
-                            </div>
-                            <div>
-                                <label class="field-label">client_secret <span class="required">*</span></label>
-                                <input class="field" type="password" placeholder="请输入 client_secret">
-                            </div>
-                            <div>
-                                <label class="field-label">授权地址</label>
-                                <input class="field" type="text" placeholder="https://oauth.example.com/authorize">
-                            </div>
-                            <div>
-                                <label class="field-label">token地址</label>
-                                <input class="field" type="text" placeholder="https://oauth.example.com/token">
-                            </div>
-                            <div class="full-span">
-                                <label class="field-label">用户信息地址</label>
-                                <input class="field" type="text" placeholder="https://oauth.example.com/userinfo">
                             </div>
                         </div>
                     </div>
@@ -352,6 +359,59 @@
                         this.form = { ...item, remark: item.remark || item.desc, productScopes: [...(item.productScopes || [])] };
                     } else {
                         this.resetForm();
+                    }
+                    setTimeout(() => {
+                        this.toggleAccessType();
+                        this.updateServiceFields();
+                    }, 100);
+                },
+
+                toggleAccessType() {
+                    const apiParams = document.getElementById('apiServiceParams');
+                    const thirdPartyParams = document.getElementById('thirdPartyParams');
+
+                    if (apiParams && thirdPartyParams) {
+                        if (this.form.accessType === 'API服务') {
+                            apiParams.style.display = 'block';
+                            thirdPartyParams.style.display = 'none';
+                        } else if (this.form.accessType === '第三方应用') {
+                            apiParams.style.display = 'none';
+                            thirdPartyParams.style.display = 'block';
+                        } else {
+                            apiParams.style.display = 'none';
+                            thirdPartyParams.style.display = 'none';
+                        }
+                    }
+                },
+
+                updateServiceFields() {
+                    const scopeLabel = document.getElementById('serviceScopeLabel');
+                    const scopeInput = document.getElementById('serviceScopeInput');
+                    const contentLabel = document.getElementById('serviceContentLabel');
+                    const contentInput = document.getElementById('serviceContentInput');
+
+                    if (!scopeLabel || !scopeInput || !contentLabel || !contentInput) return;
+
+                    const serviceType = this.form.serviceType;
+
+                    if (serviceType === '数据服务') {
+                        // 面向数据应用方：登记时需填写单位信息、联系人信息、数据用途等
+                        scopeLabel.innerHTML = '数据范围 <span class="required">*</span>';
+                        scopeInput.placeholder = '如：高新区环境监测数据、全市路灯运行数据';
+                        contentLabel.innerHTML = '数据用途 <span class="required">*</span>';
+                        contentInput.placeholder = '描述数据用途、应用场景（如：大屏展示、数据分析、决策支持等）';
+                    } else if (serviceType === '控制服务') {
+                        // 对第三方平台信息进行结构化、分类管理
+                        scopeLabel.innerHTML = '控制范围 <span class="required">*</span>';
+                        scopeInput.placeholder = '如：城东片区路灯、高新区门禁设备';
+                        contentLabel.innerHTML = '控制能力 <span class="required">*</span>';
+                        contentInput.placeholder = '描述控制能力、服务边界（如：设备开关控制、参数调节、故障处理等）';
+                    } else if (serviceType === '综合服务') {
+                        // 面向设备所有方：可根据所有权直接登记设备产生的所有数据
+                        scopeLabel.innerHTML = '所有权范围 <span class="required">*</span>';
+                        scopeInput.placeholder = '如：全市市政设施、所属区域全部设备';
+                        contentLabel.innerHTML = '服务内容 <span class="required">*</span>';
+                        contentInput.placeholder = '描述设备所有权范围、数据获取和控制的综合需求（设备所有方可获取所有设备数据）';
                     }
                 },
 

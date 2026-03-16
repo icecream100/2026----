@@ -179,7 +179,13 @@
                 ],
 
                 init() {
-                    this.renderCharts();
+                    console.log('Stats page initialized');
+                    console.log('Stats data:', this.stats);
+                    console.log('Filtered stats:', this.filteredStats);
+                    // 延迟渲染图表，确保 canvas 元素已经加载
+                    setTimeout(() => {
+                        this.renderCharts();
+                    }, 100);
                 },
 
                 get filteredStats() {
@@ -208,6 +214,14 @@
                 },
 
                 renderCharts() {
+                    const callsCanvas = document.getElementById('callsChart');
+                    const qualityCanvas = document.getElementById('qualityChart');
+
+                    if (!callsCanvas || !qualityCanvas) {
+                        console.error('Canvas elements not found');
+                        return;
+                    }
+
                     const labels = this.chartLabels();
                     const callsData = this.filters.range === '7d' ? [1200, 1480, 1390, 1550, 1620, 1710, 1840] :
                         (this.filters.range === '90d' ? [10200, 11800, 12300, 13200, 14120, 15280] : [9200, 10860, 11320, 11980, 12440, 13120, 13840, 14590]);
@@ -219,7 +233,7 @@
                     if (this.callsChart) this.callsChart.destroy();
                     if (this.qualityChart) this.qualityChart.destroy();
 
-                    this.callsChart = new Chart(document.getElementById('callsChart'), {
+                    this.callsChart = new Chart(callsCanvas, {
                         type: 'line',
                         data: {
                             labels,
@@ -244,7 +258,7 @@
                         }
                     });
 
-                    this.qualityChart = new Chart(document.getElementById('qualityChart'), {
+                    this.qualityChart = new Chart(qualityCanvas, {
                         data: {
                             labels,
                             datasets: [
