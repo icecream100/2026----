@@ -75,7 +75,7 @@
                                             <span x-text="item.status"></span>
                                         </span>
                                     </td>
-                                    <td><span x-text="item.accessType || '未配置'"></span></td>
+                                    <td><span x-text="item.accessTypes && item.accessTypes.length > 0 ? item.accessTypes.join('、') : '未配置'"></span></td>
                                     <td>
                                         <div x-text="item.contact"></div>
                                         <div class="muted text-xs mt-1" x-text="item.phone"></div>
@@ -117,7 +117,7 @@
     <template x-if="modal.open">
         <div>
             <div class="modal-backdrop" @click="closeModal"></div>
-            <div class="modal-card">
+            <div class="modal-card" style="max-width: 1400px;">
                 <div class="modal-header">
                     <div>
                         <h2 class="modal-title display-font" x-text="modal.mode === 'add' ? '新增第三方平台' : '编辑第三方平台'"></h2>
@@ -126,7 +126,10 @@
                     <button class="btn btn-ghost" @click="closeModal"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
                 <div class="modal-body">
-                    <div class="section-card">
+                    <div class="grid grid-cols-2 gap-6">
+                        <!-- 左侧：平台技术信息 -->
+                        <div class="space-y-6">
+                            <div class="section-card">
                         <h3 class="section-title display-font">基本信息</h3>
                         <div class="form-grid">
                             <div>
@@ -134,13 +137,37 @@
                                 <input class="field" type="text" x-model="form.name" placeholder="请输入平台名称">
                             </div>
                             <div>
+                                <label class="field-label">平台标识ID <span class="required">*</span></label>
+                                <input class="field" type="text" x-model="form.platformId" placeholder="系统自动生成" disabled>
+                            </div>
+                            <div class="full-span">
                                 <label class="field-label">开放接入方式</label>
-                                <select class="select" x-model="form.accessType" @change="toggleAccessType">
-                                    <option value="">未配置</option>
-                                    <option value="API服务">API服务</option>
-                                    <option value="第三方应用">第三方应用</option>
+                                <div class="grid gap-3 md:grid-cols-2">
+                                    <label class="chip !justify-start">
+                                        <input type="checkbox" value="API服务" x-model="form.accessTypes" @change="toggleAccessType">
+                                        API服务
+                                    </label>
+                                    <label class="chip !justify-start">
+                                        <input type="checkbox" value="第三方应用" x-model="form.accessTypes" @change="toggleAccessType">
+                                        第三方应用
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="field-label">接口地址</label>
+                                <input class="field" type="text" x-model="form.apiEndpoint" placeholder="第三方平台提供的接口地址">
+                            </div>
+                            <div>
+                                <label class="field-label">鉴权方式</label>
+                                <select class="select" x-model="form.authMethod">
+                                    <option value="">请选择</option>
+                                    <option value="API Key">API Key</option>
+                                    <option value="OAuth">OAuth</option>
+                                    <option value="证书">证书</option>
+                                    <option value="其他">其他</option>
                                 </select>
                             </div>
+                            <div></div>
 
                             <!-- API服务参数 -->
                             <div class="full-span" id="apiServiceParams" style="display: none;">
@@ -215,9 +242,12 @@
                             </div>
                         </div>
                     </div>
+                        </div>
 
-                    <div class="section-card">
-                        <h3 class="section-title display-font">单位信息</h3>
+                        <!-- 右侧：组织业务信息 -->
+                        <div class="space-y-6">
+                            <div class="section-card">
+                                <h3 class="section-title display-font">单位信息</h3>
                         <div class="form-grid">
                             <div>
                                 <label class="field-label">单位名称 <span class="required">*</span></label>
@@ -250,7 +280,7 @@
                     <div class="section-card">
                         <h3 class="section-title display-font">业务信息</h3>
                         <div class="form-grid">
-                            <div>
+                            <div class="full-span">
                                 <label class="field-label">服务类型 <span class="required">*</span></label>
                                 <select class="select" x-model="form.serviceType" @change="updateServiceFields">
                                     <option value="数据服务">数据服务</option>
@@ -258,13 +288,28 @@
                                     <option value="综合服务">综合服务</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="field-label" id="serviceScopeLabel">服务范围</label>
-                                <input class="field" type="text" x-model="form.serviceScope" id="serviceScopeInput" placeholder="如：高新区环境监测站点">
+
+                            <!-- 数据服务专用字段 -->
+                            <div class="full-span" id="dataUsageField" style="display: none;">
+                                <label class="field-label">数据用途 <span class="required">*</span></label>
+                                <textarea class="textarea" x-model="form.dataUsage" placeholder="描述数据用途、应用场景（如：大屏展示、数据分析、决策支持等）"></textarea>
                             </div>
-                            <div class="full-span">
-                                <label class="field-label" id="serviceContentLabel">服务内容</label>
-                                <textarea class="textarea" x-model="form.serviceContent" id="serviceContentInput" placeholder="描述平台将使用哪些能力、面向哪些业务"></textarea>
+
+                            <!-- 控制服务专用字段 -->
+                            <div class="full-span" id="controlCapabilityField" style="display: none;">
+                                <label class="field-label">控制能力 <span class="required">*</span></label>
+                                <textarea class="textarea" x-model="form.controlCapability" placeholder="描述控制能力、服务边界（如：设备开关控制、参数调节、故障处理等）"></textarea>
+                            </div>
+
+                            <!-- 综合服务专用字段 -->
+                            <div class="full-span" id="serviceScopeField" style="display: none;">
+                                <label class="field-label">服务范围 <span class="required">*</span></label>
+                                <input class="field" type="text" x-model="form.serviceScope" placeholder="如：全市市政设施、所属区域全部设备">
+                            </div>
+
+                            <div class="full-span" id="serviceContentField" style="display: none;">
+                                <label class="field-label">服务内容 <span class="required">*</span></label>
+                                <textarea class="textarea" x-model="form.serviceContent" placeholder="描述设备所有权范围、数据获取和控制的综合需求（设备所有方可获取所有设备数据）"></textarea>
                             </div>
                         </div>
                     </div>
@@ -277,13 +322,15 @@
                                 <textarea class="textarea" x-model="form.deviceOwnership" placeholder="说明设备归属和运维边界"></textarea>
                             </div>
                             <div class="full-span">
-                                <label class="field-label">管理产品范围</label>
+                                <label class="field-label" id="productScopesLabel">管理产品范围</label>
                                 <div class="grid gap-3 md:grid-cols-3">
                                     <label class="chip !justify-start"><input type="checkbox" value="智能路灯产品" x-model="form.productScopes">智能路灯产品</label>
                                     <label class="chip !justify-start"><input type="checkbox" value="环境监测终端" x-model="form.productScopes">环境监测终端</label>
                                     <label class="chip !justify-start"><input type="checkbox" value="智慧门禁网关" x-model="form.productScopes">智慧门禁网关</label>
                                 </div>
                             </div>
+                        </div>
+                    </div>
                         </div>
                     </div>
                 </div>
@@ -306,10 +353,10 @@
         document.addEventListener('alpine:init', () => {
             Alpine.data('platformPage', () => ({
                 list: [
-                    { id: 1, name: '市一网统管平台', status: '启用', accessType: 'API服务', contact: '张主任', phone: '13800000001', serviceType: '综合服务', updateTime: '2026-03-14 09:30:00', desc: '面向城市大脑接入设备状态、告警和控制接口。', orgName: '市政府大数据中心', orgType: '政府机关', email: 'ioc@example.com', serviceScope: '全市市政设施', serviceContent: '统一接入设备状态、告警和环境数据。', deviceOwnership: '设备归属监管单位，按产品范围授权。', productScopes: ['智能路灯产品', '环境监测终端'], remark: '城市大脑 IOC 对接平台。' },
-                    { id: 2, name: '通广路灯管养系统', status: '禁用', accessType: 'API服务', contact: '李工', phone: '13800000002', serviceType: '控制服务', updateTime: '2026-03-13 18:12:00', desc: '负责城东片区路灯控制和工单联动。', orgName: '通广城市照明科技有限公司', orgType: '企业', email: 'ops@tongguang.com', serviceScope: '城东片区路灯', serviceContent: '提供设备控制和状态获取。', deviceOwnership: '受托运维单位，仅管理授权设备。', productScopes: ['智能路灯产品'], remark: '运维接入平台。' },
-                    { id: 3, name: '环保监测大屏', status: '启用', accessType: '第三方应用', contact: '王站长', phone: '13800000003', serviceType: '数据服务', updateTime: '2026-03-12 16:18:00', desc: '高新区环境监测数据展示与分析大屏。', orgName: '高新区环境监测站', orgType: '事业单位', email: 'env@example.com', serviceScope: '高新区环境监测站点', serviceContent: '拉取温湿度、PM2.5、噪声趋势数据。', deviceOwnership: '', productScopes: ['环境监测终端'], remark: '用于环保数据展示。' }
-                ],
+                    { id: 1, name: '市一网统管平台', platformId: 'PLT202603141234567890', status: '启用', accessTypes: ['API服务'], apiEndpoint: 'https://api.cityioc.gov.cn/v1', authMethod: 'API Key', contact: '张主任', phone: '13800000001', serviceType: '综合服务', updateTime: '2026-03-16 09:30:00', desc: '面向城市大脑接入设备状态、告警和控制接口。', orgName: '市政府大数据中心', orgType: '政府机关', email: 'ioc@example.com', serviceScope: '全市市政设施', serviceContent: '统一接入设备状态、告警和环境数据。', dataUsage: '', controlCapability: '', deviceOwnership: '设备归属监管单位，按产品范围授权。', productScopes: ['智能路灯产品', '环境监测终端'], remark: '城市大脑 IOC 对接平台。' },
+                    { id: 2, name: '通广路灯管养系统', platformId: 'PLT202603131234567891', status: '禁用', accessTypes: ['API服务', '第三方应用'], apiEndpoint: 'https://api.tongguang.com/control', authMethod: 'OAuth', contact: '李工', phone: '13800000002', serviceType: '控制服务', updateTime: '2026-03-16 18:12:00', desc: '负责城东片区路灯控制和工单联动。', orgName: '通广城市照明科技有限公司', orgType: '企业', email: 'ops@tongguang.com', serviceScope: '', controlCapability: '提供设备控制和状态获取。', dataUsage: '', serviceContent: '', deviceOwnership: '受托运维单位，仅管理授权设备。', productScopes: ['智能路灯产品'], remark: '运维接入平台。' },
+                    { id: 3, name: '环保监测大屏', platformId: 'PLT202603121234567892', status: '启用', accessTypes: ['第三方应用'], apiEndpoint: '', authMethod: 'OAuth', contact: '王站长', phone: '13800000003', serviceType: '数据服务', updateTime: '2026-03-16 16:18:00', desc: '高新区环境监测数据展示与分析大屏。', orgName: '高新区环境监测站', orgType: '事业单位', email: 'env@example.com', serviceScope: '', dataUsage: '拉取温湿度、PM2.5、噪声趋势数据用于环保数据展示。', controlCapability: '', serviceContent: '', deviceOwnership: '', productScopes: ['环境监测终端'], remark: '用于环保数据展示。' }
+          ],
                 filteredList: [],
                 search: { name: '', status: '' },
                 modal: { open: false, mode: 'add' },
@@ -338,14 +385,19 @@
                     this.form = {
                         id: null,
                         name: '',
-                        accessType: '',
+                        platformId: '',
+                        accessTypes: [],
+                        apiEndpoint: '',
+                        authMethod: '',
                         orgName: '',
                         orgType: '政府机关',
                         contact: '',
                         phone: '',
                         email: '',
                         serviceType: '数据服务',
+                        dataUsage: '',
                         serviceScope: '',
+                        controlCapability: '',
                         serviceContent: '',
                         deviceOwnership: '',
                         productScopes: [],
@@ -356,9 +408,16 @@
                 openModal(mode, item = null) {
                     this.modal = { open: true, mode };
                     if (mode === 'edit' && item) {
-                        this.form = { ...item, remark: item.remark || item.desc, productScopes: [...(item.productScopes || [])] };
+                        this.form = {
+                            ...item,
+                            remark: item.remark || item.desc,
+                            productScopes: [...(item.productScopes || [])],
+                            accessTypes: [...(item.accessTypes || [])]
+                        };
                     } else {
                         this.resetForm();
+                        // 新增时生成 platformId
+                        this.form.platformId = 'PLT' + Date.now() + Math.floor(Math.random() * 1000);
                     }
                     setTimeout(() => {
                         this.toggleAccessType();
@@ -371,47 +430,51 @@
                     const thirdPartyParams = document.getElementById('thirdPartyParams');
 
                     if (apiParams && thirdPartyParams) {
-                        if (this.form.accessType === 'API服务') {
+                        // 根据多选结果显示对应的参数区域
+                        if (this.form.accessTypes.includes('API服务')) {
                             apiParams.style.display = 'block';
-                            thirdPartyParams.style.display = 'none';
-                        } else if (this.form.accessType === '第三方应用') {
-                            apiParams.style.display = 'none';
-                            thirdPartyParams.style.display = 'block';
                         } else {
                             apiParams.style.display = 'none';
+                        }
+
+                        if (this.form.accessTypes.includes('第三方应用')) {
+                            thirdPartyParams.style.display = 'block';
+                        } else {
                             thirdPartyParams.style.display = 'none';
                         }
                     }
                 },
 
                 updateServiceFields() {
-                    const scopeLabel = document.getElementById('serviceScopeLabel');
-                    const scopeInput = document.getElementById('serviceScopeInput');
-                    const contentLabel = document.getElementById('serviceContentLabel');
-                    const contentInput = document.getElementById('serviceContentInput');
+                    const dataUsageField = document.getElementById('dataUsageField');
+                    const controlCapabilityField = document.getElementById('controlCapabilityField');
+                    const serviceScopeField = document.getElementById('serviceScopeField');
+                    const serviceContentField = document.getElementById('serviceContentField');
+                    const productScopesLabel = document.getElementById('productScopesLabel');
 
-                    if (!scopeLabel || !scopeInput || !contentLabel || !contentInput) return;
+                    if (!dataUsageField || !controlCapabilityField || !serviceScopeField || !serviceContentField || !productScopesLabel) return;
 
                     const serviceType = this.form.serviceType;
 
+                    // 隐藏所有字段
+                    dataUsageField.style.display = 'none';
+                    controlCapabilityField.style.display = 'none';
+                    serviceScopeField.style.display = 'none';
+                    serviceContentField.style.display = 'none';
+
                     if (serviceType === '数据服务') {
-                        // 面向数据应用方：登记时需填写单位信息、联系人信息、数据用途等
-                        scopeLabel.innerHTML = '数据范围 <span class="required">*</span>';
-                        scopeInput.placeholder = '如：高新区环境监测数据、全市路灯运行数据';
-                        contentLabel.innerHTML = '数据用途 <span class="required">*</span>';
-                        contentInput.placeholder = '描述数据用途、应用场景（如：大屏展示、数据分析、决策支持等）';
+                        // 数据服务：显示"数据用途"(必填)，管理产品范围选填
+                        dataUsageField.style.display = 'block';
+                        productScopesLabel.innerHTML = '管理产品范围';
                     } else if (serviceType === '控制服务') {
-                        // 对第三方平台信息进行结构化、分类管理
-                        scopeLabel.innerHTML = '控制范围 <span class="required">*</span>';
-                        scopeInput.placeholder = '如：城东片区路灯、高新区门禁设备';
-                        contentLabel.innerHTML = '控制能力 <span class="required">*</span>';
-                        contentInput.placeholder = '描述控制能力、服务边界（如：设备开关控制、参数调节、故障处理等）';
+                        // 控制服务：显示"控制能力"(必填)，管理产品范围必填
+                        controlCapabilityField.style.display = 'block';
+                        productScopesLabel.innerHTML = '管理产品范围 <span class="required">*</span>';
                     } else if (serviceType === '综合服务') {
-                        // 面向设备所有方：可根据所有权直接登记设备产生的所有数据
-                        scopeLabel.innerHTML = '所有权范围 <span class="required">*</span>';
-                        scopeInput.placeholder = '如：全市市政设施、所属区域全部设备';
-                        contentLabel.innerHTML = '服务内容 <span class="required">*</span>';
-                        contentInput.placeholder = '描述设备所有权范围、数据获取和控制的综合需求（设备所有方可获取所有设备数据）';
+                        // 综合服务：显示"服务范围"(必填)和"服务内容"(必填)，管理产品范围必填
+                        serviceScopeField.style.display = 'block';
+                        serviceContentField.style.display = 'block';
+                        productScopesLabel.innerHTML = '管理产品范围 <span class="required">*</span>';
                     }
                 },
 
@@ -420,15 +483,46 @@
                 },
 
                 savePlatform() {
+                    // 基本必填校验
                     if (!this.form.name || !this.form.orgName || !this.form.contact || !this.form.phone) {
                         this.showToast('请先填写平台名称、单位名称、联系人和联系电话', 'error');
                         return;
                     }
 
+                    // 服务类型联动必填校验
+                    if (this.form.serviceType === '数据服务') {
+                        if (!this.form.dataUsage) {
+                            this.showToast('数据服务时，数据用途为必填项', 'error');
+                            return;
+                        }
+                    } else if (this.form.serviceType === '控制服务') {
+                        if (!this.form.controlCapability) {
+                            this.showToast('控制服务时，控制能力为必填项', 'error');
+                            return;
+                        }
+                        if (!this.form.productScopes || this.form.productScopes.length === 0) {
+                            this.showToast('控制服务时，管理产品范围为必填项', 'error');
+                            return;
+                        }
+                    } else if (this.form.serviceType === '综合服务') {
+                        if (!this.form.serviceScope) {
+                            this.showToast('综合服务时，服务范围为必填项', 'error');
+                            return;
+                        }
+                        if (!this.form.serviceContent) {
+                            this.showToast('综合服务时，服务内容为必填项', 'error');
+                            return;
+                        }
+                        if (!this.form.productScopes || this.form.productScopes.length === 0) {
+                            this.showToast('综合服务时，管理产品范围为必填项', 'error');
+                            return;
+                        }
+                    }
+
                     const payload = {
                         ...this.form,
-                        desc: this.form.remark || this.form.serviceContent || this.form.serviceScope || '第三方平台接入说明',
-                        updateTime: '2026-03-14 09:30:00',
+                        desc: this.form.remark || this.form.dataUsage || this.form.serviceContent || this.form.serviceScope || '第三方平台接入说明',
+                        updateTime: '2026-03-16 10:30:00',
                         status: this.form.status || '启用'
                     };
 
