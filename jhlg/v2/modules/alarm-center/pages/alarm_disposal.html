@@ -205,7 +205,6 @@
                             <select id="status"
                                 class="w-36 h-9 rounded border border-slate-300 bg-white px-3 text-[13px] outline-none focus:border-brand hover:border-brand/50 transition">
                                 <option value="">全部处置状态</option>
-                                <option value="待分派">待分派</option>
                                 <option value="待接单">待接单</option>
                                 <option value="处理中">处理中</option>
                                 <option value="已完成">已完成</option>
@@ -276,7 +275,7 @@
             </select>
             <input id="assignUser" type="text" placeholder="责任人"
                 class="mb-4 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand">
-            <textarea id="assignReason" rows="3" placeholder="分派 / 转派说明"
+            <textarea id="assignReason" rows="3" placeholder="转派说明"
                 class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-brand"></textarea>
             <div class="mt-6 flex justify-end gap-3">
                 <button type="button" onclick="closeModal('assignModal')"
@@ -350,12 +349,11 @@
 
     <script>
         const items = [
-            { id: 1, ticketNo: 'GD-20260307-001', alarmName: '主站配电-2#H8 故障报警', type: '设备状态告警', level: '特别重大', status: '待分派', dept: '', user: '', workflow: '未匹配', third: '', alarmTime: '2026-03-07 21:45:18', dueTime: '--', logs: ['21:45 告警触发', '21:45 未匹配工作流，自动生成待分派处置单'] },
-            { id: 2, ticketNo: 'GD-20260307-002', alarmName: '水泵房水泵运行异常', type: '设备事件告警', level: '一般', status: '待接单', dept: '机电保障组', user: '陈亮', workflow: '水泵房运行异常流程', third: '', alarmTime: '2026-03-07 20:12:08', dueTime: '2026-03-07 20:42:08', logs: ['20:12 告警触发', '20:12 工作流命中', '20:13 已分派至机电保障组 / 陈亮'] },
-            { id: 3, ticketNo: 'GD-20260307-003', alarmName: '机房空调温湿度异常', type: '感知数据告警', level: '重大', status: '处理中', dept: '机房保障组', user: '李峰', workflow: '机房环控流程', third: '', alarmTime: '2026-03-07 19:41:20', dueTime: '2026-03-07 20:01:20', logs: ['19:41 告警触发', '19:42 工作流命中', '19:43 李峰已接单'] },
-            { id: 4, ticketNo: 'GD-20260307-004', alarmName: '点型光电感烟探测器报警', type: '感知数据告警', level: '较大', status: '已完成', dept: '消防安全组', user: '王静', workflow: '消防感知-较大流程', third: '消防联动平台', alarmTime: '2026-03-07 18:31:54', dueTime: '2026-03-07 18:46:54', logs: ['18:31 告警触发', '18:31 工作流命中', '18:35 已提交处理结果'] },
-            { id: 5, ticketNo: 'GD-20260307-005', alarmName: '消防联动通道异常', type: '设备事件告警', level: '重大', status: '已完成', dept: '消防安全组', user: '王静', workflow: '消防联动-重大流程', third: '消防联动平台', alarmTime: '2026-03-07 17:05:22', dueTime: '2026-03-07 17:20:22', logs: ['17:05 告警触发', '17:06 工作流命中', '17:10 处理结果已提交'] },
-            { id: 6, ticketNo: 'GD-20260307-006', alarmName: '主站配电-1#H2 故障报警', type: '设备状态告警', level: '重大', status: '已完成', dept: '供配电运维组', user: '刘晓东', workflow: '主站配电故障-重大流程', third: '供配电工单平台', alarmTime: '2026-03-07 16:15:48', dueTime: '2026-03-07 16:25:48', logs: ['16:15 告警触发', '16:16 工作流命中', '16:17 刘晓东接单', '16:22 处置完成'] }
+            { id: 2, ticketNo: 'GD-20260307-002', alarmName: '水泵房水泵运行异常', type: '设备事件告警', level: '一般', status: '待接单', dept: '机电保障组', user: '陈亮', workflow: '水泵房运行异常流程', third: '', alarmTime: '2026-03-07 20:12:08', dueTime: '2026-03-07 20:42:08', logs: ['20:12 告警触发，自动生成处置单', '20:12 工作流命中', '20:13 已分派至机电保障组 / 陈亮'] },
+            { id: 3, ticketNo: 'GD-20260307-003', alarmName: '机房空调温湿度异常', type: '感知数据告警', level: '重大', status: '处理中', dept: '机房保障组', user: '李峰', workflow: '机房环控流程', third: '', alarmTime: '2026-03-07 19:41:20', dueTime: '2026-03-07 20:01:20', logs: ['19:41 告警触发，自动生成处置单', '19:42 工作流命中', '19:43 李峰已接单'] },
+            { id: 4, ticketNo: 'GD-20260307-004', alarmName: '点型光电感烟探测器报警', type: '感知数据告警', level: '较大', status: '已完成', dept: '消防安全组', user: '王静', workflow: '消防感知-较大流程', third: '消防联动平台', alarmTime: '2026-03-07 18:31:54', dueTime: '2026-03-07 18:46:54', logs: ['18:31 告警触发，自动生成处置单', '18:31 工作流命中', '18:35 已提交处理结果'] },
+            { id: 5, ticketNo: 'GD-20260307-005', alarmName: '消防联动通道异常', type: '设备事件告警', level: '重大', status: '已完成', dept: '消防安全组', user: '王静', workflow: '消防联动-重大流程', third: '消防联动平台', alarmTime: '2026-03-07 17:05:22', dueTime: '2026-03-07 17:20:22', logs: ['17:05 告警触发，自动生成处置单', '17:06 工作流命中', '17:10 处理结果已提交'] },
+            { id: 6, ticketNo: 'GD-20260307-006', alarmName: '主站配电-1#H2 故障报警', type: '设备状态告警', level: '重大', status: '已完成', dept: '供配电运维组', user: '刘晓东', workflow: '主站配电故障-重大流程', third: '供配电工单平台', alarmTime: '2026-03-07 16:15:48', dueTime: '2026-03-07 16:25:48', logs: ['16:15 告警触发，自动生成处置单', '16:16 工作流命中', '16:17 刘晓东接单', '16:22 处置完成'] }
         ];
 
         function showToast(message) {
@@ -378,7 +376,6 @@
 
         function statusBadge(status) {
             const map = {
-                '待分派': 'bg-amber-50 text-warning',
                 '待接单': 'bg-slate-100 text-slate-600',
                 '处理中': 'bg-brand/10 text-brand',
                 '已完成': 'bg-emerald-50 text-success',
@@ -388,7 +385,6 @@
         }
 
         function updateSummary() {
-            document.getElementById('waitAssignCount').textContent = items.filter((item) => item.status === '待分派').length;
             document.getElementById('waitTakeCount').textContent = items.filter((item) => item.status === '待接单').length;
             document.getElementById('processingCount').textContent = items.filter((item) => item.status === '处理中').length;
         }
@@ -413,8 +409,8 @@
                     <td class="px-4 py-3 text-slate-600">${item.type}</td>
                     <td class="px-4 py-3">${levelBadge(item.level)}</td>
                     <td class="px-4 py-3">${statusBadge(item.status)}</td>
-                    <td class="px-4 py-3 text-slate-600">${item.dept || '--'}<br><span class="text-slate-400">${item.user || '待分派'}</span></td>
-                    <td class="px-4 py-3 ${item.workflow === '未匹配' ? 'text-warning' : 'text-slate-600'}">${item.workflow}</td>
+                    <td class="px-4 py-3 text-slate-600">${item.dept || '--'}<br><span class="text-slate-400">${item.user || '未指定'}</span></td>
+                    <td class="px-4 py-3 text-slate-600">${item.workflow}</td>
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-2">
                             ${actionButtons(item)}
@@ -427,9 +423,6 @@
         }
 
         function actionButtons(item) {
-            if (item.status === '待分派') {
-                return `<button type="button" onclick="openAssign(${item.id}, false)" class="px-3 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:text-brand hover:border-brand transition shadow-sm">分派</button>`;
-            }
             if (item.status === '待接单') {
                 return `
                     <button type="button" onclick="takeOrder(${item.id})" class="px-3 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:text-brand hover:border-brand transition shadow-sm">接单</button>
@@ -467,7 +460,7 @@
             document.getElementById('assignDept').value = item.dept || '';
             document.getElementById('assignUser').value = item.user || '';
             document.getElementById('assignReason').value = '';
-            document.getElementById('assignTitle').textContent = transfer ? '转派处置单' : '分派处置单';
+            document.getElementById('assignTitle').textContent = '转派处置单';
             document.getElementById('assignModal').classList.remove('hidden');
         }
 
@@ -480,14 +473,12 @@
                 showToast('请填写责任部门和责任人');
                 return;
             }
-            const transfer = item.status !== '待分派';
             item.dept = dept;
             item.user = user;
-            item.status = '待接单';
-            item.logs.push(`${new Date().toLocaleTimeString('zh-CN', { hour12: false }).slice(0, 5)} ${transfer ? '已转派' : '已分派'}至 ${dept} / ${user}${reason ? '：' + reason : ''}`);
+            item.logs.push(`${new Date().toLocaleTimeString('zh-CN', { hour12: false }).slice(0, 5)} 已转派至 ${dept} / ${user}${reason ? '：' + reason : ''}`);
             closeModal('assignModal');
             renderTable();
-            showToast(transfer ? '处置单已转派' : '处置单已分派');
+            showToast('处置单已转派');
         }
 
         function takeOrder(id) {
@@ -556,7 +547,7 @@
                 <div class="rounded-[22px] border border-line p-4">
                     <div class="text-sm text-slate-400">工作流信息</div>
                     <div class="mt-2 text-slate-900">${item.workflow}</div>
-                    <div class="mt-2 text-sm text-slate-500">${item.workflow === '未匹配' ? '未命中工作流，自动生成待分派处置单。' : '第三方应用：' + (item.third || '无')}</div>
+                    <div class="mt-2 text-sm text-slate-500">第三方应用：${item.third || '无'}</div>
                 </div>
                 <div class="rounded-[22px] border border-line p-4">
                     <div class="text-sm text-slate-400">处置过程</div>
