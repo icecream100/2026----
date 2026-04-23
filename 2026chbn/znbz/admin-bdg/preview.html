@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>预览 - 业务目录管理</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --ant-primary: #1677ff; --ant-primary-hover: #4096ff; --ant-primary-bg: #e6f4ff;
+  --ant-success: #52c41a; --ant-success-bg: #f6ffed;
+  --ant-warning: #faad14; --ant-warning-bg: #fffbe6;
+  --ant-error: #ff4d4f; --ant-error-bg: #fff2f0;
+  --ant-text: rgba(0,0,0,0.88); --ant-text-secondary: rgba(0,0,0,0.65); --ant-text-tertiary: rgba(0,0,0,0.45);
+  --ant-border: #d9d9d9; --ant-border-secondary: #f0f0f0; --ant-bg: #f5f5f5; --ant-bg-container: #ffffff;
+  --shadow-1: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+  --shadow-2: 0 3px 6px -4px rgba(0,0,0,0.12), 0 6px 16px 0 rgba(0,0,0,0.08), 0 9px 28px 8px rgba(0,0,0,0.05);
+  --radius-base: 4px; --radius-lg: 8px;
+  --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; color: var(--ant-text); background: var(--ant-bg); margin: 0; }
+
+.ant-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 4px 15px; font-size: 14px; border: 1px solid var(--ant-border); border-radius: var(--radius-base); background: var(--ant-bg-container); color: var(--ant-text); cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 0 rgba(0,0,0,0.02); }
+.ant-btn:hover { color: var(--ant-primary-hover); border-color: var(--ant-primary-hover); }
+.ant-btn-primary { background: var(--ant-primary); border-color: var(--ant-primary); color: #fff; }
+.ant-btn-primary:hover { background: var(--ant-primary-hover); border-color: var(--ant-primary-hover); }
+.ant-btn-dangerous { color: var(--ant-error); border-color: var(--ant-error); }
+.ant-btn-text { border-color: transparent; background: transparent; box-shadow: none; color: var(--ant-primary); padding: 4px 8px; }
+.ant-btn-text:hover { background: rgba(0,0,0,0.06); }
+
+.ant-modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 1000; }
+.ant-modal-mask.active { display: flex; }
+.ant-modal { background: var(--ant-bg-container); border-radius: var(--radius-lg); box-shadow: var(--shadow-2); width: 480px; max-width: 92vw; max-height: 90vh; overflow: hidden; }
+.ant-modal-header { padding: 16px 24px; border-bottom: 1px solid var(--ant-border-secondary); font-size: 16px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+.ant-modal-close { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-base); color: var(--ant-text-tertiary); cursor: pointer; }
+.ant-modal-close:hover { background: rgba(0,0,0,0.06); }
+.ant-modal-body { padding: 24px; max-height: calc(100vh - 200px); overflow: auto; }
+.ant-modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 24px; border-top: 1px solid var(--ant-border-secondary); }
+
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 220px; background: #001529; color: #fff; flex-shrink: 0; }
+.sidebar-logo { height: 64px; display: flex; align-items: center; padding: 0 20px; gap: 10px; font-size: 16px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.sidebar-item { display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 20px; margin: 4px 12px; font-size: 14px; border-radius: var(--radius-base); cursor: pointer; transition: all 0.2s; color: rgba(255,255,255,0.7); text-decoration: none; }
+.sidebar-item:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.sidebar-item.active { color: #fff; background: var(--ant-primary); }
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.header { height: 56px; background: #fff; border-bottom: 1px solid var(--ant-border-secondary); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+.content { flex: 1; padding: 24px; overflow: auto; }
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ant-text-tertiary); margin-bottom: 16px; }
+.breadcrumb a { color: var(--ant-text-tertiary); text-decoration: none; }
+.breadcrumb a:hover { color: var(--ant-primary); }
+
+.stat-card { background: #fff; border-radius: var(--radius-lg); padding: 20px; text-align: center; border: 1px solid var(--ant-border-secondary); }
+.stat-number { font-size: 28px; font-weight: 700; line-height: 1; }
+.stat-label { font-size: 13px; color: var(--ant-text-secondary); margin-top: 8px; }
+
+.tree-panel { background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--ant-border-secondary); overflow: auto; }
+.tree-panel-header { padding: 12px 16px; border-bottom: 1px solid var(--ant-border-secondary); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.tree-item { padding: 6px 16px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+.tree-item:hover { background: var(--ant-primary-bg); color: var(--ant-primary); }
+.tree-item.active { background: var(--ant-primary-bg); color: var(--ant-primary); font-weight: 500; }
+.tree-item.new-node { position: relative; }
+.tree-item.new-node::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--ant-success); }
+.tree-indent { display: inline-block; }
+
+
+.device-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.device-table th { padding: 10px 12px; text-align: left; font-weight: 600; background: #fafafa; border-bottom: 1px solid var(--ant-border-secondary); }
+.device-table td { padding: 10px 12px; border-bottom: 1px solid var(--ant-border-secondary); }
+.device-table tbody tr:hover { background: rgba(0,0,0,0.02); }
+
+.ant-tag { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px; font-size: 12px; border: 1px solid transparent; border-radius: var(--radius-base); }
+.ant-tag-green { color: #52c41a; background: #f6ffed; border-color: #b7eb8f; }
+.ant-tag-blue { color: #1677ff; background: #e6f4ff; border-color: #91caff; }
+.ant-tag-orange { color: #fa8c16; background: #fff7e6; border-color: #ffd591; }
+
+.ant-pagination { display: flex; align-items: center; gap: 8px; }
+.ant-pagination-item { min-width: 32px; height: 32px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--ant-border); border-radius: var(--radius-base); background: var(--ant-bg-container); cursor: pointer; transition: all 0.2s; }
+.ant-pagination-item:hover { border-color: var(--ant-primary); color: var(--ant-primary); }
+.ant-pagination-item-active { border-color: var(--ant-primary); background: var(--ant-primary); color: #fff; }
+
+.ant-message { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 1010; display: flex; flex-direction: column; gap: 8px; }
+.ant-message-notice { padding: 10px 16px; background: var(--ant-bg-container); border-radius: var(--radius-lg); box-shadow: var(--shadow-2); display: flex; align-items: center; gap: 8px; font-size: 14px; border-left: 4px solid var(--ant-primary); animation: msgIn 0.3s; }
+@keyframes msgIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+.info-row { display: flex; padding: 10px 0; border-bottom: 1px solid var(--ant-border-secondary); }
+.info-row:last-child { border-bottom: none; }
+.info-label { width: 120px; color: var(--ant-text-secondary); flex-shrink: 0; }
+.info-value { flex: 1; color: var(--ant-text); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><i class="fa-solid fa-video"></i><span>智慧运维平台</span></div>
+    <nav style="padding:8px 0;">
+      <a href="list.html" class="sidebar-item"><i class="fa-solid fa-sitemap" style="width:16px;text-align:center;"></i><span>业务目录管理</span></a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header class="header">
+      <div class="breadcrumb">
+        <a href="list.html">业务目录管理</a>
+        <span>/</span>
+        <span style="color:var(--ant-text);">预览</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="color:var(--ant-text-secondary);font-size:13px;"><i class="fa-regular fa-user"></i> 平台管理员</span>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- 规则信息 -->
+      <div style="background:#fff;border-radius:var(--radius-lg);padding:16px 24px;margin-bottom:16px;border:1px solid var(--ant-border-secondary);display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:24px;">
+          <div><span style="color:var(--ant-text-secondary);">规则：</span><strong>全市治安防控目录</strong></div>
+          <div><span style="color:var(--ant-text-secondary);">层级模板：</span><span>行政区域 → 业务标签</span></div>
+          <div><span style="color:var(--ant-text-secondary);">根目录：</span><span>业务目录 / 治安防控</span></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="ant-btn" onclick="refreshPreview()"><i class="fa-solid fa-rotate"></i> 刷新预览</button>
+          <button class="ant-btn" onclick="showMessage('导出功能开发中（P2）')" title="导出目录树与设备命中Excel"><i class="fa-solid fa-download"></i> 导出预览</button>
+          <button class="ant-btn ant-btn-primary" onclick="openPublishModal()"><i class="fa-solid fa-check"></i> 确认更新</button>
+          <button class="ant-btn" onclick="location.href='list.html'"><i class="fa-solid fa-xmark"></i> 取消预览</button>
+        </div>
+      </div>
+
+      <!-- 异步进度条占位（P1） -->
+      <div id="asyncProgress" style="display:none;background:#fff;border-radius:var(--radius-lg);padding:12px 24px;margin-bottom:16px;border:1px solid var(--ant-border-secondary);">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <i class="fa-solid fa-spinner fa-spin" style="color:var(--ant-primary);"></i>
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;">
+              <span>正在计算预览结果...</span>
+              <span id="progressText" style="color:var(--ant-primary);font-weight:500;">0%</span>
+            </div>
+            <div style="height:6px;background:var(--ant-bg);border-radius:3px;overflow:hidden;">
+              <div id="progressBar" style="height:100%;width:0%;background:var(--ant-primary);border-radius:3px;transition:width 0.3s;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 三栏布局 -->
+      <div style="display:flex;gap:16px;height:calc(100vh - 260px);">
+        <!-- 左侧：目录树 -->
+        <div class="tree-panel" style="width:320px;flex-shrink:0;">
+          <div class="tree-panel-header">
+            <i class="fa-solid fa-folder-tree" style="color:var(--ant-primary);"></i>
+            目录树草稿
+            <span class="ant-tag ant-tag-green" style="margin-left:auto;"><i class="fa-solid fa-plus" style="font-size:10px;"></i> 新增节点</span>
+          </div>
+          <div style="padding:8px 0;overflow:auto;height:calc(100% - 48px);">
+            <div class="tree-item active" onclick="selectNode(this,'root')">
+              <i class="fa-regular fa-folder-open" style="color:var(--ant-primary);"></i>
+              <span>治安防控（根）</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--ant-text-tertiary);">1520</span>
+            </div>
+            <div class="tree-item new-node" onclick="selectNode(this,'haidian')" style="padding-left:32px;">
+              <i class="fa-regular fa-folder" style="color:var(--ant-primary);"></i>
+              <span>海淀区</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--ant-text-tertiary);">420</span>
+            </div>
+            <div class="tree-item new-node" onclick="selectNode(this,'haidian-zhongguan')" style="padding-left:48px;">
+              <i class="fa-regular fa-folder" style="color:var(--ant-primary);"></i>
+              <span>中关村街道</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--ant-text-tertiary);">85</span>
+            </div>
+            <div class="tree-item new-node" onclick="selectNode(this,'haidian-zhongguan-zafk')" style="padding-left:64px;">
+              <i class="fa-solid fa-video" style="color:var(--ant-success);"></i>
+              <span>治安防控</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--ant-text-tertiary);">52</span>
+            </div>
+            <div class="tree-item new-node" onclick="selectNode(this,'haidian-zhongguan-cqck')" style="padding-left:64px;">
+              <i class="fa-solid fa-video" style="color:var(--ant-success);"></i>
+              <span>圈层查控</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--ant-text-tertiary);">33</span>
+            </div>
+            <div class="tree-item new-node" onclick="selectNode(this,'haidian-wudaokou')" style="padding-left:48px;">
+              <i class="fa-regular fa-folder" style="color:var(--ant-primary);"></i>
+              <span>五道口街道</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--ant-text-tertiary);">120</span>
+            </div>
+            <div class="tree-item" onclick="selectNode(this,'chaoyang')" style="padding-left:32px;">
+              <i class="fa-regular fa-folder" style="color:var(--ant-primary);"></i>
+              <span>朝阳区</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--ant-text-tertiary);">580</span>
+            </div>
+            <div class="tree-item new-node" onclick="selectNode(this,'chaoyang-guomao')" style="padding-left:48px;">
+              <i class="fa-regular fa-folder" style="color:var(--ant-primary);"></i>
+              <span>国贸街道</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--ant-text-tertiary);">200</span>
+            </div>
+            <div class="tree-item new-node" onclick="selectNode(this,'chaoyang-sanlitun')" style="padding-left:48px;">
+              <i class="fa-regular fa-folder" style="color:var(--ant-primary);"></i>
+              <span>三里屯街道</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--ant-text-tertiary);">180</span>
+            </div>
+            <div class="tree-item" onclick="selectNode(this,'xicheng')" style="padding-left:32px;">
+              <i class="fa-regular fa-folder" style="color:var(--ant-primary);"></i>
+              <span>西城区</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--ant-text-tertiary);">320</span>
+            </div>
+            <div class="tree-item" onclick="selectNode(this,'dongcheng')" style="padding-left:32px;">
+              <i class="fa-regular fa-folder" style="color:var(--ant-primary);"></i>
+              <span>东城区</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--ant-text-tertiary);">200</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧：统计 + 设备明细 -->
+        <div style="flex:1;display:flex;flex-direction:column;gap:16px;min-width:0;">
+          <!-- 统计面板 -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+            <div class="stat-card">
+              <div class="stat-number" style="color:var(--ant-primary);">14</div>
+              <div class="stat-label">新增节点数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" style="color:var(--ant-success);">1,520</div>
+              <div class="stat-label">命中设备数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" style="color:var(--ant-error);">156</div>
+              <div class="stat-label">未命中设备数</div>
+            </div>
+          </div>
+          <!-- 变更统计（与上次更新对比） -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+            <div class="stat-card" style="border-left:3px solid var(--ant-success);">
+              <div class="stat-number" style="color:var(--ant-success);font-size:22px;">+86</div>
+              <div class="stat-label">新增关联数</div>
+            </div>
+            <div class="stat-card" style="border-left:3px solid var(--ant-error);">
+              <div class="stat-number" style="color:var(--ant-error);font-size:22px;">-12</div>
+              <div class="stat-label">移除关联数</div>
+            </div>
+            <div class="stat-card" style="border-left:3px solid var(--ant-warning);">
+              <div class="stat-number" style="color:var(--ant-warning);font-size:22px;">+34</div>
+              <div class="stat-label">变更关联数</div>
+            </div>
+          </div>
+
+          <!-- 命中设备明细 -->
+          <div style="flex:1;background:#fff;border-radius:var(--radius-lg);border:1px solid var(--ant-border-secondary);display:flex;flex-direction:column;overflow:hidden;">
+            <div style="padding:12px 16px;border-bottom:1px solid var(--ant-border-secondary);font-weight:600;display:flex;align-items:center;gap:8px;">
+              <i class="fa-solid fa-list" style="color:var(--ant-primary);"></i>
+              命中设备明细
+              <span style="margin-left:auto;font-size:12px;color:var(--ant-text-tertiary);">当前节点：治安防控（根） · 共 1520 条</span>
+            </div>
+            <div style="flex:1;overflow:auto;">
+              <table class="device-table">
+                <thead>
+                  <tr><th>设备名称</th><th>设备编码</th><th>行政区域</th><th>业务标签</th><th>命中原因</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>中关村大街摄像头-01</td><td>CAM_20240101_001</td><td>海淀区 / 中关村街道</td><td><span class="ant-tag ant-tag-blue">治安防控</span></td><td style="font-size:12px;color:var(--ant-text-secondary);">匹配规则：行政区域+标签</td></tr>
+                  <tr><td>五道口路口球机-03</td><td>CAM_20240101_045</td><td>海淀区 / 五道口街道</td><td><span class="ant-tag ant-tag-blue">圈层查控</span></td><td style="font-size:12px;color:var(--ant-text-secondary);">匹配规则：行政区域+标签</td></tr>
+                  <tr><td>国贸桥北摄像头-A2</td><td>CAM_20240102_112</td><td>朝阳区 / 国贸街道</td><td><span class="ant-tag ant-tag-green">交通路口</span></td><td style="font-size:12px;color:var(--ant-text-secondary);">匹配规则：行政区域+标签</td></tr>
+                  <tr><td>三里屯南路监控点-07</td><td>CAM_20240103_089</td><td>朝阳区 / 三里屯街道</td><td><span class="ant-tag ant-tag-blue">治安防控</span></td><td style="font-size:12px;color:var(--ant-text-secondary);">匹配规则：行政区域+标签</td></tr>
+                  <tr><td>西单北大街摄像头-12</td><td>CAM_20240104_201</td><td>西城区 / 金融街街道</td><td><span class="ant-tag ant-tag-orange">城市管理</span></td><td style="font-size:12px;color:var(--ant-text-secondary);">匹配规则：行政区域+标签</td></tr>
+                  <tr><td>东直门内大街球机-05</td><td>CAM_20240105_167</td><td>东城区 / 东直门街道</td><td><span class="ant-tag ant-tag-blue">治安防控</span></td><td style="font-size:12px;color:var(--ant-text-secondary);">匹配规则：行政区域+标签</td></tr>
+                  <tr><td>中关村广场监控-09</td><td>CAM_20240106_334</td><td>海淀区 / 中关村街道</td><td><span class="ant-tag ant-tag-blue">圈层查控</span></td><td style="font-size:12px;color:var(--ant-text-secondary);">匹配规则：行政区域+标签</td></tr>
+                  <tr><td>朝阳公园北路摄像头-22</td><td>CAM_20240107_445</td><td>朝阳区 / 三里屯街道</td><td><span class="ant-tag ant-tag-green">交通路口</span></td><td style="font-size:12px;color:var(--ant-text-secondary);">匹配规则：行政区域+标签</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;border-top:1px solid var(--ant-border-secondary);">
+              <div style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ant-text-secondary);">
+                <span>每页</span>
+                <select style="height:28px;padding:0 24px 0 8px;border:1px solid var(--ant-border);border-radius:var(--radius-base);background:var(--ant-bg-container);font-size:13px;appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'%3E%3Cpath fill=\'%23666\' d=\'M6 8L1 3h10z\'/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 6px center;">
+                  <option selected>20</option>
+                  <option>50</option>
+                  <option>100</option>
+                </select>
+                <span>条</span>
+              </div>
+              <div class="ant-pagination">
+                <span class="ant-pagination-item">&lt;</span>
+                <span class="ant-pagination-item ant-pagination-item-active">1</span>
+                <span class="ant-pagination-item">2</span>
+                <span class="ant-pagination-item">3</span>
+                <span class="ant-pagination-item">...</span>
+                <span class="ant-pagination-item">190</span>
+                <span class="ant-pagination-item">&gt;</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 更新确认弹窗 -->
+<div class="ant-modal-mask" id="publishModal">
+  <div class="ant-modal">
+    <div class="ant-modal-header">
+      <span><i class="fa-solid fa-circle-exclamation" style="color:var(--ant-warning);margin-right:8px;"></i>更新确认</span>
+      <span class="ant-modal-close" onclick="closePublishModal()">&times;</span>
+    </div>
+    <div class="ant-modal-body">
+      <div class="info-row">
+        <div class="info-label">规则名称</div>
+        <div class="info-value">全市治安防控目录</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">根目录</div>
+        <div class="info-value">业务目录 / 治安防控</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">层级模板</div>
+        <div class="info-value">行政区域 → 业务标签</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0;">
+        <div style="padding:16px;background:#f6ffed;border-radius:var(--radius-base);border:1px dashed #b7eb8f;">
+          <div style="font-size:12px;color:var(--ant-text-secondary);margin-bottom:8px;">新增</div>
+          <div style="display:flex;gap:16px;">
+            <div style="text-align:center;flex:1;">
+              <div style="font-size:22px;font-weight:700;color:var(--ant-primary);">14</div>
+              <div style="font-size:12px;color:var(--ant-text-secondary);">新增节点</div>
+            </div>
+            <div style="text-align:center;flex:1;">
+              <div style="font-size:22px;font-weight:700;color:var(--ant-success);">+86</div>
+              <div style="font-size:12px;color:var(--ant-text-secondary);">新增关联</div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:16px;background:#fff2f0;border-radius:var(--radius-base);border:1px dashed #ffccc7;">
+          <div style="font-size:12px;color:var(--ant-text-secondary);margin-bottom:8px;">变更</div>
+          <div style="display:flex;gap:16px;">
+            <div style="text-align:center;flex:1;">
+              <div style="font-size:22px;font-weight:700;color:var(--ant-error);">-12</div>
+              <div style="font-size:12px;color:var(--ant-text-secondary);">移除关联</div>
+            </div>
+            <div style="text-align:center;flex:1;">
+              <div style="font-size:22px;font-weight:700;color:var(--ant-warning);">+34</div>
+              <div style="font-size:12px;color:var(--ant-text-secondary);">变更关联</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="background:var(--ant-warning-bg);border:1px solid #ffe58f;border-radius:var(--radius-base);padding:12px 16px;display:flex;align-items:flex-start;gap:8px;">
+        <i class="fa-solid fa-triangle-exclamation" style="color:var(--ant-warning);margin-top:2px;"></i>
+        <div>
+          <div style="font-weight:500;margin-bottom:4px;">风险提示</div>
+          <div style="font-size:13px;color:var(--ant-text-secondary);">更新后将正式创建业务目录节点和设备关联。请确认预览结果符合预期后再更新。</div>
+        </div>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closePublishModal()">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="doPublish()"><i class="fa-solid fa-check"></i> 确认更新</button>
+    </div>
+  </div>
+</div>
+
+<!-- 更新成功提示 -->
+<div class="ant-message" id="messageBox"></div>
+
+<script>
+function selectNode(el, id) {
+  document.querySelectorAll('.tree-item').forEach(item => item.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function openPublishModal() {
+  document.getElementById('publishModal').classList.add('active');
+}
+function closePublishModal() {
+  document.getElementById('publishModal').classList.remove('active');
+}
+function doPublish() {
+  closePublishModal();
+  showMessage('更新成功！');
+  setTimeout(() => location.href = 'list.html', 1500);
+}
+function refreshPreview() {
+  showMessage('刷新成功');
+}
+
+function showMessage(text) {
+  const box = document.getElementById('messageBox');
+  const div = document.createElement('div');
+  div.className = 'ant-message-notice';
+  div.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--ant-success);"></i><span>' + text + '</span>';
+  box.appendChild(div);
+  setTimeout(() => div.remove(), 3000);
+}
+</script>
+</body>
+</html>

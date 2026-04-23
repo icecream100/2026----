@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>点位智能标注 · 确认弹窗</title>
+  <style>
+    :root {
+      --primary: #1677ff;
+      --danger: #ff4d4f;
+      --line: #e9edf3;
+      --text-1: #1f1f1f;
+      --text-2: #595959;
+      --text-3: #8c8c8c;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font: 14px/1.45 "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text-1);
+      background: #0b1220;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(12, 22, 37, 0.56);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal {
+      width: min(1200px, calc(100vw - 32px));
+      height: min(760px, calc(100vh - 32px));
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      box-shadow: 0 20px 48px rgba(10, 20, 35, 0.35);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .head {
+      height: 58px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      flex-shrink: 0;
+      background: #fff;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 6px;
+      border: 1px solid #ffd591;
+      background: #fff7e6;
+      color: #ad6800;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .icon-btn {
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .icon-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    .content {
+      flex: 1;
+      min-height: 0;
+      padding: 12px 14px;
+      background: #f5f7fa;
+    }
+
+    .grid {
+      height: 100%;
+      display: grid;
+      grid-template-columns: 38% 62%;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .col {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .panel {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: #262626;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .info-item {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fafbfc;
+      padding: 7px 8px;
+      min-width: 0;
+    }
+
+    .k { font-size: 12px; color: var(--text-3); margin-bottom: 1px; }
+    .v { font-size: 13px; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .thumbs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .thumb {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      background: #fff;
+    }
+
+    .thumb-box {
+      flex: 1;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.9);
+      background: linear-gradient(160deg, #33465f, #111b2d);
+      font-size: 12px;
+      text-align: center;
+      padding: 6px;
+    }
+
+    .thumb-foot {
+      height: 24px;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-2);
+      border-top: 1px solid var(--line);
+      background: #fafbfc;
+    }
+
+    .table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 10px;
+      font-size: 13px;
+      vertical-align: middle;
+      text-align: left;
+    }
+
+    th {
+      background: #fafbfc;
+      color: var(--text-2);
+      font-weight: 600;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .dim { font-weight: 600; }
+
+    .select {
+      width: 100%;
+      height: 30px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 0 8px;
+      font: inherit;
+      color: var(--text-1);
+      background: #fff;
+      outline: none;
+    }
+
+    .select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
+    }
+
+    .score {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 58px;
+      height: 22px;
+      border-radius: 999px;
+      border: 1px solid #91caff;
+      color: #0958d9;
+      background: #e8f3ff;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .foot {
+      height: 62px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 16px;
+      flex-shrink: 0;
+      background: #fff;
+    }
+
+    .tip { color: var(--text-3); font-size: 12px; }
+    .ops { display: flex; gap: 8px; }
+
+    .btn {
+      height: 34px;
+      padding: 0 14px;
+      border-radius: 6px;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      color: #262626;
+      font-size: 14px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .btn:hover { border-color: var(--primary); color: var(--primary); }
+    .btn.primary { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .btn.primary:hover { filter: brightness(.96); color: #fff; }
+    .btn.danger { border-color: #ffccc7; color: #cf1322; }
+
+    .sub-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.36);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 12;
+      padding: 16px;
+    }
+
+    .sub-mask.show { display: flex; }
+
+    .sub-modal {
+      width: 460px;
+      max-width: 100%;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 12px 32px rgba(12, 22, 37, 0.25);
+      overflow: hidden;
+    }
+
+    .sub-head {
+      height: 52px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      font-weight: 600;
+    }
+
+    .sub-body { padding: 14px; }
+
+    .field { margin-bottom: 12px; }
+    .field:last-child { margin-bottom: 0; }
+
+    .label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: var(--text-2);
+    }
+
+    .must { color: var(--danger); margin-right: 2px; }
+
+    .textarea {
+      width: 100%;
+      min-height: 74px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 8px;
+      font: inherit;
+      color: var(--text-1);
+      outline: none;
+      resize: vertical;
+      background: #fff;
+    }
+
+    .textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
+    }
+
+    .select.invalid { border-color: var(--danger); }
+
+    .error {
+      min-height: 18px;
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--danger);
+    }
+
+    .sub-foot {
+      height: 56px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 0 14px;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      min-width: 250px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      display: none;
+      z-index: 30;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .toast.success { background: #52c41a; }
+    .toast.warning { background: #faad14; }
+
+    @media (max-width: 1024px) {
+      .modal { height: calc(100vh - 16px); width: calc(100vw - 16px); }
+      .grid { grid-template-columns: 1fr; overflow: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="标注结果确认">
+      <div class="head">
+        <h2 class="title">标注结果确认 <span class="chip">待确认</span></h2>
+        <button class="icon-btn" id="closeBtn" title="关闭">×</button>
+      </div>
+
+      <div class="content">
+        <div class="grid">
+          <div class="col">
+            <section class="panel">
+              <h3>1. 设备基本信息</h3>
+              <div class="info-grid">
+                <div class="info-item"><div class="k">点位编码</div><div class="v">CAM-SZ-XQ-00341</div></div>
+                <div class="info-item"><div class="k">点位名称</div><div class="v">西区综合楼正门摄像头</div></div>
+                <div class="info-item"><div class="k">所属组织</div><div class="v">南山运维中心/西区网格</div></div>
+                <div class="info-item"><div class="k">安装位置</div><div class="v">综合楼正门东侧立杆4.2m</div></div>
+                <div class="info-item"><div class="k">设备IP</div><div class="v">192.168.21.41</div></div>
+                <div class="info-item"><div class="k">更新时间</div><div class="v">2026-04-22 14:20:33</div></div>
+              </div>
+            </section>
+
+            <section class="panel" style="flex:1;">
+              <h3>2. 截图缩略图</h3>
+              <div class="thumbs">
+                <div class="thumb">
+                  <div class="thumb-box">通道01<br/>正门全景</div>
+                  <div class="thumb-foot"><span>14:12:08</span><span>640×360</span></div>
+                </div>
+                <div class="thumb">
+                  <div class="thumb-box">通道02<br/>入口近景</div>
+                  <div class="thumb-foot"><span>14:12:10</span><span>640×360</span></div>
+                </div>
+                <div class="thumb">
+                  <div class="thumb-box">通道03<br/>车道侧向</div>
+                  <div class="thumb-foot"><span>14:12:13</span><span>640×360</span></div>
+                </div>
+                <div class="thumb">
+                  <div class="thumb-box">通道04<br/>门禁区域</div>
+                  <div class="thumb-foot"><span>14:12:16</span><span>640×360</span></div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="col">
+            <section class="panel" style="flex:1;">
+              <h3>3. AI建议标注结果（7个维度）</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width: 26%;">业务维度</th>
+                      <th>AI建议结果（下拉可编辑）</th>
+                      <th style="width: 16%;">置信度</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rows"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <div class="foot">
+        <div class="tip">
+          <div>操作：点击确认后返回列表页；关闭按钮直接返回列表不保存</div>
+          <div style="color:#d46b08;margin-top:4px;"><i class="fa-solid fa-circle-info" style="margin-right:4px;"></i>AI未命中业务标签字典的候选标签不入下拉选项，如需添加请联系平台管理员</div>
+        </div>
+        <div class="ops">
+          <button id="confirmBtn" class="btn primary" type="button">确认</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const rows = document.getElementById('rows');
+    const toastEl = document.getElementById('toast');
+    const DATA = [
+      { dim: '公共安全', score: 0.94, value: 'GA-0101 治安防控', options: ['GA-0101 治安防控', 'GA-0201 重点人员管控', 'GA-0401 圈层查控'] },
+      { dim: '城市管理', score: 0.83, value: 'CG-0301 环境卫生', options: ['CG-0101 占道经营', 'CG-0201 违法建设', 'CG-0301 环境卫生'] },
+      { dim: '交通运输', score: 0.80, value: 'JT-0101 十字路口', options: ['JT-0101 十字路口', 'JT-0201 主干道路', 'JT-0401 停车场'] },
+      { dim: '水利环保', score: 0.79, value: 'SL-0101 河道监控', options: ['SL-0101 河道监控', 'SL-0201 污水排口', 'SL-0401 水源地保护'] },
+      { dim: '应急管理', score: 0.89, value: 'YJ-0301 人员密集场所', options: ['YJ-0101 消防通道', 'YJ-0201 危险源周边', 'YJ-0301 人员密集场所'] },
+      { dim: '社会民生', score: 0.75, value: 'MS-0201 背街小巷', options: ['MS-0101 小区出入口', 'MS-0201 背街小巷', 'MS-0301 校园周边'] },
+      { dim: '重点保障', score: 0.77, value: 'ZB-0201 重点周界', options: ['ZB-0101 核心机房', 'ZB-0201 重点周界', 'ZB-0301 高风险点'] }
+    ];
+
+    function renderRows() {
+      rows.innerHTML = DATA.map((item, i) => `
+        <tr>
+          <td class="dim">${item.dim}</td>
+          <td>
+            <select class="select" data-i="${i}">
+              ${item.options.map(v => `<option value="${v}" ${v === item.value ? 'selected' : ''}>${v}</option>`).join('')}
+            </select>
+          </td>
+          <td><span class="score">${item.score.toFixed(2)}</span></td>
+        </tr>
+      `).join('');
+
+      rows.querySelectorAll('select').forEach(sel => {
+        sel.addEventListener('change', (e) => {
+          const i = Number(e.target.dataset.i);
+          DATA[i].value = e.target.value;
+        });
+      });
+    }
+
+    function showToast(type, text) {
+      toastEl.className = `toast ${type}`;
+      toastEl.textContent = text;
+      toastEl.style.display = 'block';
+      setTimeout(() => {
+        toastEl.style.display = 'none';
+      }, 1200);
+    }
+
+    function backToList(delay = 0) {
+      setTimeout(() => {
+        if (window.parent !== window) {
+          // 在iframe中：通知父窗口关闭弹窗
+          window.parent.postMessage({ type: 'closeReviewModal' }, '*');
+        } else {
+          window.location.href = 'list.html';
+        }
+      }, delay);
+    }
+
+    document.getElementById('confirmBtn').addEventListener('click', () => {
+      showToast('success', '已确认，操作日志已记录');
+      backToList(900);
+    });
+
+    document.getElementById('closeBtn').addEventListener('click', () => backToList());
+
+    renderRows();
+  </script>
