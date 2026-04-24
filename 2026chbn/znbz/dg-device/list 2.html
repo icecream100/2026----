@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>基础目录设备管理 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--ant-primary:#1677ff;--ant-primary-bg:#e6f4ff;--ant-success:#52c41a;--ant-warning:#faad14;--ant-error:#ff4d4f;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);--shadow-2:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08);}
+    *{box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}
+    .sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}
+    .main{flex:1;padding:24px;overflow:auto;display:flex;gap:16px;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}
+    .menu-item.active{color:#fff;background:var(--ant-primary);}
+    .menu-item i{width:16px;text-align:center;}
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+    .ant-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .ant-btn-primary{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .ant-btn-sm{height:28px;padding:0 12px;font-size:13px;}
+    .ant-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);}
+    .ant-card-head{display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:15px;font-weight:600;}
+    .ant-card-body{padding:24px;}
+    .ant-input{height:32px;padding:0 11px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;outline:none;background:#fff;width:100%;}
+    .ant-select{height:32px;padding:0 8px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;font-size:14px;outline:none;}
+    .ant-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;}
+    .ant-table th{padding:12px 16px;font-weight:600;background:#fafafa;border-bottom:1px solid var(--ant-border-secondary);text-align:left;white-space:nowrap;}
+    .ant-table td{padding:12px 16px;border-bottom:1px solid var(--ant-border-secondary);}
+    .ant-table tbody tr:hover td{background:rgba(0,0,0,0.02);}
+    .ant-pagination{display:flex;align-items:center;gap:4px;margin-top:16px;justify-content:flex-end;}
+    .ant-page-item{min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--ant-border);border-radius:4px;cursor:pointer;padding:0 6px;font-size:14px;background:#fff;}
+    .ant-page-item.active{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .ant-modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:1000;}
+    .ant-modal-mask.active{display:flex;}
+    .ant-modal{background:#fff;border-radius:8px;box-shadow:var(--shadow-2);width:620px;max-width:95vw;}
+    .ant-modal-header{padding:16px 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:16px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+    .ant-modal-body{padding:24px;max-height:70vh;overflow:auto;}
+    .ant-modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:16px 24px;border-top:1px solid var(--ant-border-secondary);}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .form-item{margin-bottom:16px;}
+    .form-label{display:block;margin-bottom:6px;}
+    .form-label.required::before{content:'* ';color:#ff4d4f;}
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}
+    .breadcrumb a:hover{color:var(--ant-primary);}
+    /* 基础目录树 */
+    .catalog-sider{width:260px;border:1px solid var(--ant-border-secondary);border-radius:8px;background:#fff;flex-shrink:0;display:flex;flex-direction:column;box-shadow:var(--shadow-1);max-height:calc(100vh - 104px);position:sticky;top:24px;}
+    .catalog-sider-head{padding:14px 16px;border-bottom:1px solid var(--ant-border-secondary);font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;}
+    .catalog-sider-body{flex:1;overflow:auto;padding:8px;}
+    .tree-node{display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:4px;cursor:pointer;user-select:none;font-size:13px;transition:all 0.15s;}
+    .tree-node:hover{background:rgba(0,0,0,0.04);}
+    .tree-node.selected{background:var(--ant-primary-bg);color:var(--ant-primary);}
+    .tree-node .toggle{width:16px;text-align:center;color:var(--ant-text-tertiary);font-size:10px;flex-shrink:0;}
+    .tree-children{padding-left:16px;}
+    .tree-badge{font-size:11px;color:rgba(0,0,0,0.35);margin-left:auto;}
+
+    /* 右侧内容 */
+    .right-panel{flex:1;min-width:0;display:flex;flex-direction:column;}
+    .tag-chip{display:inline-flex;align-items:center;gap:3px;height:22px;padding:0 8px;border-radius:4px;font-size:12px;margin-right:4px;white-space:nowrap;}
+    .tag-business{background:#e6f4ff;border:1px solid #91caff;color:#0958d9;}
+    .tag-ai{background:#f6ffed;border:1px solid #b7eb8f;color:#237804;}
+    .tag-ai-badge{font-size:10px;background:#52c41a;color:#fff;padding:0 3px;border-radius:2px;margin-left:2px;}
+    .tag-option{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--ant-border-secondary);border-radius:6px;margin-bottom:8px;cursor:pointer;}
+    .tag-option:hover{border-color:#91caff;background:#f5fbff;}
+    .tag-option input{margin:0;}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video text-white text-sm"></i></div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+      <span style="font-size:13px;">张工程师</span>
+    </div>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item" onclick="location.href='../ops-inspection/list.html'"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item" onclick="location.href='../ops-log/list.html'"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item" onclick="location.href='../ops-sla/index.html'"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-triangle-exclamation"></i>故障预警</div>
+      <div class="menu-group-title">数据治理</div>
+      <div class="menu-item" onclick="location.href='../dg-annotation/list.html'"><i class="fa-solid fa-robot"></i>点位智能标注</div>
+      <div class="menu-item" onclick="location.href='../dg-governance/index.html'"><i class="fa-solid fa-gauge-high"></i>点位治理效能</div>
+      <div class="menu-item" onclick="location.href='../dg-tag/list.html'"><i class="fa-solid fa-tags"></i>标签管理</div>
+      <div class="menu-item active"><i class="fa-solid fa-camera"></i>基础目录设备管理</div>
+    </aside>
+
+    <main class="main">
+      <!-- 左侧基础目录树 -->
+      <div class="catalog-sider">
+        <div class="catalog-sider-head">
+          <i class="fa-solid fa-folder-tree" style="color:#1677ff;"></i> 目录列表
+        </div>
+        <div style="padding:8px 12px;border-bottom:1px solid var(--ant-border-secondary);display:flex;flex-direction:column;gap:8px;">
+          <select class="ant-select" style="width:100%;" onchange="switchCatalogSet(this.value)">
+            <option value="basic">基础目录</option>
+            <option value="business">业务目录</option>
+            <option value="org">组织目录</option>
+          </select>
+          <input class="ant-input" style="height:30px;font-size:13px;" placeholder="搜索目录节点...">
+        </div>
+        <div class="catalog-sider-body" id="catalogTree"></div>
+      </div>
+
+      <!-- 右侧内容区 -->
+      <div class="right-panel">
+        <div class="breadcrumb">
+          <a href="../index.html">首页</a><span>/</span><span>数据治理</span><span>/</span><span style="color:var(--ant-text);">基础目录设备管理</span>
+          <span style="margin-left:auto;font-size:12px;color:var(--ant-text-tertiary);">当前目录：<b id="currentCatalogName">智慧园区</b></span>
+        </div>
+
+
+        <div class="ant-card">
+          <div class="ant-card-body" style="padding:16px 24px;">
+            <div class="flex items-center gap-3 flex-wrap">
+              <input class="ant-input" style="width:220px;" placeholder="搜索设备名称/编号/IP">
+              <select class="ant-select"><option>全部业务标签</option><option>公共安全（GA）</option><option>城市管理（CG）</option><option>交通运输（JT）</option><option>水利环保（SL）</option><option>应急管理（YJ）</option><option>社会民生（MS）</option><option>重点保障（ZB）</option><option>未配置业务标签</option></select>
+              <button class="ant-btn"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+              <div style="margin-left:auto;display:flex;gap:8px;">
+                <button class="ant-btn ant-btn-primary" onclick="openTagModal('关联标签')"><i class="fa-solid fa-tags"></i>关联标签</button>
+                <button class="ant-btn" onclick="confirmClearTags('所选设备')" style="color:#ff4d4f;border-color:#ffccc7;"><i class="fa-solid fa-eraser"></i>清除标签</button>
+              </div>
+            </div>
+          </div>
+          <div style="padding:0 24px 24px;overflow-x:auto;">
+            <table class="ant-table" style="min-width:900px;">
+              <thead>
+                <tr>
+                  <th style="width:42px;"><input type="checkbox" aria-label="全选"></th>
+                  <th>设备编号</th>
+                  <th>设备名称</th>
+                  <th>区域</th>
+                  <th>IP地址</th>
+                  <th>在线状态</th>
+                  <th>业务标签</th>
+                  <th style="width:80px;white-space:nowrap;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="deviceTableBody"></tbody>
+            </table>
+            <div class="ant-pagination">
+              <span class="ant-page-item">«</span>
+              <span class="ant-page-item active">1</span>
+              <span class="ant-page-item">2</span>
+              <span class="ant-page-item">3</span>
+              <span class="ant-page-item">»</span>
+              <span style="font-size:13px;color:rgba(0,0,0,0.45);margin-left:8px;">共 2,512 条</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 关联业务标签弹窗 -->
+<div class="ant-modal-mask" id="tagModal">
+  <div class="ant-modal">
+    <div class="ant-modal-header">
+      <span><i class="fa-solid fa-tag" style="margin-right:8px;color:#1677ff;"></i><span id="tagModalTitle">关联标签</span></span>
+      <span style="cursor:pointer;color:rgba(0,0,0,0.45);font-size:18px;" onclick="closeTagModal()">×</span>
+    </div>
+    <div class="ant-modal-body">
+      <div style="background:#e6f4ff;border:1px solid #91caff;border-radius:6px;padding:10px 12px;color:#0958d9;font-size:13px;margin-bottom:16px;">
+        仅可选择业务标签，本页面不提供AI标签手工维护。
+      </div>
+      <div class="form-item">
+        <label class="form-label">选择业务标签</label>
+        <label class="tag-option"><input type="checkbox" checked><span class="tag-chip tag-business">ZB-0401 核心商圈</span><span style="color:var(--ant-text-tertiary);font-size:12px;">重点区域或重要点位</span></label>
+        <label class="tag-option"><input type="checkbox"><span class="tag-chip tag-business">CG-0101 占道经营</span><span style="color:var(--ant-text-tertiary);font-size:12px;">专项治理任务关注对象</span></label>
+        <label class="tag-option"><input type="checkbox"><span class="tag-chip tag-business">GA-0101 治安防控</span><span style="color:var(--ant-text-tertiary);font-size:12px;">公共安全重点区域</span></label>
+        <label class="tag-option"><input type="checkbox"><span class="tag-chip tag-business">JT-0101 十字路口</span><span style="color:var(--ant-text-tertiary);font-size:12px;">交通监控重点区域</span></label>
+        <label class="tag-option"><input type="checkbox"><span class="tag-chip tag-business">SL-0101 河道监控</span><span style="color:var(--ant-text-tertiary);font-size:12px;">水利环保重点区域</span></label>
+        <label class="tag-option"><input type="checkbox"><span class="tag-chip tag-business">YJ-0101 消防通道</span><span style="color:var(--ant-text-tertiary);font-size:12px;">应急安全管理区域</span></label>
+        <label class="tag-option"><input type="checkbox"><span class="tag-chip tag-business">MS-0101 小区出入口</span><span style="color:var(--ant-text-tertiary);font-size:12px;">社会民生重点区域</span></label>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeTagModal()">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="saveTags()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 目录树数据 =====
+const catalogSets = {
+  basic: {
+    rootName: '智慧园区',
+    nodes: [
+      {id:1,name:'智慧园区',count:2512,children:[
+    {id:11,name:'南区',count:856,children:[
+      {id:111,name:'综合楼',count:234,children:[]},
+      {id:112,name:'停车场',count:312,children:[]},
+      {id:113,name:'食堂',count:310,children:[]}
+    ]},
+    {id:12,name:'北区',count:680,children:[
+      {id:121,name:'教学楼',count:320,children:[]},
+      {id:122,name:'实验楼',count:210,children:[]},
+      {id:123,name:'图书馆',count:150,children:[]}
+    ]},
+    {id:13,name:'东区',count:420,children:[
+      {id:131,name:'商业街',count:240,children:[]},
+      {id:132,name:'宿舍区',count:180,children:[]}
+    ]},
+    {id:14,name:'西区',count:420,children:[
+      {id:141,name:'后勤仓库',count:180,children:[]},
+      {id:142,name:'运动场',count:240,children:[]}
+    ]},
+    {id:15,name:'市中心',count:136,children:[
+      {id:151,name:'步行街',count:80,children:[]},
+      {id:152,name:'广场',count:56,children:[]}
+    ]}
+      ]}
+    ]
+  },
+  business: {
+    rootName: '全部业务目录',
+    nodes: [
+      {id:1000,name:'全部业务目录',count:2512,children:[
+        {id:'GA',name:'公共安全（GA）',count:318,children:[
+          {id:'GA-01',name:'治安防控',count:128,children:[]},
+          {id:'GA-02',name:'重点人员管控',count:56,children:[]},
+          {id:'GA-03',name:'案事件追溯',count:34,children:[]},
+          {id:'GA-04',name:'圈层查控',count:72,children:[]},
+          {id:'GA-05',name:'反恐重点',count:28,children:[]}
+        ]},
+        {id:'CG',name:'城市管理（CG）',count:367,children:[
+          {id:'CG-01',name:'占道经营',count:89,children:[]},
+          {id:'CG-02',name:'违法建设',count:45,children:[]},
+          {id:'CG-03',name:'环境卫生',count:112,children:[]},
+          {id:'CG-04',name:'渣土车监管',count:67,children:[]},
+          {id:'CG-05',name:'违规广告',count:23,children:[]},
+          {id:'CG-06',name:'沿街晾晒/堆物',count:31,children:[]}
+        ]},
+        {id:'JT',name:'交通运输（JT）',count:738,children:[
+          {id:'JT-01',name:'十字路口',count:156,children:[]},
+          {id:'JT-02',name:'主干道监控',count:203,children:[]},
+          {id:'JT-03',name:'违章抓拍',count:178,children:[]},
+          {id:'JT-04',name:'停车场',count:95,children:[]},
+          {id:'JT-05',name:'公交站点',count:62,children:[]},
+          {id:'JT-06',name:'高速/快速路',count:44,children:[]}
+        ]},
+        {id:'SL',name:'水利环保（SL）',count:129,children:[
+          {id:'SL-01',name:'河道监控',count:38,children:[]},
+          {id:'SL-02',name:'水库/堤坝',count:22,children:[]},
+          {id:'SL-03',name:'排污口监测',count:15,children:[]},
+          {id:'SL-04',name:'水源地保护',count:27,children:[]},
+          {id:'SL-05',name:'雨洪易涝点',count:19,children:[]},
+          {id:'SL-06',name:'水面漂浮物',count:8,children:[]}
+        ]},
+        {id:'YJ',name:'应急管理（YJ）',count:236,children:[
+          {id:'YJ-01',name:'消防通道',count:85,children:[]},
+          {id:'YJ-02',name:'危化品区域',count:12,children:[]},
+          {id:'YJ-03',name:'人员密集场所',count:67,children:[]},
+          {id:'YJ-04',name:'城市易涝点',count:28,children:[]},
+          {id:'YJ-05',name:'森林防火',count:35,children:[]},
+          {id:'YJ-06',name:'地质灾害点',count:9,children:[]}
+        ]},
+        {id:'MS',name:'社会民生（MS）',count:703,children:[
+          {id:'MS-01',name:'小区出入口',count:312,children:[]},
+          {id:'MS-02',name:'背街小巷',count:178,children:[]},
+          {id:'MS-03',name:'农贸市场',count:45,children:[]},
+          {id:'MS-04',name:'学校周边',count:89,children:[]},
+          {id:'MS-05',name:'医院周边',count:56,children:[]},
+          {id:'MS-06',name:'养老/福利机构',count:23,children:[]}
+        ]},
+        {id:'ZB',name:'重点保障（ZB）',count:287,children:[
+          {id:'ZB-01',name:'党政机关',count:42,children:[]},
+          {id:'ZB-02',name:'交通枢纽',count:68,children:[]},
+          {id:'ZB-03',name:'金融网点',count:35,children:[]},
+          {id:'ZB-04',name:'核心商圈',count:127,children:[]},
+          {id:'ZB-05',name:'重大活动保障',count:15,children:[]}
+        ]}
+      ]}
+    ]
+  },
+  org: {
+    rootName: '全部组织目录',
+    nodes: [
+      {id:2000,name:'全部组织目录',count:2512,children:[
+        {id:2001,name:'巴中市交通运输局',count:846,children:[]},
+        {id:2002,name:'巴中市公安局',count:620,children:[]},
+        {id:2003,name:'巴中市教育局',count:518,children:[]},
+        {id:2004,name:'巴中市市场监管局',count:210,children:[]}
+      ]}
+    ]
+  }
+};
+
+let currentCatalogSet = 'basic';
+let catalogData = catalogSets[currentCatalogSet].nodes;
+let expanded = {1:true};
+let selectedCatalogId = 1;
+
+function switchCatalogSet(type){
+  currentCatalogSet = type;
+  catalogData = catalogSets[type].nodes;
+  expanded = {};
+  selectedCatalogId = catalogData[0].id;
+  document.getElementById('currentCatalogName').textContent = catalogSets[type].rootName;
+  document.getElementById('catalogTree').innerHTML = renderCatalogTree(catalogData);
+  renderTable();
+}
+
+function renderCatalogTree(nodes, depth=0){
+  return nodes.map(node=>{
+    const hasChildren = node.children && node.children.length > 0;
+    const isExpanded = expanded[node.id];
+    const isSelected = selectedCatalogId === node.id;
+    return `
+      <div class="tree-node ${isSelected?'selected':''}" onclick="selectCatalog(${node.id})" style="padding-left:${8+depth*16}px;">
+        <span class="toggle" onclick="event.stopPropagation();toggleCatalog(${node.id})">${hasChildren?(isExpanded?'▼':'▶'):'&nbsp;'}</span>
+        <i class="fa-regular ${isSelected?'fa-folder-open':'fa-folder'}" style="color:${isSelected?'#1677ff':'#faad14'};font-size:13px;"></i>
+        <span style="font-size:13px;">${node.name}</span>
+        <span class="tree-badge">${node.count}台</span>
+      </div>
+      ${isExpanded && hasChildren ? `<div class="tree-children">${renderCatalogTree(node.children, depth+1)}</div>` : ''}
+    `;
+  }).join('');
+}
+
+function toggleCatalog(id){
+  expanded[id] = !expanded[id];
+  document.getElementById('catalogTree').innerHTML = renderCatalogTree(catalogData);
+}
+
+function findCatalog(id, nodes){
+  for(const n of nodes){
+    if(n.id===id) return n;
+    const found = findCatalog(id, n.children||[]);
+    if(found) return found;
+  }
+  return null;
+}
+
+function selectCatalog(id){
+  selectedCatalogId = id;
+  const node = findCatalog(id, catalogData);
+  document.getElementById('currentCatalogName').textContent = node ? node.name : '';
+  document.getElementById('catalogTree').innerHTML = renderCatalogTree(catalogData);
+  // 模拟按目录刷新设备列表
+  renderTable();
+}
+
+// ===== 设备列表 =====
+const devices = [
+  {id:'CAM-WEST-0341',name:'西区-综合楼正门',region:'西区',ip:'192.168.5.41',online:true,source:'ai_recommend_confirmed',bizTags:['ZB-0401 核心商圈']},
+  {id:'CAM-WEST-0342',name:'西区-停车场入口',region:'西区',ip:'192.168.5.42',online:true,source:'manual',bizTags:['JT-0401 停车场']},
+  {id:'CAM-NORTH-0128',name:'北区-教学楼走廊',region:'北区',ip:'192.168.7.28',online:false,source:'manual',bizTags:['GA-0101 治安防控']},
+  {id:'CAM-SOUTH-0098',name:'南区-广场东',region:'南区',ip:'192.168.3.98',online:true,source:'ai_recommend_confirmed',bizTags:['CG-0101 占道经营']},
+  {id:'CAM-EAST-0512',name:'东区-商业街B段',region:'东区',ip:'192.168.6.12',online:true,source:'ai_recommend_confirmed',bizTags:['ZB-0401 核心商圈','MS-0201 背街小巷']},
+  {id:'CAM-EAST-0513',name:'东区-商业街C段',region:'东区',ip:'192.168.6.13',online:true,source:'manual',bizTags:['ZB-0401 核心商圈']},
+  {id:'CAM-CITY-0011',name:'市中心-步行街口',region:'市中心',ip:'192.168.1.11',online:true,source:'manual',bizTags:['ZB-0401 核心商圈','JT-0501 公交站点']},
+];
+
+function renderTable(){
+  const tbody = document.getElementById('deviceTableBody');
+  tbody.innerHTML = devices.map(d=>{
+    const bizTagHtml = (() => {
+      if (!d.bizTags.length) return '<span style="color:var(--ant-text-tertiary);font-size:12px;">--</span>';
+      const show = d.bizTags.slice(0, 2).map(t => `<span class="tag-chip tag-business">${t}</span>`).join('');
+      const more = d.bizTags.length > 2 ? `<span class="tag-chip" style="background:#f0f0f0;color:rgba(0,0,0,0.45);cursor:pointer;" onmouseover="showTagTip(this,'${d.bizTags.slice(2).join('、')}')" onmouseout="hideTagTip()">+${d.bizTags.length - 2}</span>` : '';
+      return show + more;
+    })();
+    return `<tr>
+      <td><input type="checkbox" aria-label="选择${d.name}"></td>
+      <td style="font-family:monospace;font-size:13px;white-space:nowrap;">${d.id}</td>
+      <td><b>${d.name}</b></td>
+      <td>${d.region}</td>
+      <td style="font-family:monospace;font-size:13px;color:rgba(0,0,0,0.65);">${d.ip}</td>
+      <td><span style="color:${d.online?'#52c41a':'#ff4d4f'};">● ${d.online?'在线':'离线'}</span></td>
+      <td>${bizTagHtml}</td>
+      <td>
+        <button class="ant-btn ant-btn-sm" onclick="showDetail('${d.name}')">详情</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openTagModal(title){
+  document.getElementById('tagModalTitle').textContent = title;
+  document.getElementById('tagModal').classList.add('active');
+}
+function closeTagModal(){ document.getElementById('tagModal').classList.remove('active'); }
+function saveTags(){ alert('✅ 业务标签关联已保存'); closeTagModal(); }
+function confirmClearTags(target){
+  if(confirm(`确认清除「${target}」的业务标签？`)){
+    alert('✅ 业务标签已清除');
+  }
+}
+function showTagTip(el, tags){
+  let tip = document.getElementById('tagTip');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.id = 'tagTip';
+    tip.style.cssText = 'position:fixed;z-index:999;background:#fff;border:1px solid #d9d9d9;border-radius:6px;padding:8px 12px;box-shadow:0 4px 12px rgba(0,0,0,0.15);font-size:12px;color:var(--ant-text);max-width:280px;line-height:1.6;';
+    document.body.appendChild(tip);
+  }
+  const rect = el.getBoundingClientRect();
+  tip.textContent = tags;
+  tip.style.left = rect.left + 'px';
+  tip.style.top = (rect.bottom + 6) + 'px';
+  tip.style.display = 'block';
+}
+function hideTagTip(){
+  const tip = document.getElementById('tagTip');
+  if (tip) tip.style.display = 'none';
+}
+function showDetail(name){ location.href='detail.html'; }
+document.getElementById('tagModal').addEventListener('click',function(e){if(e.target===this)closeTagModal();});
+
+// 初始化
+document.getElementById('catalogTree').innerHTML = renderCatalogTree(catalogData);
+renderTable();
+</script>
+</body>
+</html>
