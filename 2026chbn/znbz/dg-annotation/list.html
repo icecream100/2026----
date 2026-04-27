@@ -68,6 +68,21 @@
     .sub-nav a{font-size:13px;color:rgba(0,0,0,0.65);text-decoration:none;padding:4px 12px;border-radius:4px;}
     .sub-nav a:hover{color:var(--ant-primary);background:#f0f2f5;}
     .sub-nav a.cur{color:var(--ant-primary);background:var(--ant-primary-bg);font-weight:600;}
+
+    .tree-select{position:relative;display:inline-block;width:180px;}
+    .tree-select-input{width:100%;height:32px;padding:0 28px 0 11px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;cursor:pointer;display:flex;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .tree-select-input:hover{border-color:var(--ant-primary);}
+    .tree-select-input::after{content:'';position:absolute;right:11px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid rgba(0,0,0,0.45);}
+    .tree-select-panel{position:absolute;top:calc(100% + 4px);left:0;width:240px;max-height:320px;overflow:auto;background:#fff;border:1px solid var(--ant-border);border-radius:4px;box-shadow:var(--shadow-2);z-index:500;display:none;padding:4px 0;}
+    .tree-select-panel.show{display:block;}
+    .tree-node-sel{display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px;cursor:pointer;white-space:nowrap;transition:background .15s;}
+    .tree-node-sel:hover{background:#f5f5f5;}
+    .tree-node-sel.active{background:var(--ant-primary-bg);color:var(--ant-primary);}
+    .tree-node-sel .toggle{width:16px;text-align:center;color:rgba(0,0,0,0.45);font-size:10px;flex-shrink:0;cursor:pointer;}
+    .tree-node-sel .check{width:14px;height:14px;border:1px solid var(--ant-border);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+    .tree-node-sel.active .check{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .tree-children-sel{padding-left:16px;display:none;}
+    .tree-children-sel.expanded{display:block;}
   </style>
 </head>
 <body>
@@ -161,7 +176,10 @@
             <div class="flex gap-3 flex-wrap pb-4">
               <input class="ant-input" style="width:220px;" placeholder="搜索设备编号/名称">
               <select class="ant-select"><option>全部业务域</option><option>公共安全（GA）</option><option>城市管理（CG）</option><option>交通运输（JT）</option><option>水利环保（SL）</option><option>应急管理（YJ）</option><option>社会民生（MS）</option><option>重点保障（ZB）</option></select>
-              <select class="ant-select"><option>全部标签</option><option>GA-0101 治安防控</option><option>CG-0101 占道经营</option><option>JT-0101 十字路口</option><option>SL-0101 河道监控</option><option>YJ-0101 消防通道</option><option>MS-0101 小区出入口</option><option>ZB-0401 核心商圈</option></select>
+              <div class="tree-select" id="tagTreeSelect">
+                <div class="tree-select-input" onclick="toggleTagTree()">全部标签</div>
+                <div class="tree-select-panel" id="tagTreePanel"></div>
+              </div>
               <button class="ant-btn"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
               <div class="flex items-center gap-2 ml-auto">
                 <span id="selectedCount" style="font-size:13px;color:rgba(0,0,0,0.55);">已选 0 个</span>
@@ -410,13 +428,13 @@ function showDetail(id){
           </tr>
         </thead>
         <tbody>
-          <tr><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">公共安全</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('GA'))?item.bizTags.find(t=>t.startsWith('GA')):'—'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;"><span style="color:#389e0d;font-weight:600;">${item.conf}%</span></td></tr>
-          <tr style="background:#fafafa;"><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">城市管理</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('CG'))?item.bizTags.find(t=>t.startsWith('CG')):'—'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;"><span style="color:#389e0d;font-weight:600;">${item.conf}%</span></td></tr>
-          <tr><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">交通运输</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('JT'))?item.bizTags.find(t=>t.startsWith('JT')):'—'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;"><span style="color:#389e0d;font-weight:600;">${item.conf}%</span></td></tr>
-          <tr style="background:#fafafa;"><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">水利环保</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('SL'))?item.bizTags.find(t=>t.startsWith('SL')):'—'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;"><span style="color:#389e0d;font-weight:600;">${item.conf}%</span></td></tr>
-          <tr><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">应急管理</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('YJ'))?item.bizTags.find(t=>t.startsWith('YJ')):'—'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;"><span style="color:#389e0d;font-weight:600;">${item.conf}%</span></td></tr>
-          <tr style="background:#fafafa;"><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">社会民生</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('MS'))?item.bizTags.find(t=>t.startsWith('MS')):'—'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;"><span style="color:#389e0d;font-weight:600;">${item.conf}%</span></td></tr>
-          <tr><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">重点保障</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('ZB'))?item.bizTags.find(t=>t.startsWith('ZB')):'—'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;"><span style="color:#389e0d;font-weight:600;">${item.conf}%</span></td></tr>
+          <tr><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">公共安全</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith('GA')).map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('GA'))?`<span style="color:#389e0d;font-weight:600;">${item.conf}%</span>`:'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>
+          <tr style="background:#fafafa;"><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">城市管理</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith('CG')).map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('CG'))?`<span style="color:#389e0d;font-weight:600;">${item.conf}%</span>`:'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>
+          <tr><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">交通运输</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith('JT')).map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('JT'))?`<span style="color:#389e0d;font-weight:600;">${item.conf}%</span>`:'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>
+          <tr style="background:#fafafa;"><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">水利环保</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith('SL')).map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('SL'))?`<span style="color:#389e0d;font-weight:600;">${item.conf}%</span>`:'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>
+          <tr><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">应急管理</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith('YJ')).map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('YJ'))?`<span style="color:#389e0d;font-weight:600;">${item.conf}%</span>`:'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>
+          <tr style="background:#fafafa;"><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">社会民生</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith('MS')).map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('MS'))?`<span style="color:#389e0d;font-weight:600;">${item.conf}%</span>`:'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>
+          <tr><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">重点保障</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith('ZB')).map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('ZB'))?`<span style="color:#389e0d;font-weight:600;">${item.conf}%</span>`:'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>
         </tbody>
       </table>
     </div>
@@ -609,6 +627,67 @@ function selectCatalog(id,name){
 
 document.getElementById('catalogTree').innerHTML = renderCatalogTree(catalogData);
 renderTable();
+
+// 标签树形下拉
+const tagTreeData = [
+  {id:'all',name:'全部标签'},
+  {id:'ga',name:'公共安全（GA）',children:[{id:'ga-0101',name:'GA-0101 治安防控'},{id:'ga-0201',name:'GA-0201 重点人员管控'},{id:'ga-0401',name:'GA-0401 圈层查控'}]},
+  {id:'cg',name:'城市管理（CG）',children:[{id:'cg-0101',name:'CG-0101 占道经营'},{id:'cg-0201',name:'CG-0201 违法建设'},{id:'cg-0301',name:'CG-0301 环境卫生'}]},
+  {id:'jt',name:'交通运输（JT）',children:[{id:'jt-0101',name:'JT-0101 十字路口'},{id:'jt-0201',name:'JT-0201 主干道路'},{id:'jt-0401',name:'JT-0401 停车场'}]},
+  {id:'sl',name:'水利环保（SL）',children:[{id:'sl-0101',name:'SL-0101 河道监控'},{id:'sl-0201',name:'SL-0201 污水排口'},{id:'sl-0401',name:'SL-0401 水源地保护'}]},
+  {id:'yj',name:'应急管理（YJ）',children:[{id:'yj-0101',name:'YJ-0101 消防通道'},{id:'yj-0201',name:'YJ-0201 危险源周边'},{id:'yj-0301',name:'YJ-0301 人员密集场所'}]},
+  {id:'ms',name:'社会民生（MS）',children:[{id:'ms-0101',name:'MS-0101 小区出入口'},{id:'ms-0201',name:'MS-0201 背街小巷'},{id:'ms-0301',name:'MS-0301 校园周边'}]},
+  {id:'zb',name:'重点保障（ZB）',children:[{id:'zb-0101',name:'ZB-0101 核心机房'},{id:'zb-0201',name:'ZB-0201 重点周界'},{id:'zb-0301',name:'ZB-0301 高风险点'}]}
+];
+let tagTreeExpanded = new Set();
+let tagTreeSelected = 'all';
+
+function renderTagTree(nodes, level=0){
+  return nodes.map(node=>{
+    const hasChildren = node.children && node.children.length;
+    const isExpanded = tagTreeExpanded.has(node.id);
+    const isSelected = tagTreeSelected === node.id;
+    const indent = level * 16;
+    const childrenHTML = hasChildren && isExpanded ? `<div class="tree-children-sel expanded">${renderTagTree(node.children, level+1)}</div>` : '';
+    const hidden = hasChildren ? '' : 'style="visibility:hidden;"';
+    return `
+      <div>
+        <div class="tree-node-sel ${isSelected?'active':''}" style="padding-left:${12+indent}px;" onclick="selectTagTree('${node.id}','${node.name}')">
+          <span class="toggle" ${hidden} onclick="event.stopPropagation();toggleTagTreeNode('${node.id}')">${isExpanded?'▼':'▶'}</span>
+          <span class="check">${isSelected?'✓':''}</span>
+          <span>${node.name}</span>
+        </div>
+        ${childrenHTML}
+      </div>`;
+  }).join('');
+}
+
+function toggleTagTreeNode(id){
+  if(tagTreeExpanded.has(id)) tagTreeExpanded.delete(id);
+  else tagTreeExpanded.add(id);
+  document.getElementById('tagTreePanel').innerHTML = renderTagTree(tagTreeData);
+}
+
+function selectTagTree(id,name){
+  tagTreeSelected = id;
+  document.querySelector('#tagTreeSelect .tree-select-input').textContent = name;
+  document.getElementById('tagTreePanel').innerHTML = renderTagTree(tagTreeData);
+  document.getElementById('tagTreePanel').classList.remove('show');
+}
+
+function toggleTagTree(){
+  const panel = document.getElementById('tagTreePanel');
+  panel.classList.toggle('show');
+  if(panel.classList.contains('show')){
+    panel.innerHTML = renderTagTree(tagTreeData);
+  }
+}
+
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#tagTreeSelect')){
+    document.getElementById('tagTreePanel').classList.remove('show');
+  }
+});
 </script>
 </body>
 </html>

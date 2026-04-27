@@ -45,6 +45,31 @@
     .domain-block{border:1px solid var(--ant-border-secondary);border-radius:8px;margin-bottom:10px;overflow:hidden;}
     .domain-head{padding:10px 14px;background:#fafafa;border-bottom:1px solid var(--ant-border-secondary);display:flex;align-items:center;justify-content:space-between;}
     .domain-body{padding:12px 14px;}
+
+    /* 多选下拉 */
+    .multi-select{position:relative;width:100%;min-height:32px;border:1px solid var(--ant-border);border-radius:4px;padding:4px 28px 4px 8px;font-size:14px;color:var(--ant-text);background:#fff;outline:none;cursor:pointer;display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
+    .multi-select:hover{border-color:var(--ant-primary);}
+    .multi-select.active{border-color:var(--ant-primary);box-shadow:0 0 0 2px rgba(22,119,255,0.12);}
+    .multi-select::after{content:'';position:absolute;right:10px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid rgba(0,0,0,0.45);pointer-events:none;}
+    .multi-select .placeholder{color:var(--ant-text-tertiary);font-size:13px;}
+    .multi-tag{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 6px;border-radius:4px;background:#e6f4ff;color:#0958d9;border:1px solid #91caff;font-size:12px;max-width:100%;}
+    .multi-tag span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .multi-tag .remove{width:14px;height:14px;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;font-size:11px;line-height:1;flex-shrink:0;}
+    .multi-tag .remove:hover{background:rgba(0,0,0,0.08);}
+    .multi-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--ant-border);border-radius:4px;box-shadow:var(--shadow-2);z-index:100;max-height:240px;overflow-y:auto;display:none;padding:4px 0;}
+    .multi-dropdown.show{display:block;}
+    /* 树形下拉 */
+    .tree-dropdown .tree-node{display:flex;align-items:center;gap:6px;padding:6px 10px;font-size:13px;cursor:pointer;white-space:nowrap;}
+    .tree-dropdown .tree-node:hover{background:#f5f5f5;}
+    .tree-dropdown .tree-node .toggle{width:16px;text-align:center;color:rgba(0,0,0,0.45);font-size:10px;flex-shrink:0;cursor:pointer;}
+    .tree-dropdown .tree-node .check{width:14px;height:14px;border:1px solid var(--ant-border);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+    .tree-dropdown .tree-node.checked .check{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .tree-dropdown .tree-children{padding-left:20px;display:none;}
+    .tree-dropdown .tree-children.expanded{display:block;}
+    .tree-dropdown .tree-leaf{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 26px;font-size:13px;cursor:pointer;white-space:nowrap;}
+    .tree-dropdown .tree-leaf:hover{background:#f5f5f5;}
+    .tree-dropdown .tree-leaf input[type="checkbox"]{width:14px;height:14px;accent-color:var(--ant-primary);cursor:pointer;flex-shrink:0;margin:0;}
+    .tags-wrap{display:flex;flex-wrap:wrap;gap:4px;align-items:center;flex:1;}
   </style>
 </head>
 <body>
@@ -229,100 +254,8 @@
           <span><i class="fa-solid fa-tags" style="color:#1677ff;margin-right:6px;"></i>业务标签</span>
           <span style="font-size:12px;font-weight:400;color:#1677ff;"><i class="fa-solid fa-pen mr-1"></i>可编辑</span>
         </div>
-        <div class="ant-card-body">
-          <div class="form-row">
-            <div class="form-item">
-              <label class="form-label">公共安全</label>
-              <select class="ant-select" style="width:100%;">
-                <option value="">请选择</option>
-                <option value="GA-0101" selected>GA-0101 治安防控</option>
-                <option value="GA-0102">GA-0102 重点区域</option>
-                <option value="GA-0201">GA-0201 交通管理</option>
-                <option value="GA-0202">GA-0202 违章抓拍</option>
-              </select>
-            </div>
-            <div class="form-item">
-              <label class="form-label">城市管理</label>
-              <select class="ant-select" style="width:100%;">
-                <option value="" selected>请选择</option>
-                <option value="CG-0101">CG-0101 市容环境</option>
-                <option value="CG-0102">CG-0102 违章建筑</option>
-                <option value="CG-0201">CG-0201 渣土监管</option>
-                <option value="CG-0202">CG-0202 占道经营</option>
-              </select>
-            </div>
-            <div class="form-item">
-              <label class="form-label">交通运输</label>
-              <select class="ant-select" style="width:100%;">
-                <option value="">请选择</option>
-                <option value="JT-0101" selected>JT-0101 十字路口</option>
-                <option value="JT-0102">JT-0102 主干道</option>
-                <option value="JT-0201">JT-0201 高速公路</option>
-                <option value="JT-0202">JT-0202 桥梁隧道</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-item">
-              <label class="form-label">水利环保</label>
-              <select class="ant-select" style="width:100%;">
-                <option value="" selected>请选择</option>
-                <option value="SL-0101">SL-0101 河道监控</option>
-                <option value="SL-0102">SL-0102 水库监测</option>
-                <option value="SL-0201">SL-0201 排污口</option>
-                <option value="SL-0202">SL-0202 水质监测</option>
-              </select>
-            </div>
-            <div class="form-item">
-              <label class="form-label">应急管理</label>
-              <select class="ant-select" style="width:100%;">
-                <option value="" selected>请选择</option>
-                <option value="YJ-0101">YJ-0101 消防通道</option>
-                <option value="YJ-0102">YJ-0102 危化品</option>
-                <option value="YJ-0201">YJ-0201 森林防火</option>
-                <option value="YJ-0202">YJ-0202 地质灾害</option>
-              </select>
-            </div>
-            <div class="form-item">
-              <label class="form-label">社会民生</label>
-              <select class="ant-select" style="width:100%;">
-                <option value="">请选择</option>
-                <option value="MS-0101">MS-0101 社区出入口</option>
-                <option value="MS-0201" selected>MS-0201 背街小巷</option>
-                <option value="MS-0202">MS-0202 农贸市场</option>
-                <option value="MS-0301">MS-0301 校园周边</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-item">
-              <label class="form-label">重点保障</label>
-              <select class="ant-select" style="width:100%;">
-                <option value="">请选择</option>
-                <option value="ZB-0101">ZB-0101 政府机关</option>
-                <option value="ZB-0201">ZB-0201 交通枢纽</option>
-                <option value="ZB-0301">ZB-0301 学校医院</option>
-                <option value="ZB-0401" selected>ZB-0401 核心商圈</option>
-              </select>
-            </div>
-          </div>
-          <!-- 自定义业务域标签 -->
-          <div class="form-row" style="border-top:1px dashed var(--ant-border-secondary);padding-top:12px;margin-top:8px;">
-            <div class="form-item" style="grid-column:span 3;">
-              <label class="form-label">自定义业务域标签 <span style="font-size:12px;color:rgba(0,0,0,0.45);font-weight:400;">（多选，来自标签字典-自定义业务域）</span></label>
-              <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:4px;background:#e6f4ff;border:1px solid #91caff;color:#0958d9;font-size:13px;">
-                  CUSTOM-0101 智慧停车 <i class="fa-solid fa-xmark" style="cursor:pointer;"></i>
-                </span>
-                <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:4px;background:#e6f4ff;border:1px solid #91caff;color:#0958d9;font-size:13px;">
-                  CUSTOM-0201 垃圾分类 <i class="fa-solid fa-xmark" style="cursor:pointer;"></i>
-                </span>
-                <button class="ant-btn ant-btn-sm" style="height:28px;" onclick="alert('打开自定义业务域标签选择弹窗')">
-                  <i class="fa-solid fa-plus"></i> 添加标签
-                </button>
-              </div>
-            </div>
-          </div>
+        <div class="ant-card-body" id="bizTagBody">
+          <!-- 8个业务域由JS渲染 -->
         </div>
       </div>
 
@@ -334,5 +267,222 @@
     </main>
   </div>
 </div>
+<script>
+let openDropdown = null;
+
+const bizTags = {
+  ga: ['GA-0101 治安防控'],
+  cg: [],
+  jt: ['JT-0101 十字路口'],
+  sl: [],
+  yj: [],
+  ms: ['MS-0201 背街小巷'],
+  zb: ['ZB-0401 核心商圈'],
+  custom: ['CUSTOM-0101 智慧停车','CUSTOM-0201 垃圾分类']
+};
+
+const tagTreeData = {
+  ga: [
+    { id: 'GA-01', label: '治安管理', children: [
+      { id: 'GA-0101', label: '治安防控' },
+      { id: 'GA-0102', label: '刑事案件' }
+    ]},
+    { id: 'GA-02', label: '交通管理', children: [
+      { id: 'GA-0201', label: '交通违法' },
+      { id: 'GA-0202', label: '事故多发' }
+    ]}
+  ],
+  cg: [
+    { id: 'CG-01', label: '市容环境', children: [
+      { id: 'CG-0101', label: '市容环境' },
+      { id: 'CG-0102', label: '违规经营' }
+    ]},
+    { id: 'CG-02', label: '规划建设', children: [
+      { id: 'CG-0201', label: '违法建设' },
+      { id: 'CG-0202', label: '工地监管' }
+    ]}
+  ],
+  jt: [
+    { id: 'JT-01', label: '道路类型', children: [
+      { id: 'JT-0101', label: '十字路口' },
+      { id: 'JT-0102', label: '高速公路' },
+      { id: 'JT-0103', label: '城市主干道' }
+    ]}
+  ],
+  sl: [
+    { id: 'SL-01', label: '水域监测', children: [
+      { id: 'SL-0101', label: '河道监测' },
+      { id: 'SL-0102', label: '水库监控' }
+    ]}
+  ],
+  yj: [
+    { id: 'YJ-01', label: '自然灾害', children: [
+      { id: 'YJ-0101', label: '森林防火' },
+      { id: 'YJ-0102', label: '防汛抗旱' }
+    ]}
+  ],
+  ms: [
+    { id: 'MS-01', label: '社区治理', children: [
+      { id: 'MS-0101', label: '社区监控' },
+      { id: 'MS-0201', label: '背街小巷' }
+    ]}
+  ],
+  zb: [
+    { id: 'ZB-01', label: '重点区域', children: [
+      { id: 'ZB-0401', label: '核心商圈' },
+      { id: 'ZB-0101', label: '学校周边' },
+      { id: 'ZB-0201', label: '医院周边' }
+    ]}
+  ],
+  custom: [
+    { id: 'CUSTOM-01', label: '智慧应用', children: [
+      { id: 'CUSTOM-0101', label: '智慧停车' },
+      { id: 'CUSTOM-0201', label: '垃圾分类' }
+    ]}
+  ]
+};
+
+const domainLabels = {
+  ga: '公安业务域', cg: '城管业务域', jt: '交通业务域', sl: '水利业务域',
+  yj: '应急业务域', ms: '民生业务域', zb: '重点保障业务域', custom: '自定义标签'
+};
+const domainKeys = ['ga','cg','jt','sl','yj','ms','zb','custom'];
+
+function initBizTags() {
+  const body = document.getElementById('bizTagBody');
+  let html = '<div class="form-row">';
+  domainKeys.forEach((key, idx) => {
+    if (idx > 0 && idx % 3 === 0) html += '</div><div class="form-row">';
+    html += `
+      <div class="form-item">
+        <label class="form-label">${domainLabels[key]}</label>
+        <div class="multi-select" data-key="${key}" onclick="toggleBizDropdown('${key}')">
+          <div class="tags-wrap" id="tags-${key}"></div>
+          <div class="multi-dropdown tree-dropdown" id="dropdown-${key}">
+            ${renderTreeHtml(key, tagTreeData[key])}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  body.innerHTML = html;
+  domainKeys.forEach(key => updateTagsDisplay(key));
+}
+
+function renderTreeHtml(key, nodes) {
+  if (!nodes || !nodes.length) {
+    return '<div style="padding:10px;color:#999;font-size:13px;text-align:center;">暂无标签</div>';
+  }
+  return nodes.map(node => {
+    if (node.children && node.children.length) {
+      return `
+        <div class="tree-node" onclick="event.stopPropagation();toggleTreeNode(this)">
+          <span class="toggle"><i class="fa-solid fa-chevron-right"></i></span>
+          <span style="flex:1;">${node.label}</span>
+        </div>
+        <div class="tree-children">
+          ${node.children.map(child => `
+            <div class="tree-leaf" onclick="event.stopPropagation();">
+              <input type="checkbox" ${bizTags[key].includes(child.id + ' ' + child.label) ? 'checked' : ''} onchange="toggleBizTag('${key}', '${child.id + ' ' + child.label}')">
+              <span>${child.label}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    return `
+      <div class="tree-leaf" onclick="event.stopPropagation();">
+        <input type="checkbox" ${bizTags[key].includes(node.id + ' ' + node.label) ? 'checked' : ''} onchange="toggleBizTag('${key}', '${node.id + ' ' + node.label}')">
+        <span>${node.label}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleTreeNode(el) {
+  const children = el.nextElementSibling;
+  if (children && children.classList.contains('tree-children')) {
+    const isExpanded = children.classList.contains('expanded');
+    if (isExpanded) {
+      children.classList.remove('expanded');
+      el.querySelector('.toggle i').className = 'fa-solid fa-chevron-right';
+    } else {
+      children.classList.add('expanded');
+      el.querySelector('.toggle i').className = 'fa-solid fa-chevron-down';
+    }
+  }
+}
+
+function toggleBizDropdown(key) {
+  const dropdown = document.getElementById('dropdown-' + key);
+  const selectEl = dropdown.closest('.multi-select');
+  if (openDropdown && openDropdown !== dropdown) {
+    openDropdown.classList.remove('show');
+    openDropdown.closest('.multi-select').classList.remove('active');
+  }
+  const isOpen = dropdown.classList.contains('show');
+  if (isOpen) {
+    dropdown.classList.remove('show');
+    selectEl.classList.remove('active');
+    openDropdown = null;
+  } else {
+    dropdown.classList.add('show');
+    selectEl.classList.add('active');
+    openDropdown = dropdown;
+  }
+}
+
+function toggleBizTag(key, tag) {
+  const idx = bizTags[key].indexOf(tag);
+  if (idx > -1) {
+    bizTags[key].splice(idx, 1);
+  } else {
+    bizTags[key].push(tag);
+  }
+  updateTagsDisplay(key);
+}
+
+function removeBizTag(key, tag) {
+  const idx = bizTags[key].indexOf(tag);
+  if (idx > -1) {
+    bizTags[key].splice(idx, 1);
+    updateTagsDisplay(key);
+    syncCheckboxState(key, tag, false);
+  }
+}
+
+function updateTagsDisplay(key) {
+  const wrap = document.getElementById('tags-' + key);
+  const tags = bizTags[key];
+  if (tags.length) {
+    wrap.innerHTML = tags.map(t => `<span class="multi-tag"><span>${t}</span><span class="remove" onclick="event.stopPropagation();removeBizTag('${key}','${t}')">×</span></span>`).join('');
+  } else {
+    wrap.innerHTML = '<span class="placeholder">请选择标签（可多选）</span>';
+  }
+}
+
+function syncCheckboxState(key, tag, checked) {
+  const dropdown = document.getElementById('dropdown-' + key);
+  if (!dropdown) return;
+  const checkboxes = dropdown.querySelectorAll('.tree-leaf input[type="checkbox"]');
+  checkboxes.forEach(cb => {
+    const match = cb.getAttribute('onchange')?.match(/toggleBizTag\('.*?',\s*'([^']+)'\)/);
+    if (match && match[1] === tag) {
+      cb.checked = checked;
+    }
+  });
+}
+
+document.addEventListener('click', (e) => {
+  if (openDropdown && !e.target.closest('.multi-select')) {
+    openDropdown.classList.remove('show');
+    openDropdown.closest('.multi-select').classList.remove('active');
+    openDropdown = null;
+  }
+});
+
+initBizTags();
+</script>
 </body>
 </html>

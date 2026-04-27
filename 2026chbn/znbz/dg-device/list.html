@@ -69,6 +69,32 @@
     .tag-option{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--ant-border-secondary);border-radius:6px;margin-bottom:8px;cursor:pointer;}
     .tag-option:hover{border-color:#91caff;background:#f5fbff;}
     .tag-option input{margin:0;}
+
+    /* 树形下拉 */
+    .tree-select{position:relative;display:inline-block;width:180px;}
+    .tree-select-input{width:100%;height:32px;padding:0 28px 0 11px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;cursor:pointer;display:flex;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .tree-select-input:hover{border-color:var(--ant-primary);}
+    .tree-select-input::after{content:'';position:absolute;right:11px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid rgba(0,0,0,0.45);}
+    .tree-select-panel{position:absolute;top:calc(100% + 4px);left:0;width:240px;max-height:320px;overflow:auto;background:#fff;border:1px solid var(--ant-border);border-radius:4px;box-shadow:var(--shadow-2);z-index:500;display:none;padding:4px 0;}
+    .tree-select-panel.show{display:block;}
+    .tree-node-sel{display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px;cursor:pointer;white-space:nowrap;transition:background .15s;}
+    .tree-node-sel:hover{background:#f5f5f5;}
+    .tree-node-sel.active{background:var(--ant-primary-bg);color:var(--ant-primary);}
+    .tree-node-sel .toggle{width:16px;text-align:center;color:rgba(0,0,0,0.45);font-size:10px;flex-shrink:0;cursor:pointer;}
+    .tree-node-sel .check{width:14px;height:14px;border:1px solid var(--ant-border);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+    .tree-node-sel.active .check{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .tree-children-sel{padding-left:16px;display:none;}
+    .tree-children-sel.expanded{display:block;}
+
+    /* 弹窗内多选树 */
+    .tag-tree-wrap{border:1px solid var(--ant-border-secondary);border-radius:6px;max-height:300px;overflow:auto;padding:8px 0;}
+    .tag-tree-node{display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px;cursor:pointer;white-space:nowrap;}
+    .tag-tree-node:hover{background:#f5f5f5;}
+    .tag-tree-node .toggle{width:16px;text-align:center;color:rgba(0,0,0,0.45);font-size:10px;flex-shrink:0;cursor:pointer;}
+    .tag-tree-node input[type="checkbox"]{width:14px;height:14px;accent-color:var(--ant-primary);cursor:pointer;flex-shrink:0;margin:0;}
+    .tag-tree-children{padding-left:16px;display:none;}
+    .tag-tree-children.expanded{display:block;}
+    .selected-tags-bar{display:flex;flex-wrap:wrap;gap:6px;min-height:32px;padding:6px 8px;border:1px solid var(--ant-border-secondary);border-radius:6px;background:#fafafa;margin-bottom:12px;align-items:center;}
   </style>
 </head>
 <body>
@@ -128,7 +154,10 @@
           <div class="ant-card-body" style="padding:16px 24px;">
             <div class="flex items-center gap-3 flex-wrap">
               <input class="ant-input" style="width:220px;" placeholder="搜索设备名称/编号/IP">
-              <select class="ant-select"><option>全部业务标签</option><option>公共安全（GA）</option><option>城市管理（CG）</option><option>交通运输（JT）</option><option>水利环保（SL）</option><option>应急管理（YJ）</option><option>社会民生（MS）</option><option>重点保障（ZB）</option><option>未配置业务标签</option></select>
+              <div class="tree-select" id="filterTagTree">
+                <div class="tree-select-input" onclick="toggleFilterTagTree()">全部业务标签</div>
+                <div class="tree-select-panel" id="filterTagTreePanel"></div>
+              </div>
               <button class="ant-btn"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
               <div style="margin-left:auto;display:flex;gap:8px;">
                 <button class="ant-btn ant-btn-primary" onclick="openTagModal('关联标签')"><i class="fa-solid fa-tags"></i>关联标签</button>
@@ -175,18 +204,14 @@
       <span style="cursor:pointer;color:rgba(0,0,0,0.45);font-size:18px;" onclick="closeTagModal()">×</span>
     </div>
     <div class="ant-modal-body">
-      <div style="background:#e6f4ff;border:1px solid #91caff;border-radius:6px;padding:10px 12px;color:#0958d9;font-size:13px;margin-bottom:16px;">
+      <div style="background:#e6f4ff;border:1px solid #91caff;border-radius:6px;padding:10px 12px;color:#0958d9;font-size:13px;margin-bottom:12px;">
         仅可选择业务标签，本页面不提供AI标签手工维护。
       </div>
       <div class="form-item">
+        <label class="form-label">已选标签</label>
+        <div class="selected-tags-bar" id="modalSelectedTags"><span style="color:rgba(0,0,0,0.35);font-size:12px;">暂未选择标签</span></div>
         <label class="form-label">选择业务标签</label>
-        <label class="tag-option"><input type="checkbox" checked><span class="tag-chip tag-business">ZB-0401 核心商圈</span><span style="color:var(--ant-text-tertiary);font-size:12px;">重点区域或重要点位</span></label>
-        <label class="tag-option"><input type="checkbox"><span class="tag-chip tag-business">CG-0101 占道经营</span><span style="color:var(--ant-text-tertiary);font-size:12px;">专项治理任务关注对象</span></label>
-        <label class="tag-option"><input type="checkbox"><span class="tag-chip tag-business">GA-0101 治安防控</span><span style="color:var(--ant-text-tertiary);font-size:12px;">公共安全重点区域</span></label>
-        <label class="tag-option"><input type="checkbox"><span class="tag-chip tag-business">JT-0101 十字路口</span><span style="color:var(--ant-text-tertiary);font-size:12px;">交通监控重点区域</span></label>
-        <label class="tag-option"><input type="checkbox"><span class="tag-chip tag-business">SL-0101 河道监控</span><span style="color:var(--ant-text-tertiary);font-size:12px;">水利环保重点区域</span></label>
-        <label class="tag-option"><input type="checkbox"><span class="tag-chip tag-business">YJ-0101 消防通道</span><span style="color:var(--ant-text-tertiary);font-size:12px;">应急安全管理区域</span></label>
-        <label class="tag-option"><input type="checkbox"><span class="tag-chip tag-business">MS-0101 小区出入口</span><span style="color:var(--ant-text-tertiary);font-size:12px;">社会民生重点区域</span></label>
+        <div class="tag-tree-wrap" id="modalTagTree"></div>
       </div>
     </div>
     <div class="ant-modal-footer">
@@ -427,6 +452,179 @@ document.getElementById('tagModal').addEventListener('click',function(e){if(e.ta
 // 初始化
 document.getElementById('catalogTree').innerHTML = renderCatalogTree(catalogData);
 renderTable();
+
+// ===== 筛选区树形下拉（单选）=====
+const filterTagData = [
+  {id:'all',name:'全部业务标签'},
+  {id:'ga',name:'公共安全（GA）',children:[{id:'ga-0101',name:'GA-0101 治安防控'},{id:'ga-0201',name:'GA-0201 重点人员管控'},{id:'ga-0401',name:'GA-0401 圈层查控'}]},
+  {id:'cg',name:'城市管理（CG）',children:[{id:'cg-0101',name:'CG-0101 占道经营'},{id:'cg-0201',name:'CG-0201 违法建设'},{id:'cg-0301',name:'CG-0301 环境卫生'}]},
+  {id:'jt',name:'交通运输（JT）',children:[{id:'jt-0101',name:'JT-0101 十字路口'},{id:'jt-0201',name:'JT-0201 主干道路'},{id:'jt-0401',name:'JT-0401 停车场'}]},
+  {id:'sl',name:'水利环保（SL）',children:[{id:'sl-0101',name:'SL-0101 河道监控'},{id:'sl-0201',name:'SL-0201 污水排口'},{id:'sl-0401',name:'SL-0401 水源地保护'}]},
+  {id:'yj',name:'应急管理（YJ）',children:[{id:'yj-0101',name:'YJ-0101 消防通道'},{id:'yj-0201',name:'YJ-0201 危险源周边'},{id:'yj-0301',name:'YJ-0301 人员密集场所'}]},
+  {id:'ms',name:'社会民生（MS）',children:[{id:'ms-0101',name:'MS-0101 小区出入口'},{id:'ms-0201',name:'MS-0201 背街小巷'},{id:'ms-0301',name:'MS-0301 校园周边'}]},
+  {id:'zb',name:'重点保障（ZB）',children:[{id:'zb-0101',name:'ZB-0101 核心机房'},{id:'zb-0201',name:'ZB-0201 重点周界'},{id:'zb-0301',name:'ZB-0301 高风险点'}]}
+];
+let filterTagExpanded = new Set();
+let filterTagSelected = 'all';
+
+function renderFilterTagTree(nodes, level=0){
+  return nodes.map(node=>{
+    const hasChildren = node.children && node.children.length;
+    const isExpanded = filterTagExpanded.has(node.id);
+    const isSelected = filterTagSelected === node.id;
+    const indent = level * 16;
+    const childrenHTML = hasChildren && isExpanded ? `<div class="tree-children-sel expanded">${renderFilterTagTree(node.children, level+1)}</div>` : '';
+    const hidden = hasChildren ? '' : 'style="visibility:hidden;"';
+    return `
+      <div>
+        <div class="tree-node-sel ${isSelected?'active':''}" style="padding-left:${12+indent}px;" onclick="selectFilterTag('${node.id}','${node.name}')">
+          <span class="toggle" ${hidden} onclick="event.stopPropagation();toggleFilterTagNode('${node.id}')">${isExpanded?'▼':'▶'}</span>
+          <span class="check">${isSelected?'✓':''}</span>
+          <span>${node.name}</span>
+        </div>
+        ${childrenHTML}
+      </div>`;
+  }).join('');
+}
+
+function toggleFilterTagNode(id){
+  if(filterTagExpanded.has(id)) filterTagExpanded.delete(id);
+  else filterTagExpanded.add(id);
+  document.getElementById('filterTagTreePanel').innerHTML = renderFilterTagTree(filterTagData);
+}
+
+function selectFilterTag(id,name){
+  filterTagSelected = id;
+  document.querySelector('#filterTagTree .tree-select-input').textContent = name;
+  document.getElementById('filterTagTreePanel').innerHTML = renderFilterTagTree(filterTagData);
+  document.getElementById('filterTagTreePanel').classList.remove('show');
+}
+
+function toggleFilterTagTree(){
+  const panel = document.getElementById('filterTagTreePanel');
+  panel.classList.toggle('show');
+  if(panel.classList.contains('show')){
+    panel.innerHTML = renderFilterTagTree(filterTagData);
+  }
+}
+
+// ===== 弹窗多选树 =====
+const modalTagData = [
+  {id:'GA',name:'公共安全（GA）',children:[
+    {id:'GA-0101',name:'GA-0101 治安防控',desc:'公共安全重点区域'},
+    {id:'GA-0201',name:'GA-0201 重点人员管控',desc:'重点人员管控区域'},
+    {id:'GA-0401',name:'GA-0401 圈层查控',desc:'圈层查控区域'}
+  ]},
+  {id:'CG',name:'城市管理（CG）',children:[
+    {id:'CG-0101',name:'CG-0101 占道经营',desc:'专项治理任务关注对象'},
+    {id:'CG-0201',name:'CG-0201 违法建设',desc:'违法建设监控区域'},
+    {id:'CG-0301',name:'CG-0301 环境卫生',desc:'环境卫生监控区域'}
+  ]},
+  {id:'JT',name:'交通运输（JT）',children:[
+    {id:'JT-0101',name:'JT-0101 十字路口',desc:'交通监控重点区域'},
+    {id:'JT-0201',name:'JT-0201 主干道路',desc:'主干道监控区域'},
+    {id:'JT-0401',name:'JT-0401 停车场',desc:'停车场监控区域'}
+  ]},
+  {id:'SL',name:'水利环保（SL）',children:[
+    {id:'SL-0101',name:'SL-0101 河道监控',desc:'水利环保重点区域'},
+    {id:'SL-0201',name:'SL-0201 污水排口',desc:'污水排口监控区域'},
+    {id:'SL-0401',name:'SL-0401 水源地保护',desc:'水源地保护区域'}
+  ]},
+  {id:'YJ',name:'应急管理（YJ）',children:[
+    {id:'YJ-0101',name:'YJ-0101 消防通道',desc:'应急安全管理区域'},
+    {id:'YJ-0201',name:'YJ-0201 危险源周边',desc:'危险源周边监控区域'},
+    {id:'YJ-0301',name:'YJ-0301 人员密集场所',desc:'人员密集场所监控区域'}
+  ]},
+  {id:'MS',name:'社会民生（MS）',children:[
+    {id:'MS-0101',name:'MS-0101 小区出入口',desc:'社会民生重点区域'},
+    {id:'MS-0201',name:'MS-0201 背街小巷',desc:'背街小巷监控区域'},
+    {id:'MS-0301',name:'MS-0301 校园周边',desc:'校园周边监控区域'}
+  ]},
+  {id:'ZB',name:'重点保障（ZB）',children:[
+    {id:'ZB-0101',name:'ZB-0101 核心机房',desc:'核心机房监控区域'},
+    {id:'ZB-0201',name:'ZB-0201 重点周界',desc:'重点周界监控区域'},
+    {id:'ZB-0301',name:'ZB-0301 高风险点',desc:'高风险点监控区域'}
+  ]}
+];
+let modalTagExpanded = new Set(['ZB']);
+let modalTagSelected = new Set(['ZB-0401']);
+
+function renderModalTagTree(nodes, level=0){
+  return nodes.map(node=>{
+    const hasChildren = node.children && node.children.length;
+    const isExpanded = modalTagExpanded.has(node.id);
+    const indent = level * 16;
+    const childrenHTML = hasChildren && isExpanded ? `<div class="tag-tree-children expanded">${renderModalTagTree(node.children, level+1)}</div>` : '';
+    const hidden = hasChildren ? '' : 'style="visibility:hidden;"';
+    if(hasChildren){
+      return `
+        <div>
+          <div class="tag-tree-node" style="padding-left:${12+indent}px;">
+            <span class="toggle" ${hidden} onclick="toggleModalTagNode('${node.id}')">${isExpanded?'▼':'▶'}</span>
+            <span style="font-weight:600;">${node.name}</span>
+          </div>
+          ${childrenHTML}
+        </div>`;
+    } else {
+      const checked = modalTagSelected.has(node.id) ? 'checked' : '';
+      return `
+        <div>
+          <label class="tag-tree-node" style="padding-left:${12+indent}px;" onclick="event.stopPropagation();">
+            <span class="toggle" style="visibility:hidden;">▶</span>
+            <input type="checkbox" ${checked} onchange="toggleModalTagCheck('${node.id}','${node.name}')">
+            <span class="tag-chip tag-business">${node.name}</span>
+            <span style="color:rgba(0,0,0,0.45);font-size:12px;">${node.desc||''}</span>
+          </label>
+        </div>`;
+    }
+  }).join('');
+}
+
+function toggleModalTagNode(id){
+  if(modalTagExpanded.has(id)) modalTagExpanded.delete(id);
+  else modalTagExpanded.add(id);
+  document.getElementById('modalTagTree').innerHTML = renderModalTagTree(modalTagData);
+}
+
+function toggleModalTagCheck(id,name){
+  if(modalTagSelected.has(id)) modalTagSelected.delete(id);
+  else modalTagSelected.add(id);
+  renderModalSelectedTags();
+  document.getElementById('modalTagTree').innerHTML = renderModalTagTree(modalTagData);
+}
+
+function renderModalSelectedTags(){
+  const bar = document.getElementById('modalSelectedTags');
+  if(modalTagSelected.size === 0){
+    bar.innerHTML = '<span style="color:rgba(0,0,0,0.35);font-size:12px;">暂未选择标签</span>';
+  } else {
+    const tags = [];
+    modalTagData.forEach(group=>{
+      if(group.children){
+        group.children.forEach(child=>{
+          if(modalTagSelected.has(child.id)){
+            tags.push(`<span class="tag-chip tag-business">${child.name}<span style="cursor:pointer;margin-left:4px;" onclick="toggleModalTagCheck('${child.id}','${child.name}')">×</span></span>`);
+          }
+        });
+      }
+    });
+    bar.innerHTML = tags.join('') || '<span style="color:rgba(0,0,0,0.35);font-size:12px;">暂未选择标签</span>';
+  }
+}
+
+function openTagModal(title){
+  document.getElementById('tagModalTitle').textContent = title;
+  document.getElementById('tagModal').classList.add('active');
+  document.getElementById('modalTagTree').innerHTML = renderModalTagTree(modalTagData);
+  renderModalSelectedTags();
+}
+
+// 点击外部关闭筛选下拉
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#filterTagTree')){
+    document.getElementById('filterTagTreePanel').classList.remove('show');
+  }
+});
 </script>
 </body>
 </html>

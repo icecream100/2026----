@@ -218,21 +218,171 @@
 
     .dim { font-weight: 600; }
 
-    .select {
+    .multi-select {
+      position: relative;
       width: 100%;
-      height: 30px;
+      min-height: 32px;
       border: 1px solid #d9d9d9;
       border-radius: 6px;
-      padding: 0 8px;
+      padding: 4px 28px 4px 8px;
       font: inherit;
       color: var(--text-1);
       background: #fff;
       outline: none;
+      cursor: pointer;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
     }
 
-    .select:focus {
+    .multi-select::after {
+      content: '';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid #999;
+      pointer-events: none;
+    }
+
+    .multi-select:focus,
+    .multi-select.active {
       border-color: var(--primary);
       box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
+    }
+
+    .multi-select .placeholder {
+      color: var(--text-3);
+      font-size: 13px;
+    }
+
+    .multi-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 22px;
+      padding: 0 6px;
+      border-radius: 4px;
+      background: #e8f3ff;
+      color: #0958d9;
+      border: 1px solid #91caff;
+      font-size: 12px;
+      max-width: 100%;
+    }
+
+    .multi-tag span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .multi-tag .remove {
+      width: 14px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 11px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .multi-tag .remove:hover {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .multi-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+      z-index: 100;
+      max-height: 240px;
+      overflow-y: auto;
+      display: none;
+      padding: 4px 0;
+    }
+
+    .multi-dropdown.show {
+      display: block;
+    }
+
+    .multi-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .multi-option:hover {
+      background: #f5f7fa;
+    }
+
+    .multi-option input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .tags-wrap { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; flex: 1; }
+
+    .tree-dropdown .tree-node {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tree-dropdown .tree-node:hover { background: #f5f7fa; }
+    .tree-dropdown .tree-node .toggle {
+      width: 16px;
+      text-align: center;
+      color: #999;
+      font-size: 10px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .tree-dropdown .tree-children {
+      padding-left: 20px;
+      display: none;
+    }
+    .tree-dropdown .tree-children.expanded {
+      display: block;
+    }
+    .tree-dropdown .tree-leaf {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px 5px 26px;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tree-dropdown .tree-leaf:hover { background: #f5f7fa; }
+    .tree-dropdown .tree-leaf input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
     }
 
     .score {
@@ -472,35 +622,203 @@
     const rows = document.getElementById('rows');
     const toastEl = document.getElementById('toast');
     const DATA = [
-      { dim: '公共安全', score: 0.94, value: 'GA-0101 治安防控', options: ['GA-0101 治安防控', 'GA-0201 重点人员管控', 'GA-0401 圈层查控'] },
-      { dim: '城市管理', score: 0.83, value: 'CG-0301 环境卫生', options: ['CG-0101 占道经营', 'CG-0201 违法建设', 'CG-0301 环境卫生'] },
-      { dim: '交通运输', score: 0.80, value: 'JT-0101 十字路口', options: ['JT-0101 十字路口', 'JT-0201 主干道路', 'JT-0401 停车场'] },
-      { dim: '水利环保', score: 0.79, value: 'SL-0101 河道监控', options: ['SL-0101 河道监控', 'SL-0201 污水排口', 'SL-0401 水源地保护'] },
-      { dim: '应急管理', score: 0.89, value: 'YJ-0301 人员密集场所', options: ['YJ-0101 消防通道', 'YJ-0201 危险源周边', 'YJ-0301 人员密集场所'] },
-      { dim: '社会民生', score: 0.75, value: 'MS-0201 背街小巷', options: ['MS-0101 小区出入口', 'MS-0201 背街小巷', 'MS-0301 校园周边'] },
-      { dim: '重点保障', score: 0.77, value: 'ZB-0201 重点周界', options: ['ZB-0101 核心机房', 'ZB-0201 重点周界', 'ZB-0301 高风险点'] }
+      { dim: '公共安全', score: 0.94, value: ['GA-0101 治安防控'], tree: [
+        { id: 'GA-01', label: '治安管理', children: [
+          { id: 'GA-0101', label: '治安防控' },
+          { id: 'GA-0201', label: '重点人员管控' }
+        ]},
+        { id: 'GA-02', label: '圈层防控', children: [
+          { id: 'GA-0401', label: '圈层查控' }
+        ]}
+      ]},
+      { dim: '城市管理', score: 0.83, value: ['CG-0301 环境卫生'], tree: [
+        { id: 'CG-01', label: '市容管理', children: [
+          { id: 'CG-0101', label: '占道经营' }
+        ]},
+        { id: 'CG-02', label: '规划建设', children: [
+          { id: 'CG-0201', label: '违法建设' }
+        ]},
+        { id: 'CG-03', label: '环境卫生', children: [
+          { id: 'CG-0301', label: '环境卫生' }
+        ]}
+      ]},
+      { dim: '交通运输', score: 0.80, value: ['JT-0101 十字路口'], tree: [
+        { id: 'JT-01', label: '道路类型', children: [
+          { id: 'JT-0101', label: '十字路口' },
+          { id: 'JT-0201', label: '主干道路' },
+          { id: 'JT-0401', label: '停车场' }
+        ]}
+      ]},
+      { dim: '水利环保', score: 0.79, value: ['SL-0101 河道监控'], tree: [
+        { id: 'SL-01', label: '水域监测', children: [
+          { id: 'SL-0101', label: '河道监控' },
+          { id: 'SL-0201', label: '污水排口' }
+        ]},
+        { id: 'SL-02', label: '水源保护', children: [
+          { id: 'SL-0401', label: '水源地保护' }
+        ]}
+      ]},
+      { dim: '应急管理', score: 0.89, value: ['YJ-0301 人员密集场所'], tree: [
+        { id: 'YJ-01', label: '消防安全', children: [
+          { id: 'YJ-0101', label: '消防通道' }
+        ]},
+        { id: 'YJ-02', label: '危险源', children: [
+          { id: 'YJ-0201', label: '危险源周边' }
+        ]},
+        { id: 'YJ-03', label: '人员密集', children: [
+          { id: 'YJ-0301', label: '人员密集场所' }
+        ]}
+      ]},
+      { dim: '社会民生', score: null, value: [], tree: [
+        { id: 'MS-01', label: '社区治理', children: [
+          { id: 'MS-0101', label: '小区出入口' },
+          { id: 'MS-0201', label: '背街小巷' }
+        ]},
+        { id: 'MS-02', label: '校园安全', children: [
+          { id: 'MS-0301', label: '校园周边' }
+        ]}
+      ]},
+      { dim: '重点保障', score: null, value: [], tree: [
+        { id: 'ZB-01', label: '核心设施', children: [
+          { id: 'ZB-0101', label: '核心机房' }
+        ]},
+        { id: 'ZB-02', label: '周界防范', children: [
+          { id: 'ZB-0201', label: '重点周界' }
+        ]},
+        { id: 'ZB-03', label: '风险监控', children: [
+          { id: 'ZB-0301', label: '高风险点' }
+        ]}
+      ]}
     ];
+
+    let openDropdown = null;
+
+    function renderTreeHtml(i, nodes) {
+      if (!nodes || !nodes.length) {
+        return '<div style="padding:10px;color:#999;font-size:13px;text-align:center;">暂无标签</div>';
+      }
+      return nodes.map(node => {
+        if (node.children && node.children.length) {
+          return `
+            <div class="tree-node" onclick="event.stopPropagation();toggleTreeNode(this)">
+              <span class="toggle">▶</span>
+              <span style="flex:1;">${node.label}</span>
+            </div>
+            <div class="tree-children">
+              ${node.children.map(child => `
+                <div class="tree-leaf" onclick="event.stopPropagation();">
+                  <input type="checkbox" ${DATA[i].value.includes(child.id + ' ' + child.label) ? 'checked' : ''} onchange="toggleOption(${i}, '${child.id + ' ' + child.label}')">
+                  <span>${child.label}</span>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+        return `
+          <div class="tree-leaf" onclick="event.stopPropagation();">
+            <input type="checkbox" ${DATA[i].value.includes(node.id + ' ' + node.label) ? 'checked' : ''} onchange="toggleOption(${i}, '${node.id + ' ' + node.label}')">
+            <span>${node.label}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleTreeNode(el) {
+      const children = el.nextElementSibling;
+      if (children && children.classList.contains('tree-children')) {
+        const isExpanded = children.classList.contains('expanded');
+        if (isExpanded) {
+          children.classList.remove('expanded');
+          el.querySelector('.toggle').textContent = '▶';
+        } else {
+          children.classList.add('expanded');
+          el.querySelector('.toggle').textContent = '▼';
+        }
+      }
+    }
+
+    function renderMultiSelect(item, i) {
+      const tagsHtml = item.value.length
+        ? item.value.map(v => `<span class="multi-tag"><span>${v}</span><span class="remove" onclick="event.stopPropagation();toggleOption(${i}, '${v}')">×</span></span>`).join('')
+        : '<span class="placeholder">请选择标签（可多选）</span>';
+
+      const treeHtml = renderTreeHtml(i, item.tree);
+
+      return `
+        <div class="multi-select" data-i="${i}" onclick="toggleDropdown(${i})">
+          <div class="tags-wrap">${tagsHtml}</div>
+          <div class="multi-dropdown tree-dropdown" id="dropdown-${i}">${treeHtml}</div>
+        </div>
+      `;
+    }
+
+    function toggleDropdown(i) {
+      const dropdown = document.getElementById(`dropdown-${i}`);
+      const selectEl = dropdown.closest('.multi-select');
+      if (openDropdown && openDropdown !== dropdown) {
+        openDropdown.classList.remove('show');
+        openDropdown.closest('.multi-select').classList.remove('active');
+      }
+      const isOpen = dropdown.classList.contains('show');
+      if (isOpen) {
+        dropdown.classList.remove('show');
+        selectEl.classList.remove('active');
+        openDropdown = null;
+      } else {
+        dropdown.classList.add('show');
+        selectEl.classList.add('active');
+        openDropdown = dropdown;
+      }
+    }
+
+    function toggleOption(i, opt) {
+      const idx = DATA[i].value.indexOf(opt);
+      if (idx > -1) {
+        DATA[i].value.splice(idx, 1);
+      } else {
+        DATA[i].value.push(opt);
+      }
+      updateRow(i);
+    }
+
+    function updateRow(i) {
+      const item = DATA[i];
+      const tagsWrap = document.querySelector(`.multi-select[data-i="${i}"] .tags-wrap`);
+      tagsWrap.innerHTML = item.value.length
+        ? item.value.map(v => `<span class="multi-tag"><span>${v}</span><span class="remove" onclick="event.stopPropagation();toggleOption(${i}, '${v}')">×</span></span>`).join('')
+        : '<span class="placeholder">请选择标签（可多选）</span>';
+
+      document.getElementById(`score-${i}`).innerHTML = item.value.length && item.score !== null
+        ? `<span class="score">${item.score.toFixed(2)}</span>`
+        : '<span style="color:rgba(0,0,0,0.35);">—</span>';
+
+      const dropdown = document.getElementById(`dropdown-${i}`);
+      const checkboxes = dropdown.querySelectorAll('.tree-leaf input[type="checkbox"]');
+      checkboxes.forEach(cb => {
+        const match = cb.getAttribute('onchange')?.match(/toggleOption\((\d+),\s*'([^']+)'\)/);
+        if (match && parseInt(match[1]) === i) {
+          cb.checked = item.value.includes(match[2]);
+        }
+      });
+    }
 
     function renderRows() {
       rows.innerHTML = DATA.map((item, i) => `
         <tr>
           <td class="dim">${item.dim}</td>
-          <td>
-            <select class="select" data-i="${i}">
-              ${item.options.map(v => `<option value="${v}" ${v === item.value ? 'selected' : ''}>${v}</option>`).join('')}
-            </select>
-          </td>
-          <td><span class="score">${item.score.toFixed(2)}</span></td>
+          <td>${renderMultiSelect(item, i)}</td>
+          <td id="score-${i}">${item.value.length && item.score !== null ? `<span class="score">${item.score.toFixed(2)}</span>` : '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td>
         </tr>
       `).join('');
-
-      rows.querySelectorAll('select').forEach(sel => {
-        sel.addEventListener('change', (e) => {
-          const i = Number(e.target.dataset.i);
-          DATA[i].value = e.target.value;
-        });
-      });
     }
+
+    document.addEventListener('click', (e) => {
+      if (openDropdown && !e.target.closest('.multi-select')) {
+        openDropdown.classList.remove('show');
+        openDropdown.closest('.multi-select').classList.remove('active');
+        openDropdown = null;
+      }
+    });
 
     function showToast(type, text) {
       toastEl.className = `toast ${type}`;
