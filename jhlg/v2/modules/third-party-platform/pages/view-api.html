@@ -53,7 +53,11 @@
             <div class="panel-head">
                 <div>
                     <h2 class="panel-title display-font">接口列表</h2>
+<<<<<<< Updated upstream
                     <p class="panel-subtitle">展示当前平台可见的 API 资产，如需编辑请进入 API 管理模块。</p>
+=======
+                    <p class="panel-subtitle">行内支持编辑、调试、发布、停用和删除，动作最终都归口到 API 管理模块。</p>
+>>>>>>> Stashed changes
                 </div>
             </div>
 
@@ -69,6 +73,10 @@
                                 <th>版本号</th>
                                 <th>状态</th>
                                 <th>最后测试结果</th>
+<<<<<<< Updated upstream
+=======
+                                <th>操作</th>
+>>>>>>> Stashed changes
                             </tr>
                         </thead>
                         <tbody>
@@ -94,10 +102,26 @@
                                             <span class="muted text-xs" x-show="item.lastMeta" x-text="item.lastMeta"></span>
                                         </div>
                                     </td>
+<<<<<<< Updated upstream
                                 </tr>
                             </template>
                             <tr x-show="filteredList.length === 0">
                                 <td colspan="7" class="py-14 text-center muted">暂无当前平台的 API 数据</td>
+=======
+                                    <td>
+                                        <div class="flex flex-wrap gap-3 text-[13px]">
+                                            <a class="link-btn" :href="`api.html?mode=edit&id=${item.id}`">编辑</a>
+                                            <a class="link-btn" :href="`api.html?mode=debug&id=${item.id}`">调试</a>
+                                            <button class="link-btn" x-show="item.status !== '已发布'" @click="item.status = '已发布'; showToast('接口已发布')">发布</button>
+                                            <button class="link-btn" x-show="item.status === '已发布'" @click="item.status = '已停用'; showToast('接口已停用')">停用</button>
+                                            <button class="link-btn danger" @click="removeItem(item)">删除</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr x-show="filteredList.length === 0">
+                                <td colspan="8" class="py-14 text-center muted">暂无当前平台的 API 数据</td>
+>>>>>>> Stashed changes
                             </tr>
                         </tbody>
                     </table>
