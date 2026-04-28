@@ -211,7 +211,7 @@
               <input class="ant-input" value="西区综合楼正门入口上方">
             </div>
             <div class="form-item">
-              <label class="form-label">地理区域</label>
+              <label class="form-label">行政区域</label>
               <select class="ant-select" style="width:100%;"><option>智慧园区</option><option>市中心</option></select>
             </div>
           </div>
@@ -255,7 +255,128 @@
           <span style="font-size:12px;font-weight:400;color:#1677ff;"><i class="fa-solid fa-pen mr-1"></i>可编辑</span>
         </div>
         <div class="ant-card-body" id="bizTagBody">
-          <!-- 8个业务域由JS渲染 -->
+          <div class="form-row">
+            <div class="form-item">
+              <label class="form-label">公安业务域</label>
+              <div class="multi-select" data-key="ga" onclick="toggleBizDropdown('ga')">
+                <div class="tags-wrap" id="tags-ga"></div>
+                <div class="multi-dropdown tree-dropdown" id="dropdown-ga">
+                  <div class="tree-node" onclick="event.stopPropagation();toggleTreeNode(this)"><span class="toggle"><i class="fa-solid fa-chevron-right"></i></span><span style="flex:1;">治安管理</span></div>
+                  <div class="tree-children">
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('ga','GA-0101 治安防控')"><span>治安防控</span></div>
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('ga','GA-0102 刑事案件')"><span>刑事案件</span></div>
+                  </div>
+                  <div class="tree-node" onclick="event.stopPropagation();toggleTreeNode(this)"><span class="toggle"><i class="fa-solid fa-chevron-right"></i></span><span style="flex:1;">交通管理</span></div>
+                  <div class="tree-children">
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('ga','GA-0201 交通违法')"><span>交通违法</span></div>
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('ga','GA-0202 事故多发')"><span>事故多发</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-item">
+              <label class="form-label">城管业务域</label>
+              <div class="multi-select" data-key="cg" onclick="toggleBizDropdown('cg')">
+                <div class="tags-wrap" id="tags-cg"></div>
+                <div class="multi-dropdown tree-dropdown" id="dropdown-cg">
+                  <div class="tree-node" onclick="event.stopPropagation();toggleTreeNode(this)"><span class="toggle"><i class="fa-solid fa-chevron-right"></i></span><span style="flex:1;">市容环境</span></div>
+                  <div class="tree-children">
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('cg','CG-0101 市容环境')"><span>市容环境</span></div>
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('cg','CG-0102 违规经营')"><span>违规经营</span></div>
+                  </div>
+                  <div class="tree-node" onclick="event.stopPropagation();toggleTreeNode(this)"><span class="toggle"><i class="fa-solid fa-chevron-right"></i></span><span style="flex:1;">规划建设</span></div>
+                  <div class="tree-children">
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('cg','CG-0201 违法建设')"><span>违法建设</span></div>
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('cg','CG-0202 工地监管')"><span>工地监管</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-item">
+              <label class="form-label">交通业务域</label>
+              <div class="multi-select" data-key="jt" onclick="toggleBizDropdown('jt')">
+                <div class="tags-wrap" id="tags-jt"></div>
+                <div class="multi-dropdown tree-dropdown" id="dropdown-jt">
+                  <div class="tree-node" onclick="event.stopPropagation();toggleTreeNode(this)"><span class="toggle"><i class="fa-solid fa-chevron-right"></i></span><span style="flex:1;">道路类型</span></div>
+                  <div class="tree-children">
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('jt','JT-0101 十字路口')"><span>十字路口</span></div>
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('jt','JT-0102 高速公路')"><span>高速公路</span></div>
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('jt','JT-0103 城市主干道')"><span>城市主干道</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-item">
+              <label class="form-label">水利业务域</label>
+              <div class="multi-select" data-key="sl" onclick="toggleBizDropdown('sl')">
+                <div class="tags-wrap" id="tags-sl"></div>
+                <div class="multi-dropdown tree-dropdown" id="dropdown-sl">
+                  <div class="tree-node" onclick="event.stopPropagation();toggleTreeNode(this)"><span class="toggle"><i class="fa-solid fa-chevron-right"></i></span><span style="flex:1;">水域监测</span></div>
+                  <div class="tree-children">
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('sl','SL-0101 河道监测')"><span>河道监测</span></div>
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('sl','SL-0102 水库监控')"><span>水库监控</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-item">
+              <label class="form-label">应急业务域</label>
+              <div class="multi-select" data-key="yj" onclick="toggleBizDropdown('yj')">
+                <div class="tags-wrap" id="tags-yj"></div>
+                <div class="multi-dropdown tree-dropdown" id="dropdown-yj">
+                  <div class="tree-node" onclick="event.stopPropagation();toggleTreeNode(this)"><span class="toggle"><i class="fa-solid fa-chevron-right"></i></span><span style="flex:1;">自然灾害</span></div>
+                  <div class="tree-children">
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('yj','YJ-0101 森林防火')"><span>森林防火</span></div>
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('yj','YJ-0102 防汛抗旱')"><span>防汛抗旱</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-item">
+              <label class="form-label">民生业务域</label>
+              <div class="multi-select" data-key="ms" onclick="toggleBizDropdown('ms')">
+                <div class="tags-wrap" id="tags-ms"></div>
+                <div class="multi-dropdown tree-dropdown" id="dropdown-ms">
+                  <div class="tree-node" onclick="event.stopPropagation();toggleTreeNode(this)"><span class="toggle"><i class="fa-solid fa-chevron-right"></i></span><span style="flex:1;">社区治理</span></div>
+                  <div class="tree-children">
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('ms','MS-0101 社区监控')"><span>社区监控</span></div>
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('ms','MS-0201 背街小巷')"><span>背街小巷</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-item">
+              <label class="form-label">重点保障业务域</label>
+              <div class="multi-select" data-key="zb" onclick="toggleBizDropdown('zb')">
+                <div class="tags-wrap" id="tags-zb"></div>
+                <div class="multi-dropdown tree-dropdown" id="dropdown-zb">
+                  <div class="tree-node" onclick="event.stopPropagation();toggleTreeNode(this)"><span class="toggle"><i class="fa-solid fa-chevron-right"></i></span><span style="flex:1;">重点区域</span></div>
+                  <div class="tree-children">
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('zb','ZB-0401 核心商圈')"><span>核心商圈</span></div>
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('zb','ZB-0101 学校周边')"><span>学校周边</span></div>
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('zb','ZB-0201 医院周边')"><span>医院周边</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-item">
+              <label class="form-label">自定义标签</label>
+              <div class="multi-select" data-key="custom" onclick="toggleBizDropdown('custom')">
+                <div class="tags-wrap" id="tags-custom"></div>
+                <div class="multi-dropdown tree-dropdown" id="dropdown-custom">
+                  <div class="tree-node" onclick="event.stopPropagation();toggleTreeNode(this)"><span class="toggle"><i class="fa-solid fa-chevron-right"></i></span><span style="flex:1;">智慧应用</span></div>
+                  <div class="tree-children">
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('custom','CUSTOM-0101 智慧停车')"><span>智慧停车</span></div>
+                    <div class="tree-leaf" onclick="event.stopPropagation();"><input type="checkbox" onchange="toggleBizTag('custom','CUSTOM-0201 垃圾分类')"><span>垃圾分类</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -349,55 +470,21 @@ const domainLabels = {
 const domainKeys = ['ga','cg','jt','sl','yj','ms','zb','custom'];
 
 function initBizTags() {
-  const body = document.getElementById('bizTagBody');
-  let html = '<div class="form-row">';
-  domainKeys.forEach((key, idx) => {
-    if (idx > 0 && idx % 3 === 0) html += '</div><div class="form-row">';
-    html += `
-      <div class="form-item">
-        <label class="form-label">${domainLabels[key]}</label>
-        <div class="multi-select" data-key="${key}" onclick="toggleBizDropdown('${key}')">
-          <div class="tags-wrap" id="tags-${key}"></div>
-          <div class="multi-dropdown tree-dropdown" id="dropdown-${key}">
-            ${renderTreeHtml(key, tagTreeData[key])}
-          </div>
-        </div>
-      </div>
-    `;
-  });
-  html += '</div>';
-  body.innerHTML = html;
   domainKeys.forEach(key => updateTagsDisplay(key));
+  domainKeys.forEach(key => syncCheckboxes(key));
 }
 
-function renderTreeHtml(key, nodes) {
-  if (!nodes || !nodes.length) {
-    return '<div style="padding:10px;color:#999;font-size:13px;text-align:center;">暂无标签</div>';
-  }
-  return nodes.map(node => {
-    if (node.children && node.children.length) {
-      return `
-        <div class="tree-node" onclick="event.stopPropagation();toggleTreeNode(this)">
-          <span class="toggle"><i class="fa-solid fa-chevron-right"></i></span>
-          <span style="flex:1;">${node.label}</span>
-        </div>
-        <div class="tree-children">
-          ${node.children.map(child => `
-            <div class="tree-leaf" onclick="event.stopPropagation();">
-              <input type="checkbox" ${bizTags[key].includes(child.id + ' ' + child.label) ? 'checked' : ''} onchange="toggleBizTag('${key}', '${child.id + ' ' + child.label}')">
-              <span>${child.label}</span>
-            </div>
-          `).join('')}
-        </div>
-      `;
+function syncCheckboxes(key) {
+  const dropdown = document.getElementById('dropdown-' + key);
+  if (!dropdown) return;
+  const tags = bizTags[key];
+  const checkboxes = dropdown.querySelectorAll('.tree-leaf input[type="checkbox"]');
+  checkboxes.forEach(cb => {
+    const match = cb.getAttribute('onchange')?.match(/toggleBizTag\('.*?',\s*'([^']+)'\)/);
+    if (match) {
+      cb.checked = tags.includes(match[1]);
     }
-    return `
-      <div class="tree-leaf" onclick="event.stopPropagation();">
-        <input type="checkbox" ${bizTags[key].includes(node.id + ' ' + node.label) ? 'checked' : ''} onchange="toggleBizTag('${key}', '${node.id + ' ' + node.label}')">
-        <span>${node.label}</span>
-      </div>
-    `;
-  }).join('');
+  });
 }
 
 function toggleTreeNode(el) {

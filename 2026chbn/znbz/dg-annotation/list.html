@@ -172,6 +172,18 @@
               <div class="tab-item" onclick="switchTab(this,'review')">待确认 <span style="font-size:12px;color:#1677ff;background:#e6f4ff;padding:0 6px;border-radius:10px;border:1px solid #91caff;">92</span></div>
               <div class="tab-item" onclick="switchTab(this,'done')">已确认</div>
             </div>
+            <!-- 批量操作栏 -->
+            <div id="batchBar" class="flex items-center gap-3 mb-3 p-3 rounded-md" style="background:#f6ffed;border:1px solid #b7eb8f;display:none;">
+              <span style="font-size:13px;color:#237804;">
+                <i class="fa-solid fa-check-circle mr-1"></i>
+                已选中 <b id="selectedCount">0</b> 条
+                <span id="selectAllLink" style="color:#1677ff;cursor:pointer;margin-left:8px;text-decoration:underline;" onclick="selectAllResults()">选中全部 377 条（符合筛选条件）</span>
+              </span>
+              <div style="flex:1;"></div>
+              <button class="ant-btn ant-btn-primary" id="batchAnnotateBtn" onclick="batchAnnotate()" disabled><i class="fa-solid fa-robot"></i>批量发起AI标注</button>
+              <button class="ant-btn ant-btn-primary" id="batchConfirmBtn" onclick="batchConfirm()" disabled style="background:#52c41a;border-color:#52c41a;"><i class="fa-solid fa-check"></i>批量确认</button>
+            </div>
+
             <!-- 筛选 -->
             <div class="flex gap-3 flex-wrap pb-4">
               <input class="ant-input" style="width:220px;" placeholder="搜索设备编号/名称">
@@ -180,11 +192,8 @@
                 <div class="tree-select-input" onclick="toggleTagTree()">全部标签</div>
                 <div class="tree-select-panel" id="tagTreePanel"></div>
               </div>
+              <select class="ant-select" id="deviceStatusFilter" onchange="renderTable()"><option>全部</option><option>在线</option><option>离线</option></select>
               <button class="ant-btn"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
-              <div class="flex items-center gap-2 ml-auto">
-                <span id="selectedCount" style="font-size:13px;color:rgba(0,0,0,0.55);">已选 0 个</span>
-                <button class="ant-btn ant-btn-primary" id="batchBtn" onclick="batchAnnotate()" disabled><i class="fa-solid fa-robot"></i>批量发起AI标注</button>
-              </div>
             </div>
           </div>
 
@@ -192,13 +201,14 @@
             <table class="ant-table" style="min-width:900px;">
               <thead>
                 <tr>
-                  <th><input type="checkbox" class="ant-checkbox" onchange="toggleAll(this)"></th>
+                  <th id="headerCheckboxTh"><input type="checkbox" class="ant-checkbox" onchange="toggleAll(this)"></th>
                   <th>设备名称</th>
                   <th>设备编号</th>
                   <th>业务标签</th>
                   <th>业务标签建议</th>
                   <th>标注状态</th>
                   <th>AI置信度</th>
+                  <th>设备状态</th>
                   <th>最后标注时间</th>
                   <th style="width:110px;white-space:nowrap;">操作</th>
                 </tr>
@@ -219,27 +229,49 @@
   </div>
 </div>
 
-<!-- 批量确认弹窗 -->
-<div class="ant-modal-mask" id="batchModal">
+<!-- 批量发起弹窗 -->
+<div class="ant-modal-mask" id="batchAnnotateModal">
   <div class="ant-modal">
     <div class="ant-modal-header">
       <span><i class="fa-solid fa-robot" style="margin-right:8px;color:#1677ff;"></i>批量发起AI标注</span>
-      <span style="cursor:pointer;color:rgba(0,0,0,0.45);font-size:18px;" onclick="document.getElementById('batchModal').classList.remove('active')">×</span>
+      <span style="cursor:pointer;color:rgba(0,0,0,0.45);font-size:18px;" onclick="document.getElementById('batchAnnotateModal').classList.remove('active')">×</span>
     </div>
     <div class="ant-modal-body">
       <div style="background:#e6f4ff;border:1px solid #91caff;border-radius:6px;padding:12px;margin-bottom:16px;font-size:13px;color:#0958d9;">
-        <i class="fa-solid fa-circle-info mr-2"></i>共选中 <b id="batchCount">0</b> 个点位，发起AI识别后状态将变为「标注中」，处理完成后需人工确认。
+        <i class="fa-solid fa-circle-info mr-2"></i>共选中 <b id="batchAnnotateCount">0</b> 个点位，发起AI识别后状态将变为「标注中」，处理完成后需人工确认。
       </div>
       <div style="font-size:13px;color:rgba(0,0,0,0.65);">
-        <div>• 单次批量上限 <b style="color:#ff4d4f;">50 条</b>，超过将阻断提交</div>
         <div>• 使用当前发布中的标注模型（annotation-model-v2）</div>
         <div>• 预计处理时长：约 <b>2-5分钟</b></div>
         <div>• 处理完成后系统将推送站内消息提醒</div>
       </div>
     </div>
     <div class="ant-modal-footer">
-      <button class="ant-btn" onclick="document.getElementById('batchModal').classList.remove('active')">取消</button>
+      <button class="ant-btn" onclick="document.getElementById('batchAnnotateModal').classList.remove('active')">取消</button>
       <button class="ant-btn ant-btn-primary" onclick="confirmBatch()">确认发起</button>
+    </div>
+  </div>
+</div>
+
+<!-- 批量确认弹窗 -->
+<div class="ant-modal-mask" id="batchConfirmModal">
+  <div class="ant-modal">
+    <div class="ant-modal-header">
+      <span><i class="fa-solid fa-check" style="margin-right:8px;color:#52c41a;"></i>批量确认标注结果</span>
+      <span style="cursor:pointer;color:rgba(0,0,0,0.45);font-size:18px;" onclick="document.getElementById('batchConfirmModal').classList.remove('active')">×</span>
+    </div>
+    <div class="ant-modal-body">
+      <div style="background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:12px;margin-bottom:16px;font-size:13px;color:#237804;">
+        <i class="fa-solid fa-circle-info mr-2"></i>共选中 <b id="batchConfirmCount">0</b> 条待确认记录，确认后状态将变为「已确认」并同步写入设备台账。
+      </div>
+      <div style="font-size:13px;color:rgba(0,0,0,0.65);">
+        <div>• 逐条原子确认，单条冲突不影响其他记录</div>
+        <div>• 确认后不可撤销，如需修改请通过设备详情编辑页维护</div>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="document.getElementById('batchConfirmModal').classList.remove('active')">取消</button>
+      <button class="ant-btn ant-btn-primary" style="background:#52c41a;border-color:#52c41a;" onclick="confirmBatchConfirm()">确认批量确认</button>
     </div>
   </div>
 </div>
@@ -274,17 +306,17 @@ window.addEventListener('message', function(e){
 });
 
 const items = [
-  {id:'CAM-WEST-0341',name:'西区-综合楼正门',region:'西区',bizTags:['ZB-0401 核心商圈'],aiTags:['ZB-0401 核心商圈','JT-0101 十字路口'],status:'review',conf:94,time:'2026-04-14 08:11'},
+  {id:'CAM-WEST-0341',name:'西区-综合楼正门',region:'西区',bizTags:['ZB-0401 核心商圈'],aiTags:['ZB-0401 核心商圈','JT-0101 十字路口'],status:'review',deviceStatus:'online',conf:94,time:'2026-04-14 08:11'},
   // aiTags = AI从业务标签池中识别并推荐的标签，人工确认后写入bizTags
-  {id:'CAM-WEST-0342',name:'西区-停车场入口',region:'西区',bizTags:['JT-0401 停车场'],aiTags:['JT-0401 停车场'],status:'pending',conf:null,time:'—'},
-  {id:'CAM-NORTH-0128',name:'北区-教学楼走廊',region:'北区',bizTags:['GA-0101 治安防控'],aiTags:['GA-0101 治安防控'],status:'done',conf:88,time:'2026-04-12 15:40'},
-  {id:'CAM-SOUTH-0098',name:'南区-广场东',region:'南区',bizTags:['CG-0101 占道经营'],aiTags:['MS-0301 农贸市场'],status:'done',conf:96,time:'2026-04-11 09:22'},
-  {id:'CAM-EAST-0512',name:'东区-商业街B段',region:'东区',bizTags:[],aiTags:['MS-0201 背街小巷','ZB-0401 核心商圈'],status:'review',conf:79,time:'2026-04-14 07:55'},
-  {id:'CAM-EAST-0513',name:'东区-商业街C段',region:'东区',bizTags:['ZB-0401 核心商圈'],aiTags:['ZB-0401 核心商圈'],status:'labeling',conf:null,time:'标注中…'},
-  {id:'CAM-CITY-0011',name:'市中心-步行街口',region:'市中心',bizTags:['ZB-0401 核心商圈'],aiTags:['JT-0501 公交站点','MS-0201 背街小巷'],status:'done',conf:91,time:'2026-04-10 17:03'},
-  {id:'CAM-WEST-0350',name:'西区-后勤仓库入口',region:'西区',bizTags:[],aiTags:[],status:'pending',conf:null,time:'—'},
+  {id:'CAM-WEST-0342',name:'西区-停车场入口',region:'西区',bizTags:['JT-0401 停车场'],aiTags:['JT-0401 停车场'],status:'pending',deviceStatus:'offline',conf:null,time:'—'},
+  {id:'CAM-NORTH-0128',name:'北区-教学楼走廊',region:'北区',bizTags:['GA-0101 治安防控'],aiTags:['GA-0101 治安防控'],status:'done',deviceStatus:'online',conf:88,time:'2026-04-12 15:40'},
+  {id:'CAM-SOUTH-0098',name:'南区-广场东',region:'南区',bizTags:['CG-0101 占道经营'],aiTags:['MS-0301 农贸市场'],status:'done',deviceStatus:'offline',conf:96,time:'2026-04-11 09:22'},
+  {id:'CAM-EAST-0512',name:'东区-商业街B段',region:'东区',bizTags:[],aiTags:['MS-0201 背街小巷','ZB-0401 核心商圈'],status:'review',deviceStatus:'online',conf:79,time:'2026-04-14 07:55'},
+  {id:'CAM-EAST-0513',name:'东区-商业街C段',region:'东区',bizTags:['ZB-0401 核心商圈'],aiTags:['ZB-0401 核心商圈'],status:'labeling',deviceStatus:'offline',conf:null,time:'标注中…'},
+  {id:'CAM-CITY-0011',name:'市中心-步行街口',region:'市中心',bizTags:['ZB-0401 核心商圈'],aiTags:['JT-0501 公交站点','MS-0201 背街小巷'],status:'done',deviceStatus:'online',conf:91,time:'2026-04-10 17:03'},
+  {id:'CAM-WEST-0350',name:'西区-后勤仓库入口',region:'西区',bizTags:[],aiTags:[],status:'pending',deviceStatus:'online',conf:null,time:'—'},
   // lastFailed = true: 上次AI标注失败，在待标注列表中显示红色标记和重试按钮
-  {id:'CAM-NORTH-0156',name:'北区-实验楼后门',region:'北区',bizTags:[],aiTags:[],status:'pending',lastFailed:true,failReason:'AI标注超时',conf:null,time:'2026-04-13 16:22'},
+  {id:'CAM-NORTH-0156',name:'北区-实验楼后门',region:'北区',bizTags:[],aiTags:[],status:'pending',deviceStatus:'online',lastFailed:true,failReason:'AI标注超时',conf:null,time:'2026-04-13 16:22'},
 ];
 
 const statusCfg = {
@@ -298,10 +330,20 @@ let selected = new Set();
 let currentFilter = '';
 
 function renderTable(){
-  const list = currentFilter ? items.filter(i=>i.status===currentFilter) : items;
+  var statusFilterEl = document.getElementById('deviceStatusFilter');
+  var statusFilter = statusFilterEl ? statusFilterEl.value : '全部';
+  let list = currentFilter ? items.filter(i=>i.status===currentFilter) : items;
+  if(statusFilter !== '全部'){
+    const st = statusFilter === '在线' ? 'online' : 'offline';
+    list = list.filter(i=>i.deviceStatus===st);
+  }
+  // 根据Tab决定是否显示复选框：仅待标注/待确认Tab显示
+  const showCheckbox = currentFilter === 'pending' || currentFilter === 'review';
+
   document.getElementById('annoTableBody').innerHTML = list.map(item=>{
     const s = statusCfg[item.status];
-    const canSelect = item.status === 'pending';
+    // 可勾选：待标注且在线（用于批量发起）或 待确认且在线（用于批量确认）
+    const canSelect = showCheckbox && (item.status === 'pending' || item.status === 'review') && item.deviceStatus === 'online';
     const isSelected = selected.has(item.id);
     const confBar = item.conf !== null
       ? `<div style="display:flex;align-items:center;gap:6px;"><div style="width:60px;height:4px;border-radius:2px;background:#f0f0f0;"><div style="width:${item.conf}%;height:100%;border-radius:2px;background:${item.conf>=90?'#52c41a':item.conf>=70?'#faad14':'#ff4d4f'};"></div></div><span style="font-size:12px;">${item.conf}%</span></div>`
@@ -309,29 +351,42 @@ function renderTable(){
     const bizTags = item.bizTags.length ? item.bizTags.map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') : '<span style="color:rgba(0,0,0,0.35);font-size:12px;">未配置</span>';
     const aiTags = item.aiTags.length ? item.aiTags.map(t=>`<span class="tag-chip tag-ai">${t}</span>`).join('') : '<span style="color:rgba(0,0,0,0.35);font-size:12px;">待标注</span>';
 
+    // 设备状态
+    const devStatusCell = item.deviceStatus === 'online'
+      ? '<span style="color:#52c41a;font-size:12px;"><span style="font-size:10px;">●</span> 在线</span>'
+      : '<span style="color:rgba(0,0,0,0.35);font-size:12px;"><span style="font-size:10px;">●</span> 离线</span>';
+
     // 失败标记：在待标注状态下，lastFailed=true时显示红色标记和重试按钮
     const failBadge = item.lastFailed ? `<span style="color:#ff4d4f;font-size:11px;margin-left:4px;"><i class="fa-solid fa-circle-exclamation"></i>上次失败</span>` : '';
     const statusCell = item.lastFailed
       ? `<span style="color:#ff4d4f;font-weight:600;"><span style="font-size:10px;">●</span> 待标注${failBadge}</span>`
       : `<span style="color:${s.color};font-weight:${item.status!=='pending'?'600':'400'};"><span style="font-size:10px;">●</span> ${s.label}</span>`;
 
+    // 离线设备提示
+    const offlineTip = item.deviceStatus === 'offline' ? ' title="离线设备暂不支持AI标注"' : '';
+
     const actions = {
       pending: item.lastFailed
-        ? `<button class="ant-btn ant-btn-sm" style="border-color:#ff4d4f;color:#ff4d4f;" onclick="singleAnnotate('${item.id}')"><i class="fa-solid fa-rotate-right"></i>重新标注</button>`
-        : `<button class="ant-btn ant-btn-sm" style="border-color:#1677ff;color:#1677ff;" onclick="singleAnnotate('${item.id}')"><i class="fa-solid fa-robot"></i>发起标注</button>`,
+        ? `<button class="ant-btn ant-btn-sm" style="border-color:#ff4d4f;color:#ff4d4f;" onclick="singleAnnotate('${item.id}')"${offlineTip}><i class="fa-solid fa-rotate-right"></i>重新标注</button>`
+        : `<button class="ant-btn ant-btn-sm" style="border-color:#1677ff;color:#1677ff;" onclick="singleAnnotate('${item.id}')"${offlineTip}><i class="fa-solid fa-robot"></i>发起标注</button>`,
       labeling: `<button class="ant-btn ant-btn-sm" disabled style="cursor:not-allowed;opacity:0.5;">标注中…</button>`,
-      review: `<button class="ant-btn ant-btn-sm ant-btn-primary" onclick="openReviewModal()">查看/确认</button>`,
+      review: `<button class="ant-btn ant-btn-sm ant-btn-primary" onclick="openReviewModal()">确认</button>`,
       done: `<button class="ant-btn ant-btn-sm" onclick="showDetail('${item.id}')">查看</button>`
     }[item.status];
 
+    const checkboxCell = showCheckbox
+      ? `<td><input type="checkbox" class="ant-checkbox" ${!canSelect?'disabled style="opacity:0.3;"':''} ${isSelected?'checked':''} onchange="toggleRow('${item.id}',this.checked)"></td>`
+      : '<td></td>';
+
     return `<tr class="${isSelected?'row-selected':''} ${item.lastFailed?'':''}">
-      <td><input type="checkbox" class="ant-checkbox" ${!canSelect?'disabled style="opacity:0.3;"':''} ${isSelected?'checked':''} onchange="toggleRow('${item.id}',this.checked)"></td>
+      ${checkboxCell}
       <td>${item.name}</td>
       <td style="font-family:monospace;font-size:13px;white-space:nowrap;">${item.id}</td>
       <td>${bizTags}</td>
       <td>${aiTags}</td>
       <td>${statusCell}</td>
       <td>${confBar}</td>
+      <td>${devStatusCell}</td>
       <td style="font-size:12px;color:rgba(0,0,0,0.55);">${item.time}</td>
       <td>${actions}</td>
     </tr>`;
@@ -339,30 +394,113 @@ function renderTable(){
 }
 
 function toggleAll(cb){
-  const list = currentFilter ? items.filter(i=>i.status===currentFilter) : items;
-  list.filter(i=>i.status==='pending').forEach(i=>{ if(cb.checked) selected.add(i.id); else selected.delete(i.id); });
+  var statusFilterEl = document.getElementById('deviceStatusFilter');
+  var statusFilter = statusFilterEl ? statusFilterEl.value : '全部';
+  let list = currentFilter ? items.filter(i=>i.status===currentFilter) : items;
+  if(statusFilter !== '全部'){
+    const st = statusFilter === '在线' ? 'online' : 'offline';
+    list = list.filter(i=>i.deviceStatus===st);
+  }
+  // 可勾选：待标注且在线 或 待确认且在线
+  list.filter(i=>(i.status==='pending' || i.status==='review') && i.deviceStatus==='online').forEach(i=>{ if(cb.checked) selected.add(i.id); else selected.delete(i.id); });
   updateCount();
   renderTable();
 }
 function toggleRow(id, checked){ checked ? selected.add(id) : selected.delete(id); updateCount(); renderTable(); }
 function updateCount(){
-  document.getElementById('selectedCount').textContent = `已选 ${selected.size} 个`;
-  const btn = document.getElementById('batchBtn');
-  if(selected.size > 0 && selected.size <= 50){ btn.disabled = false; btn.style.opacity='1'; }
-  else { btn.disabled = true; btn.style.opacity = selected.size > 50 ? '0.4':''; }
+  const batchBar = document.getElementById('batchBar');
+  const annotateBtn = document.getElementById('batchAnnotateBtn');
+  const confirmBtn = document.getElementById('batchConfirmBtn');
+  const selectAllLink = document.getElementById('selectAllLink');
+
+  // 非批量操作Tab直接隐藏操作栏
+  if(currentFilter !== 'pending' && currentFilter !== 'review'){
+    batchBar.style.display = 'none';
+    return;
+  }
+
+  if(selected.size === 0){
+    batchBar.style.display = 'none';
+    annotateBtn.disabled = true;
+    confirmBtn.disabled = true;
+    return;
+  }
+
+  batchBar.style.display = 'flex';
+  document.getElementById('selectedCount').textContent = selected.size;
+
+  // 根据Tab只显示对应的批量按钮
+  if(currentFilter === 'pending'){
+    annotateBtn.style.display = '';
+    confirmBtn.style.display = 'none';
+    annotateBtn.disabled = false;
+  } else if(currentFilter === 'review'){
+    annotateBtn.style.display = 'none';
+    confirmBtn.style.display = '';
+    confirmBtn.disabled = false;
+  }
+
+  // 动态计算当前可勾选的总数，更新"选中全部"文案
+  if(selectAllLink){
+    selectAllLink.style.display = 'inline';
+    var statusFilterEl = document.getElementById('deviceStatusFilter');
+    var statusFilter = statusFilterEl ? statusFilterEl.value : '全部';
+    var list = currentFilter ? items.filter(function(i){ return i.status===currentFilter; }) : items.slice();
+    if(statusFilter !== '全部'){
+      var st = statusFilter === '在线' ? 'online' : 'offline';
+      list = list.filter(function(i){ return i.deviceStatus===st; });
+    }
+    var selectable = list.filter(function(i){ return (i.status==='pending' || i.status==='review') && i.deviceStatus==='online'; });
+    selectAllLink.textContent = '选中全部 ' + selectable.length + ' 条（符合当前筛选）';
+  }
+}
+function selectAllResults(){
+  var beforeCount = selected.size;
+  var statusFilterEl = document.getElementById('deviceStatusFilter');
+  var statusFilter = statusFilterEl ? statusFilterEl.value : '全部';
+  let list = currentFilter ? items.filter(i=>i.status===currentFilter) : items;
+  if(statusFilter !== '全部'){
+    const st = statusFilter === '在线' ? 'online' : 'offline';
+    list = list.filter(i=>i.deviceStatus===st);
+  }
+  var selectable = list.filter(i=>(i.status==='pending' || i.status==='review') && i.deviceStatus==='online');
+  selectable.forEach(i=>selected.add(i.id));
+  updateCount();
+  renderTable();
+  var added = selected.size - beforeCount;
+  if(added > 0){
+    alert('已选中全部 ' + selectable.length + ' 条符合条件的记录');
+  } else if(selected.size > 0){
+    alert('当前筛选条件下全部 ' + selectable.length + ' 条记录已处于选中状态');
+  }
 }
 function switchTab(el, filter){
   document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   currentFilter = filter;
   selected.clear();
+
+  // 根据Tab显示/隐藏表头复选框：仅待标注/待确认Tab显示
+  const headerTh = document.getElementById('headerCheckboxTh');
+  if(headerTh){
+    headerTh.style.display = (currentFilter === 'pending' || currentFilter === 'review') ? '' : 'none';
+  }
+  // 重置表头复选框
+  const headerCb = document.querySelector('#headerCheckboxTh input');
+  if(headerCb) headerCb.checked = false;
+
   updateCount();
   renderTable();
 }
 function batchAnnotate(){
   if(selected.size===0) return;
-  document.getElementById('batchCount').textContent = selected.size;
-  document.getElementById('batchModal').classList.add('active');
+  document.getElementById('batchAnnotateCount').textContent = selected.size;
+  document.getElementById('batchAnnotateModal').classList.add('active');
+}
+function batchConfirm(){
+  if(selected.size===0) return;
+  document.getElementById('batchConfirmCount').textContent = selected.size;
+  document.getElementById('batchConfirmModal').classList.add('active');
 }
 function singleAnnotate(id){
   const item = items.find(i => i.id === id);
@@ -460,7 +598,7 @@ function showDetail(id){
 }
 
 function confirmBatch(){
-  document.getElementById('batchModal').classList.remove('active');
+  document.getElementById('batchAnnotateModal').classList.remove('active');
   // 模拟完成反馈弹窗（成功X/失败Y）
   const total = selected.size;
   const success = Math.max(0, total - (Math.random() > 0.8 ? 1 : 0));
@@ -493,6 +631,49 @@ function confirmBatch(){
       ` : `
       <div style="display:flex;justify-content:flex-end;gap:8px;">
         <button onclick="this.closest('.modal-wrap').remove();selected.clear();updateCount();" class="ant-btn ant-btn-primary">确定</button>
+      </div>
+      `}
+    </div>
+  `;
+  modal.className = 'modal-wrap';
+  modal.addEventListener('click', e => { if(e.target === modal) { modal.remove(); selected.clear(); updateCount(); } });
+  document.body.appendChild(modal);
+}
+
+function confirmBatchConfirm(){
+  document.getElementById('batchConfirmModal').classList.remove('active');
+  // 模拟批量确认完成反馈弹窗
+  const total = selected.size;
+  const success = Math.max(0, total - (Math.random() > 0.9 ? 1 : 0));
+  const fail = total - success;
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:2000;padding:16px;';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:8px;width:480px;max-width:100%;box-shadow:0 6px 16px rgba(0,0,0,0.15);padding:20px;">
+      <div style="font-size:16px;font-weight:600;margin-bottom:12px;"><i class="fa-solid fa-check" style="color:#52c41a;margin-right:6px;"></i>批量确认完成</div>
+      <div style="display:flex;gap:16px;margin-bottom:16px;">
+        <div style="flex:1;background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:12px;text-align:center;">
+          <div style="font-size:24px;font-weight:700;color:#52c41a;">${success}</div>
+          <div style="font-size:12px;color:#237804;">成功</div>
+        </div>
+        <div style="flex:1;background:#fff2f0;border:1px solid #ffccc7;border-radius:6px;padding:12px;text-align:center;">
+          <div style="font-size:24px;font-weight:700;color:#ff4d4f;">${fail}</div>
+          <div style="font-size:12px;color:#cf1322;">失败</div>
+        </div>
+      </div>
+      ${fail > 0 ? `
+      <div style="background:#fff2f0;border:1px solid #ffccc7;border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:#cf1322;">
+        <div style="font-weight:600;margin-bottom:4px;"><i class="fa-solid fa-circle-exclamation"></i> 失败记录</div>
+        <div>• CAM-EAST-0512：该点位已被他人处理，请刷新列表查看最新状态</div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;">
+        <button onclick="this.closest('.modal-wrap').remove();selected.clear();updateCount();" class="ant-btn">关闭</button>
+        <button onclick="this.closest('.modal-wrap').remove();alert('✅ 已重新确认失败记录');selected.clear();updateCount();" class="ant-btn ant-btn-primary" style="background:#52c41a;border-color:#52c41a;">一键重试失败项</button>
+      </div>
+      ` : `
+      <div style="display:flex;justify-content:flex-end;gap:8px;">
+        <button onclick="this.closest('.modal-wrap').remove();selected.clear();updateCount();" class="ant-btn ant-btn-primary" style="background:#52c41a;border-color:#52c41a;">确定</button>
       </div>
       `}
     </div>
@@ -626,6 +807,9 @@ function selectCatalog(id,name){
 }
 
 document.getElementById('catalogTree').innerHTML = renderCatalogTree(catalogData);
+// 初始状态：全部Tab不显示表头复选框
+const headerTh = document.getElementById('headerCheckboxTh');
+if(headerTh) headerTh.style.display = 'none';
 renderTable();
 
 // 标签树形下拉
