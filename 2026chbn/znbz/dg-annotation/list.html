@@ -187,7 +187,6 @@
             <!-- 筛选 -->
             <div class="flex gap-3 flex-wrap pb-4">
               <input class="ant-input" style="width:220px;" placeholder="搜索设备编号/名称">
-              <select class="ant-select"><option>全部业务域</option><option>公共安全（GA）</option><option>城市管理（CG）</option><option>交通运输（JT）</option><option>水利环保（SL）</option><option>应急管理（YJ）</option><option>社会民生（MS）</option><option>重点保障（ZB）</option></select>
               <div class="tree-select" id="tagTreeSelect">
                 <div class="tree-select-input" onclick="toggleTagTree()">全部标签</div>
                 <div class="tree-select-panel" id="tagTreePanel"></div>
@@ -202,8 +201,8 @@
               <thead>
                 <tr>
                   <th id="headerCheckboxTh"><input type="checkbox" class="ant-checkbox" onchange="toggleAll(this)"></th>
-                  <th>设备名称</th>
                   <th>设备编号</th>
+                  <th>设备名称</th>
                   <th>业务标签</th>
                   <th>业务标签建议</th>
                   <th>标注状态</th>
@@ -376,12 +375,12 @@ function renderTable(){
 
     const checkboxCell = showCheckbox
       ? `<td><input type="checkbox" class="ant-checkbox" ${!canSelect?'disabled style="opacity:0.3;"':''} ${isSelected?'checked':''} onchange="toggleRow('${item.id}',this.checked)"></td>`
-      : '<td></td>';
+      : '<td style="display:none;"></td>';
 
     return `<tr class="${isSelected?'row-selected':''} ${item.lastFailed?'':''}">
       ${checkboxCell}
-      <td>${item.name}</td>
       <td style="font-family:monospace;font-size:13px;white-space:nowrap;">${item.id}</td>
+      <td>${item.name}</td>
       <td>${bizTags}</td>
       <td>${aiTags}</td>
       <td>${statusCell}</td>
@@ -506,7 +505,7 @@ function singleAnnotate(id){
   const item = items.find(i => i.id === id);
   const isRetry = item && item.lastFailed;
   const title = isRetry ? '重新发起AI标注' : '发起AI标注';
-  const warnText = isRetry ? `上次标注失败原因：${item.failReason}` : '请确保点位名称、安装位置、所属组织信息完整，否则可能影响AI识别准确率。';
+  const warnText = isRetry ? `上次标注失败原因：${item.failReason}` : '请确保设备名称、安装位置、所属组织信息完整，否则可能影响AI识别准确率。';
   const icon = isRetry ? '<i class="fa-solid fa-rotate-right" style="color:#ff4d4f;"></i>' : '<i class="fa-solid fa-robot" style="color:#1677ff;"></i>';
   const btnColor = isRetry ? '#ff4d4f' : '#1677ff';
 
@@ -514,8 +513,8 @@ function singleAnnotate(id){
   const html = `
     <div style="text-align:center;margin-bottom:12px;">${icon} <b style="font-size:16px;">${title}</b></div>
     <div style="background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:#389e0d;">
-      <div><b>点位名称：</b>${item ? item.name : id}</div>
-      <div><b>点位编码：</b>${id}</div>
+      <div><b>设备名称：</b>${item ? item.name : id}</div>
+      <div><b>设备编码：</b>${id}</div>
     </div>
     <div style="background:${isRetry?'#fff2f0':'#fffbe6'};border:1px solid ${isRetry?'#ffccc7':'#ffe58f'};border-radius:6px;padding:10px 12px;font-size:13px;color:${isRetry?'#cf1322':'#ad6800'};">
       <i class="fa-solid fa-triangle-exclamation"></i> ${warnText}
@@ -544,8 +543,8 @@ function showDetail(id){
 
   const detailHtml = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-      <div style="background:#fafafa;border:1px solid #f0f0f0;border-radius:6px;padding:10px 12px;"><div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:2px;">点位编码</div><div style="font-size:13px;color:rgba(0,0,0,0.88);font-weight:600;font-family:monospace;">${item.id}</div></div>
-      <div style="background:#fafafa;border:1px solid #f0f0f0;border-radius:6px;padding:10px 12px;"><div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:2px;">点位名称</div><div style="font-size:13px;color:rgba(0,0,0,0.88);font-weight:600;">${item.name}</div></div>
+      <div style="background:#fafafa;border:1px solid #f0f0f0;border-radius:6px;padding:10px 12px;"><div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:2px;">设备编码</div><div style="font-size:13px;color:rgba(0,0,0,0.88);font-weight:600;font-family:monospace;">${item.id}</div></div>
+      <div style="background:#fafafa;border:1px solid #f0f0f0;border-radius:6px;padding:10px 12px;"><div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:2px;">设备名称</div><div style="font-size:13px;color:rgba(0,0,0,0.88);font-weight:600;">${item.name}</div></div>
       <div style="background:#fafafa;border:1px solid #f0f0f0;border-radius:6px;padding:10px 12px;"><div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:2px;">所属组织</div><div style="font-size:13px;color:rgba(0,0,0,0.88);">${item.region}</div></div>
       <div style="background:#fafafa;border:1px solid #f0f0f0;border-radius:6px;padding:10px 12px;"><div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:2px;">标注状态</div><div style="font-size:13px;color:#52c41a;font-weight:600;"><span style="font-size:10px;">●</span> 已确认</div></div>
     </div>
