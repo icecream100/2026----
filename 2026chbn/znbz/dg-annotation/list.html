@@ -177,7 +177,7 @@
               <span style="font-size:13px;color:#237804;">
                 <i class="fa-solid fa-check-circle mr-1"></i>
                 已选中 <b id="selectedCount">0</b> 条
-                <span id="selectAllLink" style="color:#1677ff;cursor:pointer;margin-left:8px;text-decoration:underline;" onclick="selectAllResults()">选中全部 377 条（符合筛选条件）</span>
+                <span id="selectAllLink" style="color:#1677ff;cursor:pointer;margin-left:8px;text-decoration:underline;" onclick="selectAllResults()">选中全部 377 条（符合当前筛选）</span>
               </span>
               <div style="flex:1;"></div>
               <button class="ant-btn ant-btn-primary" id="batchAnnotateBtn" onclick="batchAnnotate()" disabled><i class="fa-solid fa-robot"></i>批量发起AI标注</button>
@@ -237,9 +237,10 @@
     </div>
     <div class="ant-modal-body">
       <div style="background:#e6f4ff;border:1px solid #91caff;border-radius:6px;padding:12px;margin-bottom:16px;font-size:13px;color:#0958d9;">
-        <i class="fa-solid fa-circle-info mr-2"></i>共选中 <b id="batchAnnotateCount">0</b> 个点位，发起AI识别后状态将变为「标注中」，处理完成后需人工确认。
+        <i class="fa-solid fa-circle-info mr-2"></i>确认对 <b id="batchAnnotateCount">0</b> 个设备发起AI标注？发起后状态将变为「标注中」，处理完成后需人工确认。
       </div>
       <div style="font-size:13px;color:rgba(0,0,0,0.65);">
+        <div>• 操作范围：<span id="batchAnnotateScope">当前页</span></div>
         <div>• 使用当前发布中的标注模型（annotation-model-v2）</div>
         <div>• 预计处理时长：约 <b>2-5分钟</b></div>
         <div>• 处理完成后系统将推送站内消息提醒</div>
@@ -261,9 +262,10 @@
     </div>
     <div class="ant-modal-body">
       <div style="background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:12px;margin-bottom:16px;font-size:13px;color:#237804;">
-        <i class="fa-solid fa-circle-info mr-2"></i>共选中 <b id="batchConfirmCount">0</b> 条待确认记录，确认后状态将变为「已确认」并同步写入设备台账。
+        <i class="fa-solid fa-circle-info mr-2"></i>确认对 <b id="batchConfirmCount">0</b> 条标注结果执行批量确认？
       </div>
       <div style="font-size:13px;color:rgba(0,0,0,0.65);">
+        <div>• 操作范围：<span id="batchConfirmScope">当前页</span></div>
         <div>• 逐条原子确认，单条冲突不影响其他记录</div>
         <div>• 确认后不可撤销，如需修改请通过设备详情编辑页维护</div>
       </div>
@@ -468,7 +470,7 @@ function selectAllResults(){
   renderTable();
   var added = selected.size - beforeCount;
   if(added > 0){
-    alert('已选中全部 ' + selectable.length + ' 条符合条件的记录');
+    alert('已选中全部 ' + selectable.length + ' 条符合当前筛选的记录');
   } else if(selected.size > 0){
     alert('当前筛选条件下全部 ' + selectable.length + ' 条记录已处于选中状态');
   }
@@ -494,11 +496,13 @@ function switchTab(el, filter){
 function batchAnnotate(){
   if(selected.size===0) return;
   document.getElementById('batchAnnotateCount').textContent = selected.size;
+  document.getElementById('batchAnnotateScope').textContent = '当前页 ' + selected.size + ' 条';
   document.getElementById('batchAnnotateModal').classList.add('active');
 }
 function batchConfirm(){
   if(selected.size===0) return;
   document.getElementById('batchConfirmCount').textContent = selected.size;
+  document.getElementById('batchConfirmScope').textContent = '当前页 ' + selected.size + ' 条';
   document.getElementById('batchConfirmModal').classList.add('active');
 }
 function singleAnnotate(id){
@@ -555,23 +559,23 @@ function showDetail(id){
       </div>
     </div>
     <div>
-      <div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.65);margin-bottom:8px;">AI标注结果（7个维度）</div>
+      <div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.65);margin-bottom:8px;">AI标注结果（按业务域维度，动态渲染）</div>
       <table style="width:100%;border-collapse:collapse;font-size:13px;">
         <thead>
           <tr style="background:#fafafa;">
-            <th style="padding:8px 10px;border:1px solid #f0f0f0;text-align:left;font-weight:600;color:rgba(0,0,0,0.65);">业务维度</th>
+            <th style="padding:8px 10px;border:1px solid #f0f0f0;text-align:left;font-weight:600;color:rgba(0,0,0,0.65);">业务域</th>
             <th style="padding:8px 10px;border:1px solid #f0f0f0;text-align:left;font-weight:600;color:rgba(0,0,0,0.65);">已确认标签</th>
             <th style="padding:8px 10px;border:1px solid #f0f0f0;text-align:left;font-weight:600;color:rgba(0,0,0,0.65);width:70px;">置信度</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">公共安全</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith('GA')).map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('GA'))?`<span style="color:#389e0d;font-weight:600;">${item.conf}%</span>`:'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>
-          <tr style="background:#fafafa;"><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">城市管理</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith('CG')).map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('CG'))?`<span style="color:#389e0d;font-weight:600;">${item.conf}%</span>`:'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>
-          <tr><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">交通运输</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith('JT')).map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('JT'))?`<span style="color:#389e0d;font-weight:600;">${item.conf}%</span>`:'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>
-          <tr style="background:#fafafa;"><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">水利环保</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith('SL')).map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('SL'))?`<span style="color:#389e0d;font-weight:600;">${item.conf}%</span>`:'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>
-          <tr><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">应急管理</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith('YJ')).map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('YJ'))?`<span style="color:#389e0d;font-weight:600;">${item.conf}%</span>`:'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>
-          <tr style="background:#fafafa;"><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">社会民生</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith('MS')).map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('MS'))?`<span style="color:#389e0d;font-weight:600;">${item.conf}%</span>`:'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>
-          <tr><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">重点保障</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith('ZB')).map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith('ZB'))?`<span style="color:#389e0d;font-weight:600;">${item.conf}%</span>`:'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>
+          ${[
+            {name:'公共安全',prefix:'GA'},{name:'城市管理',prefix:'CG'},{name:'交通运输',prefix:'JT'},
+            {name:'水利环保',prefix:'SL'},{name:'应急管理',prefix:'YJ'},{name:'社会民生',prefix:'MS'},
+            {name:'重点保障',prefix:'ZB'},
+            {name:'卫生健康',prefix:'HEALTH'},{name:'教育安全',prefix:'EDU'}
+            // 自定义域从标签管理接口动态加载，此处展示内置7域+示例自定义域
+          ].map((d,i)=>`<tr${i%2===1?' style="background:#fafafa;"':''}><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">${d.name}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith(d.prefix+'-')).map(t=>'<span class="tag-chip tag-business">'+t+'</span>').join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith(d.prefix+'-'))?'<span style="color:#389e0d;font-weight:600;">'+item.conf+'%</span>':'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>`).join('')}
         </tbody>
       </table>
     </div>
@@ -664,7 +668,7 @@ function confirmBatchConfirm(){
       ${fail > 0 ? `
       <div style="background:#fff2f0;border:1px solid #ffccc7;border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:#cf1322;">
         <div style="font-weight:600;margin-bottom:4px;"><i class="fa-solid fa-circle-exclamation"></i> 失败记录</div>
-        <div>• CAM-EAST-0512：该点位已被他人处理，请刷新列表查看最新状态</div>
+        <div>• CAM-EAST-0512 东区-商业街B段：该设备已被他人处理，请刷新列表查看最新状态</div>
       </div>
       <div style="display:flex;justify-content:flex-end;gap:8px;">
         <button onclick="this.closest('.modal-wrap').remove();selected.clear();updateCount();" class="ant-btn">关闭</button>

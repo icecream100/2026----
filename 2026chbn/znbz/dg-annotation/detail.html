@@ -552,8 +552,8 @@
             <section class="panel">
               <h3>1. 设备基本信息</h3>
               <div class="info-grid">
-                <div class="info-item"><div class="k">点位编码</div><div class="v">CAM-SZ-XQ-00341</div></div>
-                <div class="info-item"><div class="k">点位名称</div><div class="v">西区综合楼正门摄像头</div></div>
+                <div class="info-item"><div class="k">设备编码</div><div class="v">CAM-SZ-XQ-00341</div></div>
+                <div class="info-item"><div class="k">设备名称</div><div class="v">西区综合楼正门摄像头</div></div>
                 <div class="info-item"><div class="k">所属组织</div><div class="v">南山运维中心/西区网格</div></div>
                 <div class="info-item"><div class="k">安装位置</div><div class="v">综合楼正门东侧立杆4.2m</div></div>
                 <div class="info-item"><div class="k">设备IP</div><div class="v">192.168.21.41</div></div>
@@ -586,7 +586,7 @@
 
           <div class="col">
             <section class="panel" style="flex:1;">
-              <h3>3. AI建议标注结果（7个维度）</h3>
+              <h3>3. AI建议标注结果（按业务域维度）</h3>
               <div class="table-wrap">
                 <table>
                   <thead>
@@ -621,8 +621,11 @@
   <script>
     const rows = document.getElementById('rows');
     const toastEl = document.getElementById('toast');
+    // 动态渲染：内置7域固定展示，自定义域从标签管理接口动态加载
+    // 实际项目中 DATA 通过接口获取，此处为原型演示数据
     const DATA = [
-      { dim: '公共安全', score: 0.94, value: ['GA-0101 治安防控'], tree: [
+      // === 内置业务域（固定7个） ===
+      { dim: '公共安全', domainCode: 'GA', score: 0.94, value: ['GA-0101 治安防控'], tree: [
         { id: 'GA-01', label: '治安管理', children: [
           { id: 'GA-0101', label: '治安防控' },
           { id: 'GA-0201', label: '重点人员管控' }
@@ -631,7 +634,7 @@
           { id: 'GA-0401', label: '圈层查控' }
         ]}
       ]},
-      { dim: '城市管理', score: 0.83, value: ['CG-0301 环境卫生'], tree: [
+      { dim: '城市管理', domainCode: 'CG', score: 0.83, value: ['CG-0301 环境卫生'], tree: [
         { id: 'CG-01', label: '市容管理', children: [
           { id: 'CG-0101', label: '占道经营' }
         ]},
@@ -642,14 +645,14 @@
           { id: 'CG-0301', label: '环境卫生' }
         ]}
       ]},
-      { dim: '交通运输', score: 0.80, value: ['JT-0101 十字路口'], tree: [
+      { dim: '交通运输', domainCode: 'JT', score: 0.80, value: ['JT-0101 十字路口'], tree: [
         { id: 'JT-01', label: '道路类型', children: [
           { id: 'JT-0101', label: '十字路口' },
           { id: 'JT-0201', label: '主干道路' },
           { id: 'JT-0401', label: '停车场' }
         ]}
       ]},
-      { dim: '水利环保', score: 0.79, value: ['SL-0101 河道监控'], tree: [
+      { dim: '水利环保', domainCode: 'SL', score: 0.79, value: ['SL-0101 河道监控'], tree: [
         { id: 'SL-01', label: '水域监测', children: [
           { id: 'SL-0101', label: '河道监控' },
           { id: 'SL-0201', label: '污水排口' }
@@ -658,7 +661,7 @@
           { id: 'SL-0401', label: '水源地保护' }
         ]}
       ]},
-      { dim: '应急管理', score: 0.89, value: ['YJ-0301 人员密集场所'], tree: [
+      { dim: '应急管理', domainCode: 'YJ', score: 0.89, value: ['YJ-0301 人员密集场所'], tree: [
         { id: 'YJ-01', label: '消防安全', children: [
           { id: 'YJ-0101', label: '消防通道' }
         ]},
@@ -669,7 +672,7 @@
           { id: 'YJ-0301', label: '人员密集场所' }
         ]}
       ]},
-      { dim: '社会民生', score: null, value: [], tree: [
+      { dim: '社会民生', domainCode: 'MS', score: null, value: [], tree: [
         { id: 'MS-01', label: '社区治理', children: [
           { id: 'MS-0101', label: '小区出入口' },
           { id: 'MS-0201', label: '背街小巷' }
@@ -678,7 +681,7 @@
           { id: 'MS-0301', label: '校园周边' }
         ]}
       ]},
-      { dim: '重点保障', score: null, value: [], tree: [
+      { dim: '重点保障', domainCode: 'ZB', score: null, value: [], tree: [
         { id: 'ZB-01', label: '核心设施', children: [
           { id: 'ZB-0101', label: '核心机房' }
         ]},
@@ -687,6 +690,22 @@
         ]},
         { id: 'ZB-03', label: '风险监控', children: [
           { id: 'ZB-0301', label: '高风险点' }
+        ]}
+      ]},
+      // === 自定义业务域（动态加载，每个域独立渲染） ===
+      { dim: '卫生健康', domainCode: 'HEALTH', score: 0.72, value: ['HEALTH-0101 医院周边'], tree: [
+        { id: 'HEALTH-01', label: '医疗机构', children: [
+          { id: 'HEALTH-0101', label: '医院周边' },
+          { id: 'HEALTH-0102', label: '社区卫生站' }
+        ]},
+        { id: 'HEALTH-02', label: '公共场所', children: [
+          { id: 'HEALTH-0201', label: '药店门口' }
+        ]}
+      ]},
+      { dim: '教育安全', domainCode: 'EDU', score: null, value: [], tree: [
+        { id: 'EDU-01', label: '校园安全', children: [
+          { id: 'EDU-0101', label: '校门口' },
+          { id: 'EDU-0102', label: '操场' }
         ]}
       ]}
     ];
