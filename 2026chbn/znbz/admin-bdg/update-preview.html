@@ -10,7 +10,6 @@
     :root {
       --ant-primary: #1677ff;
       --ant-success: #52c41a;
-      --ant-warning: #faad14;
       --ant-error: #ff4d4f;
       --ant-bg: #f5f5f5;
       --ant-border: #d9d9d9;
@@ -29,7 +28,7 @@
       color: var(--ant-text);
       font: 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     }
-    .page { max-width: 1240px; margin: 0 auto; padding: 20px; }
+    .page { max-width: 800px; margin: 0 auto; padding: 20px; }
     .card {
       background: var(--ant-bg-container);
       border: 1px solid var(--ant-border-secondary);
@@ -37,7 +36,6 @@
       box-shadow: 0 1px 2px rgba(0,0,0,.03);
     }
     .header { padding: 14px 18px; border-bottom: 1px solid var(--ant-border-secondary); }
-    .body { padding: 18px; }
     .title { margin: 0; font-size: 18px; font-weight: 600; }
     .subtitle { margin: 4px 0 0; color: var(--ant-text-tertiary); font-size: 12px; }
     .btn {
@@ -55,8 +53,6 @@
     .btn:hover { border-color: var(--ant-primary); color: var(--ant-primary); }
     .btn-primary { background: var(--ant-primary); color: #fff; border-color: var(--ant-primary); }
     .btn-primary:hover { opacity: .92; color: #fff; }
-    .btn-danger { background: var(--ant-error); color: #fff; border-color: var(--ant-error); }
-    .btn-danger:hover { opacity: .92; color: #fff; }
     .tag {
       display: inline-flex;
       align-items: center;
@@ -64,34 +60,43 @@
       padding: 0 8px;
       border-radius: 4px;
       font-size: 12px;
-      border: 1px solid #91caff;
-      color: #1677ff;
-      background: #e6f4ff;
+      border: 1px solid #b7eb8f;
+      color: #389e0d;
+      background: #f6ffed;
     }
-    .tag-orange { border-color: #ffd591; color: #d46b08; background: #fff7e6; }
-    .tag-green { border-color: #b7eb8f; color: #389e0d; background: #f6ffed; }
-    .stat {
-      border: 1px solid var(--ant-border-secondary);
-      border-radius: 8px;
-      padding: 12px;
-      background: #fff;
+    .metric-card {
+      border-radius: 12px;
+      padding: 32px 24px;
+      text-align: center;
+      flex: 1;
     }
-    .stat .label { color: var(--ant-text-tertiary); font-size: 12px; }
-    .stat .value { font-size: 22px; font-weight: 600; margin-top: 4px; }
-    .table { width: 100%; border-collapse: collapse; }
-    .table th, .table td {
-      border-bottom: 1px solid var(--ant-border-secondary);
-      text-align: left;
-      padding: 10px 8px;
-      vertical-align: top;
+    .metric-card .metric-label {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 12px;
     }
-    .table th { font-weight: 600; background: #fafafa; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    .metric-card .metric-value {
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .metric-add {
+      background: linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%);
+      border: 2px solid #b7eb8f;
+    }
+    .metric-add .metric-label { color: #389e0d; }
+    .metric-add .metric-value { color: #52c41a; }
+    .metric-remove {
+      background: linear-gradient(135deg, #fff2f0 0%, #ffccc7 100%);
+      border: 2px solid #ffa39e;
+    }
+    .metric-remove .metric-label { color: #cf1322; }
+    .metric-remove .metric-value { color: #ff4d4f; }
     .foot-actions {
       position: sticky;
       bottom: 0;
       z-index: 20;
-      margin-top: 16px;
+      margin-top: 24px;
       background: rgba(255,255,255,.95);
       border: 1px solid var(--ant-border-secondary);
       border-radius: 10px;
@@ -126,7 +131,7 @@
     }
     .mask.active { display: flex; }
     .modal {
-      width: min(520px, 92vw);
+      width: min(420px, 92vw);
       background: #fff;
       border-radius: 10px;
       overflow: hidden;
@@ -141,148 +146,57 @@
   <div class="msg" id="msg"></div>
 
   <div class="page space-y-4">
+    <!-- 标题区 -->
     <div class="flex items-center justify-between">
       <div>
         <h1 class="title">更新预览</h1>
-        <p class="subtitle">新增/编辑后进入预览与更新流程，确认后写入业务目录节点。</p>
+        <p class="subtitle">确认设备变更后，点击"确认更新"写入业务目录。</p>
       </div>
-      <div class="flex items-center gap-2">
-        <span class="tag tag-orange" id="modeTag">mode=update</span>
+      <div class="flex items-center gap-3">
+        <span class="tag" id="ruleIdTag">规则ID：-</span>
         <button class="btn" onclick="goList()"><i class="fa-solid fa-arrow-left"></i> 返回列表</button>
       </div>
     </div>
 
-    <div class="card">
-      <div class="header">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="tag" id="templateTag">-</span>
-            <span class="tag tag-green" id="ruleIdTag">规则ID：-</span>
-          </div>
-          <div class="text-xs" style="color:var(--ant-text-tertiary)">最近刷新：<span id="lastRefresh">-</span></div>
+    <!-- 核心指标区 -->
+    <div class="card" style="padding: 32px 24px;">
+      <div class="flex items-center justify-between gap-6">
+        <div class="metric-card metric-add">
+          <div class="metric-label">新增设备</div>
+          <div class="metric-value" id="addCount">156</div>
+        </div>
+        <div class="metric-card metric-remove">
+          <div class="metric-label">减少设备</div>
+          <div class="metric-value" id="removeCount">23</div>
         </div>
       </div>
-      <div class="body">
-        <div class="grid grid-cols-4 gap-3 mb-4">
-          <div class="stat"><div class="label">待更新节点</div><div class="value" id="pendingCount">24</div></div>
-          <div class="stat"><div class="label">新增节点</div><div class="value" id="addCount">8</div></div>
-          <div class="stat"><div class="label">变更节点</div><div class="value" id="changeCount">11</div></div>
-          <div class="stat"><div class="label">删除节点</div><div class="value" id="removeCount">5</div></div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div class="card">
-            <div class="header"><strong>更新前配置摘要</strong></div>
-            <div class="body text-sm" style="color:var(--ant-text-secondary)">
-              <div class="mb-2">生成方式：<span class="mono" id="oldTemplate">-</span></div>
-              <div class="mb-2">覆盖区域：海淀区、朝阳区</div>
-              <div class="mb-2" id="oldMap">region_level=street, tag_level=L2</div>
-              <div>节点总量：<span class="mono">1,268</span></div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="header"><strong>更新后配置摘要</strong></div>
-            <div class="body text-sm" style="color:var(--ant-text-secondary)">
-              <div class="mb-2">生成方式：<span class="mono" id="newTemplate">-</span></div>
-              <div class="mb-2">覆盖区域：海淀区、朝阳区</div>
-              <div class="mb-2" id="newMap">region_level=street, tag_level=L2</div>
-              <div>预计节点总量：<span class="mono">1,292</span></div>
-            </div>
-          </div>
-        </div>
+      <div class="text-center mt-4" style="color:var(--ant-text-tertiary); font-size:12px;">
+        最近刷新：<span id="lastRefresh">-</span>
       </div>
     </div>
 
-    <div class="card">
-      <div class="header flex items-center justify-between">
-        <strong>目录差异预览（示例）</strong>
-        <button class="btn" onclick="refreshPreview()"><i class="fa-solid fa-rotate-right"></i> 刷新预览</button>
-      </div>
-      <div class="body">
-        <table class="table">
-          <thead>
-            <tr>
-              <th style="width:110px">变更类型</th>
-              <th style="width:320px">目录路径</th>
-              <th>说明</th>
-            </tr>
-          </thead>
-          <tbody id="diffRows"></tbody>
-        </table>
-      </div>
-    </div>
-
+    <!-- 底部操作栏 -->
     <div class="foot-actions">
       <button class="btn" onclick="goList()">取消</button>
-      <button class="btn" onclick="refreshPreview()">刷新预览</button>
       <button class="btn btn-primary" onclick="confirmUpdate()">确认更新</button>
     </div>
   </div>
 
   <script>
-    const MODE_MAP = {
-      region_first: {
-        label: 'region_tag（区域优先）',
-        mapping: 'region_level=区域展开到，tag_level=业务挂接层级'
-      },
-      tag_first: {
-        label: 'tag_region（业务优先）',
-        mapping: 'region_level=区域挂接粒度，tag_level=业务展开到'
-      },
-      tag_only: {
-        label: 'tag_only（纯业务）',
-        mapping: 'region_level=NULL，tag_level=业务展开到'
-      }
-    };
-
-    const sampleDiff = [
-      { type: '新增', path: '海淀区 / 学校 / 校园食堂 / 食品安全', desc: '新增叶子节点，来源于业务标签扩展' },
-      { type: '变更', path: '朝阳区 / 医院 / 门诊大厅', desc: '挂接层级由 L1 调整为 L2' },
-      { type: '删除', path: '海淀区 / 商圈 / 临时节点', desc: '历史冗余节点清理' },
-      { type: '变更', path: '朝阳区 / 交通 / 地铁站', desc: '排序权重提升' }
-    ];
-
     const qs = new URLSearchParams(location.search);
     const state = {
-      ruleId: qs.get('ruleId') || '-',
-      template: qs.get('template') || 'region_first',
-      mode: qs.get('mode') || 'update'
+      ruleId: qs.get('ruleId') || '-'
     };
 
     function init() {
-      const modeInfo = MODE_MAP[state.template] || MODE_MAP.region_first;
-      document.getElementById('templateTag').textContent = modeInfo.label;
       document.getElementById('ruleIdTag').textContent = `规则ID：${state.ruleId}`;
-      document.getElementById('modeTag').textContent = `mode=${state.mode}`;
-      document.getElementById('oldTemplate').textContent = modeInfo.label;
-      document.getElementById('newTemplate').textContent = modeInfo.label;
-      document.getElementById('oldMap').textContent = modeInfo.mapping;
-      document.getElementById('newMap').textContent = modeInfo.mapping;
-      renderDiff();
       stampRefreshTime();
-    }
-
-    function renderDiff() {
-      const html = sampleDiff.map(r => {
-        const color = r.type === '新增' ? '#52c41a' : r.type === '删除' ? '#ff4d4f' : '#1677ff';
-        return `<tr>
-          <td><span class="tag" style="border-color:${color}33;background:${color}12;color:${color}">${r.type}</span></td>
-          <td class="mono">${r.path}</td>
-          <td>${r.desc}</td>
-        </tr>`;
-      }).join('');
-      document.getElementById('diffRows').innerHTML = html;
     }
 
     function stampRefreshTime() {
       const now = new Date();
       const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
       document.getElementById('lastRefresh').textContent = t;
-    }
-
-    function refreshPreview() {
-      stampRefreshTime();
-      flash('预览已刷新');
     }
 
     function goList() {

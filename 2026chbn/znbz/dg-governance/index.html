@@ -120,6 +120,38 @@
 
     .medal{font-size:18px;line-height:1;}
 
+    /* Pagination */
+    .pagination-wrap{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;font-size:13px;color:var(--ant-text-secondary);}
+    .pagination-info{display:flex;align-items:center;gap:8px;}
+    .pagination-btns{display:flex;align-items:center;gap:4px;}
+    .page-btn{min-width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;font-size:13px;padding:0 8px;transition:all 0.2s;}
+    .page-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .page-btn.active{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .page-btn:disabled{opacity:0.4;cursor:not-allowed;color:var(--ant-text-tertiary);}
+    .page-size-select{height:32px;padding:0 8px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;font-size:13px;outline:none;}
+
+    /* Settings dropdown */
+    .settings-wrap{position:relative;display:inline-block;}
+    .settings-dropdown{position:absolute;top:100%;right:0;margin-top:6px;width:360px;background:#fff;border:1px solid var(--ant-border-secondary);border-radius:8px;box-shadow:var(--shadow-2);z-index:200;display:none;}
+    .settings-dropdown.active{display:block;}
+    .settings-dropdown-head{padding:12px 16px;border-bottom:1px solid var(--ant-border-secondary);display:flex;align-items:center;justify-content:space-between;}
+    .settings-dropdown-head span{font-size:14px;font-weight:600;}
+    .settings-dropdown-body{padding:12px 16px;}
+    .settings-step-label{font-size:12px;color:var(--ant-text-tertiary);margin-bottom:6px;display:flex;align-items:center;gap:4px;}
+    .settings-step-label .step-num{display:inline-flex;width:18px;height:18px;align-items:center;justify-content:center;border-radius:50%;background:var(--ant-primary);color:#fff;font-size:10px;font-weight:700;}
+    .settings-domain-select{width:100%;height:32px;padding:0 8px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;font-size:13px;outline:none;margin-bottom:12px;}
+    .settings-domain-select:focus{border-color:var(--ant-primary);}
+    .settings-tag-list{max-height:200px;overflow-y:auto;border:1px solid var(--ant-border-secondary);border-radius:4px;}
+    .settings-tag-item{display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;font-size:13px;transition:background 0.15s;border-bottom:1px solid var(--ant-border-secondary);}
+    .settings-tag-item:last-child{border-bottom:none;}
+    .settings-tag-item:hover{background:#f5f5f5;}
+    .settings-tag-item input[type="checkbox"]{width:16px;height:16px;accent-color:var(--ant-primary);cursor:pointer;flex-shrink:0;}
+    .settings-tag-item .dept-link{font-size:11px;color:var(--ant-text-tertiary);margin-left:auto;}
+    .settings-tag-empty{padding:20px;text-align:center;color:var(--ant-text-tertiary);font-size:13px;}
+    .settings-divider{height:1px;background:var(--ant-border-secondary);margin:12px 0;}
+    .settings-dropdown-foot{padding:8px 16px;border-top:1px solid var(--ant-border-secondary);display:flex;align-items:center;justify-content:space-between;}
+    .settings-dropdown-foot .count-info{font-size:12px;color:var(--ant-text-tertiary);}
+
     @media(max-width:860px){
       .content-wrap{display:block;}
       .sider{display:none;}
@@ -182,23 +214,23 @@
         <div class="card hero-card">
           <div class="hero-left">
             <div class="hero-label"><i class="fa-solid fa-fire" style="color:#ff4d4f;"></i>核心指标</div>
-            <div class="hero-value">52<small>%</small></div>
+            <div class="hero-value">52.0<small>%</small></div>
             <div class="hero-meta">问题设备 <b>15,692</b> 台 / 总量 <b>30,177</b> 台</div>
             <div class="hero-bars">
               <div class="hero-bar-item">
-                <div class="hero-bar-label"><span>离线</span><span style="color:#cf1322;font-weight:600;">21%</span></div>
+                <div class="hero-bar-label"><span>离线</span><span style="color:#cf1322;font-weight:600;">21.0%</span></div>
                 <div class="hero-bar-track"><div class="hero-bar-fill" style="width:21%;background:#ff4d4f;"></div></div>
               </div>
               <div class="hero-bar-item">
-                <div class="hero-bar-label"><span>链路异常</span><span style="color:#cf1322;font-weight:600;">47%</span></div>
+                <div class="hero-bar-label"><span>链路异常</span><span style="color:#cf1322;font-weight:600;">47.0%</span></div>
                 <div class="hero-bar-track"><div class="hero-bar-fill" style="width:47%;background:#ff4d4f;"></div></div>
               </div>
               <div class="hero-bar-item">
-                <div class="hero-bar-label"><span>坐标空缺</span><span style="color:#389e0d;font-weight:600;">8%</span></div>
+                <div class="hero-bar-label"><span>坐标空缺</span><span style="color:#389e0d;font-weight:600;">8.0%</span></div>
                 <div class="hero-bar-track"><div class="hero-bar-fill" style="width:8%;background:#52c41a;"></div></div>
               </div>
               <div class="hero-bar-item">
-                <div class="hero-bar-label"><span>标签配置率</span><span style="color:#d46b08;font-weight:600;">14%</span></div>
+                <div class="hero-bar-label"><span>标签配置率</span><span style="color:#d46b08;font-weight:600;">14.0%</span></div>
                 <div class="hero-bar-track"><div class="hero-bar-fill" style="width:14%;background:#faad14;"></div></div>
               </div>
             </div>
@@ -208,7 +240,7 @@
               <circle cx="70" cy="70" r="58" fill="none" stroke="#f0f0f0" stroke-width="10"/>
               <circle cx="70" cy="70" r="58" fill="none" stroke="#1677ff" stroke-width="10" stroke-linecap="round"
                 stroke-dasharray="364.4" stroke-dashoffset="174.9" transform="rotate(-90 70 70)"/>
-              <text x="70" y="66" text-anchor="middle" font-size="28" font-weight="800" fill="#1677ff">52%</text>
+              <text x="70" y="66" text-anchor="middle" font-size="28" font-weight="800" fill="#1677ff">52.0%</text>
               <text x="70" y="86" text-anchor="middle" font-size="11" fill="#8c8c8c">问题率</text>
             </svg>
           </div>
@@ -279,6 +311,30 @@
           <div class="section-title"><i class="fa-solid fa-ranking-star" style="color:#faad14;"></i>部门治理效能排行</div>
           <div style="display:flex;align-items:center;gap:12px;">
             <span class="section-note">默认按综合治理问题率从高到低排行</span>
+            <div class="settings-wrap">
+              <button class="ant-btn" style="height:28px;padding:0 12px;font-size:13px;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;" onclick="toggleSettings()"><i class="fa-solid fa-gear"></i>设置</button>
+              <div class="settings-dropdown" id="settingsDropdown">
+                <div class="settings-dropdown-head">
+                  <span>选择对比部门</span>
+                  <span style="cursor:pointer;font-size:12px;color:var(--ant-primary);" onclick="selectAllTags()">全选</span>
+                </div>
+                <div class="settings-dropdown-body">
+                  <div class="settings-step-label"><span class="step-num">1</span>选择业务目录</div>
+                  <select class="settings-domain-select" id="domainSelect" onchange="onDomainChange(this.value)">
+                    <option value="">请选择业务目录...</option>
+                  </select>
+                  <div class="settings-divider"></div>
+                  <div class="settings-step-label"><span class="step-num">2</span>选择二级目录 <span id="tagStepHint" style="margin-left:auto;font-size:11px;color:var(--ant-text-tertiary);"></span></div>
+                  <div class="settings-tag-list" id="tagList">
+                    <div class="settings-tag-empty">请先选择业务目录</div>
+                  </div>
+                </div>
+                <div class="settings-dropdown-foot">
+                  <span class="count-info" id="deptCountInfo">已选 0 个部门</span>
+                  <button class="ant-btn ant-btn-primary" style="height:28px;padding:0 14px;font-size:12px;" onclick="applyDeptSelection()">确定</button>
+                </div>
+              </div>
+            </div>
             <button class="ant-btn" style="height:28px;padding:0 12px;font-size:13px;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;" onclick="alert('导出部门治理效能排行数据')"><i class="fa-solid fa-download"></i>导出</button>
           </div>
         </div>
@@ -300,111 +356,261 @@
                 <th>综合问题率 <span style="color:#1677ff;font-size:11px;">▼ 默认排序</span></th>
               </tr>
             </thead>
-            <tbody>
-              <tr class="heat-bad">
-                <td class="sticky-col"><span class="medal">🥇</span></td>
-                <td class="sticky-col-2"><b>巴中市委政法委（社会面资源）</b></td>
-                <td>3,929</td>
-                <td>330</td>
-                <td class="metric-strong rate-ok">8%</td>
-                <td>3,111</td>
-                <td class="metric-strong rate-bad">79%</td>
-                <td>2,292</td>
-                <td class="metric-strong rate-bad">58%</td>
-                <td class="rate-warn">81%</td>
-                <td class="rate-warn">88%</td>
-                <td class="metric-strong rate-bad">82%</td>
-              </tr>
-              <tr class="heat-bad">
-                <td class="sticky-col"><span class="medal">🥈</span></td>
-                <td class="sticky-col-2"><b>巴中市交通运输局</b></td>
-                <td>8,461</td>
-                <td>688</td>
-                <td class="metric-strong rate-ok">8%</td>
-                <td>5,296</td>
-                <td class="metric-strong rate-bad">63%</td>
-                <td>94</td>
-                <td class="metric-strong rate-ok">1%</td>
-                <td class="rate-warn">89%</td>
-                <td class="rate-ok">94%</td>
-                <td class="metric-strong rate-bad">65%</td>
-              </tr>
-              <tr class="heat-bad">
-                <td class="sticky-col"><span class="medal">🥉</span></td>
-                <td class="sticky-col-2"><b>巴中市委政法委（雪亮工程）</b></td>
-                <td>12,422</td>
-                <td>4,581</td>
-                <td class="metric-strong rate-bad">37%</td>
-                <td>5,209</td>
-                <td class="metric-strong rate-warn">42%</td>
-                <td>9</td>
-                <td class="metric-strong rate-ok">1%</td>
-                <td class="rate-warn">87%</td>
-                <td class="rate-ok">92%</td>
-                <td class="metric-strong rate-bad">61%</td>
-              </tr>
-              <tr class="heat-warn">
-                <td class="sticky-col"><span class="rank">4</span></td>
-                <td class="sticky-col-2"><b>巴中市发改委</b></td>
-                <td>82</td>
-                <td>32</td>
-                <td class="metric-strong rate-bad">39%</td>
-                <td>33</td>
-                <td class="metric-strong rate-warn">40%</td>
-                <td>0</td>
-                <td class="metric-strong rate-ok">0%</td>
-                <td class="rate-warn">76%</td>
-                <td class="rate-warn">85%</td>
-                <td class="metric-strong rate-warn">48%</td>
-              </tr>
-              <tr class="heat-warn">
-                <td class="sticky-col"><span class="rank">5</span></td>
-                <td class="sticky-col-2"><b>巴中市教育局</b></td>
-                <td>1,523</td>
-                <td>286</td>
-                <td class="metric-strong rate-warn">19%</td>
-                <td>312</td>
-                <td class="metric-strong rate-ok">20%</td>
-                <td>9</td>
-                <td class="metric-strong rate-ok">1%</td>
-                <td class="rate-ok">92%</td>
-                <td class="rate-ok">91%</td>
-                <td class="metric-strong rate-warn">33%</td>
-              </tr>
-              <tr class="heat-ok">
-                <td class="sticky-col"><span class="rank">6</span></td>
-                <td class="sticky-col-2"><b>巴中市公安局</b></td>
-                <td>2,756</td>
-                <td>246</td>
-                <td class="metric-strong rate-ok">9%</td>
-                <td>248</td>
-                <td class="metric-strong rate-ok">9%</td>
-                <td>15</td>
-                <td class="metric-strong rate-ok">1%</td>
-                <td class="rate-ok">95%</td>
-                <td class="rate-ok">93%</td>
-                <td class="metric-strong rate-ok">18%</td>
-              </tr>
-              <tr class="total-row">
-                <td class="sticky-col">汇总</td>
-                <td class="sticky-col-2">全量部门</td>
-                <td>30,177</td>
-                <td>6,250</td>
-                <td>21%</td>
-                <td>14,314</td>
-                <td>47%</td>
-                <td>2,420</td>
-                <td>8%</td>
-                <td>86%</td>
-                <td>91%</td>
-                <td>52%</td>
-              </tr>
+            <tbody id="deptTableBody">
             </tbody>
           </table>
         </div>
+        <div id="pagination" class="pagination-wrap"></div>
       </section>
     </main>
   </div>
 </div>
+
+<script>
+// 业务目录 → 二级标签 → 关联部门 映射数据
+const domainData = {
+  'DIR1': {
+    name: '业务目录1',
+    tags: [
+      {id:'DIR1-01',name:'二级目录A',dept:'巴中市委政法委（社会面资源）',devices:3929,offline:330,offlineRate:'8.4%',linkErr:3111,linkRate:'79.2%',coordMiss:2292,coordRate:'58.3%',tagRate:'81.0%',nameRate:'88.0%',totalRate:'82.0%',heat:'bad'},
+      {id:'DIR1-02',name:'二级目录B',dept:'巴中市公安局',devices:2756,offline:246,offlineRate:'8.9%',linkErr:248,linkRate:'9.0%',coordMiss:15,coordRate:'0.5%',tagRate:'95.0%',nameRate:'93.0%',totalRate:'18.0%',heat:'ok'},
+      {id:'DIR1-03',name:'二级目录C',dept:'巴中市委政法委（雪亮工程）',devices:12422,offline:4581,offlineRate:'36.9%',linkErr:5209,linkRate:'41.9%',coordMiss:9,coordRate:'0.1%',tagRate:'87.0%',nameRate:'92.0%',totalRate:'61.0%',heat:'bad'}
+    ]
+  },
+  'DIR2': {
+    name: '业务目录2',
+    tags: [
+      {id:'DIR2-01',name:'二级目录D',dept:'巴中市交通运输局',devices:8461,offline:688,offlineRate:'8.1%',linkErr:5296,linkRate:'62.6%',coordMiss:94,coordRate:'1.1%',tagRate:'89.0%',nameRate:'94.0%',totalRate:'65.0%',heat:'bad'},
+      {id:'DIR2-02',name:'二级目录E',dept:'巴中市教育局',devices:1523,offline:286,offlineRate:'18.8%',linkErr:312,linkRate:'20.5%',coordMiss:9,coordRate:'0.6%',tagRate:'92.0%',nameRate:'91.0%',totalRate:'33.0%',heat:'warn'},
+      {id:'DIR2-03',name:'二级目录F',dept:'巴中市发改委',devices:82,offline:32,offlineRate:'39.0%',linkErr:33,linkRate:'40.2%',coordMiss:0,coordRate:'0.0%',tagRate:'76.0%',nameRate:'85.0%',totalRate:'48.0%',heat:'warn'}
+    ]
+  },
+  'DIR3': {
+    name: '业务目录3',
+    tags: [
+      {id:'DIR3-01',name:'二级目录G',dept:'巴中市综合执法局',devices:1230,offline:98,offlineRate:'8.0%',linkErr:156,linkRate:'12.7%',coordMiss:12,coordRate:'1.0%',tagRate:'88.0%',nameRate:'90.0%',totalRate:'19.0%',heat:'ok'},
+      {id:'DIR3-02',name:'二级目录H',dept:'巴中市住建局',devices:456,offline:45,offlineRate:'9.9%',linkErr:89,linkRate:'19.5%',coordMiss:18,coordRate:'3.9%',tagRate:'82.0%',nameRate:'85.0%',totalRate:'28.0%',heat:'warn'},
+      {id:'DIR3-03',name:'二级目录I',dept:'巴中市水利局',devices:680,offline:52,offlineRate:'7.6%',linkErr:85,linkRate:'12.5%',coordMiss:6,coordRate:'0.9%',tagRate:'89.0%',nameRate:'91.0%',totalRate:'18.0%',heat:'ok'}
+    ]
+  }
+};
+
+let selectedDomain = '';
+let selectedTagIds = new Set();
+
+// 初始化业务目录下拉
+function initDomainSelect(){
+  const sel = document.getElementById('domainSelect');
+  sel.innerHTML = '<option value="">请选择业务目录...</option>' +
+    Object.entries(domainData).map(([code,d])=>
+      `<option value="${code}">${d.name}（${code}）</option>`
+    ).join('');
+}
+
+// 切换业务目录
+function onDomainChange(code){
+  selectedDomain = code;
+  selectedTagIds = new Set();
+  renderTagList();
+}
+
+// 渲染二级标签列表
+function renderTagList(){
+  const container = document.getElementById('tagList');
+  const hint = document.getElementById('tagStepHint');
+
+  if(!selectedDomain || !domainData[selectedDomain]){
+    container.innerHTML = '<div class="settings-tag-empty">请先选择业务目录</div>';
+    hint.textContent = '';
+    updateCountInfo();
+    return;
+  }
+
+  const tags = domainData[selectedDomain].tags;
+  hint.textContent = `共 ${tags.length} 个`;
+
+  container.innerHTML = tags.map(t=>`
+    <label class="settings-tag-item">
+      <input type="checkbox" value="${t.id}" ${selectedTagIds.has(t.id)?'checked':''} onchange="onTagCheck(this)">
+      <span>${t.name}</span>
+      <span class="dept-link">${t.dept}</span>
+    </label>
+  `).join('');
+
+  updateCountInfo();
+}
+
+function onTagCheck(cb){
+  if(cb.checked){
+    selectedTagIds.add(cb.value);
+  } else {
+    if(selectedTagIds.size <= 1){
+      cb.checked = true;
+      return;
+    }
+    selectedTagIds.delete(cb.value);
+  }
+  updateCountInfo();
+}
+
+function selectAllTags(){
+  if(!selectedDomain || !domainData[selectedDomain]) return;
+  selectedTagIds = new Set(domainData[selectedDomain].tags.map(t=>t.id));
+  renderTagList();
+}
+
+function updateCountInfo(){
+  const total = selectedDomain && domainData[selectedDomain] ? domainData[selectedDomain].tags.length : 0;
+  document.getElementById('deptCountInfo').textContent = `已选 ${selectedTagIds.size} / ${total} 个部门`;
+}
+
+function applyDeptSelection(){
+  renderDeptTable();
+  document.getElementById('settingsDropdown').classList.remove('active');
+}
+
+function toggleSettings(){
+  const dd = document.getElementById('settingsDropdown');
+  dd.classList.toggle('active');
+  if(dd.classList.contains('active')){
+    initDomainSelect();
+    if(selectedDomain){
+      document.getElementById('domainSelect').value = selectedDomain;
+      renderTagList();
+    }
+  }
+}
+
+// 点击外部关闭下拉
+document.addEventListener('click', function(e){
+  const wrap = document.querySelector('.settings-wrap');
+  if(wrap && !wrap.contains(e.target)){
+    document.getElementById('settingsDropdown').classList.remove('active');
+  }
+});
+
+// 获取当前选中的部门数据
+function getSelectedDepts(){
+  if(!selectedDomain || !domainData[selectedDomain]) return [];
+  return domainData[selectedDomain].tags.filter(t=>selectedTagIds.has(t.id));
+}
+
+// 渲染排行表格
+let currentPage = 1;
+let pageSize = 10;
+
+function renderDeptTable(){
+  const selected = getSelectedDepts();
+  selected.sort((a,b)=>parseFloat(b.totalRate)-parseFloat(a.totalRate));
+
+  const medals = ['🥇','🥈','🥉'];
+  const tbody = document.getElementById('deptTableBody');
+  const paginationEl = document.getElementById('pagination');
+
+  if(selected.length === 0){
+    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:40px;color:var(--ant-text-tertiary);">
+      点击「设置」按钮选择业务目录和二级标签来查看部门排行
+    </td></tr>`;
+    paginationEl.innerHTML = '';
+    return;
+  }
+
+  let sumDevices=0, sumOffline=0, sumLink=0, sumCoord=0;
+  selected.forEach(d=>{
+    sumDevices += d.devices;
+    sumOffline += d.offline;
+    sumLink += d.linkErr;
+    sumCoord += d.coordMiss;
+  });
+
+  const totalPages = Math.ceil(selected.length / pageSize);
+  if(currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage - 1) * pageSize;
+  const pageData = selected.slice(start, start + pageSize);
+
+  tbody.innerHTML = pageData.map((d,idx)=>{
+    const i = start + idx;
+    const rank = i < 3 ? `<span class="medal">${medals[i]}</span>` : `<span class="rank">${i+1}</span>`;
+    const heatClass = d.heat==='bad'?'heat-bad':(d.heat==='warn'?'heat-warn':'heat-ok');
+    return `<tr class="${heatClass}">
+      <td class="sticky-col">${rank}</td>
+      <td class="sticky-col-2"><b>${d.dept}</b><div style="font-size:11px;color:var(--ant-text-tertiary);margin-top:2px;">${d.name}</div></td>
+      <td>${d.devices.toLocaleString()}</td>
+      <td>${d.offline.toLocaleString()}</td>
+      <td class="metric-strong ${rateClass(d.offlineRate,20,10)}">${d.offlineRate}</td>
+      <td>${d.linkErr.toLocaleString()}</td>
+      <td class="metric-strong ${rateClass(d.linkRate,50,25)}">${d.linkRate}</td>
+      <td>${d.coordMiss.toLocaleString()}</td>
+      <td class="metric-strong ${rateClass(d.coordRate,15,5)}">${d.coordRate}</td>
+      <td class="${rateClassInv(d.tagRate,85,92)}">${d.tagRate}</td>
+      <td class="${rateClassInv(d.nameRate,88,92)}">${d.nameRate}</td>
+      <td class="metric-strong ${rateClass(d.totalRate,50,25)}">${d.totalRate}</td>
+    </tr>`;
+  }).join('') + `
+    <tr class="total-row">
+      <td class="sticky-col">汇总</td>
+      <td class="sticky-col-2">已选 ${selected.length} 个部门</td>
+      <td>${sumDevices.toLocaleString()}</td>
+      <td>${sumOffline.toLocaleString()}</td>
+      <td>${sumDevices?(sumOffline/sumDevices*100).toFixed(1):'0.0'}%</td>
+      <td>${sumLink.toLocaleString()}</td>
+      <td>${sumDevices?(sumLink/sumDevices*100).toFixed(1):'0.0'}%</td>
+      <td>${sumCoord.toLocaleString()}</td>
+      <td>${sumDevices?(sumCoord/sumDevices*100).toFixed(1):'0.0'}%</td>
+      <td>-</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>`;
+
+  // 分页控件
+  let pageBtns = '';
+  const maxVisible = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisible/2));
+  let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+  if(endPage - startPage < maxVisible - 1) startPage = Math.max(1, endPage - maxVisible + 1);
+
+  pageBtns += `<button class="page-btn" onclick="goPage(1)" ${currentPage===1?'disabled':''}>&laquo;</button>`;
+  pageBtns += `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>&lsaquo;</button>`;
+  for(let p = startPage; p <= endPage; p++){
+    pageBtns += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+  }
+  pageBtns += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>&rsaquo;</button>`;
+  pageBtns += `<button class="page-btn" onclick="goPage(${totalPages})" ${currentPage===totalPages?'disabled':''}>&raquo;</button>`;
+
+  paginationEl.innerHTML = `
+    <div class="pagination-info">
+      共 ${selected.length} 条，第 ${currentPage}/${totalPages} 页
+      <select class="page-size-select" onchange="changePageSize(this.value)">
+        <option value="10" ${pageSize===10?'selected':''}>10条/页</option>
+        <option value="20" ${pageSize===20?'selected':''}>20条/页</option>
+        <option value="50" ${pageSize===50?'selected':''}>50条/页</option>
+      </select>
+    </div>
+    <div class="pagination-btns">${pageBtns}</div>
+  `;
+}
+
+function goPage(p){ currentPage = p; renderDeptTable(); }
+function changePageSize(v){ pageSize = parseInt(v); currentPage = 1; renderDeptTable(); }
+
+function rateClass(rate, warnThreshold, okThreshold){
+  const v = parseFloat(rate);
+  if(v >= warnThreshold) return 'rate-bad';
+  if(v >= okThreshold) return 'rate-warn';
+  return 'rate-ok';
+}
+
+function rateClassInv(rate, warnThreshold, okThreshold){
+  const v = parseFloat(rate);
+  if(v < okThreshold) return 'rate-warn';
+  if(v < warnThreshold) return 'rate-warn';
+  return 'rate-ok';
+}
+
+// 初始化：默认选中业务目录1的全部二级标签
+selectedDomain = 'DIR1';
+selectedTagIds = new Set(domainData['DIR1'].tags.map(t=>t.id));
+renderDeptTable();
+</script>
 </body>
 </html>

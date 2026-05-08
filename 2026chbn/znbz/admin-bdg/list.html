@@ -64,6 +64,7 @@
     .ant-input { width: 240px; height: 32px; border: 1px solid var(--ant-border); border-radius: var(--radius-base); padding: 0 10px; outline: none; }
     .ant-input:focus { border-color: var(--ant-primary); box-shadow: 0 0 0 2px rgba(22,119,255,.1); }
     .ant-select { width: 100%; height: 32px; border: 1px solid var(--ant-border); border-radius: var(--radius-base); padding: 0 10px; background: #fff; }
+    .ant-select:disabled { background: #f5f5f5; color: var(--ant-text-tertiary); cursor: not-allowed; }
 
     .ant-btn { height: 32px; padding: 0 14px; border: 1px solid var(--ant-border); border-radius: var(--radius-base); background: #fff; color: var(--ant-text); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
     .ant-btn:hover { border-color: var(--ant-primary-hover); color: var(--ant-primary-hover); }
@@ -135,10 +136,6 @@
     .modal-header { height: 48px; border-bottom: 1px solid var(--ant-border-secondary); padding: 0 16px; display:flex; align-items:center; justify-content:space-between; }
     .modal-body { padding: 16px; max-height: 70vh; overflow: auto; }
     .modal-footer { height: 52px; border-top: 1px solid var(--ant-border-secondary); padding: 0 16px; display:flex; align-items:center; justify-content:flex-end; gap:8px; }
-
-    .region-panel { border: 1px solid var(--ant-border); border-radius: 6px; padding: 10px; max-height: 360px; overflow: auto; }
-    .region-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
-    .region-children { padding-left: 20px; }
 
     .message-box { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 1300; display: flex; flex-direction: column; gap: 8px; }
     .message { background: #fff; border-radius: 8px; box-shadow: var(--shadow-2); padding: 9px 14px; font-size: 13px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--ant-primary); }
@@ -242,16 +239,6 @@
             </div>
           </div>
 
-          <div id="regionFields">
-            <div class="form-item">
-              <label class="label required">覆盖区域</label>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="ant-btn" type="button" onclick="openRegionModal()"><i class="fa-solid fa-location-dot"></i> 选择覆盖区域</button>
-                <span class="hint" id="regionSummary" style="margin-top:0">未选择</span>
-              </div>
-            </div>
-          </div>
-
           <div class="form-item">
             <label class="label required">业务域 / 标签来源</label>
             <select id="tagScope" class="ant-select" onchange="onFieldChange()">
@@ -322,31 +309,6 @@
           <h3 class="section-title">预览区</h3>
 
           <div class="preview-card">
-            <div class="preview-head">字段语义映射（region_level / tag_level）</div>
-            <div class="preview-body" style="font-size:12px;line-height:1.7">
-              <div id="mappingRegion">region_level：区域展开到（主维度）</div>
-              <div id="mappingTag">tag_level：业务挂接层级（次维度）</div>
-            </div>
-          </div>
-
-          <div class="preview-card">
-            <div class="preview-head">生成摘要</div>
-            <div class="preview-body">
-              <div class="metric-grid">
-                <div class="metric"><div class="num" id="mCount">-</div><div class="hint">预计目录数量</div></div>
-                <div class="metric"><div class="num" id="mRegion">-</div><div class="hint">区域节点</div></div>
-                <div class="metric"><div class="num" id="mBiz">-</div><div class="hint">业务节点</div></div>
-                <div class="metric"><div class="num" id="mDedup">-</div><div class="hint">去重数量</div></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="preview-card">
-            <div class="preview-head">风险提示</div>
-            <div class="preview-body" id="warningBox" style="font-size:13px;color:var(--ant-text-secondary)">请先刷新预览。</div>
-          </div>
-
-          <div class="preview-card">
             <div class="preview-head">目录示例</div>
             <div class="preview-body tree-list" id="treeBox">请先刷新预览。</div>
           </div>
@@ -356,27 +318,6 @@
         <button class="ant-btn" onclick="closeGenerator()">取消</button>
         <button class="ant-btn" onclick="refreshPreview()"><i class="fa-solid fa-rotate"></i> 刷新预览</button>
         <button class="ant-btn ant-btn-primary" id="saveBtn" onclick="saveRule()" disabled><i class="fa-solid fa-floppy-disk"></i> 生成并保存</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-mask" id="regionModal">
-    <div class="modal">
-      <div class="modal-header">
-        <span>选择覆盖区域</span>
-        <button class="ant-btn" onclick="closeRegionModal()"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="modal-body">
-        <div style="display:flex;gap:8px;margin-bottom:10px;">
-          <input class="ant-input" id="regionSearch" placeholder="搜索区域名称" oninput="renderRegionPanel()" style="width:240px">
-          <button class="ant-btn" onclick="selectAllRegion(true)">全选</button>
-          <button class="ant-btn" onclick="selectAllRegion(false)">清空</button>
-        </div>
-        <div class="region-panel" id="regionPanel"></div>
-      </div>
-      <div class="modal-footer">
-        <button class="ant-btn" onclick="closeRegionModal()">取消</button>
-        <button class="ant-btn ant-btn-primary" onclick="applyRegion()">确定</button>
       </div>
     </div>
   </div>
@@ -412,12 +353,6 @@
       { id: 6, rule_name: '重点保障行动目录', template_type: 'tag_only', tag_scope: 'ZB', status: 1, pending: 0, updated_at: '2026-04-21 10:00:00', created_by: '张管理员', created_at: '2026-04-17 14:22:03' }
     ];
 
-    const regionTree = [
-      { key: 'hd', name: '海淀区', children: [{ key: 'hd_zgc', name: '中关村街道' }, { key: 'hd_xyl', name: '学院路街道' }, { key: 'hd_wdk', name: '五道口街道' }] },
-      { key: 'cy', name: '朝阳区', children: [{ key: 'cy_wj', name: '望京街道' }, { key: 'cy_sl', name: '三里屯街道' }] },
-      { key: 'xc', name: '西城区', children: [{ key: 'xc_jrj', name: '金融街街道' }, { key: 'xc_dx', name: '德胜街道' }] }
-    ];
-
     let filtered = [...rules];
     let page = 1;
     let pageSize = 20;
@@ -427,7 +362,6 @@
       editId: null,
       rule_name: '',
       template_type: 'region_first',
-      region_scope: ['hd', 'cy'],
       tag_scope: 'GA',
       region_level: 'street',
       tag_level: 'L2',
@@ -438,7 +372,6 @@
     };
 
     let nameTimer = null;
-    let regionTemp = [];
 
     function showMessage(text, type = 'success') {
       const box = document.getElementById('messageBox');
@@ -562,7 +495,6 @@
           formState.rule_name = item.rule_name;
           formState.template_type = item.template_type;
           formState.tag_scope = item.tag_scope;
-          formState.region_scope = ['hd', 'cy'];
           if (item.template_type === 'region_first') {
             formState.region_level = 'street';
             formState.tag_level = 'L2';
@@ -576,7 +508,30 @@
         }
       }
       fillFormUI();
+      // 编辑模式下，除名称外其他字段禁用
+      setFormReadonly(mode === 'edit');
       document.getElementById('generatorMask').classList.add('active');
+    }
+
+    function setFormReadonly(readonly) {
+      // 生成方式卡片
+      document.querySelectorAll('.mode-card').forEach(el => {
+        if (readonly) {
+          el.style.pointerEvents = 'none';
+          el.style.opacity = '0.65';
+        } else {
+          el.style.pointerEvents = '';
+          el.style.opacity = '';
+        }
+      });
+      // 业务域下拉
+      document.getElementById('tagScope').disabled = readonly;
+      // 区域/业务层级下拉
+      document.getElementById('regionExpandTo').disabled = readonly;
+      document.getElementById('tagAttachLevel').disabled = readonly;
+      document.getElementById('tagExpandTo').disabled = readonly;
+      document.getElementById('regionAttachLevel').disabled = readonly;
+      document.getElementById('tagExpandToOnly').disabled = readonly;
     }
 
     function closeGenerator() {
@@ -587,7 +542,6 @@
       formState.editId = null;
       formState.rule_name = '';
       formState.template_type = 'region_first';
-      formState.region_scope = ['hd', 'cy'];
       formState.tag_scope = 'GA';
       formState.region_level = 'street';
       formState.tag_level = 'L2';
@@ -606,7 +560,6 @@
       document.getElementById('tagExpandTo').value = formState.tag_level || 'L2';
       document.getElementById('regionAttachLevel').value = formState.region_level || 'district';
       document.getElementById('tagExpandToOnly').value = formState.tag_level || 'L2';
-      updateRegionSummary();
       renderNameState();
       resetPreviewUI();
     }
@@ -615,22 +568,9 @@
       formState.template_type = mode;
       document.querySelectorAll('.mode-card').forEach(el => el.classList.toggle('active', el.dataset.mode === mode));
 
-      const showRegion = mode !== 'tag_only';
-      document.getElementById('regionFields').style.display = showRegion ? '' : 'none';
       document.getElementById('regionFirstRow').style.display = mode === 'region_first' ? 'grid' : 'none';
       document.getElementById('tagFirstRow').style.display = mode === 'tag_first' ? 'grid' : 'none';
       document.getElementById('tagOnlyRow').style.display = mode === 'tag_only' ? '' : 'none';
-
-      if (mode === 'region_first') {
-        document.getElementById('mappingRegion').textContent = 'region_level：区域展开到（主维度，连续展开终点）';
-        document.getElementById('mappingTag').textContent = 'tag_level：业务挂接层级（次维度，单层挂接）';
-      } else if (mode === 'tag_first') {
-        document.getElementById('mappingRegion').textContent = 'region_level：区域挂接粒度（次维度，单层挂接）';
-        document.getElementById('mappingTag').textContent = 'tag_level：业务展开到（主维度，连续展开终点）';
-      } else {
-        document.getElementById('mappingRegion').textContent = 'region_level：不使用（NULL）';
-        document.getElementById('mappingTag').textContent = 'tag_level：业务展开到（主维度，连续展开终点）';
-      }
 
       if (!silent) {
         formState.previewReady = false;
@@ -706,11 +646,6 @@
     }
 
     function resetPreviewUI() {
-      document.getElementById('mCount').textContent = '-';
-      document.getElementById('mRegion').textContent = '-';
-      document.getElementById('mBiz').textContent = '-';
-      document.getElementById('mDedup').textContent = '-';
-      document.getElementById('warningBox').textContent = '请先刷新预览。';
       document.getElementById('treeBox').textContent = '请先刷新预览。';
       updateSaveState();
     }
@@ -718,7 +653,6 @@
     function validateForPreview() {
       if (formState.nameStatus !== 'valid') return { ok: false, msg: '目录名称未通过校验' };
       if (!formState.tag_scope) return { ok: false, msg: '请选择业务域' };
-      if (formState.template_type !== 'tag_only' && formState.region_scope.length === 0) return { ok: false, msg: '请选择覆盖区域' };
       if (!formState.tag_level) return { ok: false, msg: '请选择业务层级' };
       if (formState.template_type !== 'tag_only' && !formState.region_level) return { ok: false, msg: '请选择区域层级' };
       return { ok: true };
@@ -730,25 +664,14 @@
         showMessage(check.msg, 'error');
         return;
       }
-      const regionNodes = formState.template_type === 'tag_only' ? 0 : Math.max(2, formState.region_scope.length * (formState.region_level === 'community' ? 3 : formState.region_level === 'street' ? 2 : 1));
+      // 默认全部区域，按3个区估算
+      const regionNodes = formState.template_type === 'tag_only' ? 0 : Math.max(2, 3 * (formState.region_level === 'community' ? 3 : formState.region_level === 'street' ? 2 : 1));
       const bizNodes = formState.tag_level === 'L3' ? 9 : formState.tag_level === 'L2' ? 5 : 2;
       const count = formState.template_type === 'tag_only' ? bizNodes : regionNodes * (formState.template_type === 'region_first' ? Math.max(2, bizNodes - 1) : 1) + (formState.template_type === 'tag_first' ? bizNodes * Math.max(2, regionNodes - 1) : 0);
       const dedup = Math.floor(count * 0.06);
       formState.preview = { count, regionNodes, bizNodes, dedup, canSave: count > 0 && count <= 500 };
       formState.previewReady = true;
       formState.canSave = formState.preview.canSave;
-
-      document.getElementById('mCount').textContent = String(count);
-      document.getElementById('mRegion').textContent = String(regionNodes);
-      document.getElementById('mBiz').textContent = String(bizNodes);
-      document.getElementById('mDedup').textContent = String(dedup);
-
-      const warns = [];
-      if (count > 300) warns.push('预计生成目录数量较多，建议缩小覆盖范围或降低层级。');
-      if (dedup > 0) warns.push(`检测到重复目录 ${dedup} 个，预览中已自动去重。`);
-      if (formState.tag_level === 'L3' && formState.template_type === 'region_first') warns.push('当前配置为“区域多层 + 业务较深层级”，请确认目录可维护性。');
-      if (warns.length === 0) warns.push('当前配置无明显风险。');
-      document.getElementById('warningBox').innerHTML = warns.map(w => `<div style="margin-bottom:6px;">• ${w}</div>`).join('');
 
       document.getElementById('treeBox').innerHTML = buildTreePreview();
       updateSaveState();
@@ -757,12 +680,44 @@
 
     function buildTreePreview() {
       if (formState.template_type === 'region_first') {
-        return `海淀区 / 中关村街道 / 校园周边<br>海淀区 / 学院路街道 / 社区治理<br>朝阳区 / 望京街道 / 校园周边`;
+        return `<pre style="margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.7;color:var(--ant-text-secondary)">海淀区
+├─ 中关村街道
+│  ├─ 校园周边
+│  └─ 社区治理
+├─ 学院路街道
+│  ├─ 校园周边
+│  └─ 社区治理
+└─ 望京街道
+   └─ 校园周边
+朝阳区
+├─ 望京街道
+│  ├─ 校园周边
+│  └─ 社区治理
+└─ 三里屯街道
+   └─ 校园周边</pre>`;
       }
       if (formState.template_type === 'tag_first') {
-        return `治安防控 / 校园周边 / 海淀区<br>城市管理 / 环卫管理 / 朝阳区<br>重点保障 / 联防联控 / 西城区`;
+        return `<pre style="margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.7;color:var(--ant-text-secondary)">治安防控
+├─ 校园周边
+│  ├─ 海淀区
+│  └─ 朝阳区
+└─ 圈层查控
+   └─ 海淀区
+城市管理
+└─ 环卫管理
+   ├─ 海淀区
+   └─ 西城区
+重点保障
+└─ 联防联控
+   └─ 西城区</pre>`;
       }
-      return `治安防控 / 校园周边<br>城市管理 / 环卫管理<br>重点保障 / 联防联控`;
+      return `<pre style="margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.7;color:var(--ant-text-secondary)">治安防控
+├─ 校园周边
+└─ 圈层查控
+城市管理
+└─ 环卫管理
+重点保障
+└─ 联防联控</pre>`;
     }
 
     function updateSaveState() {
@@ -780,9 +735,7 @@
         const item = rules.find(r => r.id === formState.editId);
         if (item) {
           item.rule_name = formState.rule_name;
-          item.template_type = formState.template_type;
-          item.tag_scope = formState.tag_scope;
-          item.updated_at = '2026-04-24 12:00:00';
+          item.updated_at = '2026-05-07 12:00:00';
         }
       } else {
         const newId = Math.max(...rules.map(r => r.id)) + 1;
@@ -793,80 +746,15 @@
           tag_scope: formState.tag_scope,
           status: 1,
           pending: 0,
-          updated_at: '2026-04-24 12:00:00',
+          updated_at: '2026-05-07 12:00:00',
           created_by: '当前用户',
-          created_at: '2026-04-24 12:00:00'
+          created_at: '2026-05-07 12:00:00'
         });
       }
       filtered = [...rules];
       renderTable();
       closeGenerator();
-      showMessage('生成并保存成功');
-    }
-
-    function openRegionModal() {
-      regionTemp = [...formState.region_scope];
-      renderRegionPanel();
-      document.getElementById('regionModal').classList.add('active');
-    }
-
-    function closeRegionModal() {
-      document.getElementById('regionModal').classList.remove('active');
-    }
-
-    function renderRegionPanel() {
-      const kw = document.getElementById('regionSearch').value.trim();
-      const panel = document.getElementById('regionPanel');
-      panel.innerHTML = regionTree
-        .filter(node => !kw || node.name.includes(kw) || node.children.some(c => c.name.includes(kw)))
-        .map(node => {
-          const checked = regionTemp.includes(node.key);
-          const childrenHtml = node.children
-            .filter(c => !kw || c.name.includes(kw) || node.name.includes(kw))
-            .map(c => {
-              const cc = regionTemp.includes(c.key);
-              return `<div class="region-row"><input type="checkbox" ${cc ? 'checked' : ''} onchange="toggleRegion('${c.key}',this.checked)"><span>${c.name}</span></div>`;
-            }).join('');
-          return `<div style="margin-bottom:8px;">
-            <div class="region-row"><input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleRegion('${node.key}',this.checked)"><strong>${node.name}</strong></div>
-            <div class="region-children">${childrenHtml}</div>
-          </div>`;
-        }).join('');
-    }
-
-    function toggleRegion(key, checked) {
-      if (checked) {
-        if (!regionTemp.includes(key)) regionTemp.push(key);
-      } else {
-        regionTemp = regionTemp.filter(k => k !== key);
-      }
-    }
-
-    function selectAllRegion(flag) {
-      if (flag) {
-        regionTemp = [];
-        regionTree.forEach(n => {
-          regionTemp.push(n.key);
-          n.children.forEach(c => regionTemp.push(c.key));
-        });
-      } else {
-        regionTemp = [];
-      }
-      renderRegionPanel();
-    }
-
-    function applyRegion() {
-      formState.region_scope = [...new Set(regionTemp)];
-      updateRegionSummary();
-      closeRegionModal();
-      onFieldChange();
-    }
-
-    function updateRegionSummary() {
-      const districtCount = formState.region_scope.filter(k => !k.includes('_')).length;
-      const streetCount = formState.region_scope.filter(k => k.includes('_')).length;
-      const txt = districtCount + streetCount === 0 ? '未选择' : `已选 ${districtCount} 个区 / ${streetCount} 个街道`;
-      document.getElementById('regionSummary').textContent = txt;
+      showMessage(formState.mode === 'edit' ? '修改成功' : '生成并保存成功');
     }
 
     function openConfirm(title, text, onConfirm) {

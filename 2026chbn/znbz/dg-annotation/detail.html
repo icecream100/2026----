@@ -385,20 +385,6 @@
       flex-shrink: 0;
     }
 
-    .score {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 58px;
-      height: 22px;
-      border-radius: 999px;
-      border: 1px solid #91caff;
-      color: #0958d9;
-      background: #e8f3ff;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
     .foot {
       height: 62px;
       border-top: 1px solid var(--line);
@@ -556,29 +542,16 @@
                 <div class="info-item"><div class="k">设备名称</div><div class="v">西区综合楼正门摄像头</div></div>
                 <div class="info-item"><div class="k">所属组织</div><div class="v">南山运维中心/西区网格</div></div>
                 <div class="info-item"><div class="k">安装位置</div><div class="v">综合楼正门东侧立杆4.2m</div></div>
-                <div class="info-item"><div class="k">设备IP</div><div class="v">192.168.21.41</div></div>
                 <div class="info-item"><div class="k">更新时间</div><div class="v">2026-04-22 14:20:33</div></div>
               </div>
             </section>
 
             <section class="panel" style="flex:1;">
               <h3>2. 截图缩略图</h3>
-              <div class="thumbs">
+              <div class="thumbs" style="grid-template-columns: 1fr;">
                 <div class="thumb">
-                  <div class="thumb-box">通道01<br/>正门全景</div>
+                  <div class="thumb-box" style="min-height:120px;">通道01<br/>正门全景</div>
                   <div class="thumb-foot"><span>14:12:08</span><span>640×360</span></div>
-                </div>
-                <div class="thumb">
-                  <div class="thumb-box">通道02<br/>入口近景</div>
-                  <div class="thumb-foot"><span>14:12:10</span><span>640×360</span></div>
-                </div>
-                <div class="thumb">
-                  <div class="thumb-box">通道03<br/>车道侧向</div>
-                  <div class="thumb-foot"><span>14:12:13</span><span>640×360</span></div>
-                </div>
-                <div class="thumb">
-                  <div class="thumb-box">通道04<br/>门禁区域</div>
-                  <div class="thumb-foot"><span>14:12:16</span><span>640×360</span></div>
                 </div>
               </div>
             </section>
@@ -586,14 +559,13 @@
 
           <div class="col">
             <section class="panel" style="flex:1;">
-              <h3>3. AI建议标注结果（按业务域维度）</h3>
+              <h3>3. AI建议标注结果</h3>
               <div class="table-wrap">
                 <table>
                   <thead>
                     <tr>
-                      <th style="width: 26%;">业务维度</th>
+                      <th style="width: 30%;">业务维度</th>
                       <th>AI建议结果（下拉可编辑）</th>
-                      <th style="width: 16%;">置信度</th>
                     </tr>
                   </thead>
                   <tbody id="rows"></tbody>
@@ -625,7 +597,7 @@
     // 实际项目中 DATA 通过接口获取，此处为原型演示数据
     const DATA = [
       // === 内置业务域（固定7个） ===
-      { dim: '公共安全', domainCode: 'GA', score: 0.94, value: ['GA-0101 治安防控'], tree: [
+      { dim: '公共安全', domainCode: 'GA', value: ['GA-0101 治安防控'], tree: [
         { id: 'GA-01', label: '治安管理', children: [
           { id: 'GA-0101', label: '治安防控' },
           { id: 'GA-0201', label: '重点人员管控' }
@@ -634,7 +606,7 @@
           { id: 'GA-0401', label: '圈层查控' }
         ]}
       ]},
-      { dim: '城市管理', domainCode: 'CG', score: 0.83, value: ['CG-0301 环境卫生'], tree: [
+      { dim: '城市管理', domainCode: 'CG', value: ['CG-0301 环境卫生'], tree: [
         { id: 'CG-01', label: '市容管理', children: [
           { id: 'CG-0101', label: '占道经营' }
         ]},
@@ -645,14 +617,14 @@
           { id: 'CG-0301', label: '环境卫生' }
         ]}
       ]},
-      { dim: '交通运输', domainCode: 'JT', score: 0.80, value: ['JT-0101 十字路口'], tree: [
+      { dim: '交通运输', domainCode: 'JT', value: ['JT-0101 十字路口'], tree: [
         { id: 'JT-01', label: '道路类型', children: [
           { id: 'JT-0101', label: '十字路口' },
           { id: 'JT-0201', label: '主干道路' },
           { id: 'JT-0401', label: '停车场' }
         ]}
       ]},
-      { dim: '水利环保', domainCode: 'SL', score: 0.79, value: ['SL-0101 河道监控'], tree: [
+      { dim: '水利环保', domainCode: 'SL', value: ['SL-0101 河道监控'], tree: [
         { id: 'SL-01', label: '水域监测', children: [
           { id: 'SL-0101', label: '河道监控' },
           { id: 'SL-0201', label: '污水排口' }
@@ -661,7 +633,7 @@
           { id: 'SL-0401', label: '水源地保护' }
         ]}
       ]},
-      { dim: '应急管理', domainCode: 'YJ', score: 0.89, value: ['YJ-0301 人员密集场所'], tree: [
+      { dim: '应急管理', domainCode: 'YJ', value: ['YJ-0301 人员密集场所'], tree: [
         { id: 'YJ-01', label: '消防安全', children: [
           { id: 'YJ-0101', label: '消防通道' }
         ]},
@@ -672,7 +644,7 @@
           { id: 'YJ-0301', label: '人员密集场所' }
         ]}
       ]},
-      { dim: '社会民生', domainCode: 'MS', score: null, value: [], tree: [
+      { dim: '社会民生', domainCode: 'MS', value: [], tree: [
         { id: 'MS-01', label: '社区治理', children: [
           { id: 'MS-0101', label: '小区出入口' },
           { id: 'MS-0201', label: '背街小巷' }
@@ -681,7 +653,7 @@
           { id: 'MS-0301', label: '校园周边' }
         ]}
       ]},
-      { dim: '重点保障', domainCode: 'ZB', score: null, value: [], tree: [
+      { dim: '重点保障', domainCode: 'ZB', value: [], tree: [
         { id: 'ZB-01', label: '核心设施', children: [
           { id: 'ZB-0101', label: '核心机房' }
         ]},
@@ -693,7 +665,7 @@
         ]}
       ]},
       // === 自定义业务域（动态加载，每个域独立渲染） ===
-      { dim: '卫生健康', domainCode: 'HEALTH', score: 0.72, value: ['HEALTH-0101 医院周边'], tree: [
+      { dim: '卫生健康', domainCode: 'HEALTH', value: ['HEALTH-0101 医院周边'], tree: [
         { id: 'HEALTH-01', label: '医疗机构', children: [
           { id: 'HEALTH-0101', label: '医院周边' },
           { id: 'HEALTH-0102', label: '社区卫生站' }
@@ -702,7 +674,7 @@
           { id: 'HEALTH-0201', label: '药店门口' }
         ]}
       ]},
-      { dim: '教育安全', domainCode: 'EDU', score: null, value: [], tree: [
+      { dim: '教育安全', domainCode: 'EDU', value: [], tree: [
         { id: 'EDU-01', label: '校园安全', children: [
           { id: 'EDU-0101', label: '校门口' },
           { id: 'EDU-0102', label: '操场' }
@@ -807,10 +779,6 @@
         ? item.value.map(v => `<span class="multi-tag"><span>${v}</span><span class="remove" onclick="event.stopPropagation();toggleOption(${i}, '${v}')">×</span></span>`).join('')
         : '<span class="placeholder">请选择标签（可多选）</span>';
 
-      document.getElementById(`score-${i}`).innerHTML = item.value.length && item.score !== null
-        ? `<span class="score">${item.score.toFixed(2)}</span>`
-        : '<span style="color:rgba(0,0,0,0.35);">—</span>';
-
       const dropdown = document.getElementById(`dropdown-${i}`);
       const checkboxes = dropdown.querySelectorAll('.tree-leaf input[type="checkbox"]');
       checkboxes.forEach(cb => {
@@ -826,7 +794,6 @@
         <tr>
           <td class="dim">${item.dim}</td>
           <td>${renderMultiSelect(item, i)}</td>
-          <td id="score-${i}">${item.value.length && item.score !== null ? `<span class="score">${item.score.toFixed(2)}</span>` : '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td>
         </tr>
       `).join('');
     }

@@ -203,10 +203,8 @@
                   <th id="headerCheckboxTh"><input type="checkbox" class="ant-checkbox" onchange="toggleAll(this)"></th>
                   <th>设备编号</th>
                   <th>设备名称</th>
-                  <th>业务标签</th>
                   <th>业务标签建议</th>
                   <th>标注状态</th>
-                  <th>AI置信度</th>
                   <th>设备状态</th>
                   <th>最后标注时间</th>
                   <th style="width:110px;white-space:nowrap;">操作</th>
@@ -241,6 +239,7 @@
       </div>
       <div style="font-size:13px;color:rgba(0,0,0,0.65);">
         <div>• 操作范围：<span id="batchAnnotateScope">当前页</span></div>
+        <div>• 单次批量上限 <b>50</b> 条</div>
         <div>• 使用当前发布中的标注模型（annotation-model-v2）</div>
         <div>• 预计处理时长：约 <b>2-5分钟</b></div>
         <div>• 处理完成后系统将推送站内消息提醒</div>
@@ -266,6 +265,7 @@
       </div>
       <div style="font-size:13px;color:rgba(0,0,0,0.65);">
         <div>• 操作范围：<span id="batchConfirmScope">当前页</span></div>
+        <div>• 单次批量上限 <b>50</b> 条</div>
         <div>• 逐条原子确认，单条冲突不影响其他记录</div>
         <div>• 确认后不可撤销，如需修改请通过设备详情编辑页维护</div>
       </div>
@@ -383,10 +383,8 @@ function renderTable(){
       ${checkboxCell}
       <td style="font-family:monospace;font-size:13px;white-space:nowrap;">${item.id}</td>
       <td>${item.name}</td>
-      <td>${bizTags}</td>
       <td>${aiTags}</td>
       <td>${statusCell}</td>
-      <td>${confBar}</td>
       <td>${devStatusCell}</td>
       <td style="font-size:12px;color:rgba(0,0,0,0.55);">${item.time}</td>
       <td>${actions}</td>
@@ -559,13 +557,12 @@ function showDetail(id){
       </div>
     </div>
     <div>
-      <div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.65);margin-bottom:8px;">AI标注结果（按业务域维度，动态渲染）</div>
+      <div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.65);margin-bottom:8px;">AI标注结果（按业务标签维度，动态渲染）</div>
       <table style="width:100%;border-collapse:collapse;font-size:13px;">
         <thead>
           <tr style="background:#fafafa;">
-            <th style="padding:8px 10px;border:1px solid #f0f0f0;text-align:left;font-weight:600;color:rgba(0,0,0,0.65);">业务域</th>
+            <th style="padding:8px 10px;border:1px solid #f0f0f0;text-align:left;font-weight:600;color:rgba(0,0,0,0.65);">业务标签</th>
             <th style="padding:8px 10px;border:1px solid #f0f0f0;text-align:left;font-weight:600;color:rgba(0,0,0,0.65);">已确认标签</th>
-            <th style="padding:8px 10px;border:1px solid #f0f0f0;text-align:left;font-weight:600;color:rgba(0,0,0,0.65);width:70px;">置信度</th>
           </tr>
         </thead>
         <tbody>
@@ -575,7 +572,7 @@ function showDetail(id){
             {name:'重点保障',prefix:'ZB'},
             {name:'卫生健康',prefix:'HEALTH'},{name:'教育安全',prefix:'EDU'}
             // 自定义域从标签管理接口动态加载，此处展示内置7域+示例自定义域
-          ].map((d,i)=>`<tr${i%2===1?' style="background:#fafafa;"':''}><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">${d.name}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith(d.prefix+'-')).map(t=>'<span class="tag-chip tag-business">'+t+'</span>').join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.some(t=>t.startsWith(d.prefix+'-'))?'<span style="color:#389e0d;font-weight:600;">'+item.conf+'%</span>':'<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>`).join('')}
+          ].map((d,i)=>`<tr${i%2===1?' style="background:#fafafa;"':''}><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">${d.name}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith(d.prefix+'-')).map(t=>'<span class="tag-chip tag-business">'+t+'</span>').join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>`).join('')}
         </tbody>
       </table>
     </div>

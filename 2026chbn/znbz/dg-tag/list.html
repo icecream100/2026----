@@ -73,6 +73,22 @@
     .path-text{color:var(--ant-text-tertiary);font-size:12px;margin-left:4px;}
     .tip-box{background:#fffbe6;border:1px solid #ffe58f;border-radius:6px;padding:10px 12px;font-size:13px;color:#7c4900;}
     .info-box{background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:12px 16px;color:#237804;font-size:13px;}
+    .tree-search-wrap{padding:8px 10px;border-bottom:1px solid var(--ant-border-secondary);position:sticky;top:0;background:#fff;z-index:10;}
+    .tree-search-wrap .search-input-wrap{position:relative;display:flex;align-items:center;}
+    .tree-search-wrap input{padding-right:56px;font-size:13px;height:30px;}
+    .search-clear{position:absolute;right:28px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--ant-text-tertiary);font-size:12px;display:none;}
+    .search-clear:hover{color:var(--ant-text);}
+    .search-count{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--ant-text-tertiary);white-space:nowrap;}
+    .tree-node.search-match{background:#fffbe6;}
+    .tree-node.search-match .node-name{background:#ffe58f;padding:0 2px;border-radius:2px;}
+    .tree-node.search-dim{opacity:0.35;}
+    .search-empty{padding:40px 16px;text-align:center;color:var(--ant-text-tertiary);font-size:13px;}
+    .search-empty i{font-size:28px;margin-bottom:8px;display:block;}
+    .tag-breadcrumb{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:4px;}
+    .tag-breadcrumb span{font-size:12px;color:var(--ant-text-tertiary);}
+    .tag-breadcrumb a{font-size:12px;color:var(--ant-text-tertiary);text-decoration:none;cursor:pointer;}
+    .tag-breadcrumb a:hover{color:var(--ant-primary);}
+    .tag-breadcrumb .current{color:var(--ant-text);font-weight:500;cursor:default;}
   </style>
 </head>
 <body>
@@ -110,30 +126,37 @@
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <div>
           <h1 style="font-size:20px;font-weight:600;margin:0 0 4px;">标签管理</h1>
-          <div style="font-size:13px;color:var(--ant-text-tertiary);">统一业务标签字典维护：业务域管理、多级标签树维护</div>
+          <div style="font-size:13px;color:var(--ant-text-tertiary);">统一业务标签字典维护：标签字典管理、多级标签树维护</div>
         </div>
-        <span style="font-size:13px;color:var(--ant-text-tertiary);">业务域 7｜业务标签 52</span>
+        <span style="font-size:13px;color:var(--ant-text-tertiary);">标签字典 7｜业务标签 52</span>
       </div>
 
       <!-- 标签维护区 -->
       <div class="ant-card">
         <div class="ant-card-head">
           <span>标签维护</span>
-          <div class="flex gap-2">
-            <input class="ant-input" style="width:220px;" placeholder="搜索标签名称..." id="treeSearch">
-            <button class="ant-btn ant-btn-primary" onclick="openDomainModal()"><i class="fa-solid fa-plus"></i>新增业务域</button>
-          </div>
+          <button class="ant-btn ant-btn-primary" onclick="openDomainModal()"><i class="fa-solid fa-plus"></i>新增标签字典</button>
         </div>
         <div class="tree-wrap">
           <!-- 左侧树形 -->
-          <div class="tree-panel" id="treePanel"></div>
+          <div class="tree-panel" id="treePanel">
+            <div class="tree-search-wrap">
+              <div class="search-input-wrap">
+                <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--ant-text-tertiary);font-size:12px;pointer-events:none;"></i>
+                <input class="ant-input" style="padding-left:30px;" placeholder="搜索标签名称或编码..." id="treeSearch" oninput="onTreeSearch(this.value)">
+                <span class="search-clear" id="searchClear" onclick="clearSearch()">&times;</span>
+                <span class="search-count" id="searchCount"></span>
+              </div>
+            </div>
+            <div id="treeContent"></div>
+          </div>
           <!-- 右侧详情 -->
           <div class="content-panel" id="contentPanel">
             <div style="padding:60px 40px;text-align:center;color:rgba(0,0,0,0.35);">
               <i class="fa-solid fa-sitemap" style="font-size:48px;margin-bottom:16px;"></i>
               <div style="font-size:16px;font-weight:600;color:var(--ant-text);margin-bottom:8px;">多级业务标签管理</div>
-              <div style="font-size:13px;margin-bottom:20px;">系统预置 7 个业务域，支持 2~5 级多级标签树结构</div>
-              <button class="ant-btn ant-btn-primary" onclick="openDomainModal()"><i class="fa-solid fa-plus"></i>新增业务域</button>
+              <div style="font-size:13px;margin-bottom:20px;">系统预置 7 个标签字典，支持 2~5 级多级标签树结构</div>
+              <button class="ant-btn ant-btn-primary" onclick="openDomainModal()"><i class="fa-solid fa-plus"></i>新增标签字典</button>
             </div>
           </div>
         </div>
@@ -143,21 +166,23 @@
   </div>
 </div>
 
-<!-- 新增业务域弹窗 -->
+<!-- 新增标签字典弹窗 -->
 <div class="ant-modal-mask" id="domainModal">
   <div class="ant-modal">
     <div class="ant-modal-header">
-      <span><i class="fa-solid fa-folder-tree" style="margin-right:8px;color:#1677ff;"></i>新增业务域</span>
+      <span><i class="fa-solid fa-folder-tree" style="margin-right:8px;color:#1677ff;"></i>新增标签字典</span>
       <span style="cursor:pointer;color:rgba(0,0,0,0.45);font-size:18px;" onclick="closeDomainModal()">&times;</span>
     </div>
     <div class="ant-modal-body">
       <div class="form-item">
-        <label class="form-label required">业务域名称</label>
+        <label class="form-label required">标签字典名称</label>
         <input class="ant-input" id="d_name" placeholder="例：文化旅游 / 市场监管">
       </div>
       <div class="form-item">
-        <label class="form-label">业务域编码</label>
-        <input class="ant-input" id="d_code" disabled style="background:#f5f5f5;color:rgba(0,0,0,0.45);" value="自动生成（如 AA）">
+        <label class="form-label required">标签字典编码</label>
+        <input class="ant-input" id="d_code" placeholder="请输入2位大写字母，如 CS" maxlength="2" style="text-transform:uppercase;" oninput="validateDomainCode(this)">
+        <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:4px;">限定2位大写字母，全局唯一，保存后不可修改。</div>
+        <div style="font-size:12px;color:#ff4d4f;margin-top:2px;display:none;" id="d_code_error"></div>
       </div>
       <div class="form-item">
         <label class="form-label">最大层级配置</label>
@@ -167,19 +192,36 @@
           <option value="4">4级</option>
           <option value="5">5级</option>
         </select>
-        <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:4px;">该业务域下标签树的最大层级深度（含业务域层级），默认3级。</div>
+        <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:4px;">该标签字典下标签树的最大层级深度（含标签字典层级），默认3级。</div>
       </div>
       <div class="form-item">
         <label class="form-label">备注说明</label>
-        <input class="ant-input" placeholder="可选，说明业务域用途">
+        <input class="ant-input" placeholder="可选，说明标签字典用途">
       </div>
       <div class="tip-box">
-        <i class="fa-solid fa-circle-info mr-2"></i>系统已预置 7 个业务域（GA/CG/JT/SL/YJ/MS/ZB），新增业务域编码从 AA 开始自动分配，不可删除。
+        <i class="fa-solid fa-circle-info mr-2"></i>系统已预置 7 个标签字典（GA/CG/JT/SL/YJ/MS/ZB），新增标签字典编码需手动输入2位大写字母，不可重复，保存后不可修改。
       </div>
     </div>
     <div class="ant-modal-footer">
       <button class="ant-btn" onclick="closeDomainModal()">取消</button>
       <button class="ant-btn ant-btn-primary" onclick="saveDomain()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 二次确认弹窗 -->
+<div class="ant-modal-mask" id="confirmModal">
+  <div class="ant-modal" style="width:440px;">
+    <div class="ant-modal-header">
+      <span><i class="fa-solid fa-exclamation-triangle" style="margin-right:8px;color:#faad14;"></i>确认操作</span>
+      <span style="cursor:pointer;color:rgba(0,0,0,0.45);font-size:18px;" onclick="closeConfirmModal()">&times;</span>
+    </div>
+    <div class="ant-modal-body">
+      <div id="confirmMessage" style="font-size:14px;line-height:1.8;color:var(--ant-text-secondary);"></div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeConfirmModal()">取消</button>
+      <button class="ant-btn ant-btn-primary" id="confirmBtn" onclick="executeConfirmAction()">确认</button>
     </div>
   </div>
 </div>
@@ -197,7 +239,7 @@
         <input class="ant-input" id="f_name" placeholder="例：校园周边 / 社区出入口">
       </div>
       <div class="form-item">
-        <label class="form-label required">所属业务域</label>
+        <label class="form-label required">所属标签字典</label>
         <select class="ant-select" style="width:100%;" id="f_domain" disabled>
           <option value="GA">公共安全（GA）</option>
           <option value="CG">城市管理（CG）</option>
@@ -207,7 +249,7 @@
           <option value="MS">社会民生（MS）</option>
           <option value="ZB">重点保障（ZB）</option>
         </select>
-        <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:4px;">所属业务域由当前选中节点自动带入，不可修改。</div>
+        <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:4px;">所属标签字典由当前选中节点自动带入，不可修改。</div>
       </div>
       <div class="form-item">
         <label class="form-label">父标签</label>
@@ -220,7 +262,11 @@
       </div>
       <div class="form-item">
         <label class="form-label">标签编码</label>
-        <input class="ant-input" id="f_code" disabled style="background:#f5f5f5;color:rgba(0,0,0,0.45);" value="自动生成">
+        <div style="display:flex;gap:8px;">
+          <input class="ant-input" id="f_code" placeholder="留空则自动生成" style="flex:1;">
+          <button class="ant-btn ant-btn-sm" type="button" onclick="autoGenCode()" id="f_code_auto">自动生成</button>
+        </div>
+        <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:4px;">可手动输入，留空则系统自动生成，保存后不可修改。</div>
       </div>
       <div class="form-item">
         <label class="form-label">备注说明</label>
@@ -311,6 +357,9 @@ treeData.forEach(d=>{ expanded[d.id]=true; expanded[d.id+'-expand']=true; });
 let selectedId = null;
 let modalMode = 'add';
 let modalTargetId = null;
+let searchKeyword = '';
+let searchMatchIds = new Set();
+let searchTimer = null;
 
 function getDescendantCount(node){
   if(!node.children || node.children.length===0) return 0;
@@ -323,38 +372,150 @@ function getLeafCount(node){
   return node.children.reduce((sum,c)=>sum+getLeafCount(c),0);
 }
 
+// 搜索：递归收集匹配节点的祖先ID
+function collectMatchAncestors(nodes, keyword, matchedIds, ancestorPath){
+  for(const node of nodes){
+    const nameMatch = node.name.toLowerCase().includes(keyword);
+    const codeMatch = node.code.toLowerCase().includes(keyword);
+    const isMatch = nameMatch || codeMatch;
+    const childPath = [...ancestorPath, node.id];
+    if(node.children && node.children.length > 0){
+      collectMatchAncestors(node.children, keyword, matchedIds, childPath);
+    }
+    // 如果自身匹配或子树中有匹配，标记当前节点和所有祖先
+    if(isMatch || childPath.some(id => matchedIds.has(id) && !ancestorPath.includes(id))){
+      // 检查子树中是否有匹配
+      const subtreeHasMatch = hasDescendantMatch(node, keyword);
+      if(isMatch || subtreeHasMatch){
+        ancestorPath.forEach(id => matchedIds.add(id));
+        matchedIds.add(node.id);
+      }
+    }
+  }
+}
+
+function hasDescendantMatch(node, keyword){
+  if(!node.children) return false;
+  for(const child of node.children){
+    if(child.name.toLowerCase().includes(keyword) || child.code.toLowerCase().includes(keyword)) return true;
+    if(hasDescendantMatch(child, keyword)) return true;
+  }
+  return false;
+}
+
+function filterTree(keyword){
+  const kw = keyword.toLowerCase().trim();
+  searchMatchIds = new Set();
+  if(!kw) return;
+  // 收集所有匹配节点 + 其祖先
+  collectMatchAncestors(treeData, kw, searchMatchIds, []);
+  // 还需要把匹配节点的所有祖先也加进来（从根到匹配节点的路径）
+  const allMatched = new Set(searchMatchIds);
+  for(const id of searchMatchIds){
+    let parent = findParent(id, treeData);
+    while(parent){
+      allMatched.add(parent.id);
+      parent = findParent(parent.id, treeData);
+    }
+  }
+  searchMatchIds = allMatched;
+}
+
+function highlightText(text, keyword){
+  if(!keyword) return text;
+  const kw = keyword.trim();
+  if(!kw) return text;
+  const regex = new RegExp(`(${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return text.replace(regex, '<span class="node-name">$1</span>');
+}
+
+function isSearchActive(){ return searchKeyword.trim().length > 0; }
+
 function renderTree(nodes, depth=0){
+  const searching = isSearchActive();
   return nodes.map(node=>{
     const isDomain = node.type==='domain';
     const hasChildren = node.children && node.children.length > 0;
-    const isExpanded = expanded[node.id] !== false;
+    const isExpanded = searching ? true : (expanded[node.id] !== false);
     const isSelected = selectedId === node.id;
+    const inSearchScope = !searching || searchMatchIds.has(node.id);
+    const isMatch = searching && (node.name.toLowerCase().includes(searchKeyword.toLowerCase().trim()) || node.code.toLowerCase().includes(searchKeyword.toLowerCase().trim()));
     const icon = isDomain ? '<i class="fa-solid fa-building-shield" style="color:#1677ff;font-size:12px;"></i>' : (node.isLeaf ? '<i class="fa-solid fa-tag" style="color:#52c41a;font-size:11px;"></i>' : '<i class="fa-solid fa-folder" style="color:#faad14;font-size:11px;"></i>');
     const indent = isDomain ? 8 : (depth * 14 + 8);
     const displayCount = isDomain ? `${node.count}个子标签` : (node.isLeaf ? `${node.count}台` : `${node.children?.length || 0}个子标签`);
     const levelBadge = isDomain ? '' : `<span class="level-badge level-l${node.level}">L${node.level}</span>`;
-    const leafIndicator = node.isLeaf ? '' : '';
+    const searchClass = searching ? (isMatch ? 'search-match' : 'search-dim') : '';
+    const displayName = searching ? highlightText(node.name, searchKeyword.trim()) : node.name;
+    if(searching && !inSearchScope) return '';
     return `
-      <div class="tree-node ${isSelected?'selected':''}" onclick="selectNode('${node.id}')" style="padding-left:${indent}px;">
+      <div class="tree-node ${isSelected?'selected':''} ${searchClass}" onclick="selectNode('${node.id}')" style="padding-left:${indent}px;">
         <span class="toggle" onclick="event.stopPropagation();toggleNode('${node.id}')">${hasChildren?(isExpanded?'▼':'▶'):'<span style="visibility:hidden;">▶</span>'}</span>
         ${icon}
-        <span style="font-weight:${isDomain?600:400};font-size:13px;">${node.name}</span>
+        <span style="font-weight:${isDomain?600:400};font-size:13px;">${displayName}</span>
         ${isDomain?`<span style="font-size:10px;color:#1677ff;background:#e6f4ff;padding:0 4px;border-radius:3px;margin-left:4px;">${node.code}</span>`:levelBadge}
         <span style="margin-left:auto;font-size:11px;color:rgba(0,0,0,0.35);white-space:nowrap;">${displayCount}</span>
       </div>
       ${(isExpanded && hasChildren) ? `<div class="tree-children">${renderTree(node.children, depth+1)}</div>` : ''}
     `;
-  }).join('');
+  }).filter(s=>s!=='').join('');
+}
+
+function renderTreeFull(){
+  const treeHtml = renderTree(treeData);
+  const container = document.getElementById('treeContent');
+  if(isSearchActive() && !treeHtml.trim()){
+    container.innerHTML = '<div class="search-empty"><i class="fa-solid fa-magnifying-glass"></i>未找到匹配的标签</div>';
+  } else {
+    container.innerHTML = treeHtml;
+  }
+}
+
+function onTreeSearch(value){
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(()=>{
+    searchKeyword = value;
+    const clearBtn = document.getElementById('searchClear');
+    const countEl = document.getElementById('searchCount');
+    if(value.trim()){
+      filterTree(value);
+      clearBtn.style.display = 'block';
+      // 计算实际匹配数（非祖先）
+      let matchCount = 0;
+      const kw = value.toLowerCase().trim();
+      const countMatches = (nodes) => {
+        for(const n of nodes){
+          if(n.name.toLowerCase().includes(kw) || n.code.toLowerCase().includes(kw)) matchCount++;
+          if(n.children) countMatches(n.children);
+        }
+      };
+      countMatches(treeData);
+      countEl.textContent = matchCount + '个结果';
+    } else {
+      searchMatchIds = new Set();
+      clearBtn.style.display = 'none';
+      countEl.textContent = '';
+    }
+    renderTreeFull();
+  }, 200);
+}
+
+function clearSearch(){
+  document.getElementById('treeSearch').value = '';
+  searchKeyword = '';
+  searchMatchIds = new Set();
+  document.getElementById('searchClear').style.display = 'none';
+  document.getElementById('searchCount').textContent = '';
+  renderTreeFull();
 }
 
 function toggleNode(id){
   expanded[id] = !expanded[id];
-  document.getElementById('treePanel').innerHTML = renderTree(treeData);
+  renderTreeFull();
 }
 
 function selectNode(id){
   selectedId = id;
-  document.getElementById('treePanel').innerHTML = renderTree(treeData);
+  renderTreeFull();
   renderContent(id);
 }
 
@@ -400,6 +561,29 @@ function getTagPath(nodeId){
   return parts.join(' / ');
 }
 
+function getTagPathNodes(nodeId){
+  const nodes = [];
+  let current = findNode(nodeId, treeData);
+  if(!current) return nodes;
+  nodes.unshift({id: current.id, name: current.name});
+  let parent = findParent(nodeId, treeData);
+  while(parent){
+    nodes.unshift({id: parent.id, name: parent.name});
+    parent = findParent(parent.id, treeData);
+  }
+  return nodes;
+}
+
+function renderBreadcrumb(nodeId){
+  const pathNodes = getTagPathNodes(nodeId);
+  if(pathNodes.length <= 1) return '';
+  return '<div class="tag-breadcrumb">' + pathNodes.map((p, i) => {
+    const isLast = i === pathNodes.length - 1;
+    if(isLast) return '<span class="current">' + p.name + '</span>';
+    return '<a onclick="selectNode(\'' + p.id + '\')">' + p.name + '</a><span>/</span>';
+  }).join('') + '</div>';
+}
+
 function renderContent(id){
   const node = findNode(id, treeData);
   if(!node) return;
@@ -415,20 +599,21 @@ function renderContent(id){
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <span style="font-size:16px;font-weight:600;">${node.name}</span>
         ${isDomain
-          ? `<span style="background:#fffbe6;border:1px solid #ffe58f;color:#7c4900;font-size:12px;padding:1px 8px;border-radius:10px;">业务域 ${node.code}</span><span style="font-size:12px;color:rgba(0,0,0,0.45);">最大层级 ${maxLevel}级</span>`
-          : `<span style="background:#e6f7ff;border:1px solid #91d5ff;color:#0958d9;font-size:12px;padding:1px 8px;border-radius:10px;">业务标签 ${node.code}</span><span class="level-badge level-l${node.level}">L${node.level}</span><span style="font-size:12px;color:rgba(0,0,0,0.45);">${node.isLeaf?'叶子标签':'分类标签'}</span>`}
-        ${!isDomain ? `<div class="path-text" style="width:100%;margin-top:4px;"><i class="fa-solid fa-location-dot" style="margin-right:4px;"></i>${getTagPath(id)}</div>` : ''}
+          ? `<span style="background:#fffbe6;border:1px solid #ffe58f;color:#7c4900;font-size:12px;padding:1px 8px;border-radius:10px;">标签字典 ${node.code}</span><span style="font-size:12px;color:rgba(0,0,0,0.45);">最大层级 ${maxLevel}级</span>`
+          : `<span class="level-badge level-l${node.level}">L${node.level}</span><span style="font-size:12px;color:rgba(0,0,0,0.45);">${node.isLeaf?'叶子标签':'分类标签'}</span>`}
+        ${!isDomain ? `<div class="path-text" style="width:100%;margin-top:4px;">${renderBreadcrumb(id)}</div>` : ''}
       </div>
       <div class="flex gap-2">
         ${isDomain
           ? `<button class="ant-btn ant-btn-sm" onclick="openTagModal('add','${node.id}')"><i class="fa-solid fa-plus"></i>新增子标签</button>`
           : `<button class="ant-btn ant-btn-sm" onclick="openTagModal('add','${node.id}')" ${atMaxLevel?'disabled title="当前已达最大层级"':''}><i class="fa-solid fa-plus"></i>新增下级</button>
              <button class="ant-btn ant-btn-sm" onclick="openTagModal('edit','${node.id}')"><i class="fa-solid fa-pen"></i>编辑</button>
-             <button class="ant-btn ant-btn-sm ant-btn-danger" onclick="if(confirm('确认停用标签「${node.name}」？停用后新绑定不可选，AI推荐不再命中。'))alert('已停用')"><i class="fa-solid fa-ban"></i>停用</button>`}
+             <button class="ant-btn ant-btn-sm ant-btn-danger" onclick="if(confirm('确认停用标签「${node.name}」？停用后新绑定不可选，AI推荐不再命中。'))alert('已停用')"><i class="fa-solid fa-ban"></i>停用</button>
+             <button class="ant-btn ant-btn-sm ant-btn-danger" onclick="deleteTag('${node.id}')"><i class="fa-solid fa-trash"></i>删除</button>`}
       </div>
     </div>
 
-    <!-- 选中业务域：展示首层标签列表 -->
+    <!-- 选中标签字典：展示首层标签列表 -->
     ${isDomain && children.length > 0 ? `
     <div style="padding:16px 24px;">
       <div style="font-size:13px;font-weight:600;color:var(--ant-text);margin-bottom:12px;">首层业务标签列表</div>
@@ -450,26 +635,24 @@ function renderContent(id){
                 <button class="ant-btn-link" onclick="openTagModal('edit','${c.id}')">编辑</button>
                 <button class="ant-btn-link" onclick="selectNode('${c.id}')">查看</button>
                 <button class="ant-btn-link danger" onclick="if(confirm('确认停用？'))alert('已停用')">停用</button>
+                <button class="ant-btn-link danger" onclick="deleteTag('${c.id}')">删除</button>
               </td>
             </tr>`;
           }).join('')}
         </tbody>
       </table>
-    </div>` : (isDomain ? `<div style="padding:60px;text-align:center;color:rgba(0,0,0,0.35);">该业务域下暂无标签，点击「新增子标签」添加</div>` : '')}
+    </div>` : (isDomain ? `<div style="padding:60px;text-align:center;color:rgba(0,0,0,0.35);">该标签字典下暂无标签，点击「新增子标签」添加</div>` : '')}
 
     <!-- 选中业务标签：展示详情 -->
     ${!isDomain ? `
     <div style="padding:16px 24px;">
-      ${atMaxLevel ? `<div class="tip-box" style="margin-bottom:16px;"><i class="fa-solid fa-triangle-exclamation mr-2"></i>当前标签已达该业务域最大层级（L${maxLevel}），不可继续新增下级。</div>` : ''}
-      <div class="info-box" style="margin-bottom:16px;">
-        <i class="fa-solid fa-circle-info mr-2"></i>标签 <b>${node.code} ${node.name}</b> 当前关联 <b>${node.count || 0}</b> 台设备。${node.isLeaf ? '该标签为叶子标签，可用于设备绑定和AI推荐。' : '该标签为分类标签，仅用于组织和筛选，不可直接绑定设备。'}
-      </div>
+      ${atMaxLevel ? `<div class="tip-box" style="margin-bottom:16px;"><i class="fa-solid fa-triangle-exclamation mr-2"></i>当前标签已达该标签字典最大层级（L${maxLevel}），不可继续新增下级。</div>` : ''}
       <div style="font-size:13px;color:var(--ant-text-secondary);">
         <div style="margin-bottom:12px;font-size:14px;font-weight:600;">标签信息</div>
         <div style="display:grid;grid-template-columns:100px 1fr;gap:10px 16px;">
           <span style="color:var(--ant-text-tertiary);">标签编码</span><span style="font-family:monospace;">${node.code}</span>
           <span style="color:var(--ant-text-tertiary);">标签名称</span><span>${node.name}</span>
-          <span style="color:var(--ant-text-tertiary);">所属业务域</span><span>${domain ? domain.name + '（' + domain.code + '）' : '-'}</span>
+          <span style="color:var(--ant-text-tertiary);">所属标签字典</span><span>${domain ? domain.name + '（' + domain.code + '）' : '-'}</span>
           <span style="color:var(--ant-text-tertiary);">父标签</span><span>${findParent(node.id, treeData)?.name || '—'}</span>
           <span style="color:var(--ant-text-tertiary);">当前层级</span><span>L${node.level} / 最大L${maxLevel}</span>
           <span style="color:var(--ant-text-tertiary);">标签类型</span><span>${node.isLeaf ? '叶子标签（可绑定设备）' : '分类标签（仅组织筛选）'}</span>
@@ -510,35 +693,220 @@ function openTagModal(mode, targetId){
   if(domain) document.getElementById('f_domain').value = domain.code;
   document.getElementById('f_parent').value = mode==='add' && node ? node.name + '（' + node.code + '）' : (mode==='edit' && parent ? parent.name + '（' + parent.code + '）' : '无');
   document.getElementById('f_level').value = mode==='add' && node ? 'L' + (node.level + 1) : (mode==='edit' && node ? 'L' + node.level : '');
-  document.getElementById('f_code').value = mode==='edit' && node ? node.code : '自动生成';
+  const codeInput = document.getElementById('f_code');
+  const codeAutoBtn = document.getElementById('f_code_auto');
+  if(mode==='edit' && node){
+    codeInput.value = node.code;
+    codeInput.disabled = true;
+    codeInput.style.background = '#f5f5f5';
+    codeInput.style.color = 'rgba(0,0,0,0.45)';
+    codeAutoBtn.style.display = 'none';
+  } else {
+    codeInput.value = '';
+    codeInput.disabled = false;
+    codeInput.style.background = '#fff';
+    codeInput.style.color = 'var(--ant-text)';
+    codeAutoBtn.style.display = '';
+  }
   document.getElementById('modalTitle').innerHTML = mode==='edit'
     ? '<i class="fa-solid fa-pen" style="margin-right:8px;color:#1677ff;"></i>编辑标签'
     : '<i class="fa-solid fa-plus" style="margin-right:8px;color:#1677ff;"></i>新增标签';
   document.getElementById('tagModal').classList.add('active');
 }
 function closeTagModal(){ document.getElementById('tagModal').classList.remove('active'); }
+function autoGenCode(){
+  const domain = document.getElementById('f_domain').value;
+  const level = document.getElementById('f_level').value.replace('L','');
+  const existing = [];
+  (function collect(nodes){
+    nodes.forEach(n=>{ if(n.code) existing.push(n.code); if(n.children) collect(n.children); });
+  })(treeData);
+  let seq = 1;
+  let code = '';
+  do {
+    code = domain + '-' + String(seq).padStart(2,'0');
+    seq++;
+  } while(existing.includes(code));
+  document.getElementById('f_code').value = code;
+}
 function saveTag(){ alert('✅ 标签保存成功'); closeTagModal(); }
 
-// 业务域弹窗
+// 标签字典弹窗
+// 已有标签字典编码列表（含预置7个）
+const existingDomainCodes = ['GA','CG','JT','SL','YJ','MS','ZB'];
+
+function validateDomainCode(input){
+  const val = input.value.toUpperCase().replace(/[^A-Z]/g,'');
+  input.value = val;
+  const errEl = document.getElementById('d_code_error');
+  if(val.length === 0){
+    errEl.style.display = 'none';
+    return false;
+  }
+  if(val.length !== 2){
+    errEl.textContent = '编码必须为2位大写字母';
+    errEl.style.display = 'block';
+    return false;
+  }
+  if(existingDomainCodes.includes(val)){
+    errEl.textContent = `编码「${val}」已存在，请更换`;
+    errEl.style.display = 'block';
+    return false;
+  }
+  errEl.style.display = 'none';
+  return true;
+}
+
 function openDomainModal(){
   document.getElementById('d_name').value = '';
-  document.getElementById('d_code').value = 'AA';
+  document.getElementById('d_code').value = '';
+  document.getElementById('d_code_error').style.display = 'none';
   document.getElementById('domainModal').classList.add('active');
 }
 function closeDomainModal(){ document.getElementById('domainModal').classList.remove('active'); }
 function saveDomain(){
   const name = document.getElementById('d_name').value.trim();
-  if(!name){ alert('请输入业务域名称'); return; }
-  alert(`✅ 业务域「${name}（AA）」创建成功，可在该业务域下新增标签。`);
+  if(!name){ alert('请输入标签字典名称'); return; }
+  const codeInput = document.getElementById('d_code');
+  const code = codeInput.value.trim().toUpperCase();
+  if(!code){ alert('请输入标签字典编码'); return; }
+  if(code.length !== 2 || !/^[A-Z]{2}$/.test(code)){ alert('编码必须为2位大写字母'); return; }
+  if(existingDomainCodes.includes(code)){ alert(`编码「${code}」已存在，请更换`); return; }
+  alert(`✅ 标签字典「${name}（${code}）」创建成功，可在该标签字典下新增标签。`);
   closeDomainModal();
 }
 
 // 点击遮罩关闭
 document.getElementById('domainModal').addEventListener('click',function(e){if(e.target===this)closeDomainModal();});
 document.getElementById('tagModal').addEventListener('click',function(e){if(e.target===this)closeTagModal();});
+document.getElementById('confirmModal').addEventListener('click',function(e){if(e.target===this)closeConfirmModal();});
+
+// ========== 二次确认弹窗逻辑 ==========
+let confirmCallback = null;
+
+function openConfirmModal(message, callback, btnText = '确认') {
+  document.getElementById('confirmMessage').innerHTML = message;
+  document.getElementById('confirmBtn').textContent = btnText;
+  confirmCallback = callback;
+  document.getElementById('confirmModal').classList.add('active');
+}
+
+function closeConfirmModal() {
+  document.getElementById('confirmModal').classList.remove('active');
+  confirmCallback = null;
+}
+
+function executeConfirmAction() {
+  if (typeof confirmCallback === 'function') {
+    confirmCallback();
+  }
+  closeConfirmModal();
+}
+
+// ========== 场景一：新增子标签（检测父标签关联设备） ==========
+// 重写 openTagModal 函数，增加设备关联检测
+const originalOpenTagModal = openTagModal;
+openTagModal = function(mode, targetId) {
+  if (mode === 'add' && targetId) {
+    const node = findNode(targetId, treeData);
+    if (node && node.count > 0) {
+      // 父标签已关联设备，弹窗提示
+      const message = `标签「<b>${node.name}</b>」已关联 <b>${node.count}</b> 台设备，新增子标签后将自动取消关联。<br><br>是否继续？`;
+      openConfirmModal(message, function() {
+        // 用户确认后，执行取消关联并打开新增弹窗
+        showMessage(`已取消「${node.name}」的 ${node.count} 台设备关联`);
+        // 模拟取消关联：将父标签的 count 清零
+        node.count = 0;
+        renderTreeFull();
+        // 打开新增标签弹窗
+        originalOpenTagModal(mode, targetId);
+      }, '确认新增');
+      return;
+    }
+  }
+  // 无关联设备或编辑模式，直接打开弹窗
+  originalOpenTagModal(mode, targetId);
+};
+
+// ========== 场景二：删除标签（检测关联设备，级联删除） ==========
+function deleteTag(nodeId) {
+  const node = findNode(nodeId, treeData);
+  if (!node) return;
+
+  const isDomain = node.type === 'domain';
+  const childCount = getDescendantCount(node);
+  const deviceCount = node.isLeaf ? node.count : getLeafCount(node);
+
+  let message = '';
+  if (isDomain) {
+    message = `确定删除标签字典「<b>${node.name}</b>」吗？<br><br>该标签字典下包含 <b>${childCount}</b> 个子标签，删除后将一起删除。`;
+  } else if (deviceCount > 0) {
+    message = `标签「<b>${node.name}</b>」已关联 <b>${deviceCount}</b> 台设备，删除标签后将自动取消关联`;
+    if (childCount > 0) {
+      message += `，<b>${childCount}</b> 个子标签将一起删除`;
+    }
+    message += `。<br><br>是否继续？`;
+  } else if (childCount > 0) {
+    message = `标签「<b>${node.name}</b>」包含 <b>${childCount}</b> 个子标签，删除后将一起删除。<br><br>是否继续？`;
+  } else {
+    message = `确定删除标签「<b>${node.name}</b>」吗？`;
+  }
+
+  openConfirmModal(message, function() {
+    // 执行删除逻辑
+    if (deviceCount > 0) {
+      showMessage(`已取消「${node.name}」的 ${deviceCount} 台设备关联`);
+    }
+
+    // 从父节点中移除当前节点
+    const parent = findParent(nodeId, treeData);
+    if (parent && parent.children) {
+      const index = parent.children.findIndex(c => c.id === nodeId);
+      if (index > -1) {
+        parent.children.splice(index, 1);
+      }
+    } else {
+      // 根节点（标签字典）
+      const index = treeData.findIndex(d => d.id === nodeId);
+      if (index > -1) {
+        treeData.splice(index, 1);
+      }
+    }
+
+    // 清除选中状态
+    if (selectedId === nodeId) {
+      selectedId = null;
+    }
+
+    renderTreeFull();
+    if (selectedId) {
+      renderContent(selectedId);
+    } else {
+      // 显示空状态
+      document.getElementById('contentPanel').innerHTML = `
+        <div style="padding:60px 40px;text-align:center;color:rgba(0,0,0,0.35);">
+          <i class="fa-solid fa-sitemap" style="font-size:48px;margin-bottom:16px;"></i>
+          <div style="font-size:16px;font-weight:600;color:var(--ant-text);margin-bottom:8px;">多级业务标签管理</div>
+          <div style="font-size:13px;margin-bottom:20px;">系统预置 7 个标签字典，支持 2~5 级多级标签树结构</div>
+          <button class="ant-btn ant-btn-primary" onclick="openDomainModal()"><i class="fa-solid fa-plus"></i>新增标签字典</button>
+        </div>`;
+    }
+
+    showMessage(`标签「${node.name}」已删除`);
+  }, '确认删除');
+}
+
+// ========== 消息提示 ==========
+function showMessage(text, type = 'success') {
+  const box = document.createElement('div');
+  box.className = 'ant-message';
+  box.innerHTML = `<div class="ant-message-notice"><i class="fa-solid ${type === 'error' ? 'fa-circle-xmark' : 'fa-circle-check'}" style="color:${type === 'error' ? '#ff4d4f' : '#52c41a'}"></i><span>${text}</span></div>`;
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 2500);
+}
 
 // 初始化
-document.getElementById('treePanel').innerHTML = renderTree(treeData);
+renderTreeFull();
 </script>
 </body>
 </html>
