@@ -239,10 +239,6 @@
       </div>
       <div style="font-size:13px;color:rgba(0,0,0,0.65);">
         <div>• 操作范围：<span id="batchAnnotateScope">当前页</span></div>
-        <div>• 单次批量上限 <b>50</b> 条</div>
-        <div>• 使用当前发布中的标注模型（annotation-model-v2）</div>
-        <div>• 预计处理时长：约 <b>2-5分钟</b></div>
-        <div>• 处理完成后系统将推送站内消息提醒</div>
       </div>
     </div>
     <div class="ant-modal-footer">
@@ -265,9 +261,6 @@
       </div>
       <div style="font-size:13px;color:rgba(0,0,0,0.65);">
         <div>• 操作范围：<span id="batchConfirmScope">当前页</span></div>
-        <div>• 单次批量上限 <b>50</b> 条</div>
-        <div>• 逐条原子确认，单条冲突不影响其他记录</div>
-        <div>• 确认后不可撤销，如需修改请通过设备详情编辑页维护</div>
       </div>
     </div>
     <div class="ant-modal-footer">
@@ -349,8 +342,8 @@ function renderTable(){
     const confBar = item.conf !== null
       ? `<div style="display:flex;align-items:center;gap:6px;"><div style="width:60px;height:4px;border-radius:2px;background:#f0f0f0;"><div style="width:${item.conf}%;height:100%;border-radius:2px;background:${item.conf>=90?'#52c41a':item.conf>=70?'#faad14':'#ff4d4f'};"></div></div><span style="font-size:12px;">${item.conf}%</span></div>`
       : '<span style="color:rgba(0,0,0,0.3);">—</span>';
-    const bizTags = item.bizTags.length ? item.bizTags.map(t=>`<span class="tag-chip tag-business">${t}</span>`).join('') : '<span style="color:rgba(0,0,0,0.35);font-size:12px;">未配置</span>';
-    const aiTags = item.aiTags.length ? item.aiTags.map(t=>`<span class="tag-chip tag-ai">${t}</span>`).join('') : '<span style="color:rgba(0,0,0,0.35);font-size:12px;">待标注</span>';
+    const bizTags = item.bizTags.length ? item.bizTags.map(t=>`<span class="tag-chip tag-business">${t.replace(/^[A-Z]+-\d+\s+/,'')}</span>`).join('') : '<span style="color:rgba(0,0,0,0.35);font-size:12px;">未配置</span>';
+    const aiTags = item.aiTags.length ? item.aiTags.map(t=>`<span class="tag-chip tag-ai">${t.replace(/^[A-Z]+-\d+\s+/,'')}</span>`).join('') : '<span style="color:rgba(0,0,0,0.35);font-size:12px;">待标注</span>';
 
     // 设备状态
     const devStatusCell = item.deviceStatus === 'online'
@@ -553,7 +546,7 @@ function showDetail(id){
     <div style="margin-bottom:16px;">
       <div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.65);margin-bottom:8px;">已确认业务标签</div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;">
-        ${item.bizTags.length ? item.bizTags.map(t => `<span class="tag-chip tag-business">${t}</span>`).join('') : '<span style="color:rgba(0,0,0,0.35);font-size:13px;">未配置</span>'}
+        ${item.bizTags.length ? item.bizTags.map(t => `<span class="tag-chip tag-business">${t.replace(/^[A-Z]+-\d+\s+/,'')}</span>`).join('') : '<span style="color:rgba(0,0,0,0.35);font-size:13px;">未配置</span>'}
       </div>
     </div>
     <div>
@@ -572,7 +565,7 @@ function showDetail(id){
             {name:'重点保障',prefix:'ZB'},
             {name:'卫生健康',prefix:'HEALTH'},{name:'教育安全',prefix:'EDU'}
             // 自定义域从标签管理接口动态加载，此处展示内置7域+示例自定义域
-          ].map((d,i)=>`<tr${i%2===1?' style="background:#fafafa;"':''}><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">${d.name}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith(d.prefix+'-')).map(t=>'<span class="tag-chip tag-business">'+t+'</span>').join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>`).join('')}
+          ].map((d,i)=>`<tr${i%2===1?' style="background:#fafafa;"':''}><td style="padding:8px 10px;border:1px solid #f0f0f0;font-weight:600;">${d.name}</td><td style="padding:8px 10px;border:1px solid #f0f0f0;">${item.bizTags.filter(t=>t.startsWith(d.prefix+'-')).map(t=>'<span class="tag-chip tag-business">'+t.replace(/^[A-Z]+-\d+\s+/,'')+'</span>').join('') || '<span style="color:rgba(0,0,0,0.35);">—</span>'}</td></tr>`).join('')}
         </tbody>
       </table>
     </div>
@@ -597,90 +590,26 @@ function showDetail(id){
   document.body.appendChild(modal);
 }
 
+function showToast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#fff;padding:10px 20px;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.15);font-size:14px;color:rgba(0,0,0,0.85);z-index:3000;';
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2500);
+}
+
 function confirmBatch(){
   document.getElementById('batchAnnotateModal').classList.remove('active');
-  // 模拟完成反馈弹窗（成功X/失败Y）
-  const total = selected.size;
-  const success = Math.max(0, total - (Math.random() > 0.8 ? 1 : 0));
-  const fail = total - success;
-
-  const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:2000;padding:16px;';
-  modal.innerHTML = `
-    <div style="background:#fff;border-radius:8px;width:480px;max-width:100%;box-shadow:0 6px 16px rgba(0,0,0,0.15);padding:20px;">
-      <div style="font-size:16px;font-weight:600;margin-bottom:12px;"><i class="fa-solid fa-robot" style="color:#1677ff;margin-right:6px;"></i>批量AI标注完成</div>
-      <div style="display:flex;gap:16px;margin-bottom:16px;">
-        <div style="flex:1;background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:12px;text-align:center;">
-          <div style="font-size:24px;font-weight:700;color:#52c41a;">${success}</div>
-          <div style="font-size:12px;color:#237804;">成功</div>
-        </div>
-        <div style="flex:1;background:#fff2f0;border:1px solid #ffccc7;border-radius:6px;padding:12px;text-align:center;">
-          <div style="font-size:24px;font-weight:700;color:#ff4d4f;">${fail}</div>
-          <div style="font-size:12px;color:#cf1322;">失败</div>
-        </div>
-      </div>
-      ${fail > 0 ? `
-      <div style="background:#fff2f0;border:1px solid #ffccc7;border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:#cf1322;">
-        <div style="font-weight:600;margin-bottom:4px;"><i class="fa-solid fa-circle-exclamation"></i> 失败记录</div>
-        <div>• CAM-NORTH-0156：AI标注超时</div>
-      </div>
-      <div style="display:flex;justify-content:flex-end;gap:8px;">
-        <button onclick="this.closest('.modal-wrap').remove();selected.clear();updateCount();" class="ant-btn">关闭</button>
-        <button onclick="this.closest('.modal-wrap').remove();alert('✅ 已重新发起失败记录的AI标注');selected.clear();updateCount();" class="ant-btn ant-btn-primary">一键重试失败项</button>
-      </div>
-      ` : `
-      <div style="display:flex;justify-content:flex-end;gap:8px;">
-        <button onclick="this.closest('.modal-wrap').remove();selected.clear();updateCount();" class="ant-btn ant-btn-primary">确定</button>
-      </div>
-      `}
-    </div>
-  `;
-  modal.className = 'modal-wrap';
-  modal.addEventListener('click', e => { if(e.target === modal) { modal.remove(); selected.clear(); updateCount(); } });
-  document.body.appendChild(modal);
+  showToast('已发起AI标注');
+  selected.clear();
+  updateCount();
 }
 
 function confirmBatchConfirm(){
   document.getElementById('batchConfirmModal').classList.remove('active');
-  // 模拟批量确认完成反馈弹窗
-  const total = selected.size;
-  const success = Math.max(0, total - (Math.random() > 0.9 ? 1 : 0));
-  const fail = total - success;
-
-  const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:2000;padding:16px;';
-  modal.innerHTML = `
-    <div style="background:#fff;border-radius:8px;width:480px;max-width:100%;box-shadow:0 6px 16px rgba(0,0,0,0.15);padding:20px;">
-      <div style="font-size:16px;font-weight:600;margin-bottom:12px;"><i class="fa-solid fa-check" style="color:#52c41a;margin-right:6px;"></i>批量确认完成</div>
-      <div style="display:flex;gap:16px;margin-bottom:16px;">
-        <div style="flex:1;background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:12px;text-align:center;">
-          <div style="font-size:24px;font-weight:700;color:#52c41a;">${success}</div>
-          <div style="font-size:12px;color:#237804;">成功</div>
-        </div>
-        <div style="flex:1;background:#fff2f0;border:1px solid #ffccc7;border-radius:6px;padding:12px;text-align:center;">
-          <div style="font-size:24px;font-weight:700;color:#ff4d4f;">${fail}</div>
-          <div style="font-size:12px;color:#cf1322;">失败</div>
-        </div>
-      </div>
-      ${fail > 0 ? `
-      <div style="background:#fff2f0;border:1px solid #ffccc7;border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:#cf1322;">
-        <div style="font-weight:600;margin-bottom:4px;"><i class="fa-solid fa-circle-exclamation"></i> 失败记录</div>
-        <div>• CAM-EAST-0512 东区-商业街B段：该设备已被他人处理，请刷新列表查看最新状态</div>
-      </div>
-      <div style="display:flex;justify-content:flex-end;gap:8px;">
-        <button onclick="this.closest('.modal-wrap').remove();selected.clear();updateCount();" class="ant-btn">关闭</button>
-        <button onclick="this.closest('.modal-wrap').remove();alert('✅ 已重新确认失败记录');selected.clear();updateCount();" class="ant-btn ant-btn-primary" style="background:#52c41a;border-color:#52c41a;">一键重试失败项</button>
-      </div>
-      ` : `
-      <div style="display:flex;justify-content:flex-end;gap:8px;">
-        <button onclick="this.closest('.modal-wrap').remove();selected.clear();updateCount();" class="ant-btn ant-btn-primary" style="background:#52c41a;border-color:#52c41a;">确定</button>
-      </div>
-      `}
-    </div>
-  `;
-  modal.className = 'modal-wrap';
-  modal.addEventListener('click', e => { if(e.target === modal) { modal.remove(); selected.clear(); updateCount(); } });
-  document.body.appendChild(modal);
+  showToast('批量确认完成');
+  selected.clear();
+  updateCount();
 }
 
 // 目录树数据

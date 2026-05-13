@@ -540,11 +540,13 @@ function removeBizTag(key, tag) {
   }
 }
 
+function stripTagCode(t){ return t.replace(/^[A-Z]+-\d+\s+/,''); }
+
 function updateTagsDisplay(key) {
   const wrap = document.getElementById('tags-' + key);
   const tags = bizTags[key];
   if (tags.length) {
-    wrap.innerHTML = tags.map(t => `<span class="multi-tag"><span>${t}</span><span class="remove" onclick="event.stopPropagation();removeBizTag('${key}','${t}')">×</span></span>`).join('');
+    wrap.innerHTML = tags.map(t => `<span class="multi-tag"><span>${stripTagCode(t)}</span><span class="remove" onclick="event.stopPropagation();removeBizTag('${key}','${t}')">×</span></span>`).join('');
   } else {
     wrap.innerHTML = '<span class="placeholder">请选择标签（可多选）</span>';
   }

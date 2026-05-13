@@ -728,9 +728,11 @@
       }
     }
 
+    function stripTagCode(t){ return t.replace(/^[A-Z]+-\d+\s+/,''); }
+
     function renderMultiSelect(item, i) {
       const tagsHtml = item.value.length
-        ? item.value.map(v => `<span class="multi-tag"><span>${v}</span><span class="remove" onclick="event.stopPropagation();toggleOption(${i}, '${v}')">×</span></span>`).join('')
+        ? item.value.map(v => `<span class="multi-tag"><span>${stripTagCode(v)}</span><span class="remove" onclick="event.stopPropagation();toggleOption(${i}, '${v}')">×</span></span>`).join('')
         : '<span class="placeholder">请选择标签（可多选）</span>';
 
       const treeHtml = renderTreeHtml(i, item.tree);
@@ -776,7 +778,7 @@
       const item = DATA[i];
       const tagsWrap = document.querySelector(`.multi-select[data-i="${i}"] .tags-wrap`);
       tagsWrap.innerHTML = item.value.length
-        ? item.value.map(v => `<span class="multi-tag"><span>${v}</span><span class="remove" onclick="event.stopPropagation();toggleOption(${i}, '${v}')">×</span></span>`).join('')
+        ? item.value.map(v => `<span class="multi-tag"><span>${stripTagCode(v)}</span><span class="remove" onclick="event.stopPropagation();toggleOption(${i}, '${v}')">×</span></span>`).join('')
         : '<span class="placeholder">请选择标签（可多选）</span>';
 
       const dropdown = document.getElementById(`dropdown-${i}`);

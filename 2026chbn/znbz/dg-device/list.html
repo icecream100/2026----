@@ -398,8 +398,8 @@ function renderTable(){
   tbody.innerHTML = devices.map(d=>{
     const bizTagHtml = (() => {
       if (!d.bizTags.length) return '<span style="color:var(--ant-text-tertiary);font-size:12px;">--</span>';
-      const show = d.bizTags.slice(0, 2).map(t => `<span class="tag-chip tag-business">${t}</span>`).join('');
-      const more = d.bizTags.length > 2 ? `<span class="tag-chip" style="background:#f0f0f0;color:rgba(0,0,0,0.45);cursor:pointer;" onmouseover="showTagTip(this,'${d.bizTags.slice(2).join('、')}')" onmouseout="hideTagTip()">+${d.bizTags.length - 2}</span>` : '';
+      const show = d.bizTags.slice(0, 2).map(t => `<span class="tag-chip tag-business">${t.replace(/^[A-Z]+-\d+\s+/,'')}</span>`).join('');
+      const more = d.bizTags.length > 2 ? `<span class="tag-chip" style="background:#f0f0f0;color:rgba(0,0,0,0.45);cursor:pointer;" onmouseover="showTagTip(this,'${d.bizTags.slice(2).map(t=>t.replace(/^[A-Z]+-\d+\s+/,'')).join('、')}')" onmouseout="hideTagTip()">+${d.bizTags.length - 2}</span>` : '';
       return show + more;
     })();
     return `<tr>
