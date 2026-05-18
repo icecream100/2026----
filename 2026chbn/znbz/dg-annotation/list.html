@@ -186,7 +186,7 @@
 
             <!-- 筛选 -->
             <div class="flex gap-3 flex-wrap pb-4">
-              <input class="ant-input" style="width:220px;" placeholder="搜索设备编号/名称">
+              <input class="ant-input" style="width:220px;" placeholder="搜索设备名称">
               <div class="tree-select" id="tagTreeSelect">
                 <div class="tree-select-input" onclick="toggleTagTree()">全部标签</div>
                 <div class="tree-select-panel" id="tagTreePanel"></div>
@@ -336,8 +336,8 @@ function renderTable(){
 
   document.getElementById('annoTableBody').innerHTML = list.map(item=>{
     const s = statusCfg[item.status];
-    // 可勾选：待标注且在线（用于批量发起）或 待确认且在线（用于批量确认）
-    const canSelect = showCheckbox && (item.status === 'pending' || item.status === 'review') && item.deviceStatus === 'online';
+    // 可勾选：待标注（用于批量发起）或 待确认（用于批量确认），在线/离线均可
+    const canSelect = showCheckbox && (item.status === 'pending' || item.status === 'review');
     const isSelected = selected.has(item.id);
     const confBar = item.conf !== null
       ? `<div style="display:flex;align-items:center;gap:6px;"><div style="width:60px;height:4px;border-radius:2px;background:#f0f0f0;"><div style="width:${item.conf}%;height:100%;border-radius:2px;background:${item.conf>=90?'#52c41a':item.conf>=70?'#faad14':'#ff4d4f'};"></div></div><span style="font-size:12px;">${item.conf}%</span></div>`
@@ -356,13 +356,10 @@ function renderTable(){
       ? `<span style="color:#ff4d4f;font-weight:600;"><span style="font-size:10px;">●</span> 待标注${failBadge}</span>`
       : `<span style="color:${s.color};font-weight:${item.status!=='pending'?'600':'400'};"><span style="font-size:10px;">●</span> ${s.label}</span>`;
 
-    // 离线设备提示
-    const offlineTip = item.deviceStatus === 'offline' ? ' title="离线设备暂不支持AI标注"' : '';
-
     const actions = {
       pending: item.lastFailed
-        ? `<button class="ant-btn ant-btn-sm" style="border-color:#ff4d4f;color:#ff4d4f;" onclick="singleAnnotate('${item.id}')"${offlineTip}><i class="fa-solid fa-rotate-right"></i>重新标注</button>`
-        : `<button class="ant-btn ant-btn-sm" style="border-color:#1677ff;color:#1677ff;" onclick="singleAnnotate('${item.id}')"${offlineTip}><i class="fa-solid fa-robot"></i>发起标注</button>`,
+        ? `<button class="ant-btn ant-btn-sm" style="border-color:#ff4d4f;color:#ff4d4f;" onclick="singleAnnotate('${item.id}')"><i class="fa-solid fa-rotate-right"></i>重新标注</button>`
+        : `<button class="ant-btn ant-btn-sm" style="border-color:#1677ff;color:#1677ff;" onclick="singleAnnotate('${item.id}')"><i class="fa-solid fa-robot"></i>发起标注</button>`,
       labeling: `<button class="ant-btn ant-btn-sm" disabled style="cursor:not-allowed;opacity:0.5;">标注中…</button>`,
       review: `<button class="ant-btn ant-btn-sm ant-btn-primary" onclick="openReviewModal()">确认</button>`,
       done: `<button class="ant-btn ant-btn-sm" onclick="showDetail('${item.id}')">查看</button>`
@@ -393,8 +390,8 @@ function toggleAll(cb){
     const st = statusFilter === '在线' ? 'online' : 'offline';
     list = list.filter(i=>i.deviceStatus===st);
   }
-  // 可勾选：待标注且在线 或 待确认且在线
-  list.filter(i=>(i.status==='pending' || i.status==='review') && i.deviceStatus==='online').forEach(i=>{ if(cb.checked) selected.add(i.id); else selected.delete(i.id); });
+  // 可勾选：待标注 或 待确认，在线/离线均可
+  list.filter(i=>i.status==='pending' || i.status==='review').forEach(i=>{ if(cb.checked) selected.add(i.id); else selected.delete(i.id); });
   updateCount();
   renderTable();
 }
@@ -442,7 +439,7 @@ function updateCount(){
       var st = statusFilter === '在线' ? 'online' : 'offline';
       list = list.filter(function(i){ return i.deviceStatus===st; });
     }
-    var selectable = list.filter(function(i){ return (i.status==='pending' || i.status==='review') && i.deviceStatus==='online'; });
+    var selectable = list.filter(function(i){ return (i.status==='pending' || i.status==='review'); });
     selectAllLink.textContent = '选中全部 ' + selectable.length + ' 条（符合当前筛选）';
   }
 }
@@ -455,7 +452,7 @@ function selectAllResults(){
     const st = statusFilter === '在线' ? 'online' : 'offline';
     list = list.filter(i=>i.deviceStatus===st);
   }
-  var selectable = list.filter(i=>(i.status==='pending' || i.status==='review') && i.deviceStatus==='online');
+  var selectable = list.filter(i=>i.status==='pending' || i.status==='review');
   selectable.forEach(i=>selected.add(i.id));
   updateCount();
   renderTable();
