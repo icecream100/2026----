@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>可用性报告 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--ant-primary:#1677ff;--ant-primary-bg:#e6f4ff;--ant-success:#52c41a;--ant-warning:#faad14;--ant-error:#ff4d4f;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);}
+    *{box-sizing:border-box;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}.sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}.main{flex:1;padding:24px;overflow:auto;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}.menu-item.active{color:#fff;background:var(--ant-primary);}.menu-item i{width:16px;text-align:center;}
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;transition:all 0.2s;}
+    .ant-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .ant-btn-sm{height:28px;padding:0 12px;font-size:13px;}
+    .ant-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);}
+    .ant-card-head{display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:15px;font-weight:600;}
+    .ant-card-body{padding:24px;}
+    .ant-select{height:32px;padding:0 11px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;font-size:14px;outline:none;}
+    .ant-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;}
+    .ant-table th{padding:10px 14px;font-weight:600;background:#fafafa;border-bottom:1px solid var(--ant-border-secondary);text-align:left;white-space:nowrap;font-size:13px;}
+    .ant-table td{padding:10px 14px;border-bottom:1px solid var(--ant-border-secondary);}
+    .ant-table tbody tr:hover td{background:rgba(0,0,0,0.02);}
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}.breadcrumb a:hover{color:var(--ant-primary);}
+    .kpi-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);padding:20px;position:relative;overflow:hidden;}
+    .kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+    .kpi-card.c-blue::after{background:#1677ff;}.kpi-card.c-green::after{background:#52c41a;}.kpi-card.c-purple::after{background:#722ed1;}.kpi-card.c-orange::after{background:#fa8c16;}.kpi-card.c-cyan::after{background:#13c2c2;}
+    .kpi-label{font-size:13px;color:var(--ant-text-tertiary);margin-bottom:8px;}
+    .kpi-value{font-size:30px;font-weight:700;letter-spacing:-0.5px;line-height:1.2;}
+    .kpi-trend{font-size:12px;margin-top:6px;display:flex;align-items:center;gap:4px;}
+    .kpi-sub{margin-top:8px;font-size:12px;color:var(--ant-text-tertiary);}
+    .progress-bar{height:5px;border-radius:3px;background:#f0f0f0;overflow:hidden;margin-top:8px;}
+    .progress-fill{height:100%;border-radius:3px;}
+    .dim-group{display:flex;gap:8px;margin-top:6px;}
+    .dim-item{font-size:11px;padding:2px 8px;border-radius:4px;}
+    .fail{color:#fa8c16;font-weight:600;}.fail-bg{background:#fffbe6;}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video text-white text-sm"></i></div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+      <span style="font-size:13px;">张工程师</span>
+    </div>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item" onclick="location.href='../ops-inspection/list.html'"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item" onclick="location.href='../ops-log/list.html'"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item active"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item" onclick="location.href='../ops-predict/list.html'"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-bell"></i>设备告警</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span>智能运维</span><span>/</span><span style="color:var(--ant-text);">可用性报告</span>
+      </div>
+
+      <!-- 时间选择 -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <span style="font-size:14px;color:var(--ant-text-secondary);">统计周期：</span>
+        <select class="ant-select"><option>本月（2026-05）</option><option>上月</option><option>近30天</option><option>近90天</option><option>自定义</option></select>
+      </div>
+
+      <!-- KPI 卡片：点位在线率 / 画面可用率 / 链路可用率 / 网络可用率 / MTBF / MTTR -->
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-bottom:24px;">
+        <div class="kpi-card c-blue">
+          <div class="kpi-label"><i class="fa-solid fa-wifi" style="margin-right:4px;"></i>点位在线率</div>
+          <div class="kpi-value" style="color:#1677ff;">97.1%</div>
+          <div class="kpi-trend" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i> +0.5% 较上月</div>
+          <div class="kpi-sub">在线 2,438 / 总计 2,512</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:97.1%;background:#1677ff;"></div></div>
+        </div>
+        <div class="kpi-card c-green">
+          <div class="kpi-label"><i class="fa-solid fa-eye" style="margin-right:4px;"></i>画面可用率</div>
+          <div class="kpi-value" style="color:#52c41a;">96.3%</div>
+          <div class="kpi-trend" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i> +1.2% 较上月</div>
+          <div class="kpi-sub">画面正常 2,339 / 已巡检 2,430</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:96.3%;background:#52c41a;"></div></div>
+        </div>
+        <div class="kpi-card c-purple">
+          <div class="kpi-label"><i class="fa-solid fa-network-wired" style="margin-right:4px;"></i>链路可用率</div>
+          <div class="kpi-value" style="color:#722ed1;">98.5%</div>
+          <div class="kpi-trend" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i> +0.2% 较上月</div>
+          <div class="kpi-sub">链路正常 2,396 / 已巡检 2,432</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:98.5%;background:#722ed1;"></div></div>
+        </div>
+        <div class="kpi-card" style="position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#eb2f96;"></div>
+          <div class="kpi-label"><i class="fa-solid fa-server" style="margin-right:4px;"></i>网络可用率</div>
+          <div class="kpi-value" style="color:#eb2f96;">97.8%</div>
+          <div class="kpi-trend" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i> +0.6% 较上月</div>
+          <div class="kpi-sub">网络正常 2,457 / 已巡检 2,512</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:97.8%;background:#eb2f96;"></div></div>
+        </div>
+        <div class="kpi-card c-cyan">
+          <div class="kpi-label"><i class="fa-solid fa-shield-halved" style="margin-right:4px;"></i>平均无故障时长(MTBF)</div>
+          <div class="kpi-value" style="color:#13c2c2;">72<span style="font-size:16px;font-weight:400;">h</span></div>
+          <div class="kpi-trend" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i> +8h 较上月</div>
+          <div class="kpi-sub">正常运行总时长 / 故障次数</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:72%;background:#13c2c2;"></div></div>
+        </div>
+        <div class="kpi-card c-orange">
+          <div class="kpi-label"><i class="fa-solid fa-clock-rotate-left" style="margin-right:4px;"></i>平均恢复时长(MTTR)</div>
+          <div class="kpi-value" style="color:#fa8c16;">38<span style="font-size:16px;font-weight:400;">min</span></div>
+          <div class="kpi-trend" style="color:#52c41a;"><i class="fa-solid fa-arrow-down"></i> -12min 较上月</div>
+          <div class="kpi-sub">故障持续时长总和 / 故障次数</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:63%;background:#fa8c16;"></div></div>
+        </div>
+      </div>
+
+      <!-- 可用性趋势图（v5新增 FUNC-D-007） -->
+      <div class="ant-card mb-4">
+        <div class="ant-card-head">
+          <span><i class="fa-solid fa-chart-line mr-2" style="color:var(--ant-primary);"></i>可用性趋势</span>
+          <div style="display:flex;gap:16px;align-items:center;">
+            <div style="display:flex;gap:0;">
+              <div class="trend-tab active" data-trend="all" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-radius:4px 0 0 4px;background:var(--ant-primary);color:#fff;">全网可用率</div>
+              <div class="trend-tab" data-trend="link" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-left:0;border-radius:0;">链路可用率</div>
+              <div class="trend-tab" data-trend="video" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-left:0;border-radius:0;">画面可用率</div>
+              <div class="trend-tab" data-trend="network" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-left:0;border-radius:0 4px 4px 0;">网络可用率</div>
+            </div>
+            <div style="display:flex;gap:0;">
+              <button class="ant-btn ant-btn-sm" style="border-radius:4px 0 0 4px;background:var(--ant-primary);color:#fff;border-color:var(--ant-primary);">按日</button>
+              <button class="ant-btn ant-btn-sm" style="border-radius:0;border-left:0;">按周</button>
+              <button class="ant-btn ant-btn-sm" style="border-radius:0 4px 4px 0;border-left:0;">按月</button>
+            </div>
+          </div>
+        </div>
+        <div class="ant-card-body">
+          <div style="position:relative;">
+            <!-- SLA目标线标注 -->
+            <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
+              <span style="font-size:11px;color:#ff4d4f;">— — — SLA目标 99%</span>
+            </div>
+            <svg viewBox="0 0 700 180" style="width:100%;height:180px;">
+              <!-- 网格 -->
+              <line x1="0" y1="45" x2="700" y2="45" stroke="#f0f0f0" stroke-width="1"/>
+              <line x1="0" y1="90" x2="700" y2="90" stroke="#f0f0f0" stroke-width="1"/>
+              <line x1="0" y1="135" x2="700" y2="135" stroke="#f0f0f0" stroke-width="1"/>
+              <!-- Y轴标签 -->
+              <text x="0" y="8" fill="rgba(0,0,0,0.35)" font-size="10">100%</text>
+              <text x="0" y="50" fill="rgba(0,0,0,0.35)" font-size="10">99%</text>
+              <text x="0" y="95" fill="rgba(0,0,0,0.35)" font-size="10">98%</text>
+              <text x="0" y="140" fill="rgba(0,0,0,0.35)" font-size="10">97%</text>
+              <!-- SLA目标线 -->
+              <line x1="30" y1="45" x2="700" y2="45" stroke="#ff4d4f" stroke-width="1" stroke-dasharray="6,4"/>
+              <!-- 趋势线 - 全网可用率 -->
+              <polyline points="50,52 110,48 170,55 230,42 290,50 350,38 410,58 470,44 530,52 590,46 650,40" fill="none" stroke="#1677ff" stroke-width="2.5" stroke-linejoin="round"/>
+              <!-- 数据点（低于SLA的红色） -->
+              <circle cx="50" cy="52" r="4" fill="#ff4d4f" stroke="#fff" stroke-width="2"/>
+              <circle cx="110" cy="48" r="4" fill="#52c41a" stroke="#fff" stroke-width="2"/>
+              <circle cx="170" cy="55" r="4" fill="#ff4d4f" stroke="#fff" stroke-width="2"/>
+              <circle cx="230" cy="42" r="4" fill="#52c41a" stroke="#fff" stroke-width="2"/>
+              <circle cx="290" cy="50" r="4" fill="#ff4d4f" stroke="#fff" stroke-width="2"/>
+              <circle cx="350" cy="38" r="4" fill="#52c41a" stroke="#fff" stroke-width="2"/>
+              <circle cx="410" cy="58" r="4" fill="#ff4d4f" stroke="#fff" stroke-width="2"/>
+              <circle cx="470" cy="44" r="4" fill="#52c41a" stroke="#fff" stroke-width="2"/>
+              <circle cx="530" cy="52" r="4" fill="#ff4d4f" stroke="#fff" stroke-width="2"/>
+              <circle cx="590" cy="46" r="4" fill="#52c41a" stroke="#fff" stroke-width="2"/>
+              <circle cx="650" cy="40" r="4" fill="#52c41a" stroke="#fff" stroke-width="2"/>
+              <!-- X轴标签 -->
+              <text x="50" y="172" fill="rgba(0,0,0,0.35)" font-size="9" text-anchor="middle">05-01</text>
+              <text x="110" y="172" fill="rgba(0,0,0,0.35)" font-size="9" text-anchor="middle">05-05</text>
+              <text x="170" y="172" fill="rgba(0,0,0,0.35)" font-size="9" text-anchor="middle">05-09</text>
+              <text x="230" y="172" fill="rgba(0,0,0,0.35)" font-size="9" text-anchor="middle">05-13</text>
+              <text x="290" y="172" fill="rgba(0,0,0,0.35)" font-size="9" text-anchor="middle">05-17</text>
+              <text x="350" y="172" fill="rgba(0,0,0,0.35)" font-size="9" text-anchor="middle">05-21</text>
+              <text x="410" y="172" fill="rgba(0,0,0,0.35)" font-size="9" text-anchor="middle">05-25</text>
+              <text x="470" y="172" fill="rgba(0,0,0,0.35)" font-size="9" text-anchor="middle">05-29</text>
+              <text x="530" y="172" fill="rgba(0,0,0,0.35)" font-size="9" text-anchor="middle">06-02</text>
+              <text x="590" y="172" fill="rgba(0,0,0,0.35)" font-size="9" text-anchor="middle">06-06</text>
+              <text x="650" y="172" fill="rgba(0,0,0,0.35)" font-size="9" text-anchor="middle">06-10</text>
+            </svg>
+            <div style="font-size:11px;color:rgba(0,0,0,0.35);margin-top:4px;text-align:center;">红色圆点标注低于SLA目标(99%)的数据点</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 可用性统计表：按行政区划 -->
+      <div class="ant-card mb-4">
+        <div class="ant-card-head">
+          <span>可用性统计</span>
+          <span style="font-size:13px;font-weight:400;color:var(--ant-text-tertiary);">按行政区划分组，点击查看详情查看片区明细</span>
+        </div>
+        <div class="ant-card-body" style="padding:0;">
+<table class="ant-table">
+            <thead id="tableHead">
+              <tr>
+                <th rowspan="2" style="vertical-align:bottom;" id="groupLabel">行政区划</th>
+                <th rowspan="2" style="vertical-align:bottom;">点位总数</th>
+                <th rowspan="2" style="vertical-align:bottom;">在线数</th>
+                <th colspan="3" style="text-align:center;border-bottom:2px solid var(--ant-border-secondary);">可用率（≥99%为达标）</th>
+                <th rowspan="2" style="vertical-align:bottom;">MTBF(h)</th>
+                <th rowspan="2" style="vertical-align:bottom;">MTTR(min)</th>
+                <th rowspan="2" style="vertical-align:bottom;">操作</th>
+              </tr>
+              <tr>
+                <th style="color:#722ed1;">链路</th>
+                <th style="color:#52c41a;">画面</th>
+                <th style="color:#1677ff;">网络</th>
+              </tr>
+            </thead>
+            <tbody id="slaTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 按设备类型统计 -->
+      <div class="ant-card">
+        <div class="ant-card-head">
+          <span>按设备类型统计</span>
+          <span style="font-size:13px;font-weight:400;color:var(--ant-text-tertiary);">支持按设备类型查看详情</span>
+        </div>
+        <div class="ant-card-body" style="padding:0;">
+          <table class="ant-table">
+            <thead>
+              <tr>
+                <th>设备类型</th>
+                <th>点位总数</th>
+                <th>在线数</th>
+                <th>在线率</th>
+                <th>画面可用率</th>
+                <th>链路可用率</th>
+                <th>网络可用率</th>
+                <th>MTBF(h)</th>
+                <th>MTTR(min)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><i class="fa-solid fa-circle" style="color:#1677ff;font-size:8px;margin-right:6px;"></i>球机</td>
+                <td>1,280</td><td>1,248</td>
+                <td><span style="color:#52c41a;">97.5%</span></td>
+                <td><span style="color:#52c41a;">96.8%</span></td>
+                <td><span style="color:#52c41a;">98.9%</span></td>
+                <td><span style="color:#52c41a;">98.2%</span></td>
+                <td>68</td><td>42</td>
+              </tr>
+              <tr>
+                <td><i class="fa-solid fa-circle" style="color:#52c41a;font-size:8px;margin-right:6px;"></i>枪机</td>
+                <td>860</td><td>842</td>
+                <td><span style="color:#52c41a;">97.9%</span></td>
+                <td><span style="color:#52c41a;">96.1%</span></td>
+                <td><span style="color:#52c41a;">98.3%</span></td>
+                <td><span style="color:#52c41a;">97.6%</span></td>
+                <td>75</td><td>35</td>
+              </tr>
+              <tr>
+                <td><i class="fa-solid fa-circle" style="color:#722ed1;font-size:8px;margin-right:6px;"></i>半球</td>
+                <td>248</td><td>236</td>
+                <td><span style="color:#52c41a;">95.2%</span></td>
+                <td style="color:#fa8c16;font-weight:600;">93.5%</td>
+                <td><span style="color:#52c41a;">97.2%</span></td>
+                <td style="color:#fa8c16;font-weight:600;">94.8%</td>
+                <td style="color:#fa8c16;">48</td><td style="color:#fa8c16;">52</td>
+              </tr>
+              <tr>
+                <td><i class="fa-solid fa-circle" style="color:#fa8c16;font-size:8px;margin-right:6px;"></i>无人机</td>
+                <td>84</td><td>78</td>
+                <td><span style="color:#52c41a;">92.9%</span></td>
+                <td style="color:#ff4d4f;font-weight:600;">91.2%</td>
+                <td><span style="color:#52c41a;">95.8%</span></td>
+                <td style="color:#fa8c16;">93.5%</td>
+                <td style="color:#ff4d4f;">32</td><td style="color:#ff4d4f;">65</td>
+              </tr>
+              <tr>
+                <td><i class="fa-solid fa-circle" style="color:#13c2c2;font-size:8px;margin-right:6px;"></i>车载</td>
+                <td>40</td><td>34</td>
+                <td style="color:#fa8c16;font-weight:600;">85.0%</td>
+                <td style="color:#ff4d4f;font-weight:600;">88.2%</td>
+                <td style="color:#fa8c16;font-weight:600;">92.1%</td>
+                <td style="color:#ff4d4f;font-weight:600;">89.5%</td>
+                <td style="color:#ff4d4f;">24</td><td style="color:#ff4d4f;">78</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+<script>
+  // 行政区划数据（静态渲染，点击"查看详情"跳转到 detail.html）
+  var dataCity = [
+    {name:'莲湖区',total:512,online:502,link:'99.8%',video:'99.2%',signal:'99.5%',network:'99.3%',mtbf:85,mttr:32,fail:false},
+    {name:'雁塔区',total:748,online:720,link:'97.2%',video:'96.8%',signal:'97.5%',network:'96.9%',mtbf:52,mttr:48,fail:true},
+    {name:'未央区',total:620,online:612,link:'99.6%',video:'99.1%',signal:'99.3%',network:'99.0%',mtbf:78,mttr:35,fail:false},
+    {name:'灞桥区',total:390,online:376,link:'96.4%',video:'95.1%',signal:'96.9%',network:'95.8%',mtbf:38,mttr:56,fail:true},
+    {name:'碑林区',total:242,online:228,link:'99.9%',video:'99.7%',signal:'99.8%',network:'99.6%',mtbf:120,mttr:18,fail:false}
+  ];
+
+  (function() {
+    var tb = document.getElementById('slaTableBody');
+    var html = dataCity.map(function(r) {
+      var btnStyle = r.fail ? ' style="border-color:#faad14;color:#faad14;"' : '';
+      var mtbfColor = r.mtbf < 50 ? 'color:#ff4d4f;' : r.mtbf < 70 ? 'color:#fa8c16;' : '';
+      var mttrColor = r.mttr > 50 ? 'color:#ff4d4f;' : r.mttr > 40 ? 'color:#fa8c16;' : '';
+      var linkC = parseFloat(r.link) < 99 ? ' class="fail"' : '';
+      var videoC = parseFloat(r.video) < 99 ? ' class="fail"' : '';
+      var networkC = parseFloat(r.network) < 99 ? ' class="fail"' : '';
+      return '<tr><td><strong>'+r.name+'</strong></td><td>'+r.total+'</td><td>'+r.online+'</td>'
+        +'<td'+linkC+'>'+r.link+'</td>'
+        +'<td'+videoC+'>'+r.video+'</td>'
+        +'<td'+networkC+'>'+r.network+'</td>'
+        +'<td style="'+mtbfColor+'">'+r.mtbf+'</td>'
+        +'<td style="'+mttrColor+'">'+r.mttr+'</td>'
+        +'<td><a class="ant-btn ant-btn-sm"'+btnStyle+' href="detail.html?region='+encodeURIComponent(r.name)+'">查看详情</a></td></tr>';
+    }).join('');
+    html += '<tr style="background:#fafafa;font-weight:600;"><td>合计</td><td>2,512</td><td>2,438</td>'
+      +'<td style="color:#fa8c16;">98.5%</td><td style="color:#fa8c16;">96.3%</td><td style="color:#fa8c16;">97.8%</td>'
+      +'<td>72</td><td>38</td><td>—</td></tr>';
+    tb.innerHTML = html;
+  })();
+
+  function switchTrendTab(el){
+    document.querySelectorAll('.trend-tab').forEach(function(t){
+      t.style.background='';
+      t.style.color='';
+      t.style.fontWeight='';
+    });
+    el.style.background='var(--ant-primary)';
+    el.style.color='#fff';
+    el.style.fontWeight='600';
+  }
+</script>
+</body>
+</html>

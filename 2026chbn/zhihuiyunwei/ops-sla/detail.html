@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>可用性报告 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--ant-primary:#1677ff;--ant-primary-bg:#e6f4ff;--ant-success:#52c41a;--ant-warning:#faad14;--ant-error:#ff4d4f;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);}
+    *{box-sizing:border-box;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}.sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}.main{flex:1;padding:24px;overflow:auto;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}.menu-item.active{color:#fff;background:var(--ant-primary);}.menu-item i{width:16px;text-align:center;}
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;transition:all 0.2s;}
+    .ant-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .ant-btn-sm{height:28px;padding:0 12px;font-size:13px;}
+    .ant-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);}
+    .ant-card-head{display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:15px;font-weight:600;}
+    .ant-card-body{padding:24px;}
+    .ant-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;}
+    .ant-table th{padding:10px 14px;font-weight:600;background:#fafafa;border-bottom:1px solid var(--ant-border-secondary);text-align:left;white-space:nowrap;font-size:13px;}
+    .ant-table td{padding:10px 14px;border-bottom:1px solid var(--ant-border-secondary);}
+    .ant-table tbody tr:hover td{background:rgba(0,0,0,0.02);}
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}.breadcrumb a:hover{color:var(--ant-primary);}
+    .progress-bar{height:5px;border-radius:3px;background:#f0f0f0;overflow:hidden;margin-top:8px;}
+    .progress-fill{height:100%;border-radius:3px;}
+    .fail{color:#fa8c16;font-weight:600;}.fail-bg{background:#fffbe6;}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video text-white text-sm"></i></div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+      <span style="font-size:13px;">张工程师</span>
+    </div>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item" onclick="location.href='../ops-inspection/list.html'"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item" onclick="location.href='../ops-log/list.html'"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item active"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item" onclick="location.href='../ops-predict/list.html'"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-bell"></i>设备告警</div>
+    </aside>
+    <main class="main">
+      <!-- 面包屑导航 -->
+      <div class="breadcrumb" id="breadcrumb"></div>
+
+      <!-- 子区域/设备表格 -->
+      <div class="ant-card mb-4">
+        <div class="ant-card-head" id="tableTitle">
+          <span>片区明细</span>
+          <span style="font-size:13px;font-weight:400;color:var(--ant-text-tertiary);">点击查看详情查看下级明细</span>
+        </div>
+        <div class="ant-card-body" style="padding:0;">
+          <table class="ant-table">
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+  // ========== 静态数据 ==========
+
+  // 各区域下片区数据
+  var subAreaData = {
+    '雁塔区': [
+      {name:'小寨片区',total:218,online:210,link:'97.5%',video:'96.2%',signal:'97.8%',mtbf:320,mttr:52,fail:true},
+      {name:'大雁塔片区',total:196,online:190,link:'98.2%',video:'97.8%',signal:'98.5%',mtbf:480,mttr:42,fail:false},
+      {name:'曲江片区',total:182,online:178,link:'96.8%',video:'95.6%',signal:'96.2%',mtbf:290,mttr:58,fail:true},
+      {name:'高新片区',total:152,online:142,link:'95.4%',video:'94.1%',signal:'95.8%',mtbf:260,mttr:62,fail:true}
+    ],
+    '莲湖区': [
+      {name:'北院门片区',total:168,online:165,link:'99.5%',video:'99.1%',signal:'99.6%',mtbf:420,mttr:30,fail:false},
+      {name:'西关片区',total:180,online:176,link:'99.8%',video:'99.3%',signal:'99.7%',mtbf:460,mttr:28,fail:false},
+      {name:'土门片区',total:164,online:161,link:'99.9%',video:'99.2%',signal:'99.4%',mtbf:440,mttr:38,fail:false}
+    ],
+    '未央区': [
+      {name:'经开区片区',total:220,online:216,link:'99.5%',video:'99.0%',signal:'99.2%',mtbf:450,mttr:34,fail:false},
+      {name:'张家堡片区',total:200,online:198,link:'99.7%',video:'99.3%',signal:'99.5%',mtbf:490,mttr:32,fail:false},
+      {name:'大明宫片区',total:200,online:198,link:'99.6%',video:'99.0%',signal:'99.2%',mtbf:470,mttr:39,fail:false}
+    ],
+    '灞桥区': [
+      {name:'纺织城片区',total:130,online:124,link:'96.2%',video:'94.8%',signal:'96.5%',mtbf:240,mttr:58,fail:true},
+      {name:'洪庆片区',total:130,online:126,link:'96.8%',video:'95.5%',signal:'97.2%',mtbf:280,mttr:54,fail:true},
+      {name:'席王片区',total:130,online:126,link:'96.2%',video:'95.0%',signal:'97.0%',mtbf:260,mttr:56,fail:true}
+    ],
+    '碑林区': [
+      {name:'南院门片区',total:82,online:78,link:'99.9%',video:'99.6%',signal:'99.8%',mtbf:520,mttr:16,fail:false},
+      {name:'柏树林片区',total:80,online:76,link:'99.8%',video:'99.7%',signal:'99.9%',mtbf:550,mttr:20,fail:false},
+      {name:'东关南街片区',total:80,online:74,link:'99.9%',video:'99.8%',signal:'99.7%',mtbf:530,mttr:18,fail:false}
+    ]
+  };
+
+  // 设备级别数据
+  var deviceData = {
+    '小寨片区': [
+      {name:'长安路-球机-01',code:'GB28181-10101',ip:'10.10.1.101',type:'球机',link:'正常',rate:'99.2%',uptime:'712h',faults:1,faultDesc:'—',mtbf:712},
+      {name:'长安路-球机-02',code:'GB28181-10102',ip:'10.10.1.102',type:'球机',link:'异常',rate:'98.5%',uptime:'706h',faults:2,faultDesc:'链路中断',mtbf:353},
+      {name:'小寨西路-枪机-01',code:'GB28181-10201',ip:'10.10.1.201',type:'枪机',link:'正常',rate:'99.8%',uptime:'718h',faults:0,faultDesc:'—',mtbf:'—'},
+      {name:'小寨西路-枪机-02',code:'GB28181-10202',ip:'10.10.1.202',type:'枪机',link:'异常',rate:'97.1%',uptime:'698h',faults:3,faultDesc:'链路超时',mtbf:233},
+      {name:'兴善寺街-半球-01',code:'GB28181-10301',ip:'10.10.1.301',type:'半球',link:'正常',rate:'96.2%',uptime:'692h',faults:2,faultDesc:'画质劣化',mtbf:346},
+      {name:'长安路-球机-03',code:'GB28181-10103',ip:'10.10.1.103',type:'球机',link:'正常',rate:'99.5%',uptime:'716h',faults:1,faultDesc:'—',mtbf:716}
+    ],
+    '大雁塔片区': [
+      {name:'慈恩路-球机-01',code:'GB28181-20101',ip:'10.10.2.101',type:'球机',link:'正常',rate:'99.6%',uptime:'716h',faults:1,faultDesc:'—',mtbf:716},
+      {name:'慈恩路-球机-02',code:'GB28181-20102',ip:'10.10.2.102',type:'球机',link:'正常',rate:'98.8%',uptime:'710h',faults:2,faultDesc:'链路时延高',mtbf:355},
+      {name:'雁塔路-枪机-01',code:'GB28181-20201',ip:'10.10.2.201',type:'枪机',link:'正常',rate:'99.2%',uptime:'714h',faults:1,faultDesc:'—',mtbf:714},
+      {name:'雁塔广场-球机-01',code:'GB28181-20103',ip:'10.10.2.103',type:'球机',link:'正常',rate:'99.8%',uptime:'718h',faults:0,faultDesc:'—',mtbf:'—'},
+      {name:'曲江大道-枪机-01',code:'GB28181-20202',ip:'10.10.2.202',type:'枪机',link:'异常',rate:'97.5%',uptime:'700h',faults:2,faultDesc:'链路超时',mtbf:350}
+    ],
+    '曲江片区': [
+      {name:'曲江池-球机-01',code:'GB28181-30101',ip:'10.10.3.101',type:'球机',link:'正常',rate:'98.2%',uptime:'706h',faults:2,faultDesc:'画质轻微异常',mtbf:353},
+      {name:'曲江池-球机-02',code:'GB28181-30102',ip:'10.10.3.102',type:'球机',link:'异常',rate:'96.5%',uptime:'694h',faults:3,faultDesc:'链路中断',mtbf:231},
+      {name:'大唐不夜城-枪机-01',code:'GB28181-30201',ip:'10.10.3.201',type:'枪机',link:'正常',rate:'99.1%',uptime:'712h',faults:1,faultDesc:'—',mtbf:712},
+      {name:'大唐不夜城-球机-01',code:'GB28181-30103',ip:'10.10.3.103',type:'球机',link:'异常',rate:'95.8%',uptime:'688h',faults:3,faultDesc:'链路丢包',mtbf:229},
+      {name:'芙蓉园-半球-01',code:'GB28181-30301',ip:'10.10.3.301',type:'半球',link:'正常',rate:'97.2%',uptime:'698h',faults:2,faultDesc:'画质劣化',mtbf:349},
+      {name:'曲江大道-无人机-01',code:'GB28181-30401',ip:'10.10.3.401',type:'无人机',link:'异常',rate:'92.5%',uptime:'665h',faults:4,faultDesc:'链路中断',mtbf:166}
+    ],
+    '高新片区': [
+      {name:'科技路-球机-01',code:'GB28181-40101',ip:'10.10.4.101',type:'球机',link:'正常',rate:'98.8%',uptime:'710h',faults:2,faultDesc:'画质轻微异常',mtbf:355},
+      {name:'科技路-枪机-01',code:'GB28181-40201',ip:'10.10.4.201',type:'枪机',link:'正常',rate:'97.2%',uptime:'698h',faults:2,faultDesc:'链路超时',mtbf:349},
+      {name:'高新路-球机-01',code:'GB28181-40102',ip:'10.10.4.102',type:'球机',link:'异常',rate:'96.1%',uptime:'690h',faults:3,faultDesc:'链路时延高',mtbf:230},
+      {name:'高新路-枪机-01',code:'GB28181-40202',ip:'10.10.4.202',type:'枪机',link:'正常',rate:'99.5%',uptime:'716h',faults:1,faultDesc:'—',mtbf:716},
+      {name:'软件园-半球-01',code:'GB28181-40301',ip:'10.10.4.301',type:'半球',link:'异常',rate:'94.8%',uptime:'682h',faults:3,faultDesc:'画质劣化+链路丢包',mtbf:227}
+    ]
+  };
+
+  // ========== URL 参数解析 ==========
+  var params = new URLSearchParams(window.location.search);
+  var region = params.get('region') || '雁塔区';
+  var sub = params.get('sub');
+
+  // ========== 渲染面包屑 ==========
+  function renderBreadcrumb() {
+    var bc = document.getElementById('breadcrumb');
+    if (sub) {
+      bc.innerHTML = '<a href="index.html">可用性报告</a><span>/</span>'
+        + '<a href="detail.html?region=' + encodeURIComponent(region) + '">' + region + '</a><span>/</span>'
+        + '<span style="color:var(--ant-text);">' + sub + '</span>';
+    } else {
+      bc.innerHTML = '<a href="index.html">可用性报告</a><span>/</span>'
+        + '<span style="color:var(--ant-text);">' + region + '</span>';
+    }
+  }
+
+  // ========== 渲染子区域表格 ==========
+  function renderSubAreaTable() {
+    var title = document.getElementById('tableTitle');
+    var thead = document.getElementById('tableHead');
+    var tbody = document.getElementById('tableBody');
+
+    if (sub) {
+      // 设备级别表格
+      title.innerHTML = '<span>' + sub + ' - 设备明细</span>'
+        + '<span style="font-size:13px;font-weight:400;color:var(--ant-text-tertiary);">设备级别的可用性指标</span>';
+      thead.innerHTML = '<tr>'
+        + '<th>设备名称</th><th>平台编码</th><th>设备IP</th><th>设备类型</th>'
+        + '<th>链路状态</th><th>可用率</th><th>故障类型</th><th>在线时长</th><th>故障次数</th><th>MTBF(h)</th><th>操作</th>'
+        + '</tr>';
+
+      var devices = deviceData[sub] || [];
+      var html = '';
+      var totalFaults = 0;
+      for (var i = 0; i < devices.length; i++) {
+        var d = devices[i];
+        totalFaults += d.faults;
+        var rateVal = parseFloat(d.rate);
+        var rateColor = rateVal < 97 ? ' class="fail"' : '';
+        var mtbfStyle = d.mtbf === '—' ? '' : (d.mtbf < 250 ? 'color:#ff4d4f;font-weight:600;' : d.mtbf < 350 ? 'color:#fa8c16;' : '');
+        var linkColor = d.link === '正常' ? 'color:#52c41a;' : 'color:#ff4d4f;font-weight:600;';
+        var faultDescStyle = d.faultDesc === '—' ? 'color:var(--ant-text-tertiary);' : 'color:#ff4d4f;';
+        html += '<tr><td><strong>' + d.name + '</strong></td>'
+          + '<td style="font-family:monospace;font-size:12px;">' + d.code + '</td>'
+          + '<td style="font-family:monospace;">' + d.ip + '</td>'
+          + '<td>' + d.type + '</td>'
+          + '<td style="' + linkColor + '">' + d.link + '</td>'
+          + '<td' + rateColor + '>' + d.rate + '</td>'
+          + '<td style="' + faultDescStyle + '">' + d.faultDesc + '</td>'
+          + '<td>' + d.uptime + '</td>'
+          + '<td' + (d.faults > 2 ? ' style="color:#ff4d4f;font-weight:600;"' : d.faults > 1 ? ' style="color:#fa8c16;"' : '') + '>' + d.faults + '</td>'
+          + '<td style="' + mtbfStyle + '">' + d.mtbf + '</td>'
+          + '<td><a href="../ops-alert/list.html" class="ant-btn-link"><i class="fa-solid fa-bell" style="margin-right:3px;"></i>告警记录</a></td></tr>';
+      }
+      tbody.innerHTML = html;
+      return;
+    }
+
+    // 片区级别表格
+    title.innerHTML = '<span>' + region + ' - 片区明细</span>'
+      + '<span style="font-size:13px;font-weight:400;color:var(--ant-text-tertiary);">点击查看详情查看设备级明细</span>';
+
+    thead.innerHTML = '<tr>'
+      + '<th rowspan="2" style="vertical-align:bottom;">片区名称</th>'
+      + '<th rowspan="2" style="vertical-align:bottom;">点位总数</th>'
+      + '<th rowspan="2" style="vertical-align:bottom;">在线数</th>'
+      + '<th colspan="3" style="text-align:center;border-bottom:2px solid var(--ant-border-secondary);">可用率（≥99%为达标）</th>'
+      + '<th rowspan="2" style="vertical-align:bottom;">MTBF(h)</th>'
+      + '<th rowspan="2" style="vertical-align:bottom;">MTTR(min)</th>'
+      + '<th rowspan="2" style="vertical-align:bottom;">操作</th>'
+      + '</tr><tr>'
+      + '<th style="color:#722ed1;">链路</th>'
+      + '<th style="color:#52c41a;">画面</th>'
+      + '<th style="color:#1677ff;">网络</th>'
+      + '</tr>';
+
+    var areas = subAreaData[region] || subAreaData['雁塔区'];
+    var html = '';
+    var sumTotal = 0, sumOnline = 0, sumMtbf = 0, sumMttr = 0;
+    for (var i = 0; i < areas.length; i++) {
+      var r = areas[i];
+      sumTotal += r.total;
+      sumOnline += r.online;
+      sumMtbf += r.mtbf;
+      sumMttr += r.mttr;
+      var btnStyle = r.fail ? ' style="border-color:#faad14;color:#faad14;"' : '';
+      var mtbfColor = r.mtbf < 250 ? 'color:#ff4d4f;' : r.mtbf < 350 ? 'color:#fa8c16;' : '';
+      var mttrColor = r.mttr > 50 ? 'color:#ff4d4f;' : r.mttr > 40 ? 'color:#fa8c16;' : '';
+      var linkC = parseFloat(r.link) < 99 ? ' class="fail"' : '';
+      var videoC = parseFloat(r.video) < 99 ? ' class="fail"' : '';
+      var signalC = parseFloat(r.signal) < 99 ? ' class="fail"' : '';
+      html += '<tr><td><strong>' + r.name + '</strong></td><td>' + r.total + '</td><td>' + r.online + '</td>'
+        + '<td' + linkC + '>' + r.link + '</td>'
+        + '<td' + videoC + '>' + r.video + '</td>'
+        + '<td' + signalC + '>' + r.signal + '</td>'
+        + '<td style="' + mtbfColor + '">' + r.mtbf + '</td>'
+        + '<td style="' + mttrColor + '">' + r.mttr + '</td>'
+        + '<td><a class="ant-btn ant-btn-sm" href="detail.html?region=' + encodeURIComponent(region) + '&sub=' + encodeURIComponent(r.name) + '"' + btnStyle + '>查看详情</a></td></tr>';
+    }
+    var avgMtbf = Math.round(sumMtbf / areas.length);
+    var avgMttr = Math.round(sumMttr / areas.length);
+    html += '<tr style="background:#fafafa;font-weight:600;"><td>合计</td><td>' + sumTotal.toLocaleString() + '</td><td>' + sumOnline.toLocaleString() + '</td>'
+      + '<td>—</td><td>—</td><td>—</td>'
+      + '<td>' + avgMtbf + '</td><td>' + avgMttr + '</td><td>—</td></tr>';
+    tbody.innerHTML = html;
+  }
+
+  // ========== 初始化 ==========
+  renderBreadcrumb();
+  renderSubAreaTable();
+</script>
+</body>
+</html>

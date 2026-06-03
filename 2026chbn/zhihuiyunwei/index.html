@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>视频智能运维管理平台 — 原型导航</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --ant-primary: #1677ff; --ant-primary-bg: #e6f4ff;
+      --ant-success: #52c41a; --ant-error: #ff4d4f; --ant-warning: #faad14;
+      --ant-border: #d9d9d9; --ant-border-secondary: #f0f0f0;
+      --ant-text: rgba(0,0,0,0.88); --ant-text-secondary: rgba(0,0,0,0.65); --ant-text-tertiary: rgba(0,0,0,0.45);
+      --ant-bg: #f5f5f5; --ant-bg-container: #ffffff;
+      --shadow-1: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+    }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; color: var(--ant-text); background: #f0f2f5; margin: 0; }
+    .page-card { background: #fff; border-radius: 8px; border: 1px solid var(--ant-border-secondary); box-shadow: var(--shadow-1); transition: all 0.2s; cursor: pointer; text-decoration: none; display: block; color: inherit; }
+    .page-card:hover { border-color: var(--ant-primary); box-shadow: 0 4px 12px rgba(22,119,255,0.15); transform: translateY(-1px); }
+    .badge-new { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; border-radius: 10px; padding: 1px 6px; font-size: 11px; font-weight: 500; }
+    .badge-change { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; border-radius: 10px; padding: 1px 6px; font-size: 11px; font-weight: 500; }
+    .badge-keep { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; border-radius: 10px; padding: 1px 6px; font-size: 11px; font-weight: 500; }
+    .section-bar { width: 4px; height: 16px; border-radius: 2px; display: inline-block; margin-right: 10px; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <!-- 顶部标题栏 -->
+  <header style="background:#001529; color:#fff;" class="px-8 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;" class="w-8 h-8 rounded flex items-center justify-center">
+        <i class="fa-solid fa-video text-white text-sm"></i>
+      </div>
+      <div>
+        <h1 class="text-lg font-semibold text-white m-0">视频智能运维管理平台</h1>
+        <p class="text-xs m-0" style="color:rgba(255,255,255,0.5);">产品原型 v7.0 · 共 16 个页面 · 2026.05</p>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="filterSection('all')" id="tab-all" style="background:#1677ff;color:#fff;border:1px solid #1677ff;" class="px-4 py-1.5 rounded text-sm cursor-pointer transition-all">全部</button>
+      <button onclick="filterSection('center')" id="tab-center" style="background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.3);" class="px-4 py-1.5 rounded text-sm cursor-pointer transition-all">报警中心</button>
+      <button onclick="filterSection('ops')" id="tab-ops" style="background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.3);" class="px-4 py-1.5 rounded text-sm cursor-pointer transition-all">智能运营域</button>
+    </div>
+  </header>
+
+  <main class="p-8 max-w-7xl mx-auto">
+
+    <!-- 图例说明 -->
+    <div class="flex gap-4 mb-8 p-4 bg-white rounded-lg" style="border:1px solid #f0f0f0;">
+      <span class="flex items-center gap-2 text-sm"><span class="badge-new">全新</span> 本次迭代新建页面</span>
+      <span class="flex items-center gap-2 text-sm"><span class="badge-change">改造</span> 现有页面优化改造</span>
+      <span class="flex items-center gap-2 text-sm"><span class="badge-keep">保留</span> 现有功能不变参考</span>
+    </div>
+
+    <!-- 报警中心联动 -->
+    <section data-section="center" class="mb-10">
+      <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+        <span class="section-bar" style="background:#f5222d;"></span>报警中心
+        <span class="ml-3 text-xs font-normal" style="color:rgba(0,0,0,0.45);">告警仪表盘（改造）· 来源扩展 · 待处置告警卡片</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-4">
+
+        <!-- 告警仪表盘 -->
+        <a href="ops-center/dashboard.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff1f0;">
+                <i class="fa-solid fa-gauge-high" style="color:#f5222d;"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">告警仪表盘</div>
+                <div class="text-xs" style="color:rgba(0,0,0,0.45);">Epic-R · 来源扩展</div>
+              </div>
+            </div>
+            <span class="badge-change">改造</span>
+          </div>
+          <p class="text-xs m-0" style="color:rgba(0,0,0,0.45);">ops-center/ · 1个页面 · 三分环形图+待处置卡片+来源筛选</p>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- 智能运营域 -->
+    <section data-section="ops" class="mb-10">
+      <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+        <span class="section-bar" style="background:#1677ff;"></span>智能运营域
+        <span class="ml-3 text-xs font-normal" style="color:rgba(0,0,0,0.45);">故障预警 / 设备告警 / 检测算法 / 巡检任务 / 巡检日志 / 可用性报告</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-4">
+
+        <!-- 故障预警 -->
+        <a href="ops-predict/list.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#f9f0ff;">
+                <i class="fa-solid fa-brain" style="color:#722ed1;"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">故障预警</div>
+                <div class="text-xs" style="color:rgba(0,0,0,0.45);">模型预判 · 提前预警</div>
+              </div>
+            </div>
+            <span class="badge-new">全新</span>
+          </div>
+          <p class="text-xs m-0" style="color:rgba(0,0,0,0.45);">ops-predict/ · 2个页面 · 含预警配置Tab + 已处理/已过期状态</p>
+        </a>
+
+        <!-- 设备告警 -->
+        <a href="ops-alert/list.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff1f0;">
+                <i class="fa-solid fa-bell" style="color:#f5222d;"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">设备告警</div>
+                <div class="text-xs" style="color:rgba(0,0,0,0.45);">告警列表 + 详情处置</div>
+              </div>
+            </div>
+            <span class="badge-new">全新</span>
+          </div>
+          <p class="text-xs m-0" style="color:rgba(0,0,0,0.45);">list + detail · 2个页面 · 含处置备注/批量安全确认/关联预警</p>
+        </a>
+
+        <!-- 检测算法 -->
+        <a href="ops-algorithm/list.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#e6f4ff;">
+                <i class="fa-solid fa-microchip" style="color:#1677ff;"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">检测算法管理</div>
+                <div class="text-xs" style="color:rgba(0,0,0,0.45);">Epic-A · 算法扩展</div>
+              </div>
+            </div>
+            <span class="badge-change">改造</span>
+          </div>
+          <p class="text-xs m-0" style="color:rgba(0,0,0,0.45);">list.html · 算法卡片列表、链路检测增强</p>
+        </a>
+
+        <!-- 巡检任务 -->
+        <a href="ops-inspection/list.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#f6ffed;">
+                <i class="fa-solid fa-clipboard-list" style="color:#52c41a;"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">巡检任务</div>
+                <div class="text-xs" style="color:rgba(0,0,0,0.45);">Epic-B · 多维度巡检</div>
+              </div>
+            </div>
+            <span class="badge-change">改造</span>
+          </div>
+          <p class="text-xs m-0" style="color:rgba(0,0,0,0.45);">list.html + create.html + detail.html · 3个页面</p>
+        </a>
+
+        <!-- 巡检日志 -->
+        <a href="ops-log/list.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff7e6;">
+                <i class="fa-solid fa-file-lines" style="color:#fa8c16;"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">巡检日志</div>
+                <div class="text-xs" style="color:rgba(0,0,0,0.45);">Epic-C · 替换链路日志</div>
+              </div>
+            </div>
+            <span class="badge-new">全新</span>
+          </div>
+          <p class="text-xs m-0" style="color:rgba(0,0,0,0.45);">list.html + detail.html + topology.html + report.html · 4个页面</p>
+        </a>
+
+        <!-- 可用性报告 -->
+        <a href="ops-sla/index.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff1f0;">
+                <i class="fa-solid fa-chart-line" style="color:#f5222d;"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">可用性报告</div>
+                <div class="text-xs" style="color:rgba(0,0,0,0.45);">Epic-D · SLA大盘</div>
+              </div>
+            </div>
+            <span class="badge-new">全新</span>
+          </div>
+          <p class="text-xs m-0" style="color:rgba(0,0,0,0.45);">index.html · KPI卡片 + 趋势图 + SLA统计表 + 不稳定设备TOP20</p>
+        </a>
+
+
+      </div>
+    </section>
+
+    <!-- 智能应用 -->
+    <section data-section="app" class="mb-10">
+      <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+        <span class="section-bar" style="background:#22c55e;"></span>智能应用
+        <span class="ml-3 text-xs font-normal" style="color:rgba(0,0,0,0.45);">人员轨迹跟踪查询</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-4">
+
+    </section>
+
+    <!-- 数据统计 -->
+    <div class="grid grid-cols-4 gap-4 mt-6">
+      <div class="bg-white rounded-lg p-4" style="border:1px solid #f0f0f0; text-align:center;">
+        <div class="text-2xl font-bold" style="color:#ff4d4f;">8</div>
+        <div class="text-sm" style="color:rgba(0,0,0,0.45);">全新/重大改造</div>
+      </div>
+      <div class="bg-white rounded-lg p-4" style="border:1px solid #f0f0f0; text-align:center;">
+        <div class="text-2xl font-bold" style="color:#1677ff;">16</div>
+        <div class="text-sm" style="color:rgba(0,0,0,0.45);">原型文件</div>
+      </div>
+      <div class="bg-white rounded-lg p-4" style="border:1px solid #f0f0f0; text-align:center;">
+        <div class="text-2xl font-bold" style="color:#52c41a;">7</div>
+        <div class="text-sm" style="color:rgba(0,0,0,0.45);">功能模块</div>
+      </div>
+      <div class="bg-white rounded-lg p-4" style="border:1px solid #f0f0f0; text-align:center;">
+        <div class="text-2xl font-bold" style="color:#722ed1;">v6.2</div>
+        <div class="text-sm" style="color:rgba(0,0,0,0.45);">PRD版本</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function filterSection(type) {
+      document.querySelectorAll('section[data-section]').forEach(s => {
+        s.style.display = (type === 'all' || s.dataset.section === type) ? '' : 'none';
+      });
+      document.querySelectorAll('[id^="tab-"]').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = 'rgba(255,255,255,0.7)';
+        b.style.border = '1px solid rgba(255,255,255,0.3)';
+      });
+      var active = document.getElementById('tab-' + type);
+      active.style.background = '#1677ff';
+      active.style.color = '#fff';
+      active.style.border = '1px solid #1677ff';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设备告警 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--ant-primary:#1677ff;--ant-primary-bg:#e6f4ff;--ant-success:#52c41a;--ant-warning:#faad14;--ant-error:#ff4d4f;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);--shadow-2:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08);}
+    *{box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}
+    .sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}
+    .main{flex:1;padding:20px 24px;overflow:auto;overflow-x:hidden;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}
+    .menu-item.active{color:#fff;background:var(--ant-primary);}
+    .menu-item i{width:16px;text-align:center;}
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;transition:all 0.2s;}
+    .ant-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .ant-btn-primary{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .ant-btn-danger{background:#ff4d4f;border-color:#ff4d4f;color:#fff;}
+    .ant-btn-sm{height:28px;padding:0 12px;font-size:13px;}
+    .ant-modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:1000;}
+    .ant-modal-mask.active{display:flex;}
+    .ant-modal{background:#fff;border-radius:8px;box-shadow:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08);width:540px;max-width:92vw;}
+    .ant-modal-header{padding:16px 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:16px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+    .ant-modal-body{padding:24px;max-height:60vh;overflow:auto;}
+    .ant-modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:16px 24px;border-top:1px solid var(--ant-border-secondary);}
+    .ant-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);}
+    .ant-card-head{display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:15px;font-weight:600;}
+    .ant-card-body{padding:24px;}
+    .ant-input{height:32px;padding:0 11px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;outline:none;background:#fff;width:100%;}
+    .ant-select{height:32px;padding:0 11px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;font-size:14px;outline:none;}
+    .ant-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;}
+    .ant-table th{padding:12px 16px;font-weight:600;background:#fafafa;border-bottom:1px solid var(--ant-border-secondary);text-align:left;white-space:nowrap;}
+    .ant-table td{padding:12px 16px;border-bottom:1px solid var(--ant-border-secondary);}
+    .ant-table tbody tr:hover td{background:rgba(0,0,0,0.02);}
+    .ant-tag{display:inline-flex;align-items:center;height:22px;padding:0 7px;font-size:12px;border-radius:4px;border:1px solid;}
+    .ant-pagination{display:flex;align-items:center;gap:4px;margin-top:16px;justify-content:flex-end;}
+    .ant-page-item{min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--ant-border);border-radius:4px;cursor:pointer;padding:0 6px;font-size:14px;background:#fff;}
+    .ant-page-item.active{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .ant-page-item:hover:not(.active){color:var(--ant-primary);border-color:var(--ant-primary);}
+    .status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;}
+    .tab-bar{display:flex;border-bottom:2px solid var(--ant-border-secondary);margin-bottom:16px;}
+    .tab-item{padding:10px 20px;cursor:pointer;font-size:14px;color:var(--ant-text-secondary);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;}
+    .tab-item.active{color:var(--ant-primary);border-bottom-color:var(--ant-primary);font-weight:600;}
+    .tab-item:hover{color:var(--ant-primary);}
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}
+    .breadcrumb a:hover{color:var(--ant-primary);}
+    .kpi-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);padding:16px 20px;}
+    /* 实时闪烁点 */
+    @keyframes pulse{0%{opacity:1;}50%{opacity:0.4;}100%{opacity:1;}}
+    .pulse-dot{animation:pulse 1.5s infinite;}
+    /* 操作列 */
+    .action-wrap{display:inline-flex;align-items:center;gap:8px;}
+    /* 设备树样式 */
+    .tree-node{transition:all 0.2s;}
+    .tree-node:hover{background:#f5f5f5;}
+    .tree-node.active{background:#e6f4ff;color:#1677ff;font-weight:600;}
+    /* Toast */
+    .toast-wrap{position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;}
+    .toast-msg{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;background:#fff;border-radius:6px;box-shadow:0 6px 16px rgba(0,0,0,0.12);font-size:14px;color:rgba(0,0,0,0.88);pointer-events:auto;opacity:0;transform:translateY(-12px);transition:opacity 0.3s,transform 0.3s;}
+    .toast-msg.show{opacity:1;transform:translateY(0);}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video text-white text-sm"></i></div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-4">
+      <span style="color:rgba(255,255,255,0.65);font-size:13px;cursor:pointer;"><i class="fa-regular fa-bell mr-1"></i>3</span>
+      <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+        <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+        <span style="font-size:13px;">张工程师</span>
+      </div>
+    </div>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item" onclick="location.href='../ops-inspection/list.html'"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item" onclick="location.href='../ops-log/list.html'"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item" onclick="location.href='../ops-sla/index.html'"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item" onclick="location.href='../ops-predict/list.html'"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item active"><i class="fa-solid fa-triangle-exclamation"></i>设备告警</div>
+    </aside>
+    <main class="main">
+      <!-- 顶部：面包屑 + 提示条 -->
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span>智能运维</span><span>/</span><span style="color:var(--ant-text);">设备告警</span>
+      </div>
+
+      <!-- 下方：设备树 + 列表同级 -->
+      <div style="display:flex;gap:16px;">
+        <!-- 左侧设备树 -->
+        <div style="width:200px;flex-shrink:0;background:#fff;border-radius:8px;border:1px solid var(--ant-border-secondary);padding:16px;">
+          <div style="font-weight:600;margin-bottom:12px;font-size:14px;">设备区域</div>
+          <div id="deviceTree">
+            <div class="tree-node active" onclick="filterByRegion('all')" style="padding:8px 12px;cursor:pointer;border-radius:4px;background:#e6f4ff;color:#1677ff;font-weight:600;margin-bottom:4px;">
+              <i class="fa-solid fa-folder-open" style="margin-right:6px;"></i>全市 <span style="float:right;background:#ff4d4f;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">11</span>
+            </div>
+            <div class="tree-node" onclick="filterByRegion('西区')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
+              <i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>西区 <span style="float:right;background:#ff4d4f;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">2</span>
+            </div>
+            <div class="tree-node" onclick="filterByRegion('北区')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
+              <i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>北区 <span style="float:right;background:#ff4d4f;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">3</span>
+            </div>
+            <div class="tree-node" onclick="filterByRegion('东区')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
+              <i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>东区 <span style="float:right;background:#faad14;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">2</span>
+            </div>
+            <div class="tree-node" onclick="filterByRegion('南区')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
+              <i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>南区 <span style="float:right;background:#faad14;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">2</span>
+            </div>
+            <div class="tree-node" onclick="filterByRegion('市中心')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
+              <i class="fa-solid fa-folder" style="margin-right:6px;color:#52c41a;"></i>市中心 <span style="float:right;background:#52c41a;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧列表区 -->
+        <div style="flex:1;min-width:0;">
+          <div class="ant-card">
+            <div class="ant-card-body" style="padding:16px 24px 24px;">
+              <!-- 筛选 -->
+              <div class="flex gap-3 flex-wrap pb-4">
+                <input class="ant-input" id="searchInput" style="width:240px;" placeholder="搜索设备名称">
+                <select class="ant-select"><option>全部报警类型</option><option>链路异常</option><option>画面异常</option><option>丢包致花屏</option><option>无线信号弱</option><option>网络异常-端口不可达</option><option>网络异常-RTP丢包</option><option>网络异常-码率不足</option></select>
+                <select class="ant-select"><option>全部状态</option><option>待处置</option><option>已关闭</option></select>
+                <select class="ant-select"><option>全部负责人</option><option>张工程师</option><option>李工程师</option><option>王工程师</option><option>赵工程师</option></select>
+                <button class="ant-btn" onclick="doSearch()"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+                <div style="margin-left:auto;">
+                  <button class="ant-btn ant-btn-sm" id="batchExportBtn" onclick="exportAlerts()"><i class="fa-solid fa-download mr-1"></i>批量导出</button>
+                  <button class="ant-btn ant-btn-sm" id="batchCloseBtn" style="display:none;" onclick="batchClose()"><i class="fa-solid fa-check-double"></i>批量关闭</button>
+                </div>
+              </div>
+              <!-- 列表 -->
+              <div style="overflow-x:auto;">
+              <table class="ant-table" style="min-width:1100px;">
+                <thead>
+                  <tr>
+                    <th style="width:40px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()" style="accent-color:#1677ff;"></th>
+                    <th>事件ID</th>
+                    <th>级别</th>
+                    <th>设备名称</th>
+                    <th>报警类型</th>
+                    <th>下级平台名称</th>
+                    <th>负责人</th>
+                    <th>触发时间</th>
+                    <th>状态</th>
+                    <th>处理人</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="alertTableBody"></tbody>
+              </table>
+              <div class="ant-pagination">
+                <span class="ant-page-item">«</span>
+                <span class="ant-page-item active">1</span>
+                <span class="ant-page-item">2</span>
+                <span class="ant-page-item">3</span>
+                <span class="ant-page-item">»</span>
+                <span style="font-size:13px;color:rgba(0,0,0,0.45);margin-left:8px;">共 11 条</span>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 关闭原因弹窗（v5改造：+处置备注） -->
+<div class="ant-modal-mask" id="closeModal">
+  <div class="ant-modal" style="width:480px;">
+    <div class="ant-modal-header">
+      <span><i class="fa-solid fa-times-circle" style="margin-right:8px;color:#ff4d4f;"></i>处理告警</span>
+      <span style="cursor:pointer;color:rgba(0,0,0,0.45);font-size:18px;" onclick="closeCloseModal()">×</span>
+    </div>
+    <div class="ant-modal-body">
+      <div style="margin-bottom:16px;">
+        <label style="display:block;margin-bottom:12px;font-size:14px;color:rgba(0,0,0,0.88);font-weight:500;">关闭原因 <span style="color:#ff4d4f;">*</span></label>
+        <div style="display:grid;gap:10px;">
+          <label id="reasonFixed" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;border:2px solid var(--ant-border-secondary);border-radius:8px;transition:all 0.2s;" onclick="selectCloseReason('fixed')">
+            <input type="radio" name="closeReason" value="fixed" style="accent-color:#52c41a;">
+            <div>
+              <div style="font-weight:600;color:#52c41a;">已修复</div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.45);">问题已解决，设备恢复正常</div>
+            </div>
+          </label>
+          <label id="reasonFalse" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;border:2px solid var(--ant-border-secondary);border-radius:8px;transition:all 0.2s;" onclick="selectCloseReason('false')">
+            <input type="radio" name="closeReason" value="false" style="accent-color:#faad14;">
+            <div>
+              <div style="font-weight:600;color:#faad14;">误报</div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.45);">检测误判，实际无异常</div>
+            </div>
+          </label>
+          <label id="reasonIgnore" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;border:2px solid var(--ant-border-secondary);border-radius:8px;transition:all 0.2s;" onclick="selectCloseReason('ignore')">
+            <input type="radio" name="closeReason" value="ignore" style="accent-color:rgba(0,0,0,0.45);">
+            <div>
+              <div style="font-weight:600;color:rgba(0,0,0,0.65);">已忽略</div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.45);">不影响业务，暂不处理</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--ant-border-secondary);padding-top:16px;">
+        <label style="display:block;margin-bottom:6px;font-size:14px;color:rgba(0,0,0,0.88);font-weight:500;">处置备注 <span id="remarkRequired" style="color:#ff4d4f;display:none;">*</span></label>
+        <textarea class="ant-input" id="closeRemark" placeholder="选填，最多500字符" style="height:80px;padding:8px 11px;resize:vertical;width:100%;box-sizing:border-box;" maxlength="500"></textarea>
+        <div id="remarkError" style="color:#ff4d4f;font-size:12px;margin-top:4px;display:none;">已修复时备注为必填，请简述修复措施</div>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeCloseModal()">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="confirmClose()">确认提交</button>
+    </div>
+  </div>
+</div>
+
+<!-- 批量关闭安全确认弹窗（v6.2改造：50条上限+必填备注+仅已忽略/误报） -->
+<div class="ant-modal-mask" id="batchModal">
+  <div class="ant-modal" style="width:480px;">
+    <div class="ant-modal-header">
+      <span><i class="fa-solid fa-check-double" style="margin-right:8px;color:#faad14;"></i>批量关闭告警</span>
+      <span style="cursor:pointer;color:rgba(0,0,0,0.45);font-size:18px;" onclick="closeBatchModal()">×</span>
+    </div>
+    <div class="ant-modal-body">
+      <div id="batchSummary" style="margin-bottom:16px;"></div>
+      <div id="batchWarning" style="display:none;background:#fff2f0;border:1px solid #ffccc7;border-radius:6px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#cf1322;">
+        <i class="fa-solid fa-triangle-exclamation mr-1"></i><span id="batchWarningText"></span>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block;margin-bottom:8px;font-size:14px;font-weight:500;">关闭原因 <span style="color:#ff4d4f;">*</span></label>
+        <div style="display:flex;gap:10px;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="radio" name="batchReason" value="ignore" checked style="accent-color:#1677ff;">已忽略</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="radio" name="batchReason" value="false" style="accent-color:#faad14;">误报</label>
+        </div>
+        <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:6px;">批量关闭不支持"已修复"，需逐条处理</div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block;margin-bottom:8px;font-size:14px;font-weight:500;">处理备注 <span style="color:#ff4d4f;">*</span></label>
+        <textarea id="batchRemark" style="width:100%;min-height:80px;border:1px solid #d9d9d9;border-radius:6px;padding:8px 12px;font-size:13px;resize:vertical;box-sizing:border-box;" placeholder="请简述批量关闭原因" maxlength="500" oninput="updateBatchSubmit()"></textarea>
+        <div id="batchRemarkError" style="display:none;font-size:12px;color:#ff4d4f;margin-top:4px;">请填写处理备注</div>
+      </div>
+      <div style="border-top:1px solid var(--ant-border-secondary);padding-top:12px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;" id="batchConfirmLabel">
+          <input type="checkbox" id="batchConfirmCheck" style="accent-color:#ff4d4f;" onchange="updateBatchSubmit()">
+          <span>我已确认以上告警可批量关闭</span>
+        </label>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeBatchModal()">取消</button>
+      <button class="ant-btn ant-btn-primary" id="batchSubmitBtn" style="opacity:0.5;pointer-events:none;" onclick="confirmBatchClose()">确认批量关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const alerts = [
+  {id:'ALT-20260414-001',level:'紧急',levelColor:'#ff4d4f',levelBg:'#fff1f0',type:'链路异常',sites:'西区-CAM-0341',region:'西区',channelCode:'34010000001310000341',platform:'西区公安分局平台',owner:'赵工',time:'2026-04-14 09:12',status:'pending',handler:'—'},
+  {id:'ALT-20260414-002',level:'紧急',levelColor:'#ff4d4f',levelBg:'#fff1f0',type:'链路异常',sites:'北区-CAM-0101',region:'北区',channelCode:'34010000001310000101',platform:'北区交警大队平台',owner:'李工',time:'2026-04-14 08:55',status:'pending',handler:'—'},
+  {id:'ALT-20260414-003',level:'警告',levelColor:'#fa8c16',levelBg:'#fff7e6',type:'链路异常',sites:'北区-CAM-0102',region:'北区',channelCode:'34010000001310000102',platform:'北区交警大队平台',owner:'李工',time:'2026-04-14 08:55',status:'pending',handler:'—'},
+  {id:'ALT-20260414-004',level:'紧急',levelColor:'#ff4d4f',levelBg:'#fff1f0',type:'链路异常',sites:'北区-CAM-0103',region:'北区',channelCode:'34010000001310000103',platform:'北区交警大队平台',owner:'李工',time:'2026-04-14 08:56',status:'pending',handler:'—'},
+  {id:'ALT-20260413-012',level:'警告',levelColor:'#fa8c16',levelBg:'#fff7e6',type:'链路异常',sites:'东区-CAM-0512',region:'东区',channelCode:'34010000001310000512',platform:'东区城管局平台',owner:'王工',time:'2026-04-13 22:31',status:'closed',handler:'王工'},
+  {id:'ALT-20260413-010',level:'警告',levelColor:'#fa8c16',levelBg:'#fff7e6',type:'画面异常',sites:'南区-CAM-0098',region:'南区',channelCode:'34010000001310000098',platform:'南区公安分局平台',owner:'张工',time:'2026-04-13 18:07',status:'closed',handler:'张工'},
+  {id:'ALT-20260413-007',level:'警告',levelColor:'#fa8c16',levelBg:'#fff7e6',type:'链路异常',sites:'南区-CAM-0088',region:'南区',channelCode:'34010000001310000088',platform:'南区公安分局平台',owner:'张工',time:'2026-04-13 14:30',status:'closed',handler:'张工'},
+  {id:'ALT-20260413-005',level:'提示',levelColor:'#1677ff',levelBg:'#e6f4ff',type:'链路异常',sites:'北区-CAM-0130',region:'北区',channelCode:'34010000001310000130',platform:'北区交警大队平台',owner:'李工',time:'2026-04-13 10:05',status:'closed',handler:'李工'},
+  {id:'ALT-20260413-003',level:'提示',levelColor:'#1677ff',levelBg:'#e6f4ff',type:'无线信号弱',sites:'东区-CAM-0320',region:'东区',channelCode:'34010000001310000320',platform:'东区城管局平台',owner:'王工',time:'2026-04-13 09:11',status:'closed',handler:'王工'},
+  {id:'ALT-20260414-005',level:'提示',levelColor:'#1677ff',levelBg:'#e6f4ff',type:'丢包致花屏',sites:'西区-CAM-0288',region:'西区',channelCode:'34010000001310000288',platform:'西区公安分局平台',owner:'赵工',time:'2026-04-14 10:35',status:'pending',handler:'—'},
+  {id:'ALT-20260414-006',level:'提示',levelColor:'#1677ff',levelBg:'#e6f4ff',type:'无线信号弱',sites:'南区-CAM-0415',region:'南区',channelCode:'34010000001310000415',platform:'南区公安分局平台',owner:'张工',time:'2026-04-14 09:50',status:'pending',handler:'—'},
+];
+
+const statusMap = {
+  pending:{label:'待处置',dot:'#ff4d4f'},
+  closed:{label:'已关闭',dot:'rgba(0,0,0,0.25)'}
+};
+
+var currentAlertId = '';
+
+function renderTable(filter='all'){
+  const tbody = document.getElementById('alertTableBody');
+  const filtered = filter === 'all' ? alerts : alerts.filter(a=>a.status===filter);
+  tbody.innerHTML = filtered.map(a=>{
+    const s = statusMap[a.status];
+    const isUrgent = a.level==='紧急';
+    const actions = a.status==='pending'
+      ? `<button class="ant-btn ant-btn-sm" style="border-color:#1677ff;color:#1677ff;" onclick="acceptAlert('${a.id}')">接单</button><button class="ant-btn ant-btn-sm" onclick="openTransferModal('${a.id}')">转单</button><button class="ant-btn ant-btn-sm" onclick="openCloseModal('${a.id}','pending')">关闭</button>`
+      : a.status==='handling'
+      ? `<button class="ant-btn ant-btn-sm" style="border-color:#52c41a;color:#52c41a;" onclick="openCloseModal('${a.id}','handling')">关闭</button><button class="ant-btn ant-btn-sm" onclick="openTransferModal('${a.id}')">转单</button>`
+      : `—`;
+    return `<tr style="${isUrgent?'background:#fff1f0;':''}">
+      <td><input type="checkbox" class="alert-checkbox" value="${a.id}" onchange="updateBatchBtn()" style="accent-color:#1677ff;" ${a.status==='closed'?'disabled':''}></td>
+      <td><a href="detail.html?id=${a.id}" style="color:#1677ff;text-decoration:none;">${a.id}</a></td>
+      <td><span style="background:${a.levelBg};color:${a.levelColor};font-size:12px;padding:1px 7px;border-radius:4px;font-weight:600;border:1px solid ${a.levelColor};">${a.level}</span></td>
+      <td style="font-size:13px;">${a.sites}</td>
+      <td>${a.type}${isUrgent?'<span class="pulse-dot" style="color:#ff4d4f;margin-left:6px;font-size:10px;">●</span>':''}</td>
+      <td>${a.platform}</td>
+      <td><span style="color:#1677ff;">${a.owner}</span></td>
+      <td style="font-size:13px;color:rgba(0,0,0,0.65);">${a.time}</td>
+      <td><span class="status-dot" style="background:${s.dot};"></span>${s.label}</td>
+      <td>${a.handler}</td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleSelectAll(){
+  var checked = document.getElementById('selectAll').checked;
+  document.querySelectorAll('.alert-checkbox:not(:disabled)').forEach(cb=>{
+    cb.checked = checked;
+  });
+  updateBatchBtn();
+}
+
+function updateBatchBtn(){
+  var checkedCount = document.querySelectorAll('.alert-checkbox:checked').length;
+  var show = checkedCount > 0 ? '' : 'none';
+  document.getElementById('batchCloseBtn').style.display = show;
+}
+
+function batchClose(){
+  var checkedIds = [];
+  document.querySelectorAll('.alert-checkbox:checked').forEach(cb=>{
+    checkedIds.push(cb.value);
+  });
+  if(checkedIds.length === 0){
+    alert('请先选择要关闭的告警');
+    return;
+  }
+  // v6.2: 50条上限校验
+  if(checkedIds.length > 50){
+    alert('⚠ 单次批量关闭最多 50 条，请减少选择后重试');
+    return;
+  }
+  // 统计各级别数量
+  var levelCount = {'紧急':0,'警告':0,'提示':0};
+  checkedIds.forEach(function(id){
+    var a = alerts.find(function(x){return x.id===id;});
+    if(a) levelCount[a.level]++;
+  });
+  var summaryHtml = '<div style="font-size:14px;margin-bottom:12px;">已选择 <b>'+checkedIds.length+'</b> 条告警（上限50条）：</div>';
+  summaryHtml += '<div style="display:flex;gap:12px;flex-wrap:wrap;">';
+  if(levelCount['紧急']) summaryHtml += '<span style="background:#fff1f0;color:#ff4d4f;border:1px solid #ffa39e;padding:2px 10px;border-radius:4px;font-size:13px;">紧急 '+levelCount['紧急']+'条</span>';
+  if(levelCount['警告']) summaryHtml += '<span style="background:#fff7e6;color:#fa8c16;border:1px solid #ffd591;padding:2px 10px;border-radius:4px;font-size:13px;">警告 '+levelCount['警告']+'条</span>';
+  if(levelCount['提示']) summaryHtml += '<span style="background:#e6f4ff;color:#1677ff;border:1px solid #91caff;padding:2px 10px;border-radius:4px;font-size:13px;">提示 '+levelCount['提示']+'条</span>';
+  summaryHtml += '</div>';
+  document.getElementById('batchSummary').innerHTML = summaryHtml;
+  // 高优告警警告
+  var highCount = levelCount['紧急'];
+  document.getElementById('batchWarning').style.display = highCount > 0 ? '' : 'none';
+  document.getElementById('batchWarningText').textContent = '包含 '+highCount+' 条紧急告警，确认批量关闭？';
+  // 重置表单
+  document.getElementById('batchRemark').value = '';
+  document.getElementById('batchRemarkError').style.display = 'none';
+  document.querySelectorAll('input[name="batchReason"]')[0].checked = true;
+  document.getElementById('batchConfirmCheck').checked = false;
+  document.getElementById('batchSubmitBtn').style.opacity = '0.5';
+  document.getElementById('batchSubmitBtn').style.pointerEvents = 'none';
+  document.getElementById('batchModal').classList.add('active');
+}
+
+function closeBatchModal(){
+  document.getElementById('batchModal').classList.remove('active');
+}
+
+function toggleBatchConfirm(){
+  updateBatchSubmit();
+}
+
+function updateBatchSubmit(){
+  var checked = document.getElementById('batchConfirmCheck').checked;
+  var remark = document.getElementById('batchRemark').value.trim();
+  document.getElementById('batchSubmitBtn').style.opacity = (checked && remark) ? '1' : '0.5';
+  document.getElementById('batchSubmitBtn').style.pointerEvents = (checked && remark) ? '' : 'none';
+}
+
+function confirmBatchClose(){
+  var checkedIds = [];
+  document.querySelectorAll('.alert-checkbox:checked').forEach(cb=>checkedIds.push(cb.value));
+  var remark = document.getElementById('batchRemark').value.trim();
+  if(!remark){
+    document.getElementById('batchRemarkError').style.display = '';
+    return;
+  }
+  var reasonEl = document.querySelector('input[name="batchReason"]:checked');
+  var reasonLabel = reasonEl && reasonEl.value === 'false' ? '误报' : '已忽略';
+  alert('✅ 批量关闭成功！\n\n已关闭 '+checkedIds.length+' 条告警\n关闭原因：'+reasonLabel+'\n处理备注：'+remark);
+  closeBatchModal();
+  location.reload();
+}
+
+var selectedCloseReason = '';
+
+function openCloseModal(id){
+  currentAlertId = id;
+  selectedCloseReason = '';
+  document.querySelectorAll('#closeModal input[type="radio"]').forEach(r=>r.checked=false);
+  document.querySelectorAll('#closeModal label[id]').forEach(l=>l.style.borderColor='var(--ant-border-secondary)');
+  document.getElementById('closeRemark').value = '';
+  document.getElementById('remarkError').style.display = 'none';
+  document.getElementById('remarkRequired').style.display = 'none';
+  document.getElementById('closeModal').classList.add('active');
+}
+
+function closeCloseModal(){
+  document.getElementById('closeModal').classList.remove('active');
+  currentAlertId = '';
+}
+
+function selectCloseReason(reason){
+  selectedCloseReason = reason;
+  document.querySelectorAll('#closeModal label[id]').forEach(l=>l.style.borderColor='var(--ant-border-secondary)');
+  document.getElementById('reason'+reason.charAt(0).toUpperCase()+reason.slice(1)).style.borderColor = reason==='fixed'?'#52c41a':reason==='false'?'#faad14':'rgba(0,0,0,0.25)';
+  document.getElementById('remarkRequired').style.display = reason==='fixed' ? '' : 'none';
+  if(reason==='fixed') document.getElementById('remarkError').style.display = 'none';
+}
+
+function confirmClose(){
+  if(!selectedCloseReason){
+    alert('请选择关闭原因');
+    return;
+  }
+  var remark = document.getElementById('closeRemark').value.trim();
+  if(selectedCloseReason==='fixed' && !remark){
+    document.getElementById('remarkError').style.display = '';
+    return;
+  }
+  var labels = {fixed:'已修复',false:'误报',ignore:'已忽略'};
+  alert('✅ 关闭成功！\n\n告警 '+currentAlertId+' 已关闭\n关闭原因：'+labels[selectedCloseReason]+(remark?'\n处置备注：'+remark:''));
+  closeCloseModal();
+  location.reload();
+}
+
+document.getElementById('closeModal').addEventListener('click',function(e){if(e.target===this)closeCloseModal();});
+document.getElementById('batchModal').addEventListener('click',function(e){if(e.target===this)closeBatchModal();});
+
+var currentRegion = 'all';
+
+function filterByRegion(region){
+  currentRegion = region;
+  // 更新设备树选中状态
+  document.querySelectorAll('.tree-node').forEach(node=>{
+    node.classList.remove('active');
+    node.style.background = '';
+    node.style.color = '';
+    node.style.fontWeight = '';
+  });
+  event.currentTarget.classList.add('active');
+  event.currentTarget.style.background = '#e6f4ff';
+  event.currentTarget.style.color = '#1677ff';
+  event.currentTarget.style.fontWeight = '600';
+  // 重新渲染表格
+  renderTable();
+}
+
+// 修改renderTable函数，增加区域筛选
+var originalRenderTable = renderTable;
+renderTable = function(filter='all'){
+  const tbody = document.getElementById('alertTableBody');
+  var filtered = filter === 'all' ? alerts : alerts.filter(a=>a.status===filter);
+  if(currentRegion !== 'all'){
+    filtered = filtered.filter(a=>a.region===currentRegion);
+  }
+  var keyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  if(keyword){
+    filtered = filtered.filter(a=>a.sites.toLowerCase().includes(keyword));
+  }
+  tbody.innerHTML = filtered.map(a=>{
+    const s = statusMap[a.status];
+    const isUrgent = a.level==='紧急';
+    const actions = a.status==='pending'
+      ? `<div class="action-wrap"><button class="ant-btn ant-btn-sm" style="border-color:#1677ff;color:#1677ff;" onclick="openCloseModal('${a.id}')">处理</button></div>`
+      : `—`;
+    return `<tr style="${isUrgent?'background:#fff1f0;':''}">
+      <td><input type="checkbox" class="alert-checkbox" value="${a.id}" onchange="updateBatchBtn()" style="accent-color:#1677ff;" ${a.status==='closed'?'disabled':''}></td>
+      <td><a href="detail.html?id=${a.id}" style="color:#1677ff;text-decoration:none;">${a.id}</a></td>
+      <td><span style="background:${a.levelBg};color:${a.levelColor};font-size:12px;padding:1px 7px;border-radius:4px;font-weight:600;border:1px solid ${a.levelColor};">${a.level}</span></td>
+      <td style="font-size:13px;">${a.sites}</td>
+      <td>${a.type}${isUrgent?'<span class="pulse-dot" style="color:#ff4d4f;margin-left:6px;font-size:10px;">●</span>':''}</td>
+      <td>${a.platform}</td>
+      <td><span style="color:#1677ff;">${a.owner}</span></td>
+      <td style="font-size:13px;color:rgba(0,0,0,0.65);">${a.time}</td>
+      <td><span class="status-dot" style="background:${s.dot};"></span>${s.label}</td>
+      <td>${a.handler}</td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join('');
+  document.querySelector('.ant-pagination span:last-child').textContent = `共 ${filtered.length} 条`;
+}
+
+renderTable();
+
+function doSearch(){
+  renderTable();
+}
+
+// 搜索框回车触发查询
+document.getElementById('searchInput').addEventListener('keydown',function(e){
+  if(e.key==='Enter') doSearch();
+});
+
+// Toast 提示
+function showToast(msg,duration){
+  duration = duration || 2000;
+  var wrap = document.querySelector('.toast-wrap');
+  if(!wrap){wrap = document.createElement('div');wrap.className='toast-wrap';document.body.appendChild(wrap);}
+  var el = document.createElement('div');
+  el.className = 'toast-msg';
+  el.innerHTML = '<i class="fa-solid fa-circle-info" style="color:#1677ff;"></i>' + msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(function(){el.classList.add('show');});
+  setTimeout(function(){
+    el.classList.remove('show');
+    setTimeout(function(){el.remove();},300);
+  },duration);
+}
+
+function exportAlerts(){
+  showToast('告警数据导出中...');
+}
+
+</script>
+</body>
+</html>

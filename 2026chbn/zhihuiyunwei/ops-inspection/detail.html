@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>巡检任务详情 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--ant-primary:#1677ff;--ant-primary-hover:#4096ff;--ant-primary-bg:#e6f4ff;--ant-success:#52c41a;--ant-warning:#faad14;--ant-error:#ff4d4f;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--ant-bg:#f5f5f5;--shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);--shadow-2:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08);}
+    *{box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}
+    .sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}
+    .main{flex:1;padding:24px;overflow:auto;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}
+    .menu-item.active{color:#fff;background:var(--ant-primary);}
+    .menu-item i{width:16px;text-align:center;}
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;transition:all 0.2s;}
+    .ant-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .ant-btn-primary{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .ant-btn-primary:hover{background:var(--ant-primary-hover);}
+    .ant-btn-warning{background:#faad14;border-color:#faad14;color:#fff;}
+    .ant-btn-danger{background:#ff4d4f;border-color:#ff4d4f;color:#fff;}
+    .ant-btn-text{border-color:transparent;background:transparent;color:var(--ant-primary);}
+    .ant-btn-sm{height:26px;padding:0 10px;font-size:12px;}
+    .ant-btn-link{border:none;background:none;color:var(--ant-primary);padding:0;height:auto;font-size:13px;cursor:pointer;}
+    .ant-btn-link:hover{text-decoration:underline;}
+    .ant-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);}
+    .ant-card-head{display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:15px;font-weight:600;}
+    .ant-card-body{padding:24px;}
+    .ant-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;}
+    .ant-table th{padding:12px 16px;font-weight:600;color:var(--ant-text);background:#fafafa;border-bottom:1px solid var(--ant-border-secondary);text-align:left;white-space:nowrap;}
+    .ant-table td{padding:12px 16px;border-bottom:1px solid var(--ant-border-secondary);color:var(--ant-text);}
+    .ant-table tbody tr:hover td{background:rgba(0,0,0,0.02);}
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}
+    .breadcrumb a:hover{color:var(--ant-primary);}
+    .desc-grid{display:grid;grid-template-columns:100px 1fr;gap:14px 0;font-size:14px;}
+    .desc-label{color:var(--ant-text-tertiary);padding:4px 0;}
+    .desc-value{color:var(--ant-text);padding:4px 0;font-weight:500;}
+    .ant-tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;margin-right:4px;}
+    .ant-tag-blue{color:#1677ff;background:#e6f4ff;border:1px solid #91caff;}
+    .ant-tag-green{color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;}
+    .ant-tag-purple{color:#722ed1;background:#f9f0ff;border:1px solid #d3adf7;}
+    .ant-tag-red{color:#f5222d;background:#fff1f0;border:1px solid #ffa39e;}
+    .ant-tag-cyan{color:#13c2c2;background:#e6fffb;border:1px solid #87e8de;}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video text-white text-sm"></i></div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-4">
+      <span style="color:rgba(255,255,255,0.65);font-size:13px;cursor:pointer;"><i class="fa-regular fa-bell mr-1"></i>3</span>
+      <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+        <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+        <span style="font-size:13px;">张工程师</span>
+      </div>
+    </div>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item active"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item" onclick="location.href='../ops-log/list.html'"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item" onclick="location.href='../ops-sla/index.html'"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item" onclick="location.href='../ops-predict/list.html'"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-triangle-exclamation"></i>设备告警</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">智能运维</a><span>/</span>
+        <a href="list.html">巡检任务</a><span>/</span>
+        <span style="color:var(--ant-text);">任务详情</span>
+      </div>
+
+      <div class="flex items-center justify-between mb-4">
+        <button class="ant-btn" onclick="location.href='list.html'"><i class="fa-solid fa-arrow-left"></i>返回列表</button>
+        <div class="flex items-center gap-2">
+          <button class="ant-btn ant-btn-primary"><i class="fa-solid fa-pen"></i>编辑</button>
+          <button class="ant-btn ant-btn-warning" onclick="toggleTaskStatus()"><i class="fa-solid fa-power-off"></i>停用</button>
+          <button class="ant-btn ant-btn-danger" onclick="deleteTask()"><i class="fa-solid fa-trash-can"></i>删除</button>
+        </div>
+      </div>
+
+      <!-- Normal state -->
+      <div id="stateNormal">
+        <!-- 任务信息卡片 -->
+        <div class="ant-card mb-4">
+          <div class="ant-card-head">
+            <span><i class="fa-solid fa-clipboard-list" style="color:var(--ant-primary);margin-right:8px;"></i>任务信息</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:#52c41a;">
+              <span style="width:7px;height:7px;border-radius:50%;background:#52c41a;"></span>启用
+            </span>
+          </div>
+          <div class="ant-card-body">
+            <div class="desc-grid">
+              <div class="desc-label">任务名称</div>
+              <div class="desc-value">城南区域日常巡检</div>
+
+              <div class="desc-label">巡检维度</div>
+              <div class="desc-value">
+                <span class="ant-tag ant-tag-green">链路</span>
+                <span class="ant-tag ant-tag-cyan">网络</span>
+                <span class="ant-tag ant-tag-blue">画面</span>
+              </div>
+
+              <div class="desc-label">巡检方式</div>
+              <div class="desc-value">
+                <span style="background:var(--ant-primary-bg);color:var(--ant-primary);padding:2px 8px;border-radius:4px;font-size:12px;">周期执行</span>
+              </div>
+
+              <div class="desc-label">执行频率</div>
+              <div class="desc-value">按周</div>
+
+              <div class="desc-label">星期几</div>
+              <div class="desc-value">周三</div>
+
+              <div class="desc-label">执行时刻</div>
+              <div class="desc-value">02:00</div>
+
+              <div class="desc-label">状态</div>
+              <div class="desc-value">
+                <span style="display:inline-flex;align-items:center;gap:5px;padding:2px 10px;border-radius:4px;font-size:12px;color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">
+                  <span style="width:6px;height:6px;border-radius:50%;background:#52c41a;"></span>启用
+                </span>
+              </div>
+
+              <div class="desc-label">生成报警</div>
+              <div class="desc-value">
+                <span style="color:#52c41a;"><i class="fa-solid fa-circle-check mr-1"></i>是</span>
+              </div>
+
+              <div class="desc-label">通知用户</div>
+              <div class="desc-value">
+                <span style="display:inline-flex;align-items:center;gap:8px;">
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#f5f5f5;padding:2px 10px;border-radius:12px;font-size:13px;">
+                    <span style="width:20px;height:20px;border-radius:50%;background:var(--ant-primary);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;">张</span>张三
+                  </span>
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#f5f5f5;padding:2px 10px;border-radius:12px;font-size:13px;">
+                    <span style="width:20px;height:20px;border-radius:50%;background:#52c41a;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;">李</span>李四
+                  </span>
+                </span>
+              </div>
+
+              <div class="desc-label">创建时间</div>
+              <div class="desc-value">2026-05-15 10:30:00</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 执行历史 -->
+        <div class="ant-card">
+          <div class="ant-card-head">
+            <span><i class="fa-solid fa-clock-rotate-left" style="color:var(--ant-primary);margin-right:8px;"></i>执行历史</span>
+            <span style="font-size:13px;font-weight:400;color:var(--ant-text-tertiary);">共 5 条记录</span>
+          </div>
+          <div class="ant-card-body" style="padding:0;">
+            <table class="ant-table">
+              <thead>
+                <tr>
+                  <th>执行时间</th>
+                  <th>巡检维度</th>
+                  <th>设备总数</th>
+                  <th>正常</th>
+                  <th>异常</th>
+                  <th>综合状态</th>
+                  <th>耗时</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="white-space:nowrap;">2026-05-21 10:30</td>
+                  <td>
+                    <span class="ant-tag ant-tag-green">链路</span>
+                    <span class="ant-tag ant-tag-cyan">网络</span>
+                    <span class="ant-tag ant-tag-blue">画面</span>
+                  </td>
+                  <td style="text-align:center;">328</td>
+                  <td style="text-align:center;color:#52c41a;font-weight:600;">325</td>
+                  <td style="text-align:center;color:#ff4d4f;font-weight:600;">3</td>
+                  <td>
+                    <span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:12px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffa39e;">
+                      <span style="width:6px;height:6px;border-radius:50%;background:#ff4d4f;"></span>存在异常
+                    </span>
+                  </td>
+                  <td style="color:var(--ant-text-tertiary);">4m18s</td>
+                  <td>
+                    <a href="../ops-log/detail.html?id=EXEC-20260521" class="ant-btn-link"><i class="fa-solid fa-file-lines" style="margin-right:3px;"></i>查看日志</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="white-space:nowrap;">2026-05-19 10:30</td>
+                  <td>
+                    <span class="ant-tag ant-tag-green">链路</span>
+                    <span class="ant-tag ant-tag-cyan">网络</span>
+                    <span class="ant-tag ant-tag-blue">画面</span>
+                  </td>
+                  <td style="text-align:center;">328</td>
+                  <td style="text-align:center;color:#52c41a;font-weight:600;">328</td>
+                  <td style="text-align:center;color:var(--ant-text-tertiary);">0</td>
+                  <td>
+                    <span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:12px;color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">
+                      <span style="width:6px;height:6px;border-radius:50%;background:#52c41a;"></span>全部正常
+                    </span>
+                  </td>
+                  <td style="color:var(--ant-text-tertiary);">4m05s</td>
+                  <td>
+                    <a href="../ops-log/detail.html?id=EXEC-20260519" class="ant-btn-link"><i class="fa-solid fa-file-lines" style="margin-right:3px;"></i>查看日志</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="white-space:nowrap;">2026-05-16 10:30</td>
+                  <td>
+                    <span class="ant-tag ant-tag-green">链路</span>
+                    <span class="ant-tag ant-tag-cyan">网络</span>
+                    <span class="ant-tag ant-tag-blue">画面</span>
+                  </td>
+                  <td style="text-align:center;">326</td>
+                  <td style="text-align:center;color:#52c41a;font-weight:600;">321</td>
+                  <td style="text-align:center;color:#ff4d4f;font-weight:600;">5</td>
+                  <td>
+                    <span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:12px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffa39e;">
+                      <span style="width:6px;height:6px;border-radius:50%;background:#ff4d4f;"></span>存在异常
+                    </span>
+                  </td>
+                  <td style="color:var(--ant-text-tertiary);">4m32s</td>
+                  <td>
+                    <a href="../ops-log/detail.html?id=EXEC-20260516" class="ant-btn-link"><i class="fa-solid fa-file-lines" style="margin-right:3px;"></i>查看日志</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="white-space:nowrap;">2026-05-14 10:30</td>
+                  <td>
+                    <span class="ant-tag ant-tag-green">链路</span>
+                    <span class="ant-tag ant-tag-cyan">网络</span>
+                    <span class="ant-tag ant-tag-blue">画面</span>
+                  </td>
+                  <td style="text-align:center;">326</td>
+                  <td style="text-align:center;color:#52c41a;font-weight:600;">326</td>
+                  <td style="text-align:center;color:var(--ant-text-tertiary);">0</td>
+                  <td>
+                    <span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:12px;color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">
+                      <span style="width:6px;height:6px;border-radius:50%;background:#52c41a;"></span>全部正常
+                    </span>
+                  </td>
+                  <td style="color:var(--ant-text-tertiary);">3m58s</td>
+                  <td>
+                    <a href="../ops-log/detail.html?id=EXEC-20260514" class="ant-btn-link"><i class="fa-solid fa-file-lines" style="margin-right:3px;"></i>查看日志</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="white-space:nowrap;">2026-05-12 10:30</td>
+                  <td>
+                    <span class="ant-tag ant-tag-green">链路</span>
+                    <span class="ant-tag ant-tag-cyan">网络</span>
+                    <span class="ant-tag ant-tag-blue">画面</span>
+                  </td>
+                  <td style="text-align:center;">324</td>
+                  <td style="text-align:center;color:#52c41a;font-weight:600;">322</td>
+                  <td style="text-align:center;color:#ff4d4f;font-weight:600;">2</td>
+                  <td>
+                    <span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:12px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffa39e;">
+                      <span style="width:6px;height:6px;border-radius:50%;background:#ff4d4f;"></span>存在异常
+                    </span>
+                  </td>
+                  <td style="color:var(--ant-text-tertiary);">4m10s</td>
+                  <td>
+                    <a href="../ops-log/detail.html?id=EXEC-20260512" class="ant-btn-link"><i class="fa-solid fa-file-lines" style="margin-right:3px;"></i>查看日志</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+function toggleTaskStatus(){
+  if(confirm('确认要停用该巡检任务吗？停用后将不再自动执行。')){
+    alert('任务已停用');
+  }
+}
+
+function deleteTask(){
+  if(confirm('确认要删除该巡检任务吗？删除后不可恢复。')){
+    alert('任务已删除');
+    location.href='list.html';
+  }
+}
+</script>
+</body>
+</html>

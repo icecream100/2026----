@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>巡检报告 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--ant-primary:#1677ff;--ant-primary-bg:#e6f4ff;--ant-success:#52c41a;--ant-warning:#faad14;--ant-error:#ff4d4f;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--ant-bg:#f5f5f5;--shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);--shadow-2:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08);}
+    *{box-sizing:border-box;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}.sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}.main{flex:1;padding:24px;overflow:auto;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}.menu-item.active{color:#fff;background:var(--ant-primary);}.menu-item i{width:16px;text-align:center;}
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;transition:all 0.2s;}
+    .ant-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .ant-btn-primary{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .ant-btn-text{border-color:transparent;background:transparent;color:var(--ant-primary);}
+    .ant-btn-link{border:none;background:none;color:var(--ant-primary);padding:0;height:auto;font-size:13px;cursor:pointer;}.ant-btn-link:hover{text-decoration:underline;}
+    .ant-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);}.ant-card-body{padding:24px;}
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}.breadcrumb a:hover{color:var(--ant-primary);}
+    .dim-tag{display:inline-flex;align-items:center;height:20px;padding:0 6px;font-size:11px;border-radius:4px;margin-right:4px;}
+    .report-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;font-size:14px;}
+    .report-label{color:var(--ant-text-tertiary);font-size:13px;margin-bottom:2px;}
+    .report-val{font-weight:500;}
+    .stat-row{display:flex;gap:12px;margin:16px 0;}
+    .stat-box{flex:1;text-align:center;padding:14px 8px;border-radius:8px;border:1px solid var(--ant-border-secondary);}
+    .stat-num{font-size:24px;font-weight:700;}.stat-lbl{font-size:12px;color:var(--ant-text-secondary);margin-top:2px;}
+    .section-title{font-size:14px;font-weight:600;margin:20px 0 10px;display:flex;align-items:center;gap:6px;}
+    .section-title::before{content:'';display:inline-block;width:3px;height:14px;background:var(--ant-primary);border-radius:2px;}
+    .abnormal-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .abnormal-table th,.abnormal-table td{padding:8px 12px;border:1px solid var(--ant-border-secondary);}
+    .abnormal-table th{background:#fafafa;font-weight:500;}
+    .dim-progress{display:flex;align-items:center;gap:8px;padding:8px 0;font-size:13px;}
+    .dim-progress-name{min-width:80px;font-weight:500;}
+    .dim-progress-bar{flex:1;height:10px;background:#f0f0f0;border-radius:5px;overflow:hidden;}
+    .dim-progress-fill{height:100%;border-radius:5px;transition:width 0.3s;}
+    .dim-progress-count{min-width:60px;text-align:right;font-size:12px;color:var(--ant-text-secondary);}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video text-white text-sm"></i></div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+      <span style="font-size:13px;">张工程师</span>
+    </div>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item" onclick="location.href='../ops-inspection/list.html'"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item active"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item" onclick="location.href='../ops-sla/index.html'"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item" onclick="location.href='../ops-predict/list.html'"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-bell"></i>设备告警</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span>
+        <a href="list.html">巡检日志</a><span>/</span>
+        <span style="color:var(--ant-text);">巡检报告</span>
+      </div>
+
+      <div class="flex items-center gap-3 mb-4">
+        <button class="ant-btn" onclick="location.href='list.html'"><i class="fa-solid fa-arrow-left"></i> 返回列表</button>
+        <h2 style="margin:0;font-size:18px;font-weight:600;">南区-链路+网络联合巡检</h2>
+        <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:13px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffccc7;">
+          <span style="width:7px;height:7px;border-radius:50%;background:#ff4d4f;"></span>存在异常
+        </span>
+        <span style="font-size:13px;color:var(--ant-text-tertiary);">2026-05-20 10:30</span>
+        <div style="flex:1;"></div>
+        <button class="ant-btn ant-btn-primary" onclick="showToast('PDF生成中，请稍候...')"><i class="fa-solid fa-download"></i>下载 PDF</button>
+      </div>
+
+      <!-- 基本信息 -->
+      <div class="ant-card mb-4">
+        <div class="ant-card-body" style="padding:20px 24px;">
+          <div class="report-grid">
+            <div><div class="report-label">巡检任务</div><div class="report-val">南区-链路+网络联合巡检</div></div>
+            <div><div class="report-label">执行时间</div><div class="report-val">2026-05-20 10:30:00</div></div>
+            <div><div class="report-label">巡检维度</div><div><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span><span class="dim-tag" style="color:#13c2c2;background:#e6fffb;border:1px solid #87e8de;">网络</span></div></div>
+            <div><div class="report-label">触发方式</div><div class="report-val">周期执行</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 统计卡片 -->
+      <div class="stat-row" style="margin-bottom:20px;">
+        <div class="stat-box"><div class="stat-num" style="color:var(--ant-primary);">536</div><div class="stat-lbl">设备总数</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:#52c41a;">531</div><div class="stat-lbl">正常</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:#ff4d4f;">5</div><div class="stat-lbl">异常</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:#52c41a;">99.1%</div><div class="stat-lbl">正常率</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--ant-text-secondary);">3分12秒</div><div class="stat-lbl">耗时</div></div>
+      </div>
+
+      <!-- 各维度检测结果 -->
+      <div class="ant-card mb-4">
+        <div class="ant-card-body" style="padding:20px 24px;">
+          <div class="section-title" style="margin-top:0;">各维度检测结果</div>
+          <div style="display:flex;gap:8px;padding:0 0 4px;font-size:12px;color:var(--ant-text-tertiary);"><span style="min-width:80px;"></span><span style="flex:1;"></span><span style="min-width:60px;text-align:right;">正常</span><span style="min-width:60px;text-align:right;">异常</span></div>
+
+          <div class="dim-progress">
+            <span class="dim-progress-name">链路</span>
+            <div class="dim-progress-bar"><div class="dim-progress-fill" style="width:99.6%;background:#52c41a;"></div></div>
+            <span class="dim-progress-count" style="color:#52c41a;">534</span>
+            <span class="dim-progress-count" style="color:#ff4d4f;">2</span>
+          </div>
+          <div class="dim-progress">
+            <span class="dim-progress-name">网络</span>
+            <div class="dim-progress-bar"><div class="dim-progress-fill" style="width:99.3%;background:#52c41a;"></div></div>
+            <span class="dim-progress-count" style="color:#52c41a;">532</span>
+            <span class="dim-progress-count" style="color:#ff4d4f;">4</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 异常设备列表 -->
+      <div class="ant-card mb-4">
+        <div class="ant-card-body" style="padding:20px 24px;">
+          <div class="section-title" style="margin-top:0;">异常设备列表</div>
+          <table class="abnormal-table">
+            <thead><tr><th>设备名称</th><th>点位名称</th><th>异常维度</th><th>异常描述</th></tr></thead>
+            <tbody>
+              <tr><td>南区-路口-C017</td><td>南区主干道路口17号</td><td><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span></td><td style="color:#ff4d4f;">链路超时</td></tr>
+              <tr><td>南区-路口-C089</td><td>南区支路路口89号</td><td><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span></td><td style="color:#ff4d4f;">链路超时</td></tr>
+              <tr><td>南区-广场-P012</td><td>南区中心广场12号</td><td><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span></td><td style="color:#ff4d4f;">ICMP不可达</td></tr>
+              <tr><td>南区-广场-P045</td><td>南区中心广场45号</td><td><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span></td><td style="color:#ff4d4f;">链路诊断超时</td></tr>
+              <tr><td>南区-入口-G003</td><td>南区公园入口3号</td><td><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span></td><td style="color:#ff4d4f;">链路不可达</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 底部操作 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0 24px;">
+        <a href="detail.html" class="ant-btn-link" style="font-size:14px;"><i class="fa-solid fa-list" style="margin-right:4px;"></i>查看设备明细 →</a>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+function showToast(msg){
+  var toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:2000;padding:10px 20px;background:#fff;border-radius:8px;box-shadow:0 3px 6px rgba(0,0,0,0.15);font-size:14px;display:flex;align-items:center;gap:8px;';
+  toast.innerHTML = '<i class="fa-solid fa-check-circle" style="color:#52c41a;"></i>' + msg;
+  document.body.appendChild(toast);
+  setTimeout(function(){ toast.remove(); }, 2000);
+}
+</script>
+</body>
+</html>

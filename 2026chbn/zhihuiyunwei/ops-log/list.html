@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>巡检日志 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--ant-primary:#1677ff;--ant-primary-bg:#e6f4ff;--ant-success:#52c41a;--ant-warning:#faad14;--ant-error:#ff4d4f;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--ant-bg:#f5f5f5;--shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);--shadow-2:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08);}
+    *{box-sizing:border-box;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}.sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}.main{flex:1;padding:24px;overflow:auto;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}.menu-item.active{color:#fff;background:var(--ant-primary);}.menu-item i{width:16px;text-align:center;}
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;transition:all 0.2s;}
+    .ant-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .ant-btn-primary{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .ant-btn-text{border-color:transparent;background:transparent;color:var(--ant-primary);}
+    .ant-btn-sm{height:26px;padding:0 10px;font-size:12px;}
+    .ant-btn-link{border:none;background:none;color:var(--ant-primary);padding:0;height:auto;font-size:13px;cursor:pointer;}
+    .ant-btn-link:hover{text-decoration:underline;}
+    .ant-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);}.ant-card-body{padding:24px;}
+    .ant-input{height:32px;padding:0 11px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;outline:none;background:#fff;}
+    .ant-input:focus{border-color:var(--ant-primary);box-shadow:0 0 0 2px rgba(22,119,255,0.1);}
+    .ant-select{height:32px;padding:0 11px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;font-size:14px;outline:none;}
+    .ant-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;}
+    .ant-table th{padding:12px 16px;font-weight:600;background:#fafafa;border-bottom:1px solid var(--ant-border-secondary);text-align:left;white-space:nowrap;}
+    .ant-table td{padding:12px 16px;border-bottom:1px solid var(--ant-border-secondary);}
+    .ant-table tbody tr:hover td{background:rgba(0,0,0,0.02);}
+    .ant-pagination{display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-top:16px;}
+    .ant-pagination-item{min-width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--ant-border);border-radius:4px;background:#fff;cursor:pointer;}
+    .ant-pagination-item-active{border-color:var(--ant-primary);background:var(--ant-primary);color:#fff;}
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}.breadcrumb a:hover{color:var(--ant-primary);}
+    .dim-tag{display:inline-flex;align-items:center;height:20px;padding:0 6px;font-size:11px;border-radius:4px;margin-right:4px;}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video text-white text-sm"></i></div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+      <span style="font-size:13px;">张工程师</span>
+    </div>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item" onclick="location.href='../ops-inspection/list.html'"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item active"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item" onclick="location.href='../ops-sla/index.html'"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item" onclick="location.href='../ops-predict/list.html'"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-bell"></i>设备告警</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span>智能运维</span><span>/</span><span style="color:var(--ant-text);">巡检日志</span>
+      </div>
+
+      <!-- 筛选 -->
+      <div class="ant-card mb-4">
+        <div class="ant-card-body" style="padding:16px 24px;">
+          <div class="flex items-center gap-3 flex-wrap">
+            <input class="ant-input" style="width:180px;" placeholder="任务名称">
+            <select class="ant-select"><option>全部</option><option>正常</option><option>异常</option></select>
+            <select class="ant-select"><option>全部</option><option>链路</option><option>画面</option><option>网络</option></select>
+            <input class="ant-input" type="date" style="width:150px;" value="2026-04-21"> <span style="margin:0 4px;">至</span> <input class="ant-input" type="date" style="width:150px;" value="2026-05-20">
+            <button class="ant-btn"><i class="fa-solid fa-magnifying-glass"></i>搜索</button>
+            <button class="ant-btn ant-btn-text">重置</button>
+            <div style="margin-left:auto;">
+              <button class="ant-btn"><i class="fa-solid fa-download"></i>导出</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 列表 -->
+      <div class="ant-card">
+        <div style="padding:16px 24px;border-bottom:1px solid var(--ant-border-secondary);display:flex;justify-content:space-between;align-items:center;">
+          <span class="font-semibold">巡检日志</span>
+          <span style="font-size:13px;color:var(--ant-text-tertiary);">共 6 条记录</span>
+        </div>
+        <div class="ant-card-body" style="padding:0;">
+          <table class="ant-table">
+            <thead>
+              <tr>
+                <th>执行时间</th>
+                <th>任务名称</th>
+                <th>巡检维度</th>
+                <th>设备总数</th>
+                <th>正常</th>
+                <th>异常</th>
+                <th>综合状态</th>
+                <th>耗时</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="white-space:nowrap;">2026-05-20 10:30</td>
+                <td><strong>南区-链路+网络联合巡检</strong></td>
+                <td><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span><span class="dim-tag" style="color:#13c2c2;background:#e6fffb;border:1px solid #87e8de;">网络</span></td>
+                <td style="text-align:center;">536</td>
+                <td style="text-align:center;color:#52c41a;font-weight:600;">531</td>
+                <td style="text-align:center;color:#ff4d4f;font-weight:600;">5</td>
+                <td><span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:12px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffa39e;"><span style="width:6px;height:6px;border-radius:50%;background:#ff4d4f;"></span>存在异常</span></td>
+                <td style="color:var(--ant-text-tertiary);">3m12s</td>
+                <td>
+                  <a href="report.html?id=LOG-20260520-001" class="ant-btn-link"><i class="fa-solid fa-file-lines" style="margin-right:3px;"></i>巡检报告</a>
+                  <span style="color:var(--ant-border);margin:0 6px;">|</span>
+                  <a href="detail.html?id=LOG-20260520-001" class="ant-btn-link"><i class="fa-solid fa-list" style="margin-right:3px;"></i>查看详情</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="white-space:nowrap;">2026-05-20 10:00</td>
+                <td><strong>北区-四维全检</strong></td>
+                <td><span class="dim-tag" style="color:#1677ff;background:#e6f4ff;border:1px solid #91caff;">画面</span><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span><span class="dim-tag" style="color:#13c2c2;background:#e6fffb;border:1px solid #87e8de;">网络</span></td>
+                <td style="text-align:center;">812</td>
+                <td style="text-align:center;color:#52c41a;font-weight:600;">805</td>
+                <td style="text-align:center;color:#ff4d4f;font-weight:600;">7</td>
+                <td><span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:12px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffa39e;"><span style="width:6px;height:6px;border-radius:50%;background:#ff4d4f;"></span>存在异常</span></td>
+                <td style="color:var(--ant-text-tertiary);">8m45s</td>
+                <td>
+                  <a href="report.html?id=LOG-20260520-002" class="ant-btn-link"><i class="fa-solid fa-file-lines" style="margin-right:3px;"></i>巡检报告</a>
+                  <span style="color:var(--ant-border);margin:0 6px;">|</span>
+                  <a href="detail.html?id=LOG-20260520-002" class="ant-btn-link"><i class="fa-solid fa-list" style="margin-right:3px;"></i>查看详情</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="white-space:nowrap;">2026-05-20 08:00</td>
+                <td><strong>市区摄像头-全量画质巡检</strong></td>
+                <td><span class="dim-tag" style="color:#1677ff;background:#e6f4ff;border:1px solid #91caff;">画面</span></td>
+                <td style="text-align:center;">1,256</td>
+                <td style="text-align:center;color:#52c41a;font-weight:600;">1,241</td>
+                <td style="text-align:center;color:#ff4d4f;font-weight:600;">15</td>
+                <td><span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:12px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffa39e;"><span style="width:6px;height:6px;border-radius:50%;background:#ff4d4f;"></span>存在异常</span></td>
+                <td style="color:var(--ant-text-tertiary);">12m30s</td>
+                <td>
+                  <a href="report.html?id=LOG-20260520-003" class="ant-btn-link"><i class="fa-solid fa-file-lines" style="margin-right:3px;"></i>巡检报告</a>
+                  <span style="color:var(--ant-border);margin:0 6px;">|</span>
+                  <a href="detail.html?id=LOG-20260520-003" class="ant-btn-link"><i class="fa-solid fa-list" style="margin-right:3px;"></i>查看详情</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="white-space:nowrap;">2026-05-20 06:00</td>
+                <td><strong>南区-链路+网络联合巡检</strong></td>
+                <td><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span><span class="dim-tag" style="color:#13c2c2;background:#e6fffb;border:1px solid #87e8de;">网络</span></td>
+                <td style="text-align:center;">536</td>
+                <td style="text-align:center;color:#52c41a;font-weight:600;">536</td>
+                <td style="text-align:center;color:var(--ant-text-tertiary);">0</td>
+                <td><span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:12px;color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;"><span style="width:6px;height:6px;border-radius:50%;background:#52c41a;"></span>全部正常</span></td>
+                <td style="color:var(--ant-text-tertiary);">3m08s</td>
+                <td>
+                  <a href="report.html?id=LOG-20260520-004" class="ant-btn-link"><i class="fa-solid fa-file-lines" style="margin-right:3px;"></i>巡检报告</a>
+                  <span style="color:var(--ant-border);margin:0 6px;">|</span>
+                  <a href="detail.html?id=LOG-20260520-004" class="ant-btn-link"><i class="fa-solid fa-list" style="margin-right:3px;"></i>查看详情</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="white-space:nowrap;">2026-05-20 02:00</td>
+                <td><strong>北区-四维全检</strong></td>
+                <td><span class="dim-tag" style="color:#1677ff;background:#e6f4ff;border:1px solid #91caff;">画面</span><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span><span class="dim-tag" style="color:#13c2c2;background:#e6fffb;border:1px solid #87e8de;">网络</span></td>
+                <td style="text-align:center;">812</td>
+                <td style="text-align:center;color:#52c41a;font-weight:600;">812</td>
+                <td style="text-align:center;color:var(--ant-text-tertiary);">0</td>
+                <td><span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:12px;color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;"><span style="width:6px;height:6px;border-radius:50%;background:#52c41a;"></span>全部正常</span></td>
+                <td style="color:var(--ant-text-tertiary);">8m32s</td>
+                <td>
+                  <a href="report.html?id=LOG-20260520-005" class="ant-btn-link"><i class="fa-solid fa-file-lines" style="margin-right:3px;"></i>巡检报告</a>
+                  <span style="color:var(--ant-border);margin:0 6px;">|</span>
+                  <a href="detail.html?id=LOG-20260520-005" class="ant-btn-link"><i class="fa-solid fa-list" style="margin-right:3px;"></i>查看详情</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="white-space:nowrap;">2026-05-19 22:00</td>
+                <td><strong>全市-链路巡检</strong></td>
+                <td><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span></td>
+                <td style="text-align:center;">3,200</td>
+                <td style="text-align:center;color:#52c41a;font-weight:600;">3,198</td>
+                <td style="text-align:center;color:#ff4d4f;font-weight:600;">2</td>
+                <td><span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:12px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffa39e;"><span style="width:6px;height:6px;border-radius:50%;background:#ff4d4f;"></span>存在异常</span></td>
+                <td style="color:var(--ant-text-tertiary);">18m15s</td>
+                <td>
+                  <a href="report.html?id=LOG-20260519-001" class="ant-btn-link"><i class="fa-solid fa-file-lines" style="margin-right:3px;"></i>巡检报告</a>
+                  <span style="color:var(--ant-border);margin:0 6px;">|</span>
+                  <a href="detail.html?id=LOG-20260519-001" class="ant-btn-link"><i class="fa-solid fa-list" style="margin-right:3px;"></i>查看详情</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="padding:16px 24px;">
+            <div class="ant-pagination">
+              <span style="color:var(--ant-text-tertiary);font-size:13px;margin-right:8px;">共 6 条</span>
+              <div class="ant-pagination-item ant-pagination-item-active">1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

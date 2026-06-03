@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>故障预警 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--ant-primary:#1677ff;--ant-primary-bg:#e6f4ff;--ant-success:#52c41a;--ant-warning:#faad14;--ant-error:#ff4d4f;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);--shadow-2:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08);--predict-purple:#722ed1;--predict-purple-bg:#f9f0ff;--predict-purple-border:#d3adf7;}
+    *{box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}
+    .sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}
+    .main{flex:1;padding:20px 24px;overflow:auto;overflow-x:hidden;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}
+    .menu-item.active{color:#fff;background:var(--ant-primary);}
+    .menu-item i{width:16px;text-align:center;}
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;transition:all 0.2s;}
+    .ant-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .ant-btn-primary{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .ant-btn-sm{height:28px;padding:0 12px;font-size:13px;}
+    .ant-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);}
+    .ant-card-body{padding:24px;}
+    .ant-input{height:32px;padding:0 11px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;outline:none;background:#fff;width:100%;}
+    .ant-select{height:32px;padding:0 11px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;font-size:14px;outline:none;}
+    .ant-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;}
+    .ant-table th{padding:12px 16px;font-weight:600;background:#fafafa;border-bottom:1px solid var(--ant-border-secondary);text-align:left;white-space:nowrap;}
+    .ant-table td{padding:12px 16px;border-bottom:1px solid var(--ant-border-secondary);}
+    .ant-table tbody tr:hover td{background:rgba(0,0,0,0.02);}
+    .ant-tag{display:inline-flex;align-items:center;height:22px;padding:0 7px;font-size:12px;border-radius:4px;border:1px solid;}
+    .ant-pagination{display:flex;align-items:center;gap:4px;margin-top:16px;justify-content:flex-end;}
+    .ant-page-item{min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--ant-border);border-radius:4px;cursor:pointer;padding:0 6px;font-size:14px;background:#fff;}
+    .ant-page-item.active{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .ant-page-item:hover:not(.active){color:var(--ant-primary);border-color:var(--ant-primary);}
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}
+    .breadcrumb a:hover{color:var(--ant-primary);}
+    .tree-node{transition:all 0.2s;}
+    .tree-node:hover{background:#f5f5f5;}
+    .tree-node.active{background:#e6f4ff;color:#1677ff;font-weight:600;}
+    /* KPI卡片 */
+    .kpi-card{background:#fff;border-radius:12px;box-shadow:var(--shadow-1);padding:20px;display:flex;align-items:center;gap:16px;transition:box-shadow 0.2s;}
+    .kpi-card:hover{box-shadow:var(--shadow-2);}
+    .kpi-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+    .kpi-value{font-size:28px;font-weight:700;line-height:1;}
+    .kpi-label{font-size:13px;color:var(--ant-text-tertiary);margin-top:4px;}
+    /* 概率进度条 */
+    .prob-bar{height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;flex:1;}
+    .prob-fill{height:100%;border-radius:3px;transition:width 0.3s;}
+    /* 预警等级标签 */
+    .level-high{background:#fff1f0;color:#ff4d4f;border-color:#ffa39e;}
+    .level-mid{background:#fff7e6;color:#fa8c16;border-color:#ffd591;}
+    .level-low{background:#fffbe6;color:#faad14;border-color:#ffe58f;}
+    /* 状态标签 */
+    .status-pending{background:#e6f4ff;color:#1677ff;border-color:#91caff;}
+    .status-verified{background:#f6ffed;color:#52c41a;border-color:#b7eb8f;}
+    .status-noted{background:#f5f5f5;color:rgba(0,0,0,0.65);border-color:#d9d9d9;}
+    .status-false{background:#fff2f0;color:#ff4d4f;border-color:#ffccc7;}
+    .status-handled{background:#f0f5ff;color:#2f54eb;border-color:#adc6ff;}
+    .status-expired{background:#f5f5f5;color:rgba(0,0,0,0.45);border-color:#d9d9d9;}
+    /* 预测类型标签 */
+    .type-network{background:#e6f4ff;color:#1677ff;border-color:#91caff;}
+    .type-video{background:#f9f0ff;color:#722ed1;border-color:#d3adf7;}
+    .type-signal{background:#fff7e6;color:#fa8c16;border-color:#ffd591;}
+    .type-mixed{background:#f0f5ff;color:#2f54eb;border-color:#adc6ff;}
+    /* 闪烁动画 */
+    @keyframes pulse{0%{opacity:1;}50%{opacity:0.4;}100%{opacity:1;}}
+    .pulse-dot{animation:pulse 1.5s infinite;}
+    /* 操作列下拉菜单 */
+    .action-wrap{display:inline-flex;align-items:center;gap:6px;}
+    .action-dropdown{position:relative;display:inline-block;}
+    .action-dropdown-btn{display:inline-flex;align-items:center;gap:3px;height:28px;padding:0 10px;font-size:13px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text-secondary);cursor:pointer;transition:all 0.2s;}
+    .action-dropdown-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .action-dropdown-menu{display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#fff;border-radius:6px;box-shadow:0 6px 16px rgba(0,0,0,0.12);border:1px solid var(--ant-border-secondary);z-index:50;min-width:120px;padding:4px 0;}
+    .action-dropdown-menu.show{display:block;}
+    .action-dropdown-item{display:flex;align-items:center;gap:6px;padding:8px 14px;font-size:13px;color:var(--ant-text);cursor:pointer;transition:background 0.15s;white-space:nowrap;}
+    .action-dropdown-item:hover{background:#f5f5f5;}
+    .action-dropdown-item.danger{color:#ff4d4f;}
+    .action-dropdown-item.danger:hover{background:#fff1f0;}
+    .ant-modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:1000;}
+    .ant-modal-mask.active{display:flex;}
+    .ant-modal{background:#fff;border-radius:8px;box-shadow:var(--shadow-2);width:540px;max-width:92vw;}
+    .ant-modal-header{padding:16px 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:16px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+    .ant-modal-body{padding:24px;max-height:60vh;overflow:auto;}
+    .ant-modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:16px 24px;border-top:1px solid var(--ant-border-secondary);}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video text-white text-sm"></i></div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-4">
+      <span style="color:rgba(255,255,255,0.65);font-size:13px;cursor:pointer;"><i class="fa-regular fa-bell mr-1"></i>5</span>
+      <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+        <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+        <span style="font-size:13px;">张工程师</span>
+      </div>
+    </div>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item" onclick="location.href='../ops-inspection/list.html'"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item" onclick="location.href='../ops-log/list.html'"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item" onclick="location.href='../ops-sla/index.html'"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item active"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-triangle-exclamation"></i>设备告警</div>
+    </aside>
+    <main class="main">
+      <!-- 面包屑 -->
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span>智能运维</span><span>/</span><span style="color:var(--ant-text);">故障预警</span>
+      </div>
+
+      <!-- Tab栏 -->
+      <div style="display:flex;border-bottom:2px solid var(--ant-border-secondary);margin-bottom:16px;">
+        <div class="tab-btn active" id="tabList" onclick="switchMainTab('list')" style="padding:12px 24px;cursor:pointer;font-size:14px;color:var(--ant-primary);border-bottom:2px solid var(--ant-primary);margin-bottom:-2px;font-weight:600;">预警列表</div>
+        <div class="tab-btn" id="tabConfig" onclick="switchMainTab('config')" style="padding:12px 24px;cursor:pointer;font-size:14px;color:var(--ant-text-secondary);border-bottom:2px solid transparent;margin-bottom:-2px;">
+          <i class="fa-solid fa-gear mr-1"></i>预警配置
+          <span style="background:#f9f0ff;color:#722ed1;font-size:10px;padding:1px 5px;border-radius:8px;margin-left:4px;">P03</span>
+        </div>
+      </div>
+
+      <!-- 预警列表面板 -->
+      <div id="panelList">
+
+      <!-- 信息提示 -->
+      <div style="background:linear-gradient(135deg,#f9f0ff,#e6f4ff);border:1px solid var(--predict-purple-border);border-radius:8px;padding:12px 20px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:13px;color:#531dab;">
+        <i class="fa-solid fa-brain" style="font-size:16px;"></i>
+        <span>故障预警由系统模型基于历史巡检数据自动生成，提前预判潜在故障风险。模型在后端持续运行，无需人工干预。</span>
+      </div>
+
+      <!-- KPI 统计卡片 -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px;">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#f9f0ff;color:#722ed1;"><i class="fa-solid fa-brain"></i></div>
+          <div>
+            <div class="kpi-value" style="color:#722ed1;">20</div>
+            <div class="kpi-label">今日预测数</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#fff1f0;color:#ff4d4f;"><i class="fa-solid fa-shield-halved"></i></div>
+          <div>
+            <div class="kpi-value" style="color:#ff4d4f;">6</div>
+            <div class="kpi-label">高危预警数</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#f6ffed;color:#52c41a;"><i class="fa-solid fa-circle-check"></i></div>
+          <div>
+            <div class="kpi-value" style="color:#52c41a;">82%</div>
+            <div class="kpi-label">已验证准确率</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#e6f4ff;color:#1677ff;"><i class="fa-solid fa-clock"></i></div>
+          <div>
+            <div class="kpi-value" style="color:#1677ff;">4.2h</div>
+            <div class="kpi-label">平均预警提前量</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 主表格卡片 -->
+      <div style="display:flex;gap:16px;">
+        <!-- 左侧设备树 -->
+        <div style="width:200px;flex-shrink:0;background:#fff;border-radius:8px;border:1px solid var(--ant-border-secondary);padding:16px;align-self:flex-start;">
+          <div style="font-weight:600;margin-bottom:12px;font-size:14px;">设备区域</div>
+          <div id="deviceTree">
+            <div class="tree-node active" onclick="filterByRegion('all')" style="padding:8px 12px;cursor:pointer;border-radius:4px;background:#e6f4ff;color:#1677ff;font-weight:600;margin-bottom:4px;">
+              <i class="fa-solid fa-folder-open" style="margin-right:6px;"></i>全市 <span style="float:right;background:#722ed1;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">10</span>
+            </div>
+            <div class="tree-node" onclick="filterByRegion('西区')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
+              <i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>西区 <span style="float:right;background:#ff4d4f;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">3</span>
+            </div>
+            <div class="tree-node" onclick="filterByRegion('北区')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
+              <i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>北区 <span style="float:right;background:#faad14;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">2</span>
+            </div>
+            <div class="tree-node" onclick="filterByRegion('东区')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
+              <i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>东区 <span style="float:right;background:#faad14;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">2</span>
+            </div>
+            <div class="tree-node" onclick="filterByRegion('南区')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
+              <i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>南区 <span style="float:right;background:#faad14;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">2</span>
+            </div>
+            <div class="tree-node" onclick="filterByRegion('市中心')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
+              <i class="fa-solid fa-folder" style="margin-right:6px;color:#52c41a;"></i>市中心 <span style="float:right;background:#52c41a;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧内容区 -->
+        <div style="flex:1;min-width:0;">
+          <div class="ant-card">
+            <div class="ant-card-body" style="padding:16px 24px 24px;">
+              <!-- 筛选区 -->
+              <div class="flex gap-3 flex-wrap pb-4">
+                <input class="ant-input" style="width:220px;" placeholder="搜索设备名称" id="searchInput">
+                <select class="ant-select" id="filterLevel">
+                  <option value="">全部预警等级</option>
+                  <option value="high">高危</option>
+                  <option value="mid">中危</option>
+                  <option value="low">低危</option>
+                </select>
+                <select class="ant-select" id="filterType">
+                  <option value="">全部预测类型</option>
+                  <option value="network">网络劣化</option>
+                  <option value="video">画面劣化</option>
+                  <option value="signal">链路异常</option>
+                  <option value="loss_worsen">丢包趋势恶化</option>
+                  <option value="mixed">综合预测</option>
+                </select>
+                <select class="ant-select" id="filterStatus">
+                  <option value="">全部状态</option>
+                  <option value="pending">待处理</option>
+                  <option value="confirmed">已知晓</option>
+                  <option value="verified">已验证</option>
+                  <option value="false">误报</option>
+                  <option value="expired">已过期</option>
+                </select>
+                <button class="ant-btn" onclick="renderTable()"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+                <button class="ant-btn" onclick="resetFilters()"><i class="fa-solid fa-rotate-left"></i>重置</button>
+              </div>
+              <!-- 表格 -->
+              <div style="overflow-x:auto;">
+              <table class="ant-table" style="min-width:1000px;">
+                <thead>
+                  <tr>
+                    <th>预警编号</th>
+                    <th>设备名称</th>
+                    <th>预警等级</th>
+                    <th>预测类型</th>
+                    <th style="min-width:160px;">故障概率</th>
+                    <th>下级平台名称</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="predictTableBody"></tbody>
+              </table>
+              <div class="ant-pagination" id="paginationArea">
+                <span class="ant-page-item">«</span>
+                <span class="ant-page-item active">1</span>
+                <span class="ant-page-item">2</span>
+                <span class="ant-page-item">»</span>
+                <span style="font-size:13px;color:rgba(0,0,0,0.45);margin-left:8px;" id="totalCount">共 10 条</span>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      </div><!-- /panelList -->
+
+      <!-- 预警配置面板 -->
+      <div id="panelConfig" style="display:none;">
+        <div class="ant-card" style="margin-bottom:16px;">
+          <div class="ant-card-head">
+            <span><i class="fa-solid fa-sliders mr-2" style="color:#722ed1;"></i>预警等级阈值</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);font-weight:400;">故障概率达到阈值时自动判定等级</span>
+          </div>
+          <div class="ant-card-body">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+              <div style="padding:16px;background:#fff1f0;border:1px solid #ffccc7;border-radius:8px;">
+                <label style="display:block;margin-bottom:8px;font-size:13px;color:rgba(0,0,0,0.65);">高危阈值 <span style="color:#ff4d4f;">*</span></label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input class="ant-input" type="number" value="80" min="60" max="100" style="width:100px;background:#fff;">
+                  <span style="font-size:14px;color:rgba(0,0,0,0.65);">%</span>
+                  <span style="font-size:11px;color:rgba(0,0,0,0.35);">≥此值为高危</span>
+                </div>
+              </div>
+              <div style="padding:16px;background:#fff7e6;border:1px solid #ffd591;border-radius:8px;">
+                <label style="display:block;margin-bottom:8px;font-size:13px;color:rgba(0,0,0,0.65);">中危阈值 <span style="color:#ff4d4f;">*</span></label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input class="ant-input" type="number" value="60" min="40" max="99" style="width:100px;background:#fff;">
+                  <span style="font-size:14px;color:rgba(0,0,0,0.65);">%</span>
+                  <span style="font-size:11px;color:rgba(0,0,0,0.35);">≥此值为中危</span>
+                </div>
+              </div>
+              <div style="padding:16px;background:#fffbe6;border:1px solid #ffe58f;border-radius:8px;">
+                <label style="display:block;margin-bottom:8px;font-size:13px;color:rgba(0,0,0,0.65);">低危阈值 <span style="color:#ff4d4f;">*</span></label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input class="ant-input" type="number" value="40" min="20" max="99" style="width:100px;background:#fff;">
+                  <span style="font-size:14px;color:rgba(0,0,0,0.65);">%</span>
+                  <span style="font-size:11px;color:rgba(0,0,0,0.35);">≥此值为低危</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ant-card" style="margin-bottom:16px;">
+          <div class="ant-card-head">
+            <span><i class="fa-solid fa-paper-plane mr-2" style="color:#1677ff;"></i>推送方式配置</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);font-weight:400;">各等级预警的通知渠道</span>
+          </div>
+          <div class="ant-card-body">
+            <div style="display:grid;gap:16px;">
+              <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:#fff1f0;border:1px solid #ffccc7;border-radius:6px;">
+                <span style="font-weight:600;color:#ff4d4f;min-width:60px;">高危</span>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" checked style="accent-color:#1677ff;">站内信</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" style="accent-color:#1677ff;">邮件</label>
+              </div>
+              <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:#fff7e6;border:1px solid #ffd591;border-radius:6px;">
+                <span style="font-weight:600;color:#fa8c16;min-width:60px;">中危</span>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" checked style="accent-color:#1677ff;">站内信</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" style="accent-color:#1677ff;">邮件</label>
+              </div>
+              <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:#fffbe6;border:1px solid #ffe58f;border-radius:6px;">
+                <span style="font-weight:600;color:#faad14;min-width:60px;">低危</span>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" checked style="accent-color:#1677ff;">站内信</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" style="accent-color:#1677ff;">邮件</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ant-card" style="margin-bottom:16px;">
+          <div class="ant-card-head">
+            <span><i class="fa-solid fa-clock mr-2" style="color:#faad14;"></i>预警频次控制</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);font-weight:400;">防止重复推送刷屏</span>
+          </div>
+          <div class="ant-card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+              <div class="form-item" style="margin-bottom:0;">
+                <label style="display:block;margin-bottom:6px;font-size:14px;color:rgba(0,0,0,0.88);">同设备同类型抑制时间（小时） <span style="color:#ff4d4f;">*</span></label>
+                <input class="ant-input" type="number" value="4" min="1" max="72" style="width:200px;">
+                <div style="font-size:12px;color:rgba(0,0,0,0.35);margin-top:4px;">同一设备同预测类型在抑制时间内不重复推送</div>
+              </div>
+              <div class="form-item" style="margin-bottom:0;">
+                <label style="display:block;margin-bottom:6px;font-size:14px;color:rgba(0,0,0,0.88);">有效预警提前量下限（小时） <span style="color:#ff4d4f;">*</span></label>
+                <input class="ant-input" type="number" value="2" min="1" max="24" style="width:200px;">
+                <div style="font-size:12px;color:rgba(0,0,0,0.35);margin-top:4px;">提前量低于此值时预警等级自动升一级</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:right;">
+          <button class="ant-btn ant-btn-primary" style="background:#722ed1;border-color:#722ed1;height:40px;padding:0 32px;" onclick="saveConfig()"><i class="fa-solid fa-floppy-disk mr-1"></i>保存配置</button>
+        </div>
+      </div><!-- /panelConfig -->
+
+    </main>
+  </div>
+</div>
+
+<!-- 确认弹窗 -->
+<div class="ant-modal-mask" id="handleModal">
+  <div class="ant-modal" style="width:440px;">
+    <div class="ant-modal-header">
+      <span><i class="fa-solid fa-check-circle" style="margin-right:8px;color:#2f54eb;"></i>已知晓预警</span>
+      <span style="cursor:pointer;color:rgba(0,0,0,0.45);font-size:18px;" onclick="closeHandleModal()">×</span>
+    </div>
+    <div class="ant-modal-body">
+      <div style="margin-bottom:12px;font-size:14px;color:rgba(0,0,0,0.65);" id="handleDesc">确认已知晓此预警，窗口期内系统将自动验证或过期。</div>
+      <label style="display:block;margin-bottom:6px;font-size:14px;color:rgba(0,0,0,0.88);font-weight:500;">备注（选填）</label>
+      <textarea class="ant-input" id="handleReason" placeholder="如有需要可简要记录" style="height:80px;padding:8px 11px;resize:vertical;width:100%;box-sizing:border-box;" maxlength="200"></textarea>
+      <div id="handleError" style="display:none;color:#ff4d4f;font-size:12px;margin-top:4px;">请填写备注</div>
+      <div style="text-align:right;font-size:12px;color:rgba(0,0,0,0.35);margin-top:4px;"><span id="handleCharCount">0</span>/200</div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeHandleModal()">取消</button>
+      <button class="ant-btn ant-btn-primary" style="background:#2f54eb;border-color:#2f54eb;" onclick="confirmHandle()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- 标记弹窗 -->
+<div class="ant-modal-mask" id="markModal">
+  <div class="ant-modal" style="width:400px;">
+    <div class="ant-modal-header">
+      <span id="markModalTitle"><i class="fa-solid fa-tag" style="margin-right:8px;color:#1677ff;"></i>标记预警</span>
+      <span style="cursor:pointer;color:rgba(0,0,0,0.45);font-size:18px;" onclick="closeMarkModal()">×</span>
+    </div>
+    <div class="ant-modal-body">
+      <div class="form-item" style="margin-bottom:0;">
+        <label style="display:block;margin-bottom:8px;font-size:14px;color:rgba(0,0,0,0.88);" id="markModalLabel">确认操作？</label>
+        <textarea class="ant-input" id="markReason" placeholder="填写备注（选填）" style="height:80px;padding:8px 11px;resize:vertical;width:100%;box-sizing:border-box;"></textarea>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeMarkModal()">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="confirmMark()">确认</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var predictions = [
+  {id:'PRD-20260522-001',device:'西区-CAM-0341',level:'high',levelLabel:'高危',type:'network',typeLabel:'网络劣化',prob:92,estTime:'约2h后 (05-22 17:30)',lead:'3.5h',region:'西区',channelCode:'34010000001310000341',platform:'西区公安分局平台',status:'pending'},
+  {id:'PRD-20260522-002',device:'北区-CAM-0101',level:'high',levelLabel:'高危',type:'signal',typeLabel:'链路异常',prob:87,estTime:'约4h后 (05-22 19:45)',lead:'5.2h',region:'北区',channelCode:'34010000001310000101',platform:'北区交警大队平台',status:'pending'},
+  {id:'PRD-20260522-003',device:'东区-CAM-0512',level:'high',levelLabel:'高危',type:'mixed',typeLabel:'综合预测',prob:85,estTime:'约6h后 (05-22 22:00)',lead:'6.1h',region:'东区',channelCode:'34010000001310000512',platform:'东区城管局平台',status:'pending'},
+  {id:'PRD-20260522-004',device:'南区-CAM-0098',level:'high',levelLabel:'高危',type:'video',typeLabel:'画面劣化',prob:83,estTime:'约8h后 (05-23 00:15)',lead:'7.8h',region:'南区',channelCode:'34010000001310000098',platform:'南区公安分局平台',status:'confirmed'},
+  {id:'PRD-20260522-005',device:'西区-CAM-0201',level:'high',levelLabel:'高危',type:'network',typeLabel:'网络劣化',prob:81,estTime:'约5h后 (05-22 21:00)',lead:'4.6h',region:'西区',channelCode:'34010000001310000201',platform:'西区公安分局平台',status:'verified'},
+  {id:'PRD-20260522-006',device:'北区-CAM-0130',level:'mid',levelLabel:'中危',type:'signal',typeLabel:'链路异常',prob:68,estTime:'约12h后 (05-23 04:30)',lead:'11.5h',region:'北区',channelCode:'34010000001310000130',platform:'北区交警大队平台',status:'pending'},
+  {id:'PRD-20260522-007',device:'东区-CAM-0320',level:'mid',levelLabel:'中危',type:'network',typeLabel:'网络劣化',prob:62,estTime:'约18h后 (05-23 10:00)',lead:'16.2h',region:'东区',channelCode:'34010000001310000320',platform:'东区城管局平台',status:'verified'},
+  {id:'PRD-20260522-008',device:'南区-CAM-0088',level:'mid',levelLabel:'中危',type:'video',typeLabel:'画面劣化',prob:58,estTime:'约24h后 (05-23 16:00)',lead:'22.4h',region:'南区',channelCode:'34010000001310000088',platform:'南区公安分局平台',status:'false'},
+  {id:'PRD-20260522-009',device:'西区-CAM-0155',level:'low',levelLabel:'低危',type:'mixed',typeLabel:'综合预测',prob:41,estTime:'约36h后 (05-24 04:00)',lead:'33.8h',region:'西区',channelCode:'34010000001310000155',platform:'西区公安分局平台',status:'confirmed'},
+  {id:'PRD-20260522-010',device:'市中心-CAM-0011',level:'low',levelLabel:'低危',type:'network',typeLabel:'网络劣化',prob:35,estTime:'约48h后 (05-24 16:00)',lead:'45.1h',region:'市中心',channelCode:'34010000001310000011',platform:'市中心指挥中心平台',status:'verified'},
+  {id:'PRD-20260522-011',device:'西区-CAM-0288',level:'high',levelLabel:'高危',type:'loss_worsen',typeLabel:'丢包趋势恶化',prob:88,estTime:'约3h后 (05-22 19:00)',lead:'4.1h',region:'西区',channelCode:'34010000001310000288',platform:'西区公安分局平台',status:'pending'},
+  {id:'PRD-20260522-012',device:'南区-CAM-0415',level:'mid',levelLabel:'中危',type:'network',typeLabel:'网络劣化',prob:65,estTime:'约10h后 (05-23 02:00)',lead:'9.3h',region:'南区',channelCode:'34010000001310000415',platform:'南区公安分局平台',status:'pending'},
+  {id:'PRD-20260521-015',device:'东区-CAM-0433',level:'high',levelLabel:'高危',type:'network',typeLabel:'网络劣化',prob:86,estTime:'已过期 (05-22 06:00)',lead:'已过期',region:'东区',channelCode:'34010000001310000433',platform:'东区城管局平台',status:'confirmed'},
+  {id:'PRD-20260521-018',device:'市中心-CAM-0025',level:'mid',levelLabel:'中危',type:'video',typeLabel:'画面劣化',prob:55,estTime:'已过期 (05-22 02:00)',lead:'已过期',region:'市中心',channelCode:'34010000001310000025',platform:'市中心指挥中心平台',status:'expired'},
+];
+
+var levelClass = {high:'level-high',mid:'level-mid',low:'level-low'};
+var typeClass = {network:'type-network',video:'type-video',signal:'type-signal',mixed:'type-mixed',loss_worsen:'type-network',latency_worsen:'type-signal',wifi_decay:'type-signal'};
+var statusClass = {pending:'status-pending',confirmed:'status-handled',verified:'status-verified',false:'status-false',expired:'status-expired'};
+var statusLabel = {pending:'待处理',confirmed:'已知晓',verified:'已验证',false:'误报',expired:'已过期'};
+
+var currentRegion = 'all';
+var currentMarkId = '';
+var currentMarkAction = '';
+
+function getProbColor(prob){
+  if(prob>=80) return '#ff4d4f';
+  if(prob>=60) return '#fa8c16';
+  if(prob>=40) return '#faad14';
+  return '#52c41a';
+}
+
+function renderTable(){
+  var search = document.getElementById('searchInput').value.toLowerCase();
+  var fLevel = document.getElementById('filterLevel').value;
+  var fType = document.getElementById('filterType').value;
+  var fStatus = document.getElementById('filterStatus').value;
+
+  var filtered = predictions.filter(function(p){
+    if(currentRegion!=='all' && p.region!==currentRegion) return false;
+    if(search && p.device.toLowerCase().indexOf(search)===-1 && p.id.toLowerCase().indexOf(search)===-1) return false;
+    if(fLevel && p.level!==fLevel) return false;
+    if(fType && p.type!==fType) return false;
+    if(fStatus && p.status!==fStatus) return false;
+    return true;
+  });
+
+  var tbody = document.getElementById('predictTableBody');
+  tbody.innerHTML = filtered.map(function(p){
+    var probColor = getProbColor(p.prob);
+    var actions = '';
+    if(p.status==='pending'){
+      actions = '<div class="action-wrap">'
+        +'<button class="ant-btn ant-btn-sm" onclick="confirmPredict(\''+p.id+'\')" style="border-color:#2f54eb;color:#2f54eb;"><i class="fa-solid fa-check"></i>已知晓</button>'
+        +'<button class="ant-btn ant-btn-sm" onclick="inspectPredict(\''+p.id+'\')"><i class="fa-solid fa-magnifying-glass"></i>发起巡检</button>'
+        +'<button class="ant-btn ant-btn-sm" onclick="markAction(\''+p.id+'\',\'false\')" style="border-color:#faad14;color:#faad14;"><i class="fa-solid fa-xmark"></i>标记误报</button>'
+        +'</div>';
+    } else if(p.status==='confirmed'){
+      actions = '<div class="action-wrap">'
+        +'<button class="ant-btn ant-btn-sm" onclick="inspectPredict(\''+p.id+'\')"><i class="fa-solid fa-magnifying-glass"></i>发起巡检</button>'
+        +'<button class="ant-btn ant-btn-sm" onclick="markAction(\''+p.id+'\',\'false\')" style="border-color:#faad14;color:#faad14;"><i class="fa-solid fa-xmark"></i>标记误报</button>'
+        +'</div>';
+    } else {
+      actions = '—';
+    }
+    var rowBg = '';
+    if(p.status==='expired') rowBg = 'background:#fafafa;opacity:0.7;';
+
+    return '<tr style="'+(rowBg?rowBg:(p.level==='high'?'background:#fff2f0;':''))+'">'
+      +'<td><a href="detail.html?id='+p.id+'" style="color:var(--ant-primary);text-decoration:none;font-size:13px;font-weight:500;">'+p.id+'</a></td>'
+      +'<td style="font-size:13px;">'+p.device+'</td>'
+      +'<td><span class="ant-tag '+levelClass[p.level]+'">'+p.levelLabel+'</span></td>'
+      +'<td><span class="ant-tag '+typeClass[p.type]+'">'+p.typeLabel+'</span></td>'
+      +'<td>'
+      +'<div style="display:flex;align-items:center;gap:8px;">'
+      +'<div class="prob-bar"><div class="prob-fill" style="width:'+p.prob+'%;background:'+probColor+';"></div></div>'
+      +'<span style="font-weight:600;color:'+probColor+';min-width:36px;">'+p.prob+'%</span>'
+      +'</div>'
+      +'</td>'
+      +'<td>'+p.platform+'</td>'
+      +'<td><span class="ant-tag '+statusClass[p.status]+'">'+statusLabel[p.status]+'</span></td>'
+      +'<td>'+actions+'</td>'
+      +'</tr>';
+  }).join('');
+
+  document.getElementById('totalCount').textContent = '共 '+filtered.length+' 条';
+}
+
+function filterByRegion(region){
+  currentRegion = region;
+  document.querySelectorAll('.tree-node').forEach(function(node){
+    node.classList.remove('active');
+    node.style.background='';
+    node.style.color='';
+    node.style.fontWeight='';
+  });
+  event.currentTarget.classList.add('active');
+  event.currentTarget.style.background='#e6f4ff';
+  event.currentTarget.style.color='#1677ff';
+  event.currentTarget.style.fontWeight='600';
+  renderTable();
+}
+
+function resetFilters(){
+  document.getElementById('searchInput').value='';
+  document.getElementById('filterLevel').value='';
+  document.getElementById('filterType').value='';
+  document.getElementById('filterStatus').value='';
+  currentRegion='all';
+  renderTable();
+}
+
+var currentHandleId = '';
+
+function confirmPredict(id){
+  currentHandleId = id;
+  document.getElementById('handleReason').value='';
+  document.getElementById('handleError').style.display='none';
+  document.getElementById('handleCharCount').textContent='0';
+  document.getElementById('handleDesc').textContent='确认已知晓预警 '+id+'，窗口期内系统将自动验证或过期。';
+  document.getElementById('handleModal').classList.add('active');
+}
+
+function inspectPredict(id){
+  if(!confirm('确认对预警 '+id+' 的设备发起巡检验证？\n\n系统将执行一次性即时巡检，结果写入处理记录。')) return;
+  alert('✅ 巡检已发起！\n\n设备巡检验证任务已提交，结果将在完成后写入处理记录时间轴。');
+  var p = predictions.find(function(x){return x.id===id;});
+  if(p) p.status='confirmed';
+  renderTable();
+}
+
+function closeHandleModal(){
+  document.getElementById('handleModal').classList.remove('active');
+  currentHandleId='';
+}
+
+function confirmHandle(){
+  var reason = document.getElementById('handleReason').value.trim();
+  alert('✅ 确认成功！\n\n故障预警 '+currentHandleId+' 已知晓'+(reason?'\n备注：'+reason:''));
+  closeHandleModal();
+  var p = predictions.find(function(x){return x.id===currentHandleId;});
+  if(p) p.status='confirmed';
+  renderTable();
+}
+
+document.getElementById('handleReason').addEventListener('input',function(){
+  document.getElementById('handleCharCount').textContent=this.value.length;
+});
+document.getElementById('handleModal').addEventListener('click',function(e){if(e.target===this)closeHandleModal();});
+
+function markAction(id, action){
+  currentMarkId = id;
+  currentMarkAction = action;
+  document.getElementById('markModalTitle').innerHTML = '<i class="fa-solid fa-xmark" style="margin-right:8px;color:#ff4d4f;"></i>标记误报';
+  document.getElementById('markModalLabel').textContent = '确认将此故障预警标记为「误报」？误报数据将作为模型优化反馈。';
+  document.getElementById('markReason').value='';
+  document.getElementById('markModal').classList.add('active');
+}
+
+function closeMarkModal(){
+  document.getElementById('markModal').classList.remove('active');
+  currentMarkId='';
+  currentMarkAction='';
+}
+
+function confirmMark(){
+  alert('✅ 操作成功！\n\n故障预警 '+currentMarkId+' 已标记为「误报」\n数据将作为模型优化反馈。');
+  closeMarkModal();
+  var p = predictions.find(function(x){return x.id===currentMarkId;});
+  if(p) p.status='false';
+  renderTable();
+}
+
+document.getElementById('markModal').addEventListener('click',function(e){if(e.target===this)closeMarkModal();});
+
+function switchMainTab(tab){
+  document.getElementById('tabList').style.color = tab==='list'?'var(--ant-primary)':'var(--ant-text-secondary)';
+  document.getElementById('tabList').style.borderBottomColor = tab==='list'?'var(--ant-primary)':'transparent';
+  document.getElementById('tabList').style.fontWeight = tab==='list'?'600':'400';
+  document.getElementById('tabConfig').style.color = tab==='config'?'var(--ant-primary)':'var(--ant-text-secondary)';
+  document.getElementById('tabConfig').style.borderBottomColor = tab==='config'?'var(--ant-primary)':'transparent';
+  document.getElementById('tabConfig').style.fontWeight = tab==='config'?'600':'400';
+  document.getElementById('panelList').style.display = tab==='list'?'':'none';
+  document.getElementById('panelConfig').style.display = tab==='config'?'':'none';
+}
+
+function saveConfig(){
+  alert('✅ 预警配置已保存！\n\n新配置仅对后续新生成的预警生效，已有预警等级不变。');
+}
+
+function toggleDropdown(btn){
+  var menu = btn.nextElementSibling;
+  var isOpen = menu.classList.contains('show');
+  // 先关闭所有
+  document.querySelectorAll('.action-dropdown-menu.show').forEach(function(m){m.classList.remove('show');});
+  if(!isOpen) menu.classList.add('show');
+}
+
+// 点击外部关闭下拉菜单
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.action-dropdown')){
+    document.querySelectorAll('.action-dropdown-menu.show').forEach(function(m){m.classList.remove('show');});
+  }
+});
+
+renderTable();
+</script>
+</body>
+</html>

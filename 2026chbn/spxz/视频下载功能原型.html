@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=1440">
     <title>监控视频管理 - 录像下载功能</title>
     <style>
-        :root{--bg-base:#14171d;--bg-panel:#1e2128;--bg-card:#21252b;--bg-hover:#282c34;--bg-active:#2a3040;--border:#2c313a;--border-light:#353b48;--text:#e0e4ea;--text-sec:#a0a8b4;--text-muted:#6b7380;--blue:#409eff;--blue-dim:rgba(64,158,255,.15);--green:#67c23a;--green-dim:rgba(103,194,58,.15);--red:#f56c6c;--red-dim:rgba(245,108,108,.15);--orange:#e6a23c;--orange-dim:rgba(230,162,60,.15);--purple:#9b59b6;--purple-dim:rgba(155,89,182,.15);--cyan:#36cfc9;--radius:6px;--font:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;--mono:'SF Mono','Cascadia Code','Consolas',monospace}
+        :root{--bg-base:#f5f6f8;--bg-panel:#fff;--bg-card:#fff;--bg-hover:#f2f3f5;--bg-active:#e8f3ff;--border:#e5e6eb;--border-light:#c9cdd4;--text:#1d2129;--text-sec:#4e5969;--text-muted:#86909c;--blue:#3370ff;--blue-dim:rgba(51,112,255,.1);--green:#00b42a;--green-dim:rgba(0,180,42,.1);--red:#f53f3f;--red-dim:rgba(245,63,63,.1);--orange:#ff7d00;--orange-dim:rgba(255,125,0,.1);--purple:#722ed1;--purple-dim:rgba(114,46,209,.1);--cyan:#14c9c9;--radius:6px;--font:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;--mono:'SF Mono','Cascadia Code','Consolas',monospace}
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:var(--font);background:var(--bg-base);color:var(--text);height:100vh;overflow:hidden;display:flex;font-size:13px}
 
@@ -26,32 +26,33 @@
         .app-view{display:flex;flex-direction:column;flex:1;overflow:hidden}
         .app-view.hidden{display:none}
         input,select,button{font-family:var(--font);font-size:13px}
-        ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#353b48;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#4a5568}
+        ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#c9cdd4;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#a0a8b4}
         .btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:var(--radius);cursor:pointer;border:1px solid var(--border);background:var(--bg-card);color:var(--text);transition:.15s;white-space:nowrap;font-size:12px}
         .btn:hover{background:var(--bg-hover);border-color:var(--border-light)}
         .btn-primary{background:transparent;border-color:var(--blue);color:var(--blue)}.btn-primary:hover{background:var(--blue-dim)}
         .btn-danger{background:transparent;border-color:var(--border);color:var(--red)}.btn-danger:hover{background:var(--red-dim);border-color:var(--red)}
         .btn-ghost{background:transparent;border:1px solid var(--text-muted);color:var(--text-sec)}.btn-ghost:hover{color:var(--text);border-color:var(--text-sec)}
+        .btn-action{width:100%;padding:10px 0;font-size:14px;font-weight:600;justify-content:center;border:1px solid var(--blue);color:var(--blue);background:var(--blue-dim);transition:.15s}.btn-action:hover{background:var(--blue);color:#fff}
         .btn-sm{padding:4px 10px;font-size:11px}
         .btn:disabled{opacity:.4;cursor:not-allowed}
         .tag{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:500}
-        .tag-blue{background:var(--blue-dim);color:var(--blue)}.tag-green{background:var(--green-dim);color:var(--green)}.tag-red{background:var(--red-dim);color:var(--red)}.tag-orange{background:var(--orange-dim);color:var(--orange)}.tag-purple{background:var(--purple-dim);color:var(--purple)}.tag-gray{background:#2c313a;color:var(--text-muted)}
+        .tag-blue{background:var(--blue-dim);color:var(--blue)}.tag-green{background:var(--green-dim);color:var(--green)}.tag-red{background:var(--red-dim);color:var(--red)}.tag-orange{background:var(--orange-dim);color:var(--orange)}.tag-purple{background:var(--purple-dim);color:var(--purple)}.tag-gray{background:#f2f3f5;color:var(--text-muted)}
         .form-ctrl{padding:7px 10px;background:var(--bg-base);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);outline:none;transition:.15s}.form-ctrl:focus{border-color:var(--blue)}.form-ctrl::placeholder{color:var(--text-muted)}
         select.form-ctrl{cursor:pointer}
-        .progress{height:5px;background:#2c313a;border-radius:3px;overflow:hidden}.progress-fill{height:100%;border-radius:3px;transition:width .3s}
-        .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:200}.modal-mask.show{display:flex}
-        .modal{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.5);max-width:92%;overflow:hidden}
+        .progress{height:5px;background:#e5e6eb;border-radius:3px;overflow:hidden}.progress-fill{height:100%;border-radius:3px;transition:width .3s}
+        .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.3);display:none;align-items:center;justify-content:center;z-index:200}.modal-mask.show{display:flex}
+        .modal{background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.12);max-width:92%;overflow:hidden}
         .modal-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:14px}
         .modal-bd{padding:18px;max-height:60vh;overflow-y:auto}
         .modal-ft{padding:12px 18px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
         .close-x{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:2px 4px}.close-x:hover{color:var(--text)}
         .form-row{display:flex;gap:12px;margin-bottom:14px}.form-group{display:flex;flex-direction:column;gap:5px;flex:1}.form-group label{font-size:12px;color:var(--text-sec);font-weight:500}
         .toast-box{position:fixed;top:16px;right:16px;z-index:300;display:flex;flex-direction:column;gap:6px}
-        .toast{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:8px;font-size:13px;border-left:3px solid var(--blue);box-shadow:0 4px 12px rgba(0,0,0,.3);animation:slideR .25s ease;min-width:260px}
+        .toast{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:8px;font-size:13px;border-left:3px solid var(--blue);box-shadow:0 4px 16px rgba(0,0,0,.1);animation:slideR .25s ease;min-width:260px}
         @keyframes slideR{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
 
         /* 顶部导航 */
-        .topbar{height:44px;background:var(--bg-card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:14px;flex-shrink:0;z-index:50}
+        .topbar{height:44px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:14px;flex-shrink:0;z-index:50}
         .topbar .logo{font-weight:700;font-size:14px;color:var(--blue);display:flex;align-items:center;gap:7px;white-space:nowrap}
         .topbar .logo .ico{width:26px;height:26px;background:var(--blue);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
         .topbar .sep{width:1px;height:20px;background:var(--border)}
@@ -59,7 +60,7 @@
         .topbar .dot-sm{width:7px;height:7px;border-radius:50%;display:inline-block}
         .topbar .dot-sm.g{background:var(--green)}.topbar .dot-sm.r{background:var(--text-muted)}
         .topbar .spacer{flex:1}
-        .topbar .nav-btn{position:relative;background:var(--bg-hover);border:1px solid var(--border);border-radius:var(--radius);padding:5px 12px;color:var(--text-sec);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:5px}.topbar .nav-btn:hover{border-color:var(--blue);color:var(--text)}
+        .topbar .nav-btn{position:relative;background:#f7f8fa;border:1px solid var(--border);border-radius:var(--radius);padding:5px 12px;color:var(--text-sec);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:5px}.topbar .nav-btn:hover{border-color:var(--blue);color:var(--text)}
         .topbar .nav-btn.active{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
         .topbar .badge{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;background:var(--red);color:#fff;font-size:10px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:600}
         .topbar .avatar{width:28px;height:28px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;cursor:pointer}
@@ -85,12 +86,12 @@
 
         /* 中央区域 */
         .center{flex:1;display:flex;flex-direction:column;min-width:0}
-        .src-tabs{display:flex;gap:0;background:var(--bg-card);border-bottom:1px solid var(--border);flex-shrink:0;padding:0 12px}
+        .src-tabs{display:flex;gap:0;background:#fff;border-bottom:1px solid var(--border);flex-shrink:0;padding:0 12px}
         .src-tab{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--text-muted);border-bottom:2px solid transparent;transition:.15s;display:flex;align-items:center;gap:6px;user-select:none}
         .src-tab:hover{color:var(--text);background:var(--bg-hover)}.src-tab.on{color:var(--blue);border-color:var(--blue);font-weight:600}
         .src-tab .dot-live{width:8px;height:8px;background:var(--red);border-radius:50%;animation:pulse 1.2s infinite}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-        .vid-wrap{flex:1;position:relative;background:#0d0f13;display:flex;align-items:center;justify-content:center;min-height:0}
+        .vid-wrap{flex:1;position:relative;background:#1a1c21;display:flex;align-items:center;justify-content:center;min-height:0}
         .vid-wrap .no-sig{text-align:center;color:var(--text-muted)}.vid-wrap .no-sig .big{font-size:48px;margin-bottom:10px}
         .vid-overlay{position:absolute;top:10px;left:12px;display:flex;align-items:center;gap:8px;font-size:11px;color:#aaa;z-index:5}
         .vid-overlay .rec-dot{width:8px;height:8px;background:var(--red);border-radius:50%;animation:pulse 1.2s infinite}
@@ -138,25 +139,17 @@
 
         /* 任务中心独立页面 */
         .task-page{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg-base)}
-        .task-page-hd{padding:16px 20px 0;flex-shrink:0}
-        .task-page-hd h2{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-        .stat-row{display:flex;gap:12px;margin-bottom:16px}
-        .stat-card{flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;display:flex;align-items:center;gap:10px}
-        .stat-card .stat-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-        .stat-card .stat-icon.blue{background:var(--blue-dim);color:var(--blue)}.stat-card .stat-icon.orange{background:var(--orange-dim);color:var(--orange)}.stat-card .stat-icon.green{background:var(--green-dim);color:var(--green)}.stat-card .stat-icon.red{background:var(--red-dim);color:var(--red)}
-        .stat-card .stat-val{font-size:22px;font-weight:700;line-height:1}.stat-card .stat-lbl{font-size:11px;color:var(--text-muted);margin-top:2px}
-        .task-toolbar{display:flex;align-items:center;gap:10px;padding:0 20px 12px;flex-shrink:0;border-bottom:1px solid var(--border)}
-        .task-toolbar .tabs{display:flex;gap:0}
-        .task-toolbar .tab{padding:6px 14px;cursor:pointer;font-size:12px;color:var(--text-muted);border-bottom:2px solid transparent;transition:.15s;user-select:none}
-        .task-toolbar .tab:hover{color:var(--text)}.task-toolbar .tab.on{color:var(--blue);border-color:var(--blue);font-weight:600}
+        .task-page-hd{padding:20px 24px 0;flex-shrink:0}
+        .task-page-hd h2{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:var(--text)}
+        .task-toolbar{display:flex;align-items:center;gap:8px;padding:0 24px 12px;flex-shrink:0;border-bottom:1px solid var(--border)}
         .task-toolbar .spacer{flex:1}
-        .task-table-wrap{flex:1;overflow-y:auto;padding:0 20px 20px}
+        .task-table-wrap{flex:1;overflow-y:auto;padding:0 24px 20px}
         .task-table{width:100%;border-collapse:collapse}
         .task-table th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;background:var(--bg-base);z-index:1}
-        .task-table td{padding:10px 12px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:middle}
+        .task-table td{padding:10px 12px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text-sec)}
         .task-table tr:hover td{background:var(--bg-hover)}
-        .task-table .tk-id{font-family:var(--mono);font-size:11px;color:var(--text-sec)}
-        .task-table .tk-name-cell{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .task-table .tk-id{font-family:var(--mono);font-size:11px;color:var(--text-muted)}
+        .task-table .tk-name-cell{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
         .task-table .tk-actions{display:flex;gap:4px}
         .task-empty{text-align:center;color:var(--text-muted);padding:60px 20px;font-size:13px}
 
@@ -169,9 +162,9 @@
         .adv-body.open{max-height:300px;opacity:1}
         .adv-body .form-row{margin-top:8px;margin-bottom:0}
 
-        .proto-note{font-size:11px;padding:8px 10px;background:rgba(54,207,201,.1);border-left:3px solid var(--cyan);border-radius:var(--radius);margin-bottom:14px;color:var(--cyan);display:flex;align-items:center;gap:6px;line-height:1.6}
+        .proto-note{font-size:11px;padding:8px 10px;background:rgba(20,201,201,.08);border-left:3px solid var(--cyan);border-radius:var(--radius);margin-bottom:14px;color:#0c8a8a;display:flex;align-items:center;gap:6px;line-height:1.6}
         .proto-note b{color:var(--text)}
-        .warn-banner{padding:10px 12px;background:var(--orange-dim);border-radius:var(--radius);margin-bottom:14px;color:var(--orange);font-size:12px;border-left:3px solid var(--orange);line-height:1.6}
+        .warn-banner{padding:10px 12px;background:var(--orange-dim);border-radius:var(--radius);margin-bottom:14px;color:#d25f00;font-size:12px;border-left:3px solid var(--orange);line-height:1.6}
         .warn-banner b{color:var(--text)}
     </style>
 </head>
@@ -182,8 +175,8 @@
     <div class="sidebar-hd">📹 录像管理</div>
     <div class="menu-group">
         <div class="menu-group-label">功能</div>
-        <div class="menu-item on" data-view="download" onclick="switchView('download')"><span class="mi-icon">📹</span>视频下载</div>
-        <div class="menu-item" data-view="tasks" onclick="switchView('tasks')"><span class="mi-icon">📋</span>任务中心<span class="mi-badge" id="taskBadge">4</span></div>
+        <div class="menu-item on" data-view="download" onclick="switchView('download')"><span class="mi-icon">📹</span>录像管理</div>
+        <div class="menu-item" data-view="tasks" onclick="switchView('tasks')"><span class="mi-icon">📋</span>任务中心<span class="mi-badge" id="taskBadge">2</span></div>
     </div>
     <div class="menu-footer">
         <div class="menu-item" title="通知"><span class="mi-icon">🔔</span>系统通知</div>
@@ -232,6 +225,8 @@
             <div class="spacer"></div><span class="time-lbl" id="playTime">00:00:00 / 00:30:00</span>
             <button onclick="toggleFullscreen()">⛶ 全屏</button>
         </div>
+        <!-- 实时预览：录制视频按钮（悬浮在视频区右下角） -->
+        <button class="btn" id="btnRecord" onclick="openRecordModal()" style="display:none;position:absolute;bottom:56px;right:14px;z-index:10;padding:8px 14px;font-size:13px;font-weight:600;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.4);background:rgba(245,108,108,.85);border:1px solid rgba(245,108,108,.6);color:#fff">🔴 录制视频</button>
     </div>
     <div class="tl-area" id="tlArea">
         <div class="tl-hd">
@@ -258,9 +253,10 @@
     </div>
     <div class="rpanel-body" id="rpBody"></div>
     <!-- 片段操作栏（根据源动态显隐） -->
-    <div id="segActions" style="display:none;padding:8px 10px;border-top:1px solid var(--border);flex-shrink:0;gap:6px">
-        <button class="btn btn-sm" id="btnPull" onclick="openPullModal()" style="display:none">📥 拉流到云端</button>
-        <button class="btn btn-sm btn-primary" id="btnMerge" onclick="openMergeModal()">🔗 合并下载</button>
+    <div id="segActions" style="display:none;padding:12px;border-top:1px solid var(--border);flex-shrink:0;flex-direction:column;gap:8px">
+        <div id="selInfo" style="font-size:12px;color:var(--text-muted);text-align:center;margin-bottom:2px"></div>
+        <button class="btn btn-action" id="btnPull" onclick="openPullModal()" style="display:none">📥 拉流到云端</button>
+        <button class="btn btn-action" id="btnBatch" onclick="openBatchModal()" style="display:none">📥 批量下载</button>
     </div>
 </aside>
 
@@ -273,22 +269,28 @@
     <div class="task-page">
         <div class="task-page-hd">
             <h2>📋 任务中心</h2>
-            <div class="stat-row">
-                <div class="stat-card"><div class="stat-icon blue">🔄</div><div><div class="stat-val" id="statRunning">0</div><div class="stat-lbl">进行中</div></div></div>
-                <div class="stat-card"><div class="stat-icon orange">⏳</div><div><div class="stat-val" id="statQueued">0</div><div class="stat-lbl">队列中</div></div></div>
-                <div class="stat-card"><div class="stat-icon green">✅</div><div><div class="stat-val" id="statDone">0</div><div class="stat-lbl">已完成</div></div></div>
-                <div class="stat-card"><div class="stat-icon red">❌</div><div><div class="stat-val" id="statFail">0</div><div class="stat-lbl">失败</div></div></div>
-            </div>
         </div>
         <div class="task-toolbar">
-            <div class="tabs">
-                <div class="tab on" onclick="filterTasks(this,'all')">全部</div>
-                <div class="tab" onclick="filterTasks(this,'pull')">拉流</div>
-                <div class="tab" onclick="filterTasks(this,'record')">录像</div>
-                <div class="tab" onclick="filterTasks(this,'download')">下载</div>
-            </div>
+            <input class="form-ctrl" placeholder="搜索设备名称..." id="taskSearch" oninput="renderTaskTable()" style="width:180px">
+            <select class="form-ctrl" id="taskTypeFilter" onchange="renderTaskTable()" style="width:100px">
+                <option value="all">全部类型</option>
+                <option value="pull">拉流</option>
+                <option value="record">录像</option>
+            </select>
+            <select class="form-ctrl" id="taskStatusFilter" onchange="renderTaskTable()" style="width:100px">
+                <option value="all">全部状态</option>
+                <option value="running">进行中</option>
+                <option value="queued">队列中</option>
+                <option value="done">已完成</option>
+                <option value="fail">失败</option>
+            </select>
+            <select class="form-ctrl" id="taskTimeFilter" onchange="renderTaskTable()" style="width:120px">
+                <option value="all">全部时间</option>
+                <option value="today">今天</option>
+                <option value="7d">最近 7 天</option>
+                <option value="30d">最近 30 天</option>
+            </select>
             <div class="spacer"></div>
-            <input class="form-ctrl" placeholder="搜索任务..." id="taskSearch" oninput="renderTaskTable()" style="width:200px">
         </div>
         <div class="task-table-wrap">
             <table class="task-table">
@@ -325,34 +327,19 @@
     <div class="modal-ft"><button class="btn" onclick="closeM('mPull')">取消</button><button class="btn btn-primary" onclick="submitPull()">开始拉取</button></div>
 </div></div>
 
-<!-- ==================== 弹窗：合并下载 ==================== -->
-<div class="modal-mask" id="mMerge"><div class="modal" style="width:560px">
-    <div class="modal-hd"><span>🔗 合并视频下载</span><button class="close-x" onclick="closeM('mMerge')">✕</button></div>
+<!-- ==================== 弹窗：批量下载 ==================== -->
+<div class="modal-mask" id="mBatch"><div class="modal" style="width:480px">
+    <div class="modal-hd"><span>📥 批量下载</span><button class="close-x" onclick="closeM('mBatch')">✕</button></div>
     <div class="modal-bd">
-        <div id="mrgMixWarn" class="warn-banner" style="display:none">⚠ 所选片段编码不一致（含 <b>H.264</b> 和 <b>H.265</b>），无法直接合成。请在<b>高级选项</b>中选择「强制 H.264」或「强制 H.265」，或分别合成。</div>
-        <div class="proto-note"><span>📦</span><span>输出格式：<b>MP4</b>　|　编码：与源一致（H.264 或 H.265），不主动转码　|　分辨率/码率：保留源参数</span></div>
+        <div class="proto-note"><span>📦</span><span>每个片段独立下载为 MP4 文件，通过浏览器直接保存到本地。单次最多 20 个片段。</span></div>
         <div style="display:flex;gap:16px;margin-bottom:14px;padding:12px;background:var(--bg-base);border-radius:var(--radius)">
-            <div style="text-align:center;flex:1"><div style="font-size:24px;font-weight:700;color:var(--blue)" id="mrgCnt">0</div><div style="font-size:11px;color:var(--text-muted)">片段</div></div>
-            <div style="text-align:center;flex:1"><div style="font-size:24px;font-weight:700;color:var(--blue)" id="mrgDur">0 分钟</div><div style="font-size:11px;color:var(--text-muted)">总时长</div></div>
-            <div style="text-align:center;flex:1"><div style="font-size:24px;font-weight:700;color:var(--blue)" id="mrgSize">0 MB</div><div style="font-size:11px;color:var(--text-muted)">预估大小</div></div>
+            <div style="text-align:center;flex:1"><div style="font-size:24px;font-weight:700;color:var(--blue)" id="batCnt">0</div><div style="font-size:11px;color:var(--text-muted)">片段</div></div>
+            <div style="text-align:center;flex:1"><div style="font-size:24px;font-weight:700;color:var(--blue)" id="batDur">0 分钟</div><div style="font-size:11px;color:var(--text-muted)">总时长</div></div>
+            <div style="text-align:center;flex:1"><div style="font-size:24px;font-weight:700;color:var(--blue)" id="batSize">0 MB</div><div style="font-size:11px;color:var(--text-muted)">预估大小</div></div>
         </div>
-        <div class="form-row"><div class="form-group"><label>输出容器</label><input class="form-ctrl" value="MP4" disabled></div><div class="form-group"><label>视频编码</label><input class="form-ctrl" id="mrgEncInfo" value="H.264" disabled></div></div>
-        <div class="form-group" style="margin-bottom:14px"><label>文件名</label><input class="form-ctrl" id="mrgName" value="合并视频_20260514"></div>
-        <div class="form-group"><label>片段详情</label><div style="background:var(--bg-base);border:1px solid var(--border);border-radius:var(--radius);max-height:140px;overflow-y:auto"><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="border-bottom:1px solid var(--border)"><th style="padding:6px 8px;text-align:left;color:var(--text-muted)">#</th><th style="padding:6px 8px;text-align:left;color:var(--text-muted)">时间</th><th style="padding:6px 8px;text-align:left;color:var(--text-muted)">类型</th><th style="padding:6px 8px;text-align:left;color:var(--text-muted)">编码</th><th style="padding:6px 8px;text-align:left;color:var(--text-muted)">大小</th></tr></thead><tbody id="mrgTbody"></tbody></table></div></div>
-
-        <!-- 合并下载高级选项 -->
-        <div class="adv-toggle" onclick="toggleAdv(this)"><span class="adv-arrow">▸</span> 高级选项</div>
-        <div class="adv-body">
-            <div class="form-row">
-                <div class="form-group"><label>视频编码策略</label><select class="form-ctrl" id="mrgCodecSel" onchange="onMergeCodecChange()"><option value="native">自适应（与源一致）</option><option value="h264">强制 H.264</option><option value="h265">强制 H.265</option></select></div>
-                <div class="form-group"><label>输出分辨率</label><select class="form-ctrl" id="mrgResSel" onchange="onMergeResChange()"><option value="original">原始</option><option value="1080p">1080p</option><option value="720p">720p</option></select></div>
-            </div>
-            <div id="mrgCodecHint" style="font-size:10px;color:var(--text-muted);margin-top:4px">自适应：不转码，速度快画质无损；选强制编码可解决混合编码问题，但耗时较长（+3~10 分钟）</div>
-        </div>
-
-        <div style="font-size:11px;color:var(--text-muted);margin-top:6px">ℹ 合成后保存云端，保留 7 天。单次最多 20 个片段，总时长 ≤ 4 小时。详细规范见 PRD 6.4。</div>
+        <div class="form-group"><label>片段详情</label><div style="background:var(--bg-base);border:1px solid var(--border);border-radius:var(--radius);max-height:200px;overflow-y:auto"><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="border-bottom:1px solid var(--border)"><th style="padding:6px 8px;text-align:left;color:var(--text-muted)">#</th><th style="padding:6px 8px;text-align:left;color:var(--text-muted)">起止时间</th><th style="padding:6px 8px;text-align:left;color:var(--text-muted)">大小</th></tr></thead><tbody id="batTbody"></tbody></table></div></div>
     </div>
-    <div class="modal-ft"><button class="btn" onclick="closeM('mMerge')">取消</button><button class="btn btn-primary" id="mrgSubmitBtn" onclick="submitMerge()">开始合并</button></div>
+    <div class="modal-ft"><button class="btn" onclick="closeM('mBatch')">取消</button><button class="btn btn-primary" onclick="submitBatch()">确认下载</button></div>
 </div></div>
 
 <!-- ==================== 弹窗：任务详情 ==================== -->
@@ -362,9 +349,9 @@
     <div class="modal-ft"><button class="btn" onclick="closeM('mDetail')">关闭</button><button class="btn btn-primary" id="detailRetryBtn" onclick="toast('已重新提交','success');closeM('mDetail')">手动重试</button></div>
 </div></div>
 
-<!-- ==================== 弹窗：手动录像 ==================== -->
+<!-- ==================== 弹窗：录制视频 ==================== -->
 <div class="modal-mask" id="mRecord"><div class="modal" style="width:480px">
-    <div class="modal-hd"><span>🔴 手动录像</span><button class="close-x" onclick="closeM('mRecord')">✕</button></div>
+    <div class="modal-hd"><span>🔴 录制视频</span><button class="close-x" onclick="closeM('mRecord')">✕</button></div>
     <div class="modal-bd">
         <div class="proto-note"><span>🎥</span><span>录像源协议：<b>RTSP</b> · <b>GB/T 28181</b>　|　输出：<b>MP4</b>（与源编码一致，不主动转码）</span></div>
         <div class="form-row"><div class="form-group"><label>设备</label><input class="form-ctrl" id="recDev" value="" disabled></div></div>
@@ -403,22 +390,12 @@ var nvrData={
 var cloudData={d1:[{s:'00:00',e:'02:30',type:'continuous',sz:'642 MB'},{s:'06:00',e:'07:00',type:'continuous',sz:'260 MB'}],d2:[],d3:[],d4:[],d5:[],d6:[],d7:[]};
 var allTasks=[
     {id:'PL-001',cat:'pull',icon:'📥',name:'大门摄像头1 拉流',detail:'CH-01 · 09:00-10:30',status:'running',pct:65,speed:'2.4 MB/s',startTime:'2026-05-26 09:15',endTime:''},
-    {id:'MR-001',cat:'record',icon:'🔴',name:'停车场摄像头 手动录像',detail:'CH-01 · 设定 2 小时',status:'running',pct:69,speed:'',startTime:'2026-05-26 08:00',endTime:''},
-    {id:'MG-001',cat:'merge',icon:'🔗',name:'大门摄像头1 合成',detail:'5 个片段 · 2.5 小时 · 预估 650 MB',status:'running',pct:42,speed:'3.2 MB/s',startTime:'2026-05-26 10:15',endTime:''},
-    {id:'DL-001',cat:'download',icon:'📥',name:'大门摄像头1 下载',detail:'00:00-02:30 · 632 MB',status:'running',pct:0,speed:'12.5 MB/s',startTime:'2026-05-26 10:20',endTime:''},
+    {id:'MR-001',cat:'record',icon:'🔴',name:'停车场摄像头 录制视频',detail:'CH-01 · 设定 2 小时',status:'running',pct:69,speed:'',startTime:'2026-05-26 08:00',endTime:''},
     {id:'PL-002',cat:'pull',icon:'📥',name:'走廊摄像头 拉流',detail:'CH-01 · 07:00-19:00',status:'done',pct:100,speed:'',startTime:'2026-05-26 08:30',endTime:'2026-05-26 10:05'},
-    {id:'MG-002',cat:'merge',icon:'🔗',name:'周报视频 合成',detail:'3 片段 · 210 分钟 · 2.1 GB',status:'done',pct:100,speed:'',startTime:'2026-05-25 16:20',endTime:'2026-05-25 17:05'},
-    {id:'DL-002',cat:'download',icon:'📥',name:'侧门摄像头3 下载',detail:'05-13 · 560 MB',status:'done',pct:100,speed:'',startTime:'2026-05-25 14:00',endTime:'2026-05-25 14:12'},
-    {id:'PL-003',cat:'pull',icon:'📥',name:'仓库摄像头1 拉流',detail:'CH-02 · 设备连接超时',status:'fail',pct:30,speed:'',startTime:'2026-05-26 10:05',endTime:'2026-05-26 10:07'},
-    {id:'DL-003',cat:'download',icon:'📥',name:'后门摄像头 下载',detail:'05-10 · 网络超时',status:'fail',pct:15,speed:'',startTime:'2026-05-10 09:30',endTime:'2026-05-10 09:32'}
+    {id:'MR-002',cat:'record',icon:'🔴',name:'大门摄像头2 录制视频',detail:'CH-01 · 设定 1 小时',status:'done',pct:100,speed:'',startTime:'2026-05-25 16:20',endTime:'2026-05-25 17:20'},
+    {id:'PL-003',cat:'pull',icon:'📥',name:'仓库摄像头1 拉流',detail:'CH-02 · 设备连接超时',status:'fail',pct:30,speed:'',startTime:'2026-05-26 10:05',endTime:'2026-05-26 10:07'}
 ];
 var selSegs=[],curDev=null,curSrc='live';
-
-// ===== 片段编码 Mock（合并下载混合编码拦截用） =====
-function segEnc(devId,src,idx){
-    if(devId==='d1'&&src==='cloud'&&idx===1)return 'H.265';
-    return 'H.264';
-}
 
 // ===== 设备树 =====
 function renderDevTree(){
@@ -450,14 +427,22 @@ function selectDev(id){
     showVideo();renderTimeline();renderRightPanel();
     var segActions=document.getElementById('segActions');
     var btnPull=document.getElementById('btnPull');
+    var btnBatch=document.getElementById('btnBatch');
+    var btnRecord=document.getElementById('btnRecord');
     var tlArea=document.getElementById('tlArea');
+    var rpanel=document.querySelector('.rpanel');
     if(curSrc==='live'){
         segActions.style.display='none';
         tlArea.style.display='none';
+        rpanel.style.display='none';
+        if(btnRecord)btnRecord.style.display='flex';
     } else {
         segActions.style.display='flex';
-        btnPull.style.display=curSrc==='nvr'?'inline-flex':'none';
+        btnPull.style.display=curSrc==='nvr'?'flex':'none';
+        btnBatch.style.display=curSrc==='cloud'?'flex':'none';
         tlArea.style.display='block';
+        rpanel.style.display='flex';
+        if(btnRecord)btnRecord.style.display='none';
     }
 }
 function toggleDevPanel(){document.getElementById('devPanel').classList.toggle('collapsed')}
@@ -470,17 +455,25 @@ function switchSrc(src){
     document.querySelectorAll('.src-tab').forEach(function(t){t.classList.toggle('on',t.dataset.src===src)});
     if(curDev&&curDev.status!=='offline'){showVideo();renderTimeline()}
     renderRightPanel();
-    // 按钮显隐：实时预览隐藏操作栏
+    // 按钮显隐：实时预览隐藏操作栏+右面板，视频撑满；NVR仅拉流；云端仅批量下载
     var segActions=document.getElementById('segActions');
     var btnPull=document.getElementById('btnPull');
+    var btnBatch=document.getElementById('btnBatch');
+    var btnRecord=document.getElementById('btnRecord');
     var tlArea=document.getElementById('tlArea');
+    var rpanel=document.querySelector('.rpanel');
     if(src==='live'){
         segActions.style.display='none';
         tlArea.style.display='none';
+        rpanel.style.display='none';
+        if(btnRecord)btnRecord.style.display='flex';
     } else {
         segActions.style.display='flex';
-        btnPull.style.display=src==='nvr'?'inline-flex':'none';
+        btnPull.style.display=src==='nvr'?'flex':'none';
+        btnBatch.style.display=src==='cloud'?'flex':'none';
         tlArea.style.display='block';
+        rpanel.style.display='flex';
+        if(btnRecord)btnRecord.style.display='none';
     }
 }
 
@@ -500,17 +493,39 @@ function showVideo(){
 // ===== 时间轴 =====
 function renderTimeline(){
     if(!curDev)return;
+    var nvrRow=document.getElementById('tlNvr').parentElement;
+    var cloudRow=document.getElementById('tlCloud').parentElement;
     var nvrBar=document.getElementById('tlNvr'),cloudBar=document.getElementById('tlCloud');
     nvrBar.innerHTML='';cloudBar.innerHTML='';
+    // NVR回放：显示两行，云端行不可点击（灰色）；云端回放：隐藏NVR行
+    if(curSrc==='cloud'){
+        nvrRow.style.display='none';cloudRow.style.display='flex';
+    } else if(curSrc==='nvr'){
+        nvrRow.style.display='flex';cloudRow.style.display='flex';
+    } else {
+        nvrRow.style.display='flex';cloudRow.style.display='flex';
+    }
+    // NVR片段：NVR回放可点击，其他源仅展示
+    var nvrClickable=curSrc==='nvr';
     (nvrData[curDev.id]||[]).forEach(function(seg,i){
         var cls=seg.type==='motion'?'motion':seg.type==='manual'?'manual':'nvr';
         var left=timeToPct(seg.s),w=timeToPct(seg.e)-left;
-        nvrBar.innerHTML+='<div class="tl-seg '+cls+'" style="left:'+left+'%;width:'+w+'%" onclick="event.stopPropagation();toggleSegSel(\''+curDev.id+'\',\'nvr\','+i+')" title="'+seg.s+'-'+seg.e+'"></div>';
+        if(nvrClickable){
+            nvrBar.innerHTML+='<div class="tl-seg '+cls+'" style="left:'+left+'%;width:'+w+'%" onclick="event.stopPropagation();toggleSegSel(\''+curDev.id+'\',\'nvr\','+i+')" title="'+seg.s+'-'+seg.e+'"></div>';
+        } else {
+            nvrBar.innerHTML+='<div class="tl-seg '+cls+'" style="left:'+left+'%;width:'+w+'%;opacity:.3;pointer-events:none" title="'+seg.s+'-'+seg.e+'"></div>';
+        }
     });
+    // 云端片段：云端回放可点击，NVR回放不可点击（灰色）
+    var cloudClickable=curSrc==='cloud';
     (cloudData[curDev.id]||[]).forEach(function(seg,i){
         var cls=seg.type==='motion'?'motion':seg.type==='manual'?'manual':'cloud';
         var left=timeToPct(seg.s),w=timeToPct(seg.e)-left;
-        cloudBar.innerHTML+='<div class="tl-seg '+cls+'" style="left:'+left+'%;width:'+w+'%" onclick="event.stopPropagation();toggleSegSel(\''+curDev.id+'\',\'cloud\','+i+')" title="'+seg.s+'-'+seg.e+'"></div>';
+        if(cloudClickable){
+            cloudBar.innerHTML+='<div class="tl-seg '+cls+'" style="left:'+left+'%;width:'+w+'%" onclick="event.stopPropagation();toggleSegSel(\''+curDev.id+'\',\'cloud\','+i+')" title="'+seg.s+'-'+seg.e+'"></div>';
+        } else {
+            cloudBar.innerHTML+='<div class="tl-seg '+cls+'" style="left:'+left+'%;width:'+w+'%;opacity:.3;pointer-events:none" title="'+seg.s+'-'+seg.e+'"></div>';
+        }
     });
     highlightSel();
 }
@@ -528,6 +543,11 @@ function highlightSel(){
         var parts=k.split('_'),segIdx=parseInt(parts[2]),bar=document.getElementById(parts[1]==='nvr'?'tlNvr':'tlCloud'),segs=bar.querySelectorAll('.tl-seg');
         if(segs[segIdx])segs[segIdx].classList.add('sel');
     });
+    // 更新已选数量提示
+    var selInfo=document.getElementById('selInfo');
+    if(selInfo){
+        selInfo.textContent=selSegs.length>0?'已选 '+selSegs.length+' 个片段':'点击片段卡片或时间轴选取';
+    }
 }
 // ===== 右侧面板 =====
 function renderRightPanel(){
@@ -535,7 +555,7 @@ function renderRightPanel(){
     if(!curDev){body.innerHTML='<div class="rpanel-empty">请在左侧选择设备</div>';return}
     if(curSrc==='live'){
         icon.textContent='📡';title.textContent='实时预览';dateRow.style.display='none';
-        body.innerHTML='<div class="rpanel-empty"><div style="font-size:32px;margin-bottom:8px">📡</div><div>实时预览模式</div><div style="margin-top:6px;font-size:11px">正在观看 '+curDev.name+' 的实时视频流</div><div style="margin-top:16px"><button class="btn btn-sm btn-primary" onclick="openRecordModal()">🔴 手动录像</button></div></div>';
+        body.innerHTML='<div class="rpanel-empty"><div style="font-size:32px;margin-bottom:8px">📡</div><div>实时预览模式</div><div style="margin-top:6px;font-size:11px">正在观看 '+curDev.name+' 的实时视频流</div></div>';
         return;
     }
     dateRow.style.display='flex';
@@ -550,7 +570,7 @@ function renderRightPanel(){
         var t=typeMap[s.type]||typeMap.continuous;
         var isSel=selSegs.indexOf(curDev.id+'_'+curSrc+'_'+i)>=0;
         html+='<div class="vid-card'+(isSel?' on':'')+'" onclick="toggleSegSel(\''+curDev.id+'\',\''+curSrc+'\','+i+')">';
-        html+='<div class="vc-hd"><label style="display:flex;align-items:center;gap:6px;cursor:pointer" onclick="event.stopPropagation()"><input type="checkbox" class="rp-cb" data-idx="'+i+'"'+(isSel?' checked':'')+' onchange="toggleSegSel(\''+curDev.id+'\',\''+curSrc+'\','+i+')" style="accent-color:var(--blue)"></label><span class="vc-time">'+s.s+' - '+s.e+'</span><span class="tag '+t.tag+'">'+t.label+'</span></div>';
+        html+='<div class="vc-hd"><label style="display:flex;align-items:center;gap:6px;cursor:pointer" onclick="event.stopPropagation()"><input type="checkbox" class="rp-cb" data-idx="'+i+'"'+(isSel?' checked':'')+' onchange="toggleSegSel(\''+curDev.id+'\',\''+curSrc+'\','+i+')" style="accent-color:var(--blue)"></label><span class="vc-time">'+s.s+' - '+s.e+'</span></div>';
         html+='<div class="vc-bar"><div class="vc-seg" style="background:var(--'+(s.type==='motion'?'orange':s.type==='manual'?'purple':'blue')+');opacity:.4"></div></div>';
         html+='<div class="vc-meta"><span>'+s.sz+'</span><span>30 分钟</span></div>';
         html+='<div class="vc-actions"><button class="btn btn-sm" onclick="event.stopPropagation();playSeg(\''+s.s+'\',\''+s.e+'\')">▶ 播放</button></div>';
@@ -573,7 +593,7 @@ function toggleAllRpSegs(){
 function playSeg(s,e){showVideo();document.getElementById('playTime').textContent=s+':00 / '+e+':00';toast('正在播放 '+s+' - '+e,'info')}
 function chgDate(d){var inp=document.getElementById('rpDate');var dt=new Date(inp.value);dt.setDate(dt.getDate()+d);inp.value=dt.toISOString().split('T')[0];toast('已切换日期','info')}
 
-// ===== 任务中心（合并下载中心+任务管理） =====
+// ===== 任务中心（拉流+录像） =====
 // ===== 视图切换 =====
 var curView='download';
 function switchView(view){
@@ -588,31 +608,37 @@ function switchView(view){
 }
 
 // ===== 任务中心表格 =====
-var taskFilter='all';
-function filterTasks(el,type){
-    document.querySelectorAll('.task-toolbar .tab').forEach(function(t){t.classList.remove('on')});
-    el.classList.add('on');
-    taskFilter=type;
-    renderTaskTable();
-}
 function renderTaskTable(){
     var tbody=document.getElementById('taskTbody');
-    var filtered=allTasks;
-    if(taskFilter!=='all'){
-        if(taskFilter==='download'){filtered=allTasks.filter(function(t){return t.cat==='merge'||t.cat==='download'})}
-        else{filtered=allTasks.filter(function(t){return t.cat===taskFilter})}
+    var filtered=allTasks.slice();
+    // 类型筛选
+    var typeVal=document.getElementById('taskTypeFilter').value;
+    if(typeVal!=='all')filtered=filtered.filter(function(t){return t.cat===typeVal});
+    // 状态筛选
+    var statusVal=document.getElementById('taskStatusFilter').value;
+    if(statusVal!=='all')filtered=filtered.filter(function(t){return t.status===statusVal});
+    // 时间筛选
+    var timeVal=document.getElementById('taskTimeFilter').value;
+    if(timeVal!=='all'){
+        var now=new Date();
+        var todayStr=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate());
+        if(timeVal==='today'){
+            filtered=filtered.filter(function(t){return t.startTime&&t.startTime.startsWith(todayStr)});
+        } else if(timeVal==='7d'){
+            var d7=new Date(now);d7.setDate(d7.getDate()-7);
+            filtered=filtered.filter(function(t){return t.startTime&&new Date(t.startTime)>=d7});
+        } else if(timeVal==='30d'){
+            var d30=new Date(now);d30.setDate(d30.getDate()-30);
+            filtered=filtered.filter(function(t){return t.startTime&&new Date(t.startTime)>=d30});
+        }
     }
+    // 设备名称搜索
     var kw=(document.getElementById('taskSearch').value||'').toLowerCase();
     if(kw)filtered=filtered.filter(function(t){return(t.name+' '+t.detail+' '+t.id).toLowerCase().includes(kw)});
-    // 统计
-    document.getElementById('statRunning').textContent=allTasks.filter(function(t){return t.status==='running'}).length;
-    document.getElementById('statQueued').textContent=allTasks.filter(function(t){return t.status==='queued'}).length;
-    document.getElementById('statDone').textContent=allTasks.filter(function(t){return t.status==='done'}).length;
-    document.getElementById('statFail').textContent=allTasks.filter(function(t){return t.status==='fail'}).length;
     if(!filtered.length){tbody.innerHTML='<tr><td colspan="8"><div class="task-empty">暂无任务</div></td></tr>';return}
     var html='';
-    var catMap={pull:'拉流',record:'录像',merge:'合成',download:'下载'};
-    var catColor={pull:'tag-blue',record:'tag-purple',merge:'tag-orange',download:'tag-green'};
+    var catMap={pull:'拉流',record:'录像'};
+    var catColor={pull:'tag-blue',record:'tag-purple'};
     var stMap={running:'进行中',queued:'队列中',done:'已完成',fail:'失败'};
     var stColor={running:'tag-blue',queued:'tag-orange',done:'tag-green',fail:'tag-red'};
     filtered.forEach(function(t){
@@ -629,7 +655,6 @@ function renderTaskTable(){
         html+='<button class="btn btn-sm" onclick="openDetail(\''+t.id+'\')">详情</button>';
         if(t.status==='running')html+='<button class="btn btn-sm btn-danger" onclick="toast(\'已终止\',\'success\')">终止</button>';
         if(t.status==='queued')html+='<button class="btn btn-sm btn-danger" onclick="toast(\'已取消\',\'success\')">取消</button>';
-        if(t.status==='done'&&t.cat==='download')html+='<button class="btn btn-sm btn-primary" onclick="openVideoFolder(\''+t.name+'\')">📂 查看视频</button>';
         if(t.status==='fail')html+='<button class="btn btn-sm" onclick="toast(\'重试中...\',\'info\')">重试</button>';
         html+='</div></td>';
         html+='</tr>';
@@ -645,7 +670,7 @@ function openDetail(id){
     var isFail=t.status==='fail';
     body.innerHTML='<div style="display:flex;gap:16px;margin-bottom:16px"><div style="flex:1">'
         +'<div style="margin-bottom:10px"><span style="color:var(--text-muted);width:70px;display:inline-block">任务 ID</span><span style="font-family:var(--mono)">'+t.id+'</span></div>'
-        +'<div style="margin-bottom:10px"><span style="color:var(--text-muted);width:70px;display:inline-block">类型</span><span class="tag tag-blue">'+({pull:'拉流',record:'录像',merge:'合成',download:'下载'}[t.cat])+'</span></div>'
+        +'<div style="margin-bottom:10px"><span style="color:var(--text-muted);width:70px;display:inline-block">类型</span><span class="tag tag-blue">'+({pull:'拉流',record:'录像'}[t.cat])+'</span></div>'
         +'<div style="margin-bottom:10px"><span style="color:var(--text-muted);width:70px;display:inline-block">名称</span>'+t.name+'</div>'
         +'<div style="margin-bottom:10px"><span style="color:var(--text-muted);width:70px;display:inline-block">详情</span>'+t.detail+'</div>'
         +'<div style="margin-bottom:10px"><span style="color:var(--text-muted);width:70px;display:inline-block">开始时间</span>'+(t.startTime||'—')+'</div>'
@@ -663,9 +688,6 @@ function openDetail(id){
             +'</div></div>'
             +'<div style="padding:10px;background:var(--orange-dim);border-radius:var(--radius);font-size:12px;color:var(--orange)">⚠ 设备连接超时，请检查设备是否在线。</div>';
     }
-    if(t.status==='done'&&t.cat==='download'){
-        body.innerHTML+='<div style="margin-top:14px;padding:12px;background:var(--green-dim);border-radius:var(--radius)"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px">文件已就绪，保留至 05-21</span><button class="btn btn-sm btn-primary" onclick="openVideoFolder(\''+t.name+'\');closeM(\'mDetail\')">📂 查看视频</button></div></div>';
-    }
     document.getElementById('mDetail').classList.add('show');
 }
 
@@ -679,55 +701,19 @@ function openPullModal(){
     document.getElementById('pullSegs').innerHTML=segsHtml||'<div style="color:var(--text-muted)">请先在右侧片段列表或时间轴中选取片段</div>';
     document.getElementById('mPull').classList.add('show');
 }
-function openMergeModal(){
+function openBatchModal(){
     if(!selSegs.length){toast('请先选取片段','warning');return}
     if(selSegs.length>20){toast('单次最多 20 个片段','error');return}
-    // 重置高级选项
-    document.getElementById('mrgCodecSel').value='native';
-    document.getElementById('mrgResSel').value='original';
-    document.querySelectorAll('.modal#mMerge .adv-body').forEach(function(el){el.classList.remove('open')});
-    document.querySelectorAll('.modal#mMerge .adv-toggle').forEach(function(el){el.classList.remove('open')});
-    document.getElementById('mrgCodecHint').textContent='自适应：不转码，速度快画质无损；选强制编码可解决混合编码问题，但耗时较长（+3~10 分钟）';
-    // 编码一致性检查（PRD 6.4.3）
-    var encSet={};
-    selSegs.forEach(function(k){var p=k.split('_');encSet[segEnc(p[0],p[1],parseInt(p[2]))]=true});
-    var encKeys=Object.keys(encSet);
-    var mixed=encKeys.length>1;
-    document.getElementById('mrgEncInfo').value=mixed?'混合（H.264 + H.265）':encKeys[0];
-    updateMergeWarn(mixed);
-    document.getElementById('mrgCnt').textContent=selSegs.length;
-    document.getElementById('mrgDur').textContent=(selSegs.length*30)+' 分钟';
-    document.getElementById('mrgSize').textContent=(selSegs.length*130)+' MB';
-    var tbody=document.getElementById('mrgTbody');tbody.innerHTML='';
+    document.getElementById('batCnt').textContent=selSegs.length;
+    document.getElementById('batDur').textContent=(selSegs.length*30)+' 分钟';
+    document.getElementById('batSize').textContent=(selSegs.length*130)+' MB';
+    var tbody=document.getElementById('batTbody');tbody.innerHTML='';
     selSegs.forEach(function(k,i){
         var parts=k.split('_'),sData=(parts[1]==='nvr'?nvrData:cloudData)[parts[0]]||[],seg=sData[parseInt(parts[2])];if(!seg)return;
-        var tm={continuous:'连续',motion:'侦测',manual:'手动'};
-        var enc=segEnc(parts[0],parts[1],parseInt(parts[2]));
-        var encColor=enc==='H.265'?'var(--purple)':'var(--blue)';
-        tbody.innerHTML+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">'+(i+1)+'</td><td style="padding:5px 8px">'+seg.s+' - '+seg.e+'</td><td style="padding:5px 8px">'+(tm[seg.type]||'连续')+'</td><td style="padding:5px 8px;color:'+encColor+';font-weight:500">'+enc+'</td><td style="padding:5px 8px">'+seg.sz+'</td></tr>';
+        tbody.innerHTML+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">'+(i+1)+'</td><td style="padding:5px 8px">'+seg.s+' - '+seg.e+'</td><td style="padding:5px 8px">'+seg.sz+'</td></tr>';
     });
-    document.getElementById('mMerge').classList.add('show');
+    document.getElementById('mBatch').classList.add('show');
 }
-function updateMergeWarn(mixed){
-    var codec=document.getElementById('mrgCodecSel').value;
-    var forcing=codec!=='native';
-    var submitBtn=document.getElementById('mrgSubmitBtn');
-    if(mixed&&!forcing){
-        document.getElementById('mrgMixWarn').style.display='block';
-        document.getElementById('mrgMixWarn').innerHTML='⚠ 所选片段编码不一致（含 <b>H.264</b> 和 <b>H.265</b>），无法直接合成。请在<b>高级选项</b>中选择「强制 H.264」或「强制 H.265」，或分别合成。';
-        submitBtn.disabled=true;submitBtn.style.opacity='0.4';submitBtn.style.cursor='not-allowed';
-        toast('编码不一致，请选择强制转码或分别合成','error');
-    } else if(mixed&&forcing){
-        document.getElementById('mrgMixWarn').style.display='block';
-        document.getElementById('mrgMixWarn').innerHTML='✅ 已启用强制转码（'+codec.toUpperCase()+'），混合编码片段将统一转码后合成。合成耗时较长（+3~10 分钟）。';
-        submitBtn.disabled=false;submitBtn.style.opacity='1';submitBtn.style.cursor='pointer';
-    } else {
-        document.getElementById('mrgMixWarn').style.display='none';
-        submitBtn.disabled=false;submitBtn.style.opacity='1';submitBtn.style.cursor='pointer';
-    }
-}
-function onMergeCodecChange(){updateMergeWarn(Object.keys(selSegs.reduce(function(s,k){var p=k.split('_');s[segEnc(p[0],p[1],parseInt(p[2]))]=true;return s},{})).length>1)}
-function onMergeResChange(){var v=document.getElementById('mrgResSel').value;if(v!=='original')toast('已启用分辨率缩放（'+v+'），合成耗时较长','info')}
 function openRecordModal(){if(!curDev){toast('请先选择设备','warning');return}document.getElementById('recDev').value=curDev.name;document.getElementById('mRecord').classList.add('show')}
 function closeM(id){document.getElementById(id).classList.remove('show')}
 document.querySelectorAll('.modal-mask').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('show')})});
@@ -735,8 +721,8 @@ document.querySelectorAll('.modal-mask').forEach(function(m){m.addEventListener(
 // ===== 提交 =====
 var now=new Date();var nowStr=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes());
 function submitPull(){if(!document.getElementById('pullCh').value){toast('请选择通道','error');return}closeM('mPull');toast('拉流任务已创建','success');allTasks.unshift({id:'PL-NEW',cat:'pull',icon:'📥',name:curDev.name+' 拉流',detail:'CH-01',status:'running',pct:0,speed:'',startTime:nowStr,endTime:''});updateBadge()}
-function submitMerge(){closeM('mMerge');toast('合并任务已创建','success');allTasks.unshift({id:'MG-NEW',cat:'merge',icon:'🔗',name:curDev.name+' 合成',detail:selSegs.length+' 片段',status:'running',pct:0,speed:'',startTime:nowStr,endTime:''});selSegs=[];highlightSel();renderRightPanel();updateBadge()}
-function submitRecord(){if(!document.getElementById('recCh').value){toast('请选择通道','error');return}closeM('mRecord');toast('录像任务已创建','success');allTasks.unshift({id:'MR-NEW',cat:'record',icon:'🔴',name:curDev.name+' 手动录像',detail:'CH-01 · 30 分钟',status:'running',pct:0,speed:'',startTime:nowStr,endTime:''});updateBadge()}
+function submitBatch(){closeM('mBatch');selSegs.forEach(function(k,i){setTimeout(function(){toast('正在下载 '+(i+1)+'/'+selSegs.length+'...','info')},i*800)});setTimeout(function(){toast('批量下载完成，共 '+selSegs.length+' 个文件','success');selSegs=[];highlightSel();renderRightPanel()},selSegs.length*800+200)}
+function submitRecord(){if(!document.getElementById('recCh').value){toast('请选择通道','error');return}closeM('mRecord');toast('录制任务已创建','success');allTasks.unshift({id:'MR-NEW',cat:'record',icon:'🔴',name:curDev.name+' 录制视频',detail:'CH-01 · 30 分钟',status:'running',pct:0,speed:'',startTime:nowStr,endTime:''});updateBadge()}
 
 function updateBadge(){
     var active=allTasks.filter(function(t){return t.status==='running'||t.status==='queued'}).length;

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新建巡检任务 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--ant-primary:#1677ff;--ant-primary-hover:#4096ff;--ant-primary-bg:#e6f4ff;--ant-success:#52c41a;--ant-warning:#faad14;--ant-error:#ff4d4f;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--ant-bg:#f5f5f5;--ant-bg-container:#ffffff;--shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);--shadow-2:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08);}
+    *{box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}
+    .sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}
+    .main{flex:1;padding:24px;overflow:auto;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}
+    .menu-item.active{color:#fff;background:var(--ant-primary);}
+    .menu-item i{width:16px;text-align:center;}
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;transition:all 0.2s;}
+    .ant-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .ant-btn-primary{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .ant-btn-primary:hover{background:var(--ant-primary-hover);}
+    .ant-btn-lg{height:40px;padding:0 20px;font-size:15px;}
+    .ant-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);}
+    .ant-card-head{display:flex;align-items:center;min-height:56px;padding:0 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:16px;font-weight:600;}
+    .ant-card-body{padding:24px;}
+    .ant-input{height:32px;padding:0 11px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;outline:none;background:#fff;width:100%;}
+    .ant-input:focus{border-color:var(--ant-primary);box-shadow:0 0 0 2px rgba(22,119,255,0.1);}
+    .ant-select{height:32px;padding:0 11px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;font-size:14px;outline:none;width:100%;}
+    .form-item{margin-bottom:20px;}
+    .form-label{display:block;margin-bottom:6px;font-size:14px;color:var(--ant-text);}
+    .form-label-required::before{content:'*';color:var(--ant-error);margin-right:4px;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+    /* 步骤条 */
+    .steps{display:flex;align-items:flex-start;margin-bottom:32px;}
+    .step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;}
+    .step-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;border:2px solid var(--ant-border);background:#fff;color:var(--ant-text-tertiary);z-index:1;}
+    .step.done .step-icon{border-color:var(--ant-primary);background:var(--ant-primary);color:#fff;}
+    .step.active .step-icon{border-color:var(--ant-primary);background:var(--ant-primary);color:#fff;}
+    .step.waiting .step-icon{border-color:var(--ant-border);background:#fff;color:var(--ant-text-tertiary);}
+    .step-label{font-size:13px;margin-top:8px;color:var(--ant-text-tertiary);text-align:center;}
+    .step.active .step-label{color:var(--ant-primary);font-weight:600;}
+    .step.done .step-label{color:var(--ant-text-secondary);}
+    .step-line{position:absolute;top:18px;right:-50%;width:100%;height:2px;background:var(--ant-border-secondary);z-index:0;}
+    .step.done .step-line{background:var(--ant-primary);}
+    /* 维度选择卡片 */
+    .dim-card{border:2px solid var(--ant-border-secondary);border-radius:8px;padding:16px;cursor:pointer;transition:all 0.2s;user-select:none;}
+    .dim-card:hover{border-color:var(--ant-primary-hover);}
+    .dim-card.selected{border-color:var(--ant-primary);background:var(--ant-primary-bg);}
+    .dim-card .dim-check{width:18px;height:18px;border:2px solid var(--ant-border);border-radius:3px;margin-right:10px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+    .dim-card.selected .dim-check{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}
+    .breadcrumb a:hover{color:var(--ant-primary);}
+    .tag-business{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:4px;border:1px solid #91caff;background:#e6f4ff;color:#0958d9;font-size:12px;margin-right:4px;white-space:nowrap;}
+    .tag-ai{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border-radius:4px;border:1px solid #b7eb8f;background:#f6ffed;color:#237804;font-size:12px;margin-right:4px;white-space:nowrap;}
+    .ant-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;}
+    .ant-table th{padding:12px 16px;font-weight:600;background:#fafafa;border-bottom:1px solid var(--ant-border-secondary);text-align:left;white-space:nowrap;}
+    .ant-table td{padding:12px 16px;border-bottom:1px solid var(--ant-border-secondary);}
+    .ant-table tbody tr:hover td{background:rgba(0,0,0,0.02);}
+    /* 报警配置 */
+    .alarm-section{border:1px solid var(--ant-border-secondary);border-radius:8px;padding:20px;margin-bottom:16px;}
+    .alarm-section-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+    .alarm-dot{width:8px;height:8px;border-radius:50%;}
+    /* 设备目录树 */
+    .device-tree-wrap{display:flex;gap:20px;}
+    .device-tree-panel{width:220px;flex-shrink:0;border:1px solid var(--ant-border-secondary);border-radius:8px;background:#fafafa;overflow:auto;max-height:480px;}
+    .device-tree-panel-title{padding:12px 16px;font-size:13px;font-weight:600;border-bottom:1px solid var(--ant-border-secondary);color:var(--ant-text);display:flex;align-items:center;gap:6px;background:#fff;border-radius:8px 8px 0 0;}
+    .device-tree-content{padding:6px 0;}
+    .tree-node{display:flex;align-items:center;gap:4px;padding:7px 12px;cursor:pointer;font-size:13px;color:var(--ant-text-secondary);transition:all 0.15s;user-select:none;white-space:nowrap;}
+    .tree-node:hover{background:var(--ant-primary-bg);color:var(--ant-primary);}
+    .tree-node.active{background:var(--ant-primary-bg);color:var(--ant-primary);font-weight:600;}
+    .tree-node .tree-arrow{width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--ant-text-tertiary);transition:transform 0.2s;flex-shrink:0;}
+    .tree-node .tree-arrow.open{transform:rotate(90deg);}
+    .tree-node .tree-icon{width:16px;text-align:center;font-size:12px;color:var(--ant-text-tertiary);flex-shrink:0;}
+    .tree-node.active .tree-icon{color:var(--ant-primary);}
+    .tree-node .tree-count{margin-left:auto;font-size:11px;color:var(--ant-text-tertiary);font-weight:400;padding:0 6px;background:rgba(0,0,0,0.04);border-radius:10px;line-height:18px;}
+    .tree-node.active .tree-count{color:var(--ant-primary);background:rgba(22,119,255,0.1);}
+    .tree-children{display:none;}
+    .tree-children.open{display:block;}
+    .device-table-panel{flex:1;min-width:0;overflow:auto;}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video text-white text-sm"></i></div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-4">
+      <span style="color:rgba(255,255,255,0.65);font-size:13px;cursor:pointer;"><i class="fa-regular fa-bell mr-1"></i>3</span>
+      <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+        <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+        <span style="font-size:13px;">张工程师</span>
+      </div>
+    </div>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item active"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item" onclick="location.href='../ops-log/list.html'"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item" onclick="location.href='../ops-sla/index.html'"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item" onclick="location.href='../ops-predict/list.html'"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-triangle-exclamation"></i>设备告警</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span>
+        <a href="list.html">巡检任务</a><span>/</span>
+        <span style="color:var(--ant-text);">新建巡检任务</span>
+      </div>
+
+      <!-- 步骤条（PRD 对齐：3 步） -->
+      <div class="ant-card mb-6">
+        <div class="ant-card-body" style="padding:28px 48px;">
+          <div class="steps">
+            <div class="step active">
+              <div class="step-icon" id="icon1"><i class="fa-solid fa-check"></i></div>
+              <div class="step-label">Step 1<br>基础信息</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="step waiting" id="step2">
+              <div class="step-icon" id="icon2">2</div>
+              <div class="step-label">Step 2<br>绑定设备</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="step waiting" id="step3">
+              <div class="step-icon" id="icon3">3</div>
+              <div class="step-label">Step 3<br>报警配置</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 1：基础信息 -->
+      <div class="ant-card mb-4" id="panelStep1">
+        <div class="ant-card-head" style="gap:8px;">
+          <span>Step 1：基础信息</span>
+          <span style="font-size:13px;font-weight:400;color:rgba(0,0,0,0.45);">配置任务名称、巡检维度和巡检方式</span>
+        </div>
+        <div class="ant-card-body">
+          <!-- 任务名称 + 巡检方式 + 有效时间 -->
+          <div class="form-row mb-6">
+            <div class="form-item" style="margin-bottom:0;">
+              <label class="form-label form-label-required">任务名称</label>
+              <input class="ant-input" id="taskName" placeholder="请输入任务名称" value="南区-链路诊断巡检-20260410">
+            </div>
+            <div class="form-item" style="margin-bottom:0;">
+              <label class="form-label form-label-required">巡检方式</label>
+              <select class="ant-select" id="taskMethod" onchange="toggleScheduleConfig()">
+                <option value="period">周期执行</option>
+                <option value="once">定时执行</option>
+              </select>
+            </div>
+          </div>
+          <!-- 周期执行配置 -->
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;" id="periodConfig">
+            <div class="form-item" style="margin-bottom:0;min-width:140px;">
+              <label class="form-label form-label-required">执行频率</label>
+              <select class="ant-select" id="freqType" onchange="toggleFreqDetail()" style="width:120px;">
+                <option value="daily">按日</option>
+                <option value="weekly">按周</option>
+                <option value="monthly">按月</option>
+              </select>
+            </div>
+            <div class="form-item" style="margin-bottom:0;min-width:120px;display:none;" id="weekdayWrap">
+              <label class="form-label form-label-required">星期几</label>
+              <select class="ant-select" id="weekday" style="width:100px;">
+                <option value="1">周一</option><option value="2">周二</option><option value="3">周三</option><option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="0">周日</option>
+              </select>
+            </div>
+            <div class="form-item" style="margin-bottom:0;min-width:100px;display:none;" id="monthdayWrap">
+              <label class="form-label form-label-required">每月日期</label>
+              <input type="number" class="ant-input" id="monthday" style="width:80px;" value="1" min="1" max="31" placeholder="1-31">
+            </div>
+            <div class="form-item" style="margin-bottom:0;min-width:140px;">
+              <label class="form-label form-label-required">执行时刻</label>
+              <input type="time" class="ant-input" id="periodTime" style="width:120px;" value="02:00">
+            </div>
+          </div>
+          <!-- 定时执行配置 -->
+          <div class="form-row mb-6" id="onceConfig" style="display:none;">
+            <div class="form-item" style="margin-bottom:0;">
+              <label class="form-label form-label-required">执行日期</label>
+              <input type="date" class="ant-input" id="onceDate" style="width:160px;" value="2026-06-01">
+            </div>
+            <div class="form-item" style="margin-bottom:0;">
+              <label class="form-label form-label-required">执行时间</label>
+              <input type="time" class="ant-input" id="onceTime" style="width:120px;" value="02:00">
+            </div>
+          </div>
+          <div class="form-row mb-6">
+            <div class="form-item" style="margin-bottom:0;">
+              <label class="form-label form-label-required">有效时间</label>
+              <div class="flex items-center gap-2">
+                <input type="date" class="ant-input" style="width:160px;" value="2026-05-01">
+                <span style="color:var(--ant-text-tertiary);">至</span>
+                <input type="date" class="ant-input" style="width:160px;" value="2026-12-31">
+              </div>
+            </div>
+            <div class="form-item" style="margin-bottom:0;"></div>
+          </div>
+
+          <!-- 巡检维度多选 -->
+          <div style="margin-bottom:12px;">
+            <label class="form-label form-label-required" style="margin-bottom:12px;">巡检维度 <span style="font-size:12px;font-weight:400;color:rgba(0,0,0,0.45);">（至少选择一项，可多选）</span></label>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <!-- 维度1：画质检测 -->
+            <div class="dim-card selected" id="dim-quality" onclick="toggleDim('quality')">
+              <div class="flex items-center mb-3">
+                <div class="dim-check"><i class="fa-solid fa-check" style="font-size:11px;"></i></div>
+                <div style="width:36px;height:36px;background:#e6f4ff;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-right:10px;"><i class="fa-solid fa-eye" style="color:#1677ff;"></i></div>
+                <div>
+                  <div class="font-semibold">画质检测</div>
+                  <div style="font-size:12px;color:rgba(0,0,0,0.45);">AI画质评分</div>
+                </div>
+              </div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.65);line-height:1.6;">检测视频模糊、遮挡、噪点等问题，输出0-100质量评分。</div>
+            </div>
+
+            <!-- 维度2：链路诊断 -->
+            <div class="dim-card selected" id="dim-link" onclick="toggleDim('link')">
+              <div class="flex items-center mb-3">
+                <div class="dim-check"><i class="fa-solid fa-check" style="font-size:11px;"></i></div>
+                <div style="width:36px;height:36px;background:#f6ffed;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-right:10px;"><i class="fa-solid fa-link" style="color:#52c41a;"></i></div>
+                <div>
+                  <div class="font-semibold">链路诊断</div>
+                  <div style="font-size:12px;color:rgba(0,0,0,0.45);">GB28181/SIP + 链路检测</div>
+                </div>
+              </div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.65);line-height:1.6;">检测设备连通性、心跳超时率、点播成功率等链路指标，定位链路层故障根因，生成诊断时序图和原始日志。</div>
+            </div>
+
+            <!-- 维度3：网络状态检测 -->
+            <div class="dim-card" id="dim-network" onclick="toggleDim('network')">
+              <div class="flex items-center mb-3">
+                <div class="dim-check"></div>
+                <div style="width:36px;height:36px;background:#e6f4ff;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-right:10px;"><i class="fa-solid fa-tower-broadcast" style="color:#1677ff;"></i></div>
+                <div>
+                  <div class="font-semibold">网络状态检测</div>
+                  <div style="font-size:12px;color:rgba(0,0,0,0.45);">带宽/延迟/丢包</div>
+                </div>
+              </div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.65);line-height:1.6;">检测网络带宽、延迟、丢包率等指标，评估端到端网络健康状态。</div>
+            </div>
+          </div>
+
+          <div class="flex justify-end mt-6 gap-3">
+            <button class="ant-btn" onclick="location.href='list.html'">取消</button>
+            <button class="ant-btn ant-btn-primary ant-btn-lg" onclick="goStep(2)">
+              下一步：绑定设备 <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2：绑定设备 -->
+      <div class="ant-card mb-4" id="panelStep2" style="display:none;">
+        <div class="ant-card-head">Step 2：绑定设备 <span style="font-size:13px;font-weight:400;color:rgba(0,0,0,0.45);margin-left:8px;">（B-06 标签筛选）</span></div>
+        <div class="ant-card-body">
+          <div class="device-tree-wrap">
+            <!-- 左侧：设备目录树 -->
+            <div class="device-tree-panel">
+              <div class="device-tree-panel-title"><i class="fa-solid fa-sitemap" style="color:var(--ant-primary);"></i>设备目录</div>
+              <div style="padding:8px 12px;border-bottom:1px solid var(--ant-border-secondary);">
+                <input class="ant-input" id="treeSearch" style="height:28px;font-size:12px;" placeholder="搜索区域..." oninput="searchTree(this.value)">
+              </div>
+              <div class="device-tree-content" id="deviceTree"></div>
+            </div>
+            <!-- 右侧：设备列表 -->
+            <div class="device-table-panel">
+              <div class="flex items-center gap-3 mb-4" style="flex-wrap:wrap;">
+                <input class="ant-input" id="searchInput" style="width:200px;" placeholder="搜索设备名称">
+                <select class="ant-select" style="width:130px;" id="statusFilter"><option value="">全部状态</option><option value="online">在线</option><option value="offline">离线</option></select>
+                <div style="position:relative;display:inline-block;">
+                  <button class="ant-btn" id="tagFilterBtn" onclick="toggleTagDropdown()" style="min-width:140px;"><i class="fa-solid fa-tags mr-1"></i>业务标签 <i class="fa-solid fa-chevron-down" style="font-size:10px;margin-left:4px;"></i></button>
+                  <div id="tagDropdown" style="display:none;position:absolute;top:36px;left:0;z-index:100;background:#fff;border:1px solid var(--ant-border);border-radius:6px;box-shadow:0 3px 6px rgba(0,0,0,0.12);width:220px;padding:8px 0;">
+                    <div style="padding:4px 12px 8px;border-bottom:1px solid var(--ant-border-secondary);margin-bottom:4px;">
+                      <input class="ant-input" style="height:28px;font-size:12px;" placeholder="搜索标签..." oninput="filterTags(this.value)">
+                    </div>
+                    <div style="max-height:200px;overflow:auto;">
+                      <label style="display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;font-size:13px;" class="tag-option"><input type="checkbox" style="accent-color:#1677ff;" checked> 重点保障</label>
+                      <label style="display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;font-size:13px;" class="tag-option"><input type="checkbox" style="accent-color:#1677ff;"> 专项整治</label>
+                      <label style="display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;font-size:13px;" class="tag-option"><input type="checkbox" style="accent-color:#1677ff;"> 夜间巡查</label>
+                      <label style="display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;font-size:13px;" class="tag-option"><input type="checkbox" style="accent-color:#1677ff;"> AI-出入口</label>
+                      <label style="display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;font-size:13px;" class="tag-option"><input type="checkbox" style="accent-color:#1677ff;"> AI-停车场</label>
+                    </div>
+                  </div>
+                </div>
+                <button class="ant-btn ant-btn-primary" onclick="showToast('筛选完成')"><i class="fa-solid fa-magnifying-glass mr-1"></i>查询</button>
+                <button class="ant-btn" onclick="resetFilters()">重置</button>
+                <span style="margin-left:auto;color:var(--ant-text-tertiary);font-size:13px;">当前已勾选 <strong style="color:var(--ant-primary);">0</strong> 个点位</span>
+              </div>
+              <div id="deviceNotice" style="background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#389e0d;">
+                <i class="fa-solid fa-circle-check mr-2"></i>已筛选出 <strong id="deviceCount">156</strong> 个候选点位，待手动勾选后进入巡检范围。
+              </div>
+              <table class="ant-table" style="font-size:13px;" id="deviceTable">
+                <thead><tr>
+                  <th style="width:40px;"><input type="checkbox" id="selectAll" style="accent-color:#1677ff;" onchange="toggleSelectAll(this)"></th>
+                  <th>设备名称</th><th>设备编码</th><th>平台名称</th><th>平台编码</th><th>通道编码</th>
+                </tr></thead>
+                <tbody>
+                  <tr data-region="全市"><td><input type="checkbox" style="accent-color:#1677ff;"></td><td>南区-路口-01</td><td>CAM-S001</td><td>南区平台</td><td>PLAT-S001</td><td>CH-001</td></tr>
+                  <tr data-region="南区"><td><input type="checkbox" style="accent-color:#1677ff;"></td><td>南区-路口-02</td><td>CAM-S002</td><td>南区平台</td><td>PLAT-S001</td><td>CH-002</td></tr>
+                  <tr data-region="北区"><td><input type="checkbox" style="accent-color:#1677ff;"></td><td>北区-广场-A01</td><td>CAM-N101</td><td>北区平台</td><td>PLAT-N001</td><td>CH-003</td></tr>
+                  <tr data-region="西区"><td><input type="checkbox" style="accent-color:#1677ff;"></td><td>西区-高速-H01</td><td>CAM-W201</td><td>西区平台</td><td>PLAT-W001</td><td>CH-004</td></tr>
+                  <tr data-region="东区"><td><input type="checkbox" style="accent-color:#1677ff;"></td><td>东区-园区-E01</td><td>CAM-E101</td><td>东区平台</td><td>PLAT-E001</td><td>CH-005</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="flex justify-between mt-6">
+            <button class="ant-btn" onclick="goStep(1)"><i class="fa-solid fa-arrow-left"></i> 上一步</button>
+            <button class="ant-btn ant-btn-primary ant-btn-lg" onclick="goStep(3)">下一步：报警配置 <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Step 3：报警配置 -->
+      <div class="ant-card mb-4" id="panelStep3" style="display:none;">
+        <div class="ant-card-head">Step 3：报警配置 <span style="font-size:13px;font-weight:400;color:rgba(0,0,0,0.45);margin-left:8px;">配置报警规则和通知人员</span></div>
+        <div class="ant-card-body">
+
+          <!-- 是否开启报警 -->
+          <div class="form-item">
+            <label class="form-label form-label-required">是否开启报警</label>
+            <div class="flex items-center gap-3">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="radio" name="alarmSwitch" value="on" checked style="accent-color:#1677ff;"> 开启
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="radio" name="alarmSwitch" value="off" style="accent-color:#1677ff;"> 关闭
+              </label>
+            </div>
+          </div>
+
+          <!-- 报警频次 -->
+          <div class="form-item" id="alarmFreqSection">
+            <label class="form-label form-label-required">报警频次</label>
+            <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:8px;">同一设备相同检测异常的报警间隔</div>
+            <div class="flex items-center gap-2">
+              <span style="font-size:13px;">每</span>
+              <input class="ant-input" style="width:80px;" type="number" value="24" min="1">
+              <span style="font-size:13px;">小时内，相同异常报警</span>
+              <input class="ant-input" style="width:60px;" type="number" value="1" min="1">
+              <span style="font-size:13px;">次</span>
+            </div>
+          </div>
+
+          <!-- 任务状态 -->
+          <div class="form-item">
+            <label class="form-label form-label-required">任务状态</label>
+            <div class="flex items-center gap-3">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="radio" name="taskStatus" value="on" checked style="accent-color:#1677ff;"> 开启
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="radio" name="taskStatus" value="off" style="accent-color:#1677ff;"> 关闭
+              </label>
+            </div>
+          </div>
+
+          <!-- 通知用户 -->
+          <div class="form-item">
+            <label class="form-label form-label-required">通知用户</label>
+            <div style="position:relative;">
+              <input class="ant-input" id="notifyUserInput" placeholder="搜索并选择通知用户..." onfocus="showUserDropdown()" oninput="filterUsers(this.value)">
+              <div id="userDropdown" style="display:none;position:absolute;top:36px;left:0;z-index:100;background:#fff;border:1px solid var(--ant-border);border-radius:6px;box-shadow:0 3px 6px rgba(0,0,0,0.12);width:100%;max-height:200px;overflow:auto;">
+                <div class="user-option" style="padding:8px 12px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;" onclick="selectUser(this,'张工程师')"><i class="fa-solid fa-user" style="color:var(--ant-text-tertiary);"></i> 张工程师</div>
+                <div class="user-option" style="padding:8px 12px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;" onclick="selectUser(this,'李工程师')"><i class="fa-solid fa-user" style="color:var(--ant-text-tertiary);"></i> 李工程师</div>
+                <div class="user-option" style="padding:8px 12px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;" onclick="selectUser(this,'王工程师')"><i class="fa-solid fa-user" style="color:var(--ant-text-tertiary);"></i> 王工程师</div>
+                <div class="user-option" style="padding:8px 12px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;" onclick="selectUser(this,'赵工程师')"><i class="fa-solid fa-user" style="color:var(--ant-text-tertiary);"></i> 赵工程师</div>
+              </div>
+            </div>
+            <div id="selectedUsers" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+              <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#e6f4ff;border:1px solid #91caff;border-radius:4px;font-size:12px;color:#1677ff;">张工程师 <i class="fa-solid fa-xmark" style="cursor:pointer;font-size:10px;" onclick="this.parentElement.remove()"></i></span>
+            </div>
+          </div>
+
+          <div class="flex justify-between mt-6">
+            <button class="ant-btn" onclick="goStep(2)"><i class="fa-solid fa-arrow-left"></i> 上一步</button>
+            <button class="ant-btn ant-btn-primary ant-btn-lg" onclick="handleSubmit()" style="background:#52c41a;border-color:#52c41a;">
+              <i class="fa-solid fa-check"></i> 确认提交任务
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  var currentStep = 1;
+  var selectedDims = { quality: true, link: true, network: false };
+
+  function toggleScheduleConfig() {
+    var method = document.getElementById('taskMethod').value;
+    document.getElementById('periodConfig').style.display = method === 'period' ? '' : 'none';
+    document.getElementById('onceConfig').style.display = method === 'once' ? '' : 'none';
+  }
+
+  function toggleFreqDetail() {
+    var freq = document.getElementById('freqType').value;
+    document.getElementById('weekdayWrap').style.display = freq === 'weekly' ? '' : 'none';
+    document.getElementById('monthdayWrap').style.display = freq === 'monthly' ? '' : 'none';
+  }
+
+  // 初始化：按日模式隐藏星期几和每月日期
+  toggleFreqDetail();
+
+  function toggleDim(dim) {
+    selectedDims[dim] = !selectedDims[dim];
+    var card = document.getElementById('dim-' + dim);
+    var check = card.querySelector('.dim-check');
+    if (selectedDims[dim]) {
+      card.classList.add('selected');
+      check.innerHTML = '<i class="fa-solid fa-check" style="font-size:11px;"></i>';
+    } else {
+      card.classList.remove('selected');
+      check.innerHTML = '';
+    }
+  }
+
+  function goStep(n) {
+    document.getElementById('panelStep1').style.display = n === 1 ? '' : 'none';
+    document.getElementById('panelStep2').style.display = n === 2 ? '' : 'none';
+    document.getElementById('panelStep3').style.display = n === 3 ? '' : 'none';
+    for (var i = 1; i <= 3; i++) {
+      var stepEl = document.getElementById('icon' + i);
+      var parentStep = stepEl.closest('.step');
+      parentStep.className = 'step ' + (i < n ? 'done' : i === n ? 'active' : 'waiting');
+      if (i < n) stepEl.innerHTML = '<i class="fa-solid fa-check"></i>';
+      else stepEl.textContent = i;
+    }
+    currentStep = n;
+  }
+
+  function handleSubmit() {
+    var name = document.getElementById('taskName').value;
+    var dims = [];
+    if (selectedDims.quality) dims.push('画面');
+    if (selectedDims.link) dims.push('链路');
+    if (selectedDims.network) dims.push('网络');
+    alert('任务已提交！\n\n任务名称：' + name + '\n巡检维度：' + dims.join('+') + '\n已勾选 36 个点位\n触发条件：已配置\n通知方式：站内信');
+    location.href = 'list.html';
+  }
+
+  /* ======== 设备目录树 ======== */
+  var treeData = [
+    { id: 'all', name: '全市', count: 156, icon: 'fa-city', children: [
+      { id: 'south', name: '南区', count: 68, icon: 'fa-map', children: [
+        { id: 'yanta', name: '雁塔区', count: 32, icon: 'fa-building' },
+        { id: 'lianhu', name: '莲湖区', count: 21, icon: 'fa-building' },
+        { id: 'weiyang', name: '未央区', count: 15, icon: 'fa-building' }
+      ]},
+      { id: 'north', name: '北区', count: 45, icon: 'fa-map', children: [
+        { id: 'baqiao', name: '灞桥区', count: 24, icon: 'fa-building' },
+        { id: 'beilin', name: '碑林区', count: 21, icon: 'fa-building' }
+      ]},
+      { id: 'east', name: '东区', count: 22, icon: 'fa-map' },
+      { id: 'west', name: '西区', count: 21, icon: 'fa-map' }
+    ]}
+  ];
+
+  /* 区域 → 表格行匹配映射 */
+  var regionMap = {
+    'all': [],
+    'south': ['南区'],
+    'yanta': ['南区'], 'lianhu': ['南区'], 'weiyang': ['南区'],
+    'north': ['北区'],
+    'baqiao': ['北区'], 'beilin': ['北区'],
+    'east': ['东区'],
+    'west': ['西区']
+  };
+
+  var expandedNodes = { 'all': true, 'south': true, 'north': true };
+
+  function renderTree(nodes, level, container) {
+    nodes.forEach(function(node) {
+      var hasChildren = node.children && node.children.length > 0;
+      var isExpanded = expandedNodes[node.id];
+
+      var row = document.createElement('div');
+      row.className = 'tree-node';
+      row.setAttribute('data-id', node.id);
+      row.style.paddingLeft = (12 + level * 16) + 'px';
+
+      /* 箭头 */
+      var arrow = document.createElement('span');
+      arrow.className = 'tree-arrow' + (hasChildren && isExpanded ? ' open' : '');
+      arrow.innerHTML = hasChildren ? '<i class="fa-solid fa-caret-right"></i>' : '';
+      row.appendChild(arrow);
+
+      /* 图标 */
+      var icon = document.createElement('span');
+      icon.className = 'tree-icon';
+      icon.innerHTML = '<i class="fa-solid ' + (node.icon || 'fa-folder') + '"></i>';
+      row.appendChild(icon);
+
+      /* 名称 */
+      var label = document.createElement('span');
+      label.textContent = node.name;
+      label.style.flex = '1';
+      row.appendChild(label);
+
+      /* 数量 */
+      var count = document.createElement('span');
+      count.className = 'tree-count';
+      count.textContent = node.count;
+      row.appendChild(count);
+
+      row.onclick = function(e) {
+        e.stopPropagation();
+        if (hasChildren && !isExpanded) { expandedNodes[node.id] = true; }
+        else if (hasChildren && isExpanded) { expandedNodes[node.id] = false; }
+        filterByTree(node.id);
+        buildTree();
+      };
+
+      container.appendChild(row);
+
+      /* 子节点 */
+      if (hasChildren) {
+        var childWrap = document.createElement('div');
+        childWrap.className = 'tree-children' + (isExpanded ? ' open' : '');
+        renderTree(node.children, level + 1, childWrap);
+        container.appendChild(childWrap);
+      }
+    });
+  }
+
+  function buildTree() {
+    var el = document.getElementById('deviceTree');
+    el.innerHTML = '';
+    renderTree(treeData, 0, el);
+  }
+
+  function filterByTree(nodeId) {
+    /* 高亮选中节点 */
+    document.querySelectorAll('.tree-node').forEach(function(n) { n.classList.remove('active'); });
+    var sel = document.querySelector('.tree-node[data-id="' + nodeId + '"]');
+    if (sel) sel.classList.add('active');
+
+    /* 筛选表格行 */
+    var regions = regionMap[nodeId] || [];
+    var rows = document.querySelectorAll('#deviceTable tbody tr');
+    var visible = 0;
+    rows.forEach(function(tr) {
+      var rr = tr.getAttribute('data-region');
+      if (!nodeId || nodeId === 'all' || regions.indexOf(rr) !== -1) {
+        tr.style.display = '';
+        visible++;
+      } else {
+        tr.style.display = 'none';
+      }
+    });
+
+    /* 更新提示数量 */
+    document.getElementById('deviceCount').textContent = visible;
+  }
+
+  /* 全选/取消全选 */
+  function toggleSelectAll(checkbox){
+    document.querySelectorAll('#deviceTable tbody input[type=checkbox]').forEach(function(cb){
+      var row = cb.closest('tr');
+      if(row && row.style.display !== 'none'){
+        cb.checked = checkbox.checked;
+      }
+    });
+  }
+
+  /* 设备目录树搜索 */
+  function searchTree(keyword){
+    var nodes = document.querySelectorAll('#deviceTree .tree-node');
+    if(!keyword){ nodes.forEach(function(n){ n.style.display = 'flex'; }); return; }
+    keyword = keyword.toLowerCase();
+    nodes.forEach(function(n){
+      var text = n.textContent.toLowerCase();
+      n.style.display = text.includes(keyword) ? 'flex' : 'none';
+    });
+  }
+
+  /* 业务标签下拉 */
+  /* 通知用户下拉 */
+  function showUserDropdown(){ document.getElementById('userDropdown').style.display='block'; }
+  function hideUserDropdown(){ setTimeout(function(){ document.getElementById('userDropdown').style.display='none'; }, 200); }
+  function filterUsers(keyword){
+    document.querySelectorAll('.user-option').forEach(function(opt){
+      opt.style.display = opt.textContent.toLowerCase().includes(keyword.toLowerCase()) ? 'flex' : 'none';
+    });
+  }
+  function selectUser(el, name){
+    var container = document.getElementById('selectedUsers');
+    if(container.textContent.includes(name)) return;
+    var tag = document.createElement('span');
+    tag.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#e6f4ff;border:1px solid #91caff;border-radius:4px;font-size:12px;color:#1677ff;';
+    tag.innerHTML = name+' <i class="fa-solid fa-xmark" style="cursor:pointer;font-size:10px;" onclick="this.parentElement.remove()"></i>';
+    container.appendChild(tag);
+    document.getElementById('notifyUserInput').value = '';
+    document.getElementById('userDropdown').style.display = 'none';
+  }
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('#notifyUserInput') && !e.target.closest('#userDropdown')){
+      document.getElementById('userDropdown').style.display = 'none';
+    }
+  });
+
+  function toggleTagDropdown(){
+    var dd = document.getElementById('tagDropdown');
+    dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+  }
+  function filterTags(keyword){
+    document.querySelectorAll('.tag-option').forEach(function(opt){
+      opt.style.display = opt.textContent.includes(keyword) ? 'flex' : 'none';
+    });
+  }
+  function resetFilters(){
+    document.getElementById('searchInput').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.querySelectorAll('.tag-option input[type=checkbox]').forEach(function(cb){ cb.checked = false; });
+    showToast('筛选条件已重置');
+  }
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('#tagDropdown') && !e.target.closest('#tagFilterBtn')){
+      document.getElementById('tagDropdown').style.display = 'none';
+    }
+  });
+
+  /* 初始化 */
+  buildTree();
+  filterByTree('all');
+</script>
+</body>
+</html>

@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设备告警详情 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --ant-primary: #1677ff;
+      --ant-primary-hover: #4096ff;
+      --ant-primary-bg: #e6f4ff;
+      --ant-success: #52c41a;
+      --ant-success-bg: #f6ffed;
+      --ant-warning: #faad14;
+      --ant-warning-bg: #fffbe6;
+      --ant-error: #ff4d4f;
+      --ant-error-bg: #fff1f0;
+      --ant-text: rgba(0,0,0,0.88);
+      --ant-text-secondary: rgba(0,0,0,0.65);
+      --ant-text-tertiary: rgba(0,0,0,0.45);
+      --ant-text-quaternary: rgba(0,0,0,0.25);
+      --ant-border: #d9d9d9;
+      --ant-border-secondary: #f0f0f0;
+      --ant-bg: #f5f5f5;
+      --ant-bg-container: #ffffff;
+      --ant-radius: 6px;
+      --ant-radius-lg: 8px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 3px 6px -4px rgba(0,0,0,0.12), 0 6px 16px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      font-size: 14px; color: var(--ant-text); background: var(--ant-bg); line-height: 1.5714;
+    }
+
+    /* ========== Layout ========== */
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}
+    .sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}
+    .main{flex:1;padding:20px 24px;overflow:auto;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}
+    .menu-item.active{color:#fff;background:var(--ant-primary);}
+    .menu-item i{width:16px;text-align:center;}
+
+    .main-scroll { overflow-y: auto; padding-bottom: 24px; }
+
+    /* ========== Breadcrumb ========== */
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}
+    .breadcrumb a:hover{color:var(--ant-primary);}
+
+    /* ========== Alert Banner ========== */
+    .alert-banner {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 16px; margin: 16px 24px 0;
+      border-radius: var(--ant-radius-lg);
+      border: 1px solid; font-size: 13px;
+    }
+    .alert-banner-error {
+      background: var(--ant-error-bg); border-color: #ffccc7;
+    }
+    .alert-banner-error .alert-icon { color: var(--ant-error); font-size: 16px; margin-top: 1px; }
+    .alert-banner-content { flex: 1; line-height: 1.6; }
+    .alert-banner-content .alert-title { font-weight: 600; color: var(--ant-text); margin-bottom: 2px; }
+    .alert-banner-content .alert-desc { color: var(--ant-text-secondary); }
+    .alert-banner-close {
+      background: none; border: none; color: var(--ant-text-tertiary);
+      cursor: pointer; font-size: 14px; padding: 2px;
+    }
+
+    /* ========== Descriptions ========== */
+    .ant-descriptions { width: 100%; }
+    .ant-descriptions-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .ant-descriptions-title { font-size: 15px; font-weight: 600; color: var(--ant-text); }
+    .ant-descriptions-body { border: 1px solid var(--ant-border-secondary); border-radius: var(--ant-radius-lg); overflow: hidden; }
+    .ant-descriptions-row { display: flex; }
+    .ant-descriptions-row + .ant-descriptions-row { border-top: 1px solid var(--ant-border-secondary); }
+    .ant-descriptions-item {
+      flex: 1; display: flex; min-width: 0;
+      border-right: 1px solid var(--ant-border-secondary);
+    }
+    .ant-descriptions-item:last-child { border-right: none; }
+    .ant-descriptions-item-label {
+      width: 100px; flex-shrink: 0; padding: 10px 12px;
+      background: #fafafa; color: var(--ant-text-secondary);
+      font-size: 13px; border-right: 1px solid var(--ant-border-secondary);
+      display: flex; align-items: flex-start;
+    }
+    .ant-descriptions-item-content {
+      flex: 1; padding: 10px 12px; font-size: 13px;
+      display: flex; align-items: flex-start; flex-wrap: wrap; gap: 4px;
+    }
+
+    /* ========== Tags ========== */
+    .ant-tag {
+      display: inline-flex; align-items: center; height: 22px;
+      padding: 0 7px; font-size: 12px; border-radius: 4px;
+      font-weight: 500; gap: 4px; white-space: nowrap;
+    }
+    .ant-tag-error { color: #cf1322; background: #fff1f0; border: 1px solid #ffa39e; }
+    .ant-tag-warning { color: #d46b08; background: #fff7e6; border: 1px solid #ffd591; }
+    .ant-tag-info { color: #1677ff; background: #e6f4ff; border: 1px solid #91caff; }
+    .ant-tag-success { color: #389e0d; background: #f6ffed; border: 1px solid #b7eb8f; }
+    .ant-tag-closed { color: var(--ant-text-tertiary); background: #f5f5f5; border: 1px solid #d9d9d9; }
+    .ant-tag-level-urgent { color: #fff; background: var(--ant-error); border: none; font-weight: 600; }
+    .ant-tag-level-warning { color: #fff; background: var(--ant-warning); border: none; font-weight: 600; }
+    .ant-tag-level-info { color: #fff; background: var(--ant-primary); border: none; font-weight: 600; }
+
+    /* ========== Buttons ========== */
+    .ant-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      height: 32px; padding: 0 15px; font-size: 14px;
+      border: 1px solid var(--ant-border); border-radius: var(--ant-radius);
+      background: #fff; color: var(--ant-text); cursor: pointer;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .ant-btn:hover { color: var(--ant-primary); border-color: var(--ant-primary); }
+    .ant-btn-primary { background: var(--ant-primary); border-color: var(--ant-primary); color: #fff; }
+    .ant-btn-primary:hover { background: var(--ant-primary-hover); border-color: var(--ant-primary-hover); color: #fff; }
+    .ant-btn-danger { background: var(--ant-error); border-color: var(--ant-error); color: #fff; }
+    .ant-btn-danger:hover { background: #ff7875; border-color: #ff7875; color: #fff; }
+    .ant-btn-link { background: none; border: none; color: var(--ant-primary); padding: 0 4px; height: auto; }
+    .ant-btn-link:hover { color: var(--ant-primary-hover); }
+    .ant-btn-sm { height: 24px; padding: 0 7px; font-size: 12px; }
+
+    /* ========== Tabs ========== */
+    .ant-tabs { margin-top: 16px; }
+    .ant-tabs-nav { display: flex; align-items: center; padding: 0 24px; border-bottom: 1px solid var(--ant-border-secondary); background: #fff; }
+    .ant-tabs-tab {
+      padding: 12px 16px; font-size: 14px; color: var(--ant-text-secondary);
+      cursor: pointer; transition: all 0.2s; border-bottom: 2px solid transparent;
+      display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+    }
+    .ant-tabs-tab:hover { color: var(--ant-primary); }
+    .ant-tabs-tab-active { color: var(--ant-primary); font-weight: 600; border-bottom-color: var(--ant-primary); }
+    .ant-tabs-tab .tab-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; height: 18px; padding: 0 5px;
+      border-radius: 9px; font-size: 11px; font-weight: 600; color: #fff;
+    }
+    .ant-tabs-tab .tab-badge-error { background: var(--ant-error); }
+    .ant-tabs-tab .tab-badge-success { background: var(--ant-success); }
+    .ant-tabs-tab .tab-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .ant-tabs-tab .tab-dot-error { background: var(--ant-error); }
+    .ant-tabs-tab .tab-dot-success { background: var(--ant-success); }
+    .ant-tabs-content { padding: 16px 24px 0; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ========== Card ========== */
+    .ant-card {
+      background: #fff; border-radius: var(--ant-radius-lg);
+      box-shadow: var(--shadow-sm); border: 1px solid var(--ant-border-secondary);
+    }
+    .ant-card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      min-height: 44px; padding: 0 16px;
+      border-bottom: 1px solid var(--ant-border-secondary);
+    }
+    .ant-card-head-title {
+      font-size: 14px; font-weight: 600; color: var(--ant-text);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .ant-card-body { padding: 16px; }
+
+    /* ========== Statistic ========== */
+    .ant-statistic { text-align: center; }
+    .ant-statistic-title { font-size: 12px; color: var(--ant-text-tertiary); margin-bottom: 4px; }
+    .ant-statistic-content { font-size: 24px; font-weight: 700; line-height: 1.2; }
+    .ant-statistic-content .ant-statistic-suffix { font-size: 14px; font-weight: 400; }
+    .ant-statistic-footer { font-size: 12px; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+
+    /* ========== Metric Grid ========== */
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .metric-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .metric-card {
+      padding: 16px; border-radius: var(--ant-radius-lg);
+      border: 1px solid var(--ant-border-secondary); background: #fff;
+      text-align: center; transition: box-shadow 0.2s;
+    }
+    .metric-card:hover { box-shadow: var(--shadow-md); }
+    .metric-card-abnormal { border-left: 3px solid var(--ant-error); }
+    .metric-card-normal { border-left: 3px solid var(--ant-success); }
+
+    /* ========== Topology ========== */
+    .topo-row { display: flex; align-items: center; justify-content: center; gap: 0; padding: 16px 0; }
+    .topo-node { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .topo-circle {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid; background: #fff; font-size: 20px;
+    }
+    .topo-name { font-size: 12px; font-weight: 600; color: var(--ant-text); text-align: center; }
+    .topo-status { font-size: 11px; font-weight: 500; }
+    .topo-link {
+      flex: 1; max-width: 80px; min-width: 40px; height: 2px;
+      position: relative; margin: 0 4px; align-self: center;
+      margin-bottom: 30px;
+    }
+    .topo-link-line { width: 100%; height: 100%; }
+    .topo-link-label {
+      position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+      font-size: 10px; white-space: nowrap;
+    }
+
+    /* ========== Link History ========== */
+    .link-history { display: flex; gap: 3px; }
+    .link-day {
+      flex: 1; height: 28px; border-radius: 3px;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    }
+    .link-day-bar { width: 100%; flex: 1; border-radius: 3px 3px 0 0; }
+    .link-day-label { font-size: 10px; color: var(--ant-text-tertiary); margin-top: 2px; }
+
+    /* ========== Sequence Diagram ========== */
+    .seq-diagram {
+      overflow-x: auto; padding: 8px 0;
+    }
+    .seq-flow {
+      display: flex; align-items: flex-start; gap: 0;
+      min-width: max-content; padding: 0 12px;
+    }
+    .seq-step {
+      display: flex; flex-direction: column; align-items: center;
+      min-width: 120px; flex-shrink: 0;
+    }
+    .seq-node {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; border: 2px solid; background: #fff;
+      position: relative; z-index: 1;
+    }
+    .seq-node-normal { border-color: var(--ant-primary); color: var(--ant-primary); background: var(--ant-primary-bg); }
+    .seq-node-error { border-color: var(--ant-error); color: var(--ant-error); background: var(--ant-error-bg); }
+    .seq-node-pending { border-color: #d9d9d9; color: #bfbfbf; background: #fafafa; }
+    .seq-label {
+      font-size: 12px; font-weight: 600; color: var(--ant-text);
+      margin-top: 8px; text-align: center; max-width: 110px;
+      line-height: 1.4;
+    }
+    .seq-time {
+      font-size: 11px; color: var(--ant-text-tertiary);
+      margin-top: 4px; text-align: center; font-family: monospace;
+    }
+    .seq-status {
+      font-size: 11px; font-weight: 500; margin-top: 3px;
+      text-align: center;
+    }
+    .seq-status-normal { color: var(--ant-primary); }
+    .seq-status-error { color: var(--ant-error); }
+    .seq-status-pending { color: #bfbfbf; }
+    .seq-arrow {
+      display: flex; align-items: center; min-width: 40px; flex: 1;
+      align-self: flex-start; margin-top: 24px; position: relative;
+    }
+    .seq-arrow-line {
+      width: 100%; height: 2px;
+    }
+    .seq-arrow-label {
+      position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+      font-size: 10px; white-space: nowrap; color: var(--ant-text-tertiary);
+    }
+
+    /* ========== Log Viewer ========== */
+    .log-viewer {
+      background: #1e1e1e; color: #d4d4d4; font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+      font-size: 12px; line-height: 1.6; padding: 16px; max-height: 360px;
+      overflow-y: auto; overflow-x: auto; white-space: pre; border-radius: 0 0 var(--ant-radius-lg) var(--ant-radius-lg);
+    }
+    .log-line { display: block; }
+    .log-line:hover { background: rgba(255,255,255,0.04); }
+    .log-ts { color: #6a9955; }
+    .log-method { color: #569cd6; font-weight: 600; }
+    .log-url { color: #ce9178; }
+    .log-header { color: #9cdcfe; }
+    .log-body { color: #d4d4d4; }
+    .log-error { color: #f44747; }
+    .log-warn { color: #dcdcaa; }
+
+    /* ========== Timeline ========== */
+    .ant-timeline { padding-left: 24px; position: relative; }
+    .ant-timeline::before {
+      content: ''; position: absolute; left: 7px; top: 8px; bottom: 0;
+      width: 2px; background: var(--ant-border-secondary);
+    }
+    .ant-timeline-item { position: relative; padding-bottom: 20px; }
+    .ant-timeline-item:last-child { padding-bottom: 0; }
+    .ant-timeline-dot {
+      position: absolute; left: -20px; top: 4px;
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid; background: #fff;
+    }
+    .ant-timeline-content { font-size: 13px; }
+    .ant-timeline-head {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+    }
+    .ant-timeline-head .op-type {
+      font-weight: 600; font-size: 13px;
+    }
+    .ant-timeline-head .op-time {
+      font-size: 12px; color: var(--ant-text-tertiary);
+    }
+    .ant-timeline-head .op-user {
+      font-size: 12px; color: var(--ant-text-secondary);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .ant-timeline-body {
+      color: var(--ant-text-secondary); font-size: 12px;
+      margin-top: 2px; line-height: 1.6;
+    }
+    .ant-timeline-pending {
+      text-align: center; padding: 12px 0 0;
+      color: var(--ant-text-tertiary); font-size: 12px; font-style: italic;
+    }
+
+    /* ========== Modal ========== */
+    .modal-mask {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      z-index: 1000; display: none; align-items: center; justify-content: center;
+    }
+    .modal-mask.show { display: flex; }
+    .ant-modal {
+      background: #fff; border-radius: var(--ant-radius-lg);
+      width: 520px; max-height: 80vh; display: flex; flex-direction: column;
+      box-shadow: var(--shadow-md);
+    }
+    .ant-modal-header {
+      padding: 16px 24px; border-bottom: 1px solid var(--ant-border-secondary);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .ant-modal-title { font-size: 16px; font-weight: 600; }
+    .ant-modal-close {
+      background: none; border: none; font-size: 16px; cursor: pointer;
+      color: var(--ant-text-tertiary); padding: 4px; line-height: 1;
+    }
+    .ant-modal-close:hover { color: var(--ant-text); }
+    .ant-modal-body { padding: 24px; overflow-y: auto; }
+    .ant-modal-footer {
+      padding: 12px 24px; border-top: 1px solid var(--ant-border-secondary);
+      display: flex; justify-content: flex-end; gap: 8px;
+    }
+
+    /* ========== Form ========== */
+    .ant-form-item { margin-bottom: 20px; }
+    .ant-form-item:last-child { margin-bottom: 0; }
+    .ant-form-label {
+      display: block; font-size: 14px; font-weight: 500;
+      color: var(--ant-text); margin-bottom: 8px;
+    }
+    .ant-form-label .required { color: var(--ant-error); margin-left: 2px; }
+    .ant-form-hint { font-size: 12px; color: var(--ant-text-tertiary); margin-top: 4px; }
+
+    /* ========== Radio Cards ========== */
+    .radio-cards { display: flex; flex-direction: column; gap: 8px; }
+    .radio-card {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border: 2px solid var(--ant-border-secondary);
+      border-radius: var(--ant-radius-lg); cursor: pointer; transition: all 0.2s;
+    }
+    .radio-card:hover { border-color: #bfbfbf; }
+    .radio-card.selected { border-color: var(--ant-primary); background: var(--ant-primary-bg); }
+    .radio-card .radio-dot {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid var(--ant-border); display: flex;
+      align-items: center; justify-content: center; flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .radio-card.selected .radio-dot {
+      border-color: var(--ant-primary); background: var(--ant-primary);
+    }
+    .radio-card.selected .radio-dot::after {
+      content: ''; width: 8px; height: 8px; border-radius: 50%; background: #fff;
+    }
+    .radio-card .radio-label { font-weight: 600; font-size: 14px; }
+    .radio-card .radio-desc { font-size: 12px; color: var(--ant-text-tertiary); margin-top: 1px; }
+
+    /* ========== Textarea ========== */
+    .ant-textarea {
+      width: 100%; padding: 8px 12px; border: 1px solid var(--ant-border);
+      border-radius: var(--ant-radius); font-size: 14px; font-family: inherit;
+      resize: vertical; transition: border-color 0.2s; min-height: 80px;
+    }
+    .ant-textarea:focus {
+      outline: none; border-color: var(--ant-primary);
+      box-shadow: 0 0 0 2px rgba(22,119,255,0.1);
+    }
+
+    /* ========== Toast ========== */
+    .toast {
+      position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+      padding: 10px 20px; border-radius: var(--ant-radius-lg);
+      box-shadow: var(--shadow-md); z-index: 2000;
+      display: none; font-size: 14px; gap: 8px; align-items: center;
+    }
+    .toast.show { display: flex; }
+    .toast-success { background: var(--ant-success-bg); border: 1px solid #b7eb8f; color: #389e0d; }
+    .toast-error { background: var(--ant-error-bg); border: 1px solid #ffa39e; color: #cf1322; }
+
+    /* ========== Pulse ========== */
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+    .pulse-dot { animation: pulse 1.5s infinite; }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 1200px) {
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .metric-grid-3 { grid-template-columns: repeat(2, 1fr); }
+      .ant-descriptions-row { flex-wrap: wrap; }
+      .ant-descriptions-item { min-width: 50%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video text-white text-sm"></i></div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-4">
+      <span style="color:rgba(255,255,255,0.65);font-size:13px;cursor:pointer;"><i class="fa-regular fa-bell mr-1"></i>5</span>
+      <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+        <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+        <span style="font-size:13px;">张工程师</span>
+      </div>
+    </div>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item" onclick="location.href='../ops-inspection/list.html'"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item" onclick="location.href='../ops-log/list.html'"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item" onclick="location.href='../ops-sla/index.html'"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item" onclick="location.href='../ops-predict/list.html'"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item active"><i class="fa-solid fa-bell"></i>设备告警</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span>
+        <a href="../ops-alert/list.html">智能运维</a><span>/</span>
+        <a href="list.html">设备告警</a><span>/</span>
+        <span style="color:var(--ant-text);">事件详情</span>
+      </div>
+
+    <div class="main-scroll">
+
+      <!-- Layer 1: 异常概览横幅 -->
+      <div class="alert-banner alert-banner-error" id="alertBanner">
+        <i class="fa-solid fa-circle-exclamation alert-icon"></i>
+        <div class="alert-banner-content">
+          <div class="alert-title">紧急告警 · 设备离线 · 已持续 2h15m 未处理</div>
+          <div class="alert-desc">涉及 2 个异常维度：链路诊断（心跳超时率 18.5%、点播失败）、网络状态（RTP 丢包 8.7%、码率为 0、端口不可达）</div>
+        </div>
+        <button class="alert-banner-close" onclick="document.getElementById('alertBanner').style.display='none'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Layer 2: 告警信息 Descriptions -->
+      <div style="margin:16px 24px 0;">
+        <div class="ant-descriptions">
+          <div class="ant-descriptions-header">
+            <div class="ant-descriptions-title">
+              <span style="background:linear-gradient(135deg,#cf1322,#ff4d4f);color:#fff;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:4px;margin-right:8px;">
+                <i class="fa-solid fa-triangle-exclamation" style="font-size:10px;"></i>设备告警
+              </span>
+              ALT-20260414-001
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;color:var(--ant-error);">
+                <span class="pulse-dot" style="width:7px;height:7px;border-radius:50%;background:var(--ant-error);display:inline-block;"></span>
+                待处置
+              </span>
+              <button class="ant-btn ant-btn-danger" id="btnOpenModal"><i class="fa-solid fa-circle-check"></i>处理告警</button>
+              <button class="ant-btn" id="btnMore"><i class="fa-solid fa-ellipsis"></i></button>
+            </div>
+          </div>
+          <div class="ant-descriptions-body">
+            <div class="ant-descriptions-row">
+              <div class="ant-descriptions-item">
+                <div class="ant-descriptions-item-label">告警级别</div>
+                <div class="ant-descriptions-item-content"><span class="ant-tag ant-tag-level-urgent">紧急</span></div>
+              </div>
+              <div class="ant-descriptions-item">
+                <div class="ant-descriptions-item-label">报警类型</div>
+                <div class="ant-descriptions-item-content">
+                  <span class="ant-tag ant-tag-error"><i class="fa-solid fa-link" style="font-size:10px;"></i>链路异常</span>
+                  <span class="ant-tag ant-tag-warning"><i class="fa-solid fa-heart-pulse" style="font-size:10px;"></i>心跳超时</span>
+                  <span class="ant-tag ant-tag-warning"><i class="fa-solid fa-network-wired" style="font-size:10px;"></i>端口不可达</span>
+                </div>
+              </div>
+              <div class="ant-descriptions-item">
+                <div class="ant-descriptions-item-label">负责人</div>
+                <div class="ant-descriptions-item-content"><span style="color:var(--ant-primary);font-weight:500;">张工程师</span></div>
+              </div>
+            </div>
+            <div class="ant-descriptions-row">
+              <div class="ant-descriptions-item">
+                <div class="ant-descriptions-item-label">设备名称</div>
+                <div class="ant-descriptions-item-content"><span style="font-weight:500;">西区-CAM-001</span></div>
+              </div>
+              <div class="ant-descriptions-item">
+                <div class="ant-descriptions-item-label">下级平台</div>
+                <div class="ant-descriptions-item-content">西区公安分局平台</div>
+              </div>
+              <div class="ant-descriptions-item">
+                <div class="ant-descriptions-item-label">触发时间</div>
+                <div class="ant-descriptions-item-content">2026-04-14 09:12:33</div>
+              </div>
+            </div>
+            <div class="ant-descriptions-row">
+              <div class="ant-descriptions-item">
+                <div class="ant-descriptions-item-label">设备类型</div>
+                <div class="ant-descriptions-item-content">枪机</div>
+              </div>
+              <div class="ant-descriptions-item">
+                <div class="ant-descriptions-item-label">设备 IP</div>
+                <div class="ant-descriptions-item-content"><code style="background:#f5f5f5;padding:2px 6px;border-radius:3px;font-size:12px;font-family:monospace;">192.168.1.101</code></div>
+              </div>
+              <div class="ant-descriptions-item">
+                <div class="ant-descriptions-item-label">巡检任务</div>
+                <div class="ant-descriptions-item-content"><a href="../ops-inspection/detail.html" style="color:var(--ant-primary);text-decoration:none;">西区日常巡检-0414</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 3: 诊断区 Tabs -->
+      <div class="ant-tabs">
+        <div class="ant-tabs-nav" id="tabsNav">
+          <div class="ant-tabs-tab active" data-tab="signaling" onclick="switchTab('signaling')">
+            <i class="fa-solid fa-link" style="font-size:12px;"></i>
+            链路诊断 <span class="tab-badge tab-badge-error">2</span>
+          </div>
+          <div class="ant-tabs-tab" data-tab="network" onclick="switchTab('network')">
+            <i class="fa-solid fa-network-wired" style="font-size:12px;"></i>
+            网络状态 <span class="tab-badge tab-badge-error">3</span>
+          </div>
+          <div class="ant-tabs-tab" data-tab="quality" onclick="switchTab('quality')">
+            <i class="fa-solid fa-image" style="font-size:12px;"></i>
+            画质类 <span class="tab-dot tab-dot-success"></span>
+          </div>
+        </div>
+
+        <div class="ant-tabs-content">
+
+          <!-- ===== 链路诊断 Tab ===== -->
+          <div class="tab-panel active" id="panel-signaling">
+            <!-- 指标卡片 -->
+            <div class="metric-grid">
+              <div class="metric-card metric-card-abnormal">
+                <div class="ant-statistic">
+                  <div class="ant-statistic-title">心跳超时率</div>
+                  <div class="ant-statistic-content" style="color:var(--ant-error);">18.5<span class="ant-statistic-suffix">%</span></div>
+                  <div class="ant-statistic-footer" style="color:var(--ant-error);"><i class="fa-solid fa-triangle-exclamation" style="font-size:10px;"></i>严重超标</div>
+                </div>
+              </div>
+              <div class="metric-card metric-card-abnormal">
+                <div class="ant-statistic">
+                  <div class="ant-statistic-title">点播成功率</div>
+                  <div class="ant-statistic-content" style="color:var(--ant-error);">0<span class="ant-statistic-suffix">%</span></div>
+                  <div class="ant-statistic-footer" style="color:var(--ant-error);"><i class="fa-solid fa-circle-xmark" style="font-size:10px;"></i>设备离线</div>
+                </div>
+              </div>
+            </div>
+            <!-- 诊断报告（链路时序图） -->
+            <div class="ant-card" style="margin-bottom:16px;">
+              <div class="ant-card-head">
+                <div class="ant-card-head-title">
+                  <i class="fa-solid fa-stethoscope" style="color:var(--ant-primary);"></i>诊断报告
+                  <span class="ant-tag ant-tag-error" style="margin-left:8px;font-size:11px;height:20px;">链路异常</span>
+                </div>
+              </div>
+              <div class="ant-card-body">
+                <div class="seq-diagram" id="seqDiagram"></div>
+                <div style="display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--ant-text-tertiary);">
+                  <span><span style="display:inline-block;width:10px;height:10px;background:var(--ant-primary);border-radius:50%;vertical-align:middle;margin-right:4px;"></span>正常</span>
+                  <span><span style="display:inline-block;width:10px;height:10px;background:var(--ant-error);border-radius:50%;vertical-align:middle;margin-right:4px;"></span>异常</span>
+                  <span><span style="display:inline-block;width:10px;height:10px;background:#d9d9d9;border-radius:50%;vertical-align:middle;margin-right:4px;"></span>未执行</span>
+                </div>
+              </div>
+            </div>
+            <!-- 原始日志 -->
+            <div class="ant-card">
+              <div class="ant-card-head">
+                <div class="ant-card-head-title"><i class="fa-solid fa-file-code" style="color:var(--ant-primary);"></i>原始日志</div>
+                <button class="ant-btn ant-btn-sm" id="btnDownloadLog" style="display:inline-flex;align-items:center;gap:4px;">
+                  <i class="fa-solid fa-download" style="font-size:11px;"></i>下载日志
+                </button>
+              </div>
+              <div class="ant-card-body" style="padding:0;">
+                <div class="log-viewer" id="logViewer"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== 网络状态 Tab ===== -->
+          <div class="tab-panel" id="panel-network">
+            <div class="metric-grid metric-grid-3">
+              <div class="metric-card metric-card-abnormal">
+                <div class="ant-statistic">
+                  <div class="ant-statistic-title">RTP 丢包率</div>
+                  <div class="ant-statistic-content" style="color:var(--ant-error);">8.7<span class="ant-statistic-suffix">%</span></div>
+                  <div class="ant-statistic-footer" style="color:var(--ant-error);"><i class="fa-solid fa-triangle-exclamation" style="font-size:10px;"></i>严重超标</div>
+                </div>
+              </div>
+              <div class="metric-card metric-card-abnormal">
+                <div class="ant-statistic">
+                  <div class="ant-statistic-title">视频流码率</div>
+                  <div class="ant-statistic-content" style="color:var(--ant-error);">0<span class="ant-statistic-suffix"> kbps</span></div>
+                  <div class="ant-statistic-footer" style="color:var(--ant-error);"><i class="fa-solid fa-circle-xmark" style="font-size:10px;"></i>无视频流</div>
+                </div>
+              </div>
+              <div class="metric-card metric-card-abnormal">
+                <div class="ant-statistic">
+                  <div class="ant-statistic-title">TCP 端口可达性</div>
+                  <div class="ant-statistic-content" style="color:var(--ant-error);">--</div>
+                  <div class="ant-statistic-footer" style="color:var(--ant-error);"><i class="fa-solid fa-circle-xmark" style="font-size:10px;"></i>不可达</div>
+                </div>
+              </div>
+            </div>
+            <!-- TCP端口 -->
+            <div class="ant-card">
+              <div class="ant-card-head">
+                <div class="ant-card-head-title"><i class="fa-solid fa-plug" style="color:var(--ant-primary);"></i>TCP 端口可达性</div>
+              </div>
+              <div class="ant-card-body">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;" id="tcpPorts"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== 画质类 Tab ===== -->
+          <div class="tab-panel" id="panel-quality">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <!-- 左：截图 -->
+              <div class="ant-card">
+                <div class="ant-card-head">
+                  <div class="ant-card-head-title"><i class="fa-solid fa-image" style="color:var(--ant-primary);"></i>最近巡检截图</div>
+                </div>
+                <div class="ant-card-body">
+                  <div style="background:#f5f5f5;border:2px dashed var(--ant-border);border-radius:8px;height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">
+                    <i class="fa-solid fa-camera" style="font-size:36px;color:var(--ant-text-quaternary);"></i>
+                    <div style="font-size:13px;color:var(--ant-text-tertiary);">最近巡检截图</div>
+                    <div style="font-size:12px;color:var(--ant-text-quaternary);">2026-05-22 08:30</div>
+                  </div>
+                  <button class="ant-btn" style="width:100%;margin-top:12px;" disabled><i class="fa-solid fa-play"></i>点播预览</button>
+                </div>
+              </div>
+              <!-- 右：画质评分+参数 -->
+              <div style="display:flex;flex-direction:column;gap:16px;">
+                <div class="ant-card">
+                  <div class="ant-card-head">
+                    <div class="ant-card-head-title"><i class="fa-solid fa-star" style="color:var(--ant-primary);"></i>画质评分</div>
+                  </div>
+                  <div class="ant-card-body" style="display:flex;gap:16px;align-items:center;">
+                    <div style="text-align:center;padding:12px 16px;background:var(--ant-success-bg);border:1px solid #b7eb8f;border-radius:8px;">
+                      <div style="font-size:40px;font-weight:800;color:#389e0d;line-height:1;">85</div>
+                      <div style="font-size:12px;color:var(--ant-text-tertiary);margin-top:2px;">/ 100</div>
+                      <div style="font-size:12px;font-weight:600;color:#389e0d;margin-top:4px;">正常</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ant-card">
+                  <div class="ant-card-head">
+                    <div class="ant-card-head-title"><i class="fa-solid fa-sliders" style="color:var(--ant-primary);"></i>视频参数</div>
+                  </div>
+                  <div class="ant-card-body">
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+                      <div class="metric-card metric-card-normal">
+                        <div class="ant-statistic">
+                          <div class="ant-statistic-title">分辨率</div>
+                          <div style="font-size:16px;font-weight:700;">1920×1080</div>
+                          <div style="font-size:11px;color:var(--ant-success);margin-top:2px;">1080P</div>
+                        </div>
+                      </div>
+                      <div class="metric-card metric-card-normal">
+                        <div class="ant-statistic">
+                          <div class="ant-statistic-title">码率</div>
+                          <div style="font-size:16px;font-weight:700;">4096</div>
+                          <div style="font-size:11px;color:var(--ant-text-tertiary);margin-top:2px;">kbps</div>
+                        </div>
+                      </div>
+                      <div class="metric-card metric-card-normal">
+                        <div class="ant-statistic">
+                          <div class="ant-statistic-title">帧率</div>
+                          <div style="font-size:16px;font-weight:700;">25</div>
+                          <div style="font-size:11px;color:var(--ant-text-tertiary);margin-top:2px;">fps</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Layer 4: 处置记录 -->
+      <div style="margin:16px 24px 0;">
+        <div class="ant-card">
+          <div class="ant-card-head">
+            <div class="ant-card-head-title"><i class="fa-solid fa-clock-rotate-left" style="color:var(--ant-primary);"></i>处置记录</div>
+          </div>
+          <div class="ant-card-body">
+            <div class="ant-timeline">
+              <div class="ant-timeline-item">
+                <div class="ant-timeline-dot" style="background:var(--ant-error);border-color:var(--ant-error);"></div>
+                <div class="ant-timeline-content">
+                  <div class="ant-timeline-head">
+                    <span class="op-type">告警触发</span>
+                    <span class="ant-tag ant-tag-error" style="height:20px;font-size:11px;">触发</span>
+                    <span class="op-time">2026-04-14 09:12:33</span>
+                    <span class="op-user"><i class="fa-solid fa-robot" style="font-size:10px;"></i>系统</span>
+                  </div>
+                  <div class="ant-timeline-body">系统自动检测到链路异常并创建告警，设备 CAM-001 离线</div>
+                </div>
+              </div>
+              <div class="ant-timeline-item">
+                <div class="ant-timeline-dot" style="background:var(--ant-primary);border-color:var(--ant-primary);"></div>
+                <div class="ant-timeline-content">
+                  <div class="ant-timeline-head">
+                    <span class="op-type">通知发送</span>
+                    <span class="ant-tag ant-tag-info" style="height:20px;font-size:11px;">通知</span>
+                    <span class="op-time">2026-04-14 09:12:40</span>
+                    <span class="op-user"><i class="fa-solid fa-robot" style="font-size:10px;"></i>系统</span>
+                  </div>
+                  <div class="ant-timeline-body">站内信已通知 3 名值班工程师：张工程师、李工程师、王工程师</div>
+                </div>
+              </div>
+            </div>
+            <div class="ant-timeline-pending">— 等待工程师处置 —</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- 处理告警弹窗 -->
+<div class="modal-mask" id="closeModal">
+  <div class="ant-modal">
+    <div class="ant-modal-header">
+      <div class="ant-modal-title">处理告警</div>
+      <button class="ant-modal-close" id="btnCloseModal"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ant-modal-body">
+      <div class="ant-form-item">
+        <label class="ant-form-label">关闭原因 <span class="required">*</span></label>
+        <div class="radio-cards" id="reasonCards"></div>
+      </div>
+      <div class="ant-form-item">
+        <label class="ant-form-label" id="remarkLabel">处置备注</label>
+        <textarea class="ant-textarea" id="closeRemark" placeholder="选填，最多500字符" rows="3" maxlength="500"></textarea>
+        <div class="ant-form-hint" id="remarkHint" style="color:var(--ant-error);display:none;">已修复时备注为必填，请简述修复措施</div>
+        <div class="ant-form-hint" id="remarkCount">0 / 500</div>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" id="btnCancelModal">取消</button>
+      <button class="ant-btn ant-btn-primary" id="btnConfirmClose">确认提交</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ========== Tab 切换 ========== */
+function switchTab(key) {
+  document.querySelectorAll('.ant-tabs-tab').forEach(function(t) {
+    t.classList.toggle('active', t.dataset.tab === key);
+  });
+  document.querySelectorAll('.tab-panel').forEach(function(p) {
+    p.classList.toggle('active', p.id === 'panel-' + key);
+  });
+}
+
+/* ========== Toast ========== */
+function showToast(type, msg) {
+  var el = document.getElementById('toast');
+  el.className = 'toast toast-' + type + ' show';
+  el.innerHTML = '<i class="fa-solid fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i>' + msg;
+  setTimeout(function() { el.classList.remove('show'); }, 2000);
+}
+
+/* ========== TCP 端口渲染 ========== */
+function renderTcpPorts() {
+  var ports = [
+    { name: 'RTSP (554)', status: 'timeout' },
+    { name: 'SIP (5060)', status: 'timeout' },
+    { name: 'HTTP (80)', status: 'timeout' }
+  ];
+  var html = '';
+  ports.forEach(function(port) {
+    html += '<div style="padding:14px;border-radius:8px;border:1px solid #ffccc7;background:var(--ant-error-bg);text-align:center;">'
+      + '<div style="font-size:13px;color:var(--ant-text-secondary);margin-bottom:4px;">' + port.name + '</div>'
+      + '<div style="font-size:18px;font-weight:700;color:var(--ant-error);">超时</div>'
+      + '<div style="font-size:11px;color:var(--ant-text-tertiary);margin-top:4px;">RTT: --</div></div>';
+  });
+  document.getElementById('tcpPorts').innerHTML = html;
+}
+
+/* ========== 链路时序图渲染 ========== */
+function renderSeqDiagram() {
+  var steps = [
+    { name: '收到点播请求', icon: 'fa-play', status: 'normal', time: '2026-06-02 16:32:43.748', label: '成功' },
+    { name: '未查到可用媒体流', icon: 'fa-magnifying-glass', status: 'normal', time: '2026-06-02 16:32:43.812', label: '未命中缓存' },
+    { name: '发送邀请指令', icon: 'fa-paper-plane', status: 'normal', time: '2026-06-02 16:32:44.013', label: 'INVITE' },
+    { name: '邀请指令响应', icon: 'fa-reply', status: 'error', time: '2026-06-02 16:32:46.521', label: '超时无响应' },
+    { name: '收到RTP流', icon: 'fa-film', status: 'pending', time: '--', label: '未执行' },
+    { name: 'RTP注册', icon: 'fa-registered', status: 'pending', time: '--', label: '未执行' },
+    { name: '注册流响应', icon: 'fa-check-double', status: 'pending', time: '--', label: '未执行' },
+    { name: '点播结束', icon: 'fa-stop', status: 'pending', time: '--', label: '未执行' }
+  ];
+  var html = '<div class="seq-flow">';
+  steps.forEach(function(step, i) {
+    var statusCls = 'seq-node-' + step.status;
+    var statusLabelCls = 'seq-status-' + step.status;
+    var arrowColor = step.status === 'error' ? 'var(--ant-error)' : (step.status === 'pending' ? '#d9d9d9' : 'var(--ant-primary)');
+    html += '<div class="seq-step">'
+      + '<div class="seq-node ' + statusCls + '"><i class="fa-solid ' + step.icon + '"></i></div>'
+      + '<div class="seq-label">' + step.name + '</div>'
+      + '<div class="seq-time">' + step.time + '</div>'
+      + '<div class="seq-status ' + statusLabelCls + '">' + step.label + '</div>'
+      + '</div>';
+    if (i < steps.length - 1) {
+      var nextPending = steps[i + 1].status === 'pending';
+      var currentError = step.status === 'error';
+      var lineStyle = (currentError || nextPending) ? 'stroke-dasharray="4,3"' : '';
+      var lineColor = arrowColor;
+      html += '<div class="seq-arrow">'
+        + '<svg class="seq-arrow-line" viewBox="0 0 100 2" preserveAspectRatio="none">'
+        + '<line x1="0" y1="1" x2="92" y2="1" stroke="' + lineColor + '" stroke-width="2" ' + lineStyle + '/>'
+        + '<polygon points="92,0 100,1 92,2" fill="' + lineColor + '"/>'
+        + '</svg></div>';
+    }
+  });
+  html += '</div>';
+  document.getElementById('seqDiagram').innerHTML = html;
+}
+
+/* ========== 原始日志渲染 ========== */
+function renderLogViewer() {
+  var logs = [
+    { ts: '2026-06-02 16:32:43.748', content: '<span class="log-method">收到点播请求</span> <span class="log-url">sip:34020000001320000001@3402000000</span>' },
+    { ts: '2026-06-02 16:32:43.812', content: '<span class="log-warn">未查到可用的媒体流</span>，设备编码: 34020000001320000001' },
+    { ts: '2026-06-02 16:32:44.013', content: '<span class="log-method">发送邀请Invite;</span> <span class="log-url">INVITE sip:34020000001320000001@10.55.216.94:5080 SIP/2.0</span>' },
+    { ts: '', content: '<span class="log-header">Via:</span> SIP/2.0/UDP 10.55.216.88:5060;branch=z9hG4bK3f00a1b2' },
+    { ts: '', content: '<span class="log-header">From:</span> &lt;sip:34020000002000000001@10.55.216.88&gt;;tag=abc123' },
+    { ts: '', content: '<span class="log-header">To:</span> &lt;sip:34020000001320000001@10.55.216.94&gt;' },
+    { ts: '', content: '<span class="log-header">Call-ID:</span> 3f00a1b2-c8d9-4e7f-a6b5@10.55.216.88' },
+    { ts: '', content: '<span class="log-header">CSeq:</span> 1 INVITE' },
+    { ts: '', content: '<span class="log-header">Content-Type:</span> application/sdp' },
+    { ts: '', content: '<span class="log-header">Content-Length:</span> 0' },
+    { ts: '2026-06-02 16:32:46.521', content: '<span class="log-error">邀请指令响应超时</span>，等待 2508ms 无响应' },
+    { ts: '', content: '<span class="log-error">错误码:</span> 408 Request Timeout' },
+    { ts: '', content: '<span class="log-error">诊断结论:</span> 设备未响应INVITE请求，疑似链路中断或设备离线' }
+  ];
+  var html = '';
+  logs.forEach(function(log) {
+    var tsHtml = log.ts ? '<span class="log-ts">[' + log.ts + ']</span> ' : '                        ';
+    html += '<span class="log-line">' + tsHtml + log.content + '</span>\n';
+  });
+  document.getElementById('logViewer').innerHTML = html;
+}
+
+/* ========== 下载日志 ========== */
+document.getElementById('btnDownloadLog').addEventListener('click', function() {
+  var logText = document.getElementById('logViewer').textContent;
+  var blob = new Blob([logText], { type: 'text/plain;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'ALT-20260414-001_链路诊断日志.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('success', '日志下载已开始');
+});
+
+/* ========== 关闭原因渲染 ========== */
+var closeReasons = [
+  { value: 'fixed', label: '已修复', desc: '问题已解决，设备恢复正常', color: '#389e0d' },
+  { value: 'false', label: '误报', desc: '检测误判，实际无异常', color: '#d46b08' },
+  { value: 'ignore', label: '已忽略', desc: '不影响业务，暂不处理', color: 'var(--ant-text-secondary)' }
+];
+var selectedReason = '';
+
+function renderReasonCards() {
+  var html = '';
+  closeReasons.forEach(function(r) {
+    var sel = selectedReason === r.value;
+    html += '<div class="radio-card' + (sel ? ' selected' : '') + '" onclick="selectReason(\'' + r.value + '\')">'
+      + '<div class="radio-dot"></div>'
+      + '<div><div class="radio-label" style="color:' + r.color + ';">' + r.label + '</div>'
+      + '<div class="radio-desc">' + r.desc + '</div></div></div>';
+  });
+  document.getElementById('reasonCards').innerHTML = html;
+}
+
+function selectReason(value) {
+  selectedReason = value;
+  renderReasonCards();
+  updateRemarkLabel();
+  document.getElementById('remarkHint').style.display = 'none';
+}
+
+function updateRemarkLabel() {
+  var label = '处置备注';
+  if (selectedReason === 'fixed') label += ' <span class="required">*</span>';
+  document.getElementById('remarkLabel').innerHTML = label;
+}
+
+/* ========== 弹窗控制 ========== */
+function openModal() {
+  selectedReason = '';
+  document.getElementById('closeRemark').value = '';
+  document.getElementById('remarkHint').style.display = 'none';
+  document.getElementById('remarkCount').textContent = '0 / 500';
+  renderReasonCards();
+  updateRemarkLabel();
+  document.getElementById('closeModal').classList.add('show');
+}
+
+function closeModalFn() {
+  document.getElementById('closeModal').classList.remove('show');
+}
+
+function confirmClose() {
+  if (!selectedReason) { showToast('error', '请选择关闭原因'); return; }
+  if (selectedReason === 'fixed' && !document.getElementById('closeRemark').value.trim()) {
+    document.getElementById('remarkHint').style.display = '';
+    return;
+  }
+  var labels = { fixed: '已修复', 'false': '误报', ignore: '已忽略' };
+  var remark = document.getElementById('closeRemark').value.trim();
+  closeModalFn();
+  showToast('success', '告警已关闭（' + labels[selectedReason] + '）');
+  setTimeout(function() { location.href = 'list.html'; }, 1500);
+}
+
+/* ========== 备注字数统计 ========== */
+document.getElementById('closeRemark').addEventListener('input', function() {
+  document.getElementById('remarkCount').textContent = this.value.length + ' / 500';
+});
+
+/* ========== 事件绑定 ========== */
+document.getElementById('btnOpenModal').addEventListener('click', openModal);
+document.getElementById('btnCloseModal').addEventListener('click', closeModalFn);
+document.getElementById('btnCancelModal').addEventListener('click', closeModalFn);
+document.getElementById('btnConfirmClose').addEventListener('click', confirmClose);
+document.getElementById('closeModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModalFn();
+});
+
+/* ========== 初始化 ========== */
+renderTcpPorts();
+renderSeqDiagram();
+renderLogViewer();
+</script>
+</body>
+</html>

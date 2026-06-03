@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>检测算法管理 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --ant-primary:#1677ff;--ant-primary-hover:#4096ff;--ant-primary-bg:#e6f4ff;
+      --ant-success:#52c41a;--ant-success-bg:#f6ffed;--ant-warning:#faad14;--ant-warning-bg:#fffbe6;
+      --ant-error:#ff4d4f;--ant-error-bg:#fff2f0;
+      --ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);
+      --ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--ant-bg:#f5f5f5;--ant-bg-container:#ffffff;
+      --shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);
+      --shadow-2:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08);
+    }
+    *{box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    /* 布局 */
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}
+    .sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;overflow-y:auto;}
+    .main{flex:1;padding:24px;overflow:auto;}
+    /* 侧边菜单 */
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.5px;}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}
+    .menu-item.active{color:#fff;background:var(--ant-primary);}
+    .menu-item i{width:16px;text-align:center;}
+    /* 按钮 */
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:var(--ant-bg-container);color:var(--ant-text);cursor:pointer;transition:all 0.2s;}
+    .ant-btn:hover{color:var(--ant-primary-hover);border-color:var(--ant-primary-hover);}
+    .ant-btn-primary{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .ant-btn-primary:hover{background:var(--ant-primary-hover);border-color:var(--ant-primary-hover);}
+    .ant-btn-text{border-color:transparent;background:transparent;box-shadow:none;color:var(--ant-primary);}
+    .ant-btn-dangerous{color:var(--ant-error);border-color:var(--ant-error);}
+    .ant-btn-sm{height:26px;padding:0 10px;font-size:12px;}
+    /* 卡片 */
+    .ant-card{background:var(--ant-bg-container);border-radius:8px;box-shadow:var(--shadow-1);}
+    .ant-card-head{display:flex;align-items:center;justify-content:space-between;min-height:56px;padding:0 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:16px;font-weight:600;}
+    .ant-card-body{padding:24px;}
+    /* 标签 */
+    .ant-tag{display:inline-flex;align-items:center;height:22px;padding:0 7px;font-size:12px;border-radius:4px;}
+    .ant-tag-blue{color:#1677ff;background:#e6f4ff;border:1px solid #91caff;}
+    .ant-tag-green{color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;}
+    .ant-tag-orange{color:#fa8c16;background:#fff7e6;border:1px solid #ffd591;}
+    .ant-tag-purple{color:#722ed1;background:#f9f0ff;border:1px solid #d3adf7;}
+    .ant-tag-red{color:#f5222d;background:#fff1f0;border:1px solid #ffa39e;}
+    /* 输入框 */
+    .ant-input{height:32px;padding:0 11px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;outline:none;background:#fff;width:100%;}
+    .ant-input:focus{border-color:var(--ant-primary);box-shadow:0 0 0 2px rgba(22,119,255,0.1);}
+    .ant-select{height:32px;padding:0 11px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;font-size:14px;outline:none;min-width:120px;}
+    /* 弹窗 */
+    .ant-modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:1000;}
+    .ant-modal-mask.active{display:flex;}
+    .ant-modal{background:#fff;border-radius:8px;box-shadow:var(--shadow-2);width:640px;max-width:92vw;max-height:90vh;overflow:hidden;}
+    .ant-modal-header{padding:16px 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:16px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+    .ant-modal-body{padding:24px;max-height:60vh;overflow:auto;}
+    .ant-modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:16px 24px;border-top:1px solid var(--ant-border-secondary);}
+    /* 算法卡片 */
+    .algo-card{background:#fff;border:1px solid var(--ant-border-secondary);border-radius:8px;padding:20px;transition:all 0.2s;position:relative;}
+    .algo-card:hover{border-color:var(--ant-primary);box-shadow:0 4px 12px rgba(22,119,255,0.1);}
+    .algo-card-icon{width:44px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px;}
+    .algo-card-actions{position:absolute;top:12px;right:12px;display:none;gap:4px;}
+    .algo-card:hover .algo-card-actions{display:flex;}
+    /* 消息 */
+    .ant-message{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:2000;}
+    .ant-message-notice{padding:10px 16px;background:#fff;border-radius:8px;box-shadow:var(--shadow-2);display:flex;align-items:center;gap:8px;font-size:14px;}
+    /* 表单 */
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .form-item{margin-bottom:16px;}
+    .form-label{display:block;margin-bottom:6px;font-size:14px;color:var(--ant-text);}
+    .form-label-required::before{content:'*';color:var(--ant-error);margin-right:4px;}
+    /* 面包屑 */
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}
+    .breadcrumb a:hover{color:var(--ant-primary);}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <!-- 顶部Header -->
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;">
+        <i class="fa-solid fa-video text-white text-sm"></i>
+      </div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-4">
+      <span style="color:rgba(255,255,255,0.65);font-size:13px;"><i class="fa-regular fa-bell mr-1"></i>3</span>
+      <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+        <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+        <span style="font-size:13px;">张工程师</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <!-- 左侧导航 -->
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item" onclick="location.href='../ops-inspection/list.html'"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item" onclick="location.href='../ops-log/list.html'"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item" onclick="location.href='../ops-sla/index.html'"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item" onclick="location.href='../ops-predict/list.html'"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-bell"></i>设备告警</div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span>智能运维</span><span>/</span><span style="color:var(--ant-text);">检测算法管理</span>
+      </div>
+
+      <!-- 操作栏 -->
+      <div class="ant-card mb-4" style="box-shadow:var(--shadow-1);">
+        <div class="ant-card-body" style="padding:16px 24px;">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <input class="ant-input" style="width:220px;" placeholder="搜索算法名称" value="">
+              <select class="ant-select">
+                <option value="">全部分类</option>
+                <option>画质检测</option>
+                <option>链路检测</option>
+                <option>网络状态检测</option>
+              </select>
+              <button class="ant-btn"><i class="fa-solid fa-magnifying-glass"></i>搜索</button>
+              <button class="ant-btn ant-btn-text">重置</button>
+            </div>
+            <button class="ant-btn ant-btn-primary" onclick="openModal('createModal')">
+              <i class="fa-solid fa-plus"></i>新增算法
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 算法卡片网格 -->
+      <div class="grid grid-cols-3 gap-4" id="algoGrid">
+        <!-- 卡片：视频画质诊断 -->
+        <div class="algo-card">
+          <div class="algo-card-actions">
+            <button class="ant-btn ant-btn-sm" onclick="openEditModal('视频画质诊断')"><i class="fa-solid fa-pen"></i></button>
+            <button class="ant-btn ant-btn-sm ant-btn-dangerous" onclick="confirmDelete('视频画质诊断')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <div class="algo-card-icon" style="background:#e6f4ff;"><i class="fa-solid fa-eye" style="color:#1677ff;"></i></div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="font-semibold text-gray-800">视频画质诊断</span>
+            <span class="ant-tag ant-tag-blue">画质检测</span>
+          </div>
+          <p class="text-xs mb-3" style="color:rgba(0,0,0,0.45);line-height:1.6;">对视频流进行实时AI画质分析，检测模糊、遮挡、噪点等问题，输出质量评分（0-100）。</p>
+          <div class="flex items-center gap-3 text-xs" style="color:rgba(0,0,0,0.45);">
+            <span><i class="fa-solid fa-link mr-1"></i>被引用：12个任务</span>
+            <span><i class="fa-solid fa-clock mr-1"></i>超时：30s</span>
+          </div>
+        </div>
+
+        <!-- 卡片：链路检测 -->
+        <div class="algo-card" style="border-color:#b7eb8f;background:linear-gradient(135deg,#fafafa,#f6ffed);">
+          <div class="algo-card-actions">
+            <button class="ant-btn ant-btn-sm" onclick="openEditModal('链路检测')"><i class="fa-solid fa-pen"></i></button>
+            <button class="ant-btn ant-btn-sm ant-btn-dangerous" onclick="confirmDelete('链路检测')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <div class="algo-card-icon" style="background:#f6ffed;"><i class="fa-solid fa-link" style="color:#52c41a;"></i></div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="font-semibold text-gray-800">链路检测</span>
+            <span class="ant-tag ant-tag-green">链路检测</span>
+          </div>
+          <p class="text-xs mb-3" style="color:rgba(0,0,0,0.45);line-height:1.6;">检测设备基础网络连通性，包含 ICMP 丢包率和往返时延(RTT)，定位链路层故障根因，生成诊断时序图和原始日志。</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+            <span style="background:#f6ffed;color:#52c41a;padding:2px 8px;border-radius:4px;font-size:11px;border:1px solid #b7eb8f;">ICMP丢包率</span>
+            <span style="background:#f6ffed;color:#52c41a;padding:2px 8px;border-radius:4px;font-size:11px;border:1px solid #b7eb8f;">往返时延(RTT)</span>
+          </div>
+          <div class="mt-2 text-xs" style="color:rgba(0,0,0,0.45);">
+            <i class="fa-solid fa-link mr-1"></i>被引用：8个任务
+          </div>
+        </div>
+
+        <!-- 卡片：网络状态检测（新） -->
+        <div class="algo-card" style="border-color:#69c0ff;background:linear-gradient(135deg,#fafafa,#e6f4ff);">
+          <div style="position:absolute;top:12px;left:12px;background:#1677ff;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">NEW</div>
+          <div class="algo-card-actions">
+            <button class="ant-btn ant-btn-sm" onclick="openEditModal('网络状态检测')"><i class="fa-solid fa-pen"></i></button>
+            <button class="ant-btn ant-btn-sm ant-btn-dangerous" onclick="confirmDelete('网络状态检测')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <div class="algo-card-icon" style="background:#e6f4ff;margin-top:12px;"><i class="fa-solid fa-tower-broadcast" style="color:#1677ff;"></i></div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="font-semibold text-gray-800">网络状态检测</span>
+            <span class="ant-tag ant-tag-blue">网络状态检测 ›</span>
+          </div>
+          <p class="text-xs mb-3" style="color:rgba(0,0,0,0.45);line-height:1.6;">检测视频流传输层质量，直接关联花屏、掉帧等用户可感知问题。包含 RTP 丢包率、视频流码率、TCP 端口可达性。</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+            <span style="background:#e6f4ff;color:#1677ff;padding:2px 8px;border-radius:4px;font-size:11px;border:1px solid #91caff;">RTP丢包率</span>
+            <span style="background:#e6f4ff;color:#1677ff;padding:2px 8px;border-radius:4px;font-size:11px;border:1px solid #91caff;">视频流码率</span>
+            <span style="background:#f6ffed;color:#52c41a;padding:2px 8px;border-radius:4px;font-size:11px;border:1px solid #b7eb8f;">TCP端口可达性</span>
+          </div>
+          <div class="mt-2 text-xs" style="color:rgba(0,0,0,0.45);">
+            <i class="fa-solid fa-link mr-1"></i>被引用：3个任务
+          </div>
+        </div>
+
+        <!-- 卡片：AI行为分析 -->
+        <div class="algo-card">
+          <div class="algo-card-actions">
+            <button class="ant-btn ant-btn-sm" onclick="openEditModal('画面质量检测')"><i class="fa-solid fa-pen"></i></button>
+            <button class="ant-btn ant-btn-sm ant-btn-dangerous"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <div class="algo-card-icon" style="background:#fff7e6;"><i class="fa-solid fa-brain" style="color:#fa8c16;"></i></div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="font-semibold text-gray-800">画面质量检测</span>
+            <span class="ant-tag ant-tag-blue">画面质量检测</span>
+          </div>
+          <p class="text-xs mb-3" style="color:rgba(0,0,0,0.45);line-height:1.6;">基于深度学习检测人员入侵、徘徊、跌倒等异常行为，支持ROI区域配置，输出事件列表。</p>
+          <div class="flex items-center gap-3 text-xs" style="color:rgba(0,0,0,0.45);">
+            <span><i class="fa-solid fa-link mr-1"></i>被引用：7个任务</span>
+            <span><i class="fa-solid fa-clock mr-1"></i>超时：60s</span>
+          </div>
+        </div>
+
+        <!-- 卡片：图像遮挡检测 -->
+        <div class="algo-card">
+          <div class="algo-card-actions">
+            <button class="ant-btn ant-btn-sm" onclick="openEditModal('图像遮挡检测')"><i class="fa-solid fa-pen"></i></button>
+            <button class="ant-btn ant-btn-sm ant-btn-dangerous"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <div class="algo-card-icon" style="background:#fff1f0;"><i class="fa-solid fa-eye-slash" style="color:#f5222d;"></i></div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="font-semibold text-gray-800">图像遮挡检测</span>
+            <span class="ant-tag ant-tag-blue">画质检测</span>
+          </div>
+          <p class="text-xs mb-3" style="color:rgba(0,0,0,0.45);line-height:1.6;">实时检测摄像头镜头遮挡情况，包含全遮挡/局部遮挡/镜头污染，触发后自动上报告警。</p>
+          <div class="flex items-center gap-3 text-xs" style="color:rgba(0,0,0,0.45);">
+            <span><i class="fa-solid fa-link mr-1"></i>被引用：19个任务</span>
+            <span><i class="fa-solid fa-clock mr-1"></i>超时：10s</span>
+          </div>
+        </div>
+
+        <!-- 添加卡片占位 -->
+        <div class="algo-card flex flex-col items-center justify-center" style="border:1px dashed var(--ant-border);background:transparent;min-height:180px;cursor:pointer;" onclick="openModal('createModal')">
+          <i class="fa-solid fa-plus text-2xl mb-2" style="color:rgba(0,0,0,0.25);"></i>
+          <span style="color:rgba(0,0,0,0.45);">添加新算法</span>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 新增/编辑算法弹窗 -->
+<div class="ant-modal-mask" id="createModal">
+  <div class="ant-modal">
+    <div class="ant-modal-header">
+      <span>新增检测算法</span>
+      <span class="cursor-pointer" style="color:rgba(0,0,0,0.45);font-size:18px;" onclick="closeModal('createModal')">×</span>
+    </div>
+    <div class="ant-modal-body">
+      <div class="form-row">
+        <div class="form-item">
+          <label class="form-label form-label-required">算法名称</label>
+          <input class="ant-input" placeholder="请输入算法名称">
+        </div>
+        <div class="form-item">
+          <label class="form-label form-label-required">算法分类</label>
+          <select class="ant-select" style="width:100%;" onchange="onAlgoTypeChange(this.value)">
+            <option value="">请选择分类</option>
+            <option value="画质检测">画质检测</option>
+            <option value="链路检测">链路检测</option>
+            <option value="网络状态检测">网络状态检测</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-item">
+        <label class="form-label">算法描述</label>
+        <textarea class="ant-input" rows="2" style="height:auto;padding:8px 11px;resize:vertical;" placeholder="请描述算法功能与适用场景"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-item" id="genericTimeoutField">
+          <label class="form-label form-label-required">超时阈值（秒）</label>
+          <input class="ant-input" type="number" value="30" min="1" max="300">
+        </div>
+        <div class="form-item">
+          <label class="form-label">算法版本</label>
+          <input class="ant-input" placeholder="如 v1.0.0">
+        </div>
+      </div>
+
+      <!-- 链路检测专属字段（条件展示） -->
+      <div id="linkFields" style="display:none;background:#f6ffed;border:1px solid #b7eb8f;border-radius:8px;padding:16px;margin-top:8px;">
+        <div class="flex items-center gap-2 mb-3">
+          <i class="fa-solid fa-link" style="color:#52c41a;"></i>
+          <span class="font-medium" style="color:#52c41a;">链路检测专属配置</span>
+        </div>
+        <div style="display:grid;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #b7eb8f;border-radius:6px;">
+            <input type="checkbox" checked style="accent-color:#52c41a;">
+            <span style="flex:1;font-size:13px;">ICMP丢包率</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">阈值</span>
+            <input class="ant-input" type="number" value="5" min="0.1" max="100" step="0.1" style="width:70px;height:28px;font-size:13px;">
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #b7eb8f;border-radius:6px;">
+            <input type="checkbox" checked style="accent-color:#52c41a;">
+            <span style="flex:1;font-size:13px;">往返时延(RTT)</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">阈值</span>
+            <input class="ant-input" type="number" value="200" min="10" max="5000" style="width:80px;height:28px;font-size:13px;">
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">ms</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 网络状态检测专属字段（条件展示） -->
+      <div id="networkFields" style="display:none;background:#e6f4ff;border:1px solid #91caff;border-radius:8px;padding:16px;margin-top:8px;">
+        <div class="flex items-center gap-2 mb-3">
+          <i class="fa-solid fa-tower-broadcast" style="color:#1677ff;"></i>
+          <span class="font-medium" style="color:#1677ff;">网络状态检测专属配置</span>
+        </div>
+        <div style="display:grid;gap:8px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #91caff;border-radius:6px;">
+            <input type="checkbox" checked style="accent-color:#1677ff;">
+            <span style="flex:1;font-size:13px;">RTP丢包率</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">阈值</span>
+            <input class="ant-input" type="number" value="5" min="0.1" max="100" step="0.1" style="width:70px;height:28px;font-size:13px;">
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #91caff;border-radius:6px;">
+            <input type="checkbox" checked style="accent-color:#1677ff;">
+            <span style="flex:1;font-size:13px;">视频流实际码率</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">阈值</span>
+            <input class="ant-input" type="number" value="1024" min="100" max="20000" style="width:80px;height:28px;font-size:13px;">
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">kbps</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #91caff;border-radius:6px;">
+            <input type="checkbox" style="accent-color:#1677ff;">
+            <span style="flex:1;font-size:13px;">TCP端口可达性</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">端口</span>
+            <input class="ant-input" type="number" value="554" min="1" max="65535" style="width:70px;height:28px;font-size:13px;">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeModal('createModal')">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="handleSave()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑弹窗（根据算法类型动态显示专属配置） -->
+<div class="ant-modal-mask" id="editModal">
+  <div class="ant-modal">
+    <div class="ant-modal-header">
+      <span id="editModalTitle">编辑算法</span>
+      <span class="cursor-pointer" style="color:rgba(0,0,0,0.45);font-size:18px;" onclick="closeModal('editModal')">×</span>
+    </div>
+    <div class="ant-modal-body">
+      <div class="form-row">
+        <div class="form-item">
+          <label class="form-label form-label-required">算法名称</label>
+          <input class="ant-input" id="editAlgoName" value="">
+        </div>
+        <div class="form-item">
+          <label class="form-label form-label-required">算法分类</label>
+          <select class="ant-select" id="editAlgoType" style="width:100%;" onchange="onEditTypeChange(this.value)">
+            <option value="画质检测">画质检测</option>
+            <option value="链路检测">链路检测</option>
+            <option value="网络状态检测">网络状态检测</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-item">
+        <label class="form-label">算法描述</label>
+        <textarea class="ant-input" id="editAlgoDesc" rows="2" style="height:auto;padding:8px 11px;"></textarea>
+      </div>
+      <div class="form-row" id="editGenericTimeout">
+        <div class="form-item">
+          <label class="form-label form-label-required">超时阈值（秒）</label>
+          <input class="ant-input" type="number" value="30" min="1" max="300">
+        </div>
+        <div class="form-item">
+          <label class="form-label">算法版本</label>
+          <input class="ant-input" placeholder="如 v1.0.0">
+        </div>
+      </div>
+
+      <!-- 链路检测专属配置 -->
+      <div id="editLinkFields" style="display:none;background:#f6ffed;border:1px solid #b7eb8f;border-radius:8px;padding:16px;margin-top:8px;">
+        <div class="flex items-center gap-2 mb-3">
+          <i class="fa-solid fa-link" style="color:#52c41a;"></i>
+          <span class="font-medium" style="color:#52c41a;">链路检测专属配置</span>
+        </div>
+        <div style="display:grid;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #b7eb8f;border-radius:6px;">
+            <input type="checkbox" checked style="accent-color:#52c41a;">
+            <span style="flex:1;font-size:13px;">ICMP丢包率</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">阈值</span>
+            <input class="ant-input" type="number" value="5" min="0.1" max="100" step="0.1" style="width:70px;height:28px;font-size:13px;">
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #b7eb8f;border-radius:6px;">
+            <input type="checkbox" checked style="accent-color:#52c41a;">
+            <span style="flex:1;font-size:13px;">往返时延(RTT)</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">阈值</span>
+            <input class="ant-input" type="number" value="200" min="10" max="5000" style="width:80px;height:28px;font-size:13px;">
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">ms</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 网络状态检测专属配置 -->
+      <div id="editNetworkFields" style="display:none;background:#e6f4ff;border:1px solid #91caff;border-radius:8px;padding:16px;margin-top:8px;">
+        <div class="flex items-center gap-2 mb-3">
+          <i class="fa-solid fa-tower-broadcast" style="color:#1677ff;"></i>
+          <span class="font-medium" style="color:#1677ff;">网络状态检测专属配置</span>
+        </div>
+        <div style="display:grid;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #91caff;border-radius:6px;">
+            <input type="checkbox" checked style="accent-color:#1677ff;">
+            <span style="flex:1;font-size:13px;">RTP丢包率</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">阈值</span>
+            <input class="ant-input" type="number" value="5" min="0.1" max="100" step="0.1" style="width:70px;height:28px;font-size:13px;">
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #91caff;border-radius:6px;">
+            <input type="checkbox" checked style="accent-color:#1677ff;">
+            <span style="flex:1;font-size:13px;">视频流实际码率</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">低于</span>
+            <input class="ant-input" type="number" value="1024" min="100" max="20000" style="width:80px;height:28px;font-size:13px;">
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">kbps 告警</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #91caff;border-radius:6px;">
+            <input type="checkbox" style="accent-color:#1677ff;">
+            <span style="flex:1;font-size:13px;">TCP端口可达性</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">端口</span>
+            <input class="ant-input" type="number" value="554" min="1" max="65535" style="width:70px;height:28px;font-size:13px;">
+          </div>
+        </div>
+      </div>
+
+      <div id="editRefWarning" style="display:none;margin-top:12px;padding:10px;background:#fff2f0;border-radius:6px;font-size:12px;color:#cf1322;display:flex;align-items:center;gap:6px;">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="editRefText">该算法已被巡检任务引用，修改参数将在下次任务执行时生效。</span>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeModal('editModal')">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="showMsg('保存成功');closeModal('editModal')">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 消息提示 -->
+<div class="ant-message" id="msgBox" style="display:none;">
+  <div class="ant-message-notice" id="msgContent">
+    <i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>
+    <span id="msgText">操作成功</span>
+  </div>
+</div>
+
+<script>
+  // 侧边菜单高亮当前页
+  document.querySelectorAll('.menu-item').forEach((item, idx) => {
+    if (idx === 0) item.classList.add('active');
+  });
+
+  function openModal(id) { document.getElementById(id).classList.add('active'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+  // ===== 新增弹窗：算法分类变更 =====
+  function onAlgoTypeChange(val) {
+    document.getElementById('linkFields').style.display = val === '链路检测' ? 'block' : 'none';
+    document.getElementById('networkFields').style.display = val === '网络状态检测' ? 'block' : 'none';
+    document.getElementById('genericTimeoutField').style.display = (val === '链路检测' || val === '网络状态检测') ? 'none' : '';
+  }
+
+  // ===== 编辑弹窗：算法分类变更 =====
+  function onEditTypeChange(val) {
+    document.getElementById('editLinkFields').style.display = val === '链路检测' ? 'block' : 'none';
+    document.getElementById('editNetworkFields').style.display = val === '网络状态检测' ? 'block' : 'none';
+    document.getElementById('editGenericTimeout').style.display = (val === '链路检测' || val === '网络状态检测') ? 'none' : '';
+  }
+
+  // ===== 打开编辑弹窗，根据类型填充数据 =====
+  var algoData = {
+    '视频画质诊断': { type:'画质检测', desc:'对视频流进行实时AI画质分析，检测模糊、遮挡、噪点等问题，输出质量评分（0-100）。', refs:12 },
+    '链路检测': { type:'链路检测', desc:'检测设备基础网络连通性，包含 ICMP 丢包率和往返时延(RTT)，定位链路层故障根因。', refs:8 },
+    '网络状态检测': { type:'网络状态检测', desc:'检测视频流传输层质量，直接关联花屏、掉帧等用户可感知问题。包含 RTP 丢包率、视频流码率、TCP 端口可达性。', refs:3 },
+    '画面质量检测': { type:'画质检测', desc:'基于深度学习检测画面质量异常，支持清晰度评分、雪花/条纹检测。', refs:7 },
+    '图像遮挡检测': { type:'画质检测', desc:'实时检测摄像头镜头遮挡情况，包含全遮挡/局部遮挡/镜头污染。', refs:19 }
+  };
+
+  function openEditModal(name) {
+    var data = algoData[name];
+    if (!data) return;
+    document.getElementById('editModalTitle').textContent = '编辑算法 — ' + name;
+    document.getElementById('editAlgoName').value = name;
+    document.getElementById('editAlgoType').value = data.type;
+    document.getElementById('editAlgoDesc').value = data.desc;
+    document.getElementById('editRefText').textContent = '该算法已被 ' + data.refs + ' 个巡检任务引用，修改参数将在下次任务执行时生效。';
+    document.getElementById('editRefWarning').style.display = data.refs > 0 ? 'flex' : 'none';
+    onEditTypeChange(data.type);
+    openModal('editModal');
+  }
+
+  function handleSave() {
+    showMsg('算法已创建成功');
+    closeModal('createModal');
+  }
+
+  function confirmDelete(name) {
+    if (confirm(`确定要删除算法"${name}"吗？\n\n如果该算法已被任务引用，系统将阻止删除。`)) {
+      showMsg('删除失败：该算法已被巡检任务引用', 'error');
+    }
+  }
+
+  function showMsg(text, type) {
+    var box = document.getElementById('msgBox');
+    var icon = box.querySelector('i');
+    document.getElementById('msgText').textContent = text;
+    if (type === 'error') {
+      icon.className = 'fa-solid fa-circle-xmark';
+      icon.style.color = '#ff4d4f';
+    } else {
+      icon.className = 'fa-solid fa-circle-check';
+      icon.style.color = '#52c41a';
+    }
+    box.style.display = 'block';
+    setTimeout(() => { box.style.display = 'none'; }, 2500);
+  }
+
+  // 点击遮罩关闭弹窗
+  document.querySelectorAll('.ant-modal-mask').forEach(mask => {
+    mask.addEventListener('click', e => { if (e.target === mask) mask.classList.remove('active'); });
+  });
+
+</script>
+</body>
+</html>

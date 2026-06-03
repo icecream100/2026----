@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>巡检任务 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--ant-primary:#1677ff;--ant-primary-hover:#4096ff;--ant-primary-bg:#e6f4ff;--ant-success:#52c41a;--ant-warning:#faad14;--ant-error:#ff4d4f;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--ant-bg:#f5f5f5;--ant-bg-container:#ffffff;--shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);--shadow-2:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08);}
+    *{box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}
+    .sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}
+    .main{flex:1;padding:24px;overflow:auto;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);text-transform:uppercase;}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}
+    .menu-item.active{color:#fff;background:var(--ant-primary);}
+    .menu-item i{width:16px;text-align:center;}
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;transition:all 0.2s;}
+    .ant-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .ant-btn-primary{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .ant-btn-primary:hover{background:var(--ant-primary-hover);}
+    .ant-btn-text{border-color:transparent;background:transparent;color:var(--ant-primary);}
+    .ant-btn-dangerous{color:var(--ant-error);border-color:var(--ant-error);}
+    .ant-btn-sm{height:26px;padding:0 10px;font-size:12px;}
+    .ant-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);}
+    .ant-card-body{padding:24px;}
+    .ant-input{height:32px;padding:0 11px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;outline:none;background:#fff;width:100%;}
+    .ant-input:focus{border-color:var(--ant-primary);box-shadow:0 0 0 2px rgba(22,119,255,0.1);}
+    .ant-select{height:32px;padding:0 11px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;font-size:14px;outline:none;}
+    .ant-tag{display:inline-flex;align-items:center;height:20px;padding:0 6px;font-size:11px;border-radius:4px;margin-right:3px;}
+    .ant-tag-blue{color:#1677ff;background:#e6f4ff;border:1px solid #91caff;}
+    .ant-tag-green{color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;}
+    .ant-tag-orange{color:#fa8c16;background:#fff7e6;border:1px solid #ffd591;}
+    .ant-tag-purple{color:#722ed1;background:#f9f0ff;border:1px solid #d3adf7;}
+    .ant-tag-red{color:#f5222d;background:#fff1f0;border:1px solid #ffa39e;}
+    .ant-tag-cyan{color:#13c2c2;background:#e6fffb;border:1px solid #87e8de;}
+    .ant-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;}
+    .ant-table th{padding:12px 16px;font-weight:600;color:var(--ant-text);background:#fff;border-bottom:1px solid var(--ant-border-secondary);text-align:left;white-space:nowrap;}
+    .ant-table td{padding:12px 16px;border-bottom:1px solid var(--ant-border-secondary);color:var(--ant-text);}
+    .ant-table tbody tr:hover td{background:rgba(0,0,0,0.02);}
+    .ant-pagination{display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-top:16px;}
+    .ant-pagination-item{min-width:32px;height:32px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--ant-border);border-radius:4px;background:#fff;cursor:pointer;font-size:14px;}
+    .ant-pagination-item:hover{border-color:var(--ant-primary);color:var(--ant-primary);}
+    .ant-pagination-item-active{border-color:var(--ant-primary);background:var(--ant-primary);color:#fff;}
+    .ant-badge-status{display:inline-flex;align-items:center;gap:6px;}
+    .ant-badge-status-dot{width:6px;height:6px;border-radius:50%;}
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}
+    .breadcrumb a:hover{color:var(--ant-primary);}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video text-white text-sm"></i></div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-4">
+      <span style="color:rgba(255,255,255,0.65);font-size:13px;"><i class="fa-regular fa-bell mr-1"></i>3</span>
+      <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+        <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+        <span style="font-size:13px;">张工程师</span>
+      </div>
+    </div>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item active"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item" onclick="location.href='../ops-log/list.html'"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item" onclick="location.href='../ops-sla/index.html'"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item" onclick="location.href='../ops-predict/list.html'"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-triangle-exclamation"></i>设备告警</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span>智能运维</span><span>/</span><span style="color:var(--ant-text);">巡检任务</span>
+      </div>
+
+      <!-- 搜索区 -->
+      <div class="ant-card mb-4">
+        <div class="ant-card-body" style="padding:16px 24px;">
+          <div class="flex items-center gap-3 flex-wrap">
+            <input class="ant-input" style="width:180px;" placeholder="任务名称">
+            <select class="ant-select" style="width:120px;"><option value="">任务状态</option><option>启用</option><option>停用</option></select>
+            <button class="ant-btn ant-btn-primary"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+            <button class="ant-btn">重置</button>
+            <div style="margin-left:auto;display:flex;gap:8px;">
+              <button class="ant-btn ant-btn-primary" onclick="location.href='create.html'"><i class="fa-solid fa-plus"></i>新建巡检任务</button>
+              <button class="ant-btn"><i class="fa-solid fa-download"></i>导出</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 任务列表 -->
+      <div class="ant-card">
+        <div style="padding:16px 24px;border-bottom:1px solid var(--ant-border-secondary);display:flex;align-items:center;justify-content:space-between;">
+          <span class="font-semibold">任务列表</span>
+          <span style="color:var(--ant-text-tertiary);font-size:13px;">共 7 条</span>
+        </div>
+        <div class="ant-card-body" style="padding:0;">
+          <table class="ant-table">
+            <thead>
+              <tr>
+                <th>任务名称</th>
+                <th>巡检维度</th>
+                <th>巡检方式</th>
+                <th>设备数量</th>
+                <th>任务状态</th>
+                <th>最后修改时间</th>
+                <th>最后修改人</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="taskTable"></tbody>
+          </table>
+          <div style="padding:16px 24px;">
+            <div class="ant-pagination">
+              <span style="color:var(--ant-text-tertiary);font-size:13px;margin-right:8px;">共 7 条</span>
+              <div class="ant-pagination-item ant-pagination-disabled">«</div>
+              <div class="ant-pagination-item ant-pagination-disabled">‹</div>
+              <div class="ant-pagination-item ant-pagination-item-active">1</div>
+              <div class="ant-pagination-item">2</div>
+              <div class="ant-pagination-item">3</div>
+              <div class="ant-pagination-item">›</div>
+              <div class="ant-pagination-item">»</div>
+              <select class="ant-select" style="height:32px;margin-left:8px;">
+                <option>10条/页</option><option>20条/页</option><option>50条/页</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+  var tasks = [
+    { id:'TASK-2026041001', name:'市区摄像头-全量画质巡检', dims:['画面'], enabled:true, method:'周期执行', methodDetail:'按日 02:00', points:1248, updatedAt:'2026-05-20 14:30', updatedBy:'张工程师', legacy:false },
+    { id:'TASK-2026041002', name:'南区-链路诊断巡检', dims:['链路'], enabled:true, method:'周期执行', methodDetail:'按周 周三 02:00', points:320, updatedAt:'2026-05-19 10:15', updatedBy:'李工程师', legacy:false },
+    { id:'TASK-2026041003', name:'北区-三维全检', dims:['画面','链路','网络'], enabled:true, method:'周期执行', methodDetail:'按月 1日 02:00', points:180, updatedAt:'2026-05-21 09:00', updatedBy:'王工程师', legacy:false },
+    { id:'TASK-2026041004', name:'东区路口摄像头巡检', dims:['画面','链路'], enabled:false, method:'定时执行', methodDetail:'2026-06-01 02:00', points:96, updatedAt:'2026-05-18 16:45', updatedBy:'张工程师', legacy:false },
+    { id:'TASK-2026041005', name:'西区链路诊断专项检测', dims:['链路'], enabled:true, method:'周期执行', methodDetail:'按日 03:00', points:56, updatedAt:'2026-05-22 08:20', updatedBy:'赵工程师', legacy:false },
+    { id:'TASK-2026040901', name:'昨日-全市链路诊断巡检', dims:['链路'], enabled:true, method:'周期执行', methodDetail:'按周 周一 02:00', points:2100, updatedAt:'2026-05-17 11:30', updatedBy:'李工程师', legacy:false },
+    { id:'TASK-2026040801', name:'检测任务-20260408', dims:['画面'], enabled:false, method:'定时执行', methodDetail:'2026-04-08 08:00', points:560, updatedAt:'2026-04-08 08:00', updatedBy:'张工程师', legacy:true }
+  ];
+
+  var dimColorMap = { '链路':'ant-tag-blue', '画面':'ant-tag-orange', '网络':'ant-tag-cyan' };
+
+  var tb = document.getElementById('taskTable');
+  tasks.forEach(function(t) {
+    var dims = t.dims.map(function(d){ return '<span class="ant-tag '+dimColorMap[d]+'">'+d+'</span>'; }).join('');
+    var nameCell = t.legacy ? '<span style="color:rgba(0,0,0,0.45);">[历史迁移] </span>'+t.name : t.name;
+    var methodCell = '<span style="background:var(--ant-primary-bg);color:var(--ant-primary);padding:2px 8px;border-radius:4px;font-size:12px;">'+t.method+'</span><div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:2px;">'+t.methodDetail+'</div>';
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><a href="detail.html?id='+t.id+'" style="color:var(--ant-primary);">'+nameCell+'</a><div style="font-size:12px;color:rgba(0,0,0,0.35);">'+t.id+'</div></td>'
+      +'<td>'+dims+'</td>'
+      +'<td>'+methodCell+'</td>'
+      +'<td>'+t.points+'</td>'
++'<td><span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:'+(t.enabled?'#52c41a':'#d9d9d9')+';"></span>'+(t.enabled?'启用':'停用')+'</span></td>'
+      +'<td>'+t.updatedAt+'</td>'
+      +'<td>'+t.updatedBy+'</td>'
+      +'<td>'
++'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="location.href=\'detail.html?id='+t.id+'\'">查看</button>'
++'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="location.href=\'create.html?edit='+t.id+'\'">编辑</button>'
++'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="copyTask(\''+t.id+'\')">复制</button>'
++'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleStatus(this)">'+(t.enabled?'停用':'启用')+'</button>'
++'<button class="ant-btn ant-btn-text ant-btn-sm" style="color:#ff4d4f;" onclick="if(confirm(\'确定删除该巡检任务？删除后不可恢复\')){this.closest(\'tr\').remove();showToast(\'删除成功\')}">删除</button>'
++'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="if(confirm(\'确定立即执行一次巡检？\')){showToast(\'巡检已发起\')}">手动巡检</button>'
++'</td>';
+    tb.appendChild(tr);
+  });
+
+function toggleStatus(btn){
+  var isEnable = btn.textContent === '启用';
+  if(confirm(isEnable ? '确定启用该巡检任务？' : '确定停用该巡检任务？停用后不会自动执行')){
+    btn.textContent = isEnable ? '停用' : '启用';
+    showToast(isEnable ? '已启用' : '已停用');
+  }
+}
+
+function copyTask(id){
+  if(confirm('确定复制该巡检任务？')){
+    showToast('复制成功，跳转到新建页面');
+    setTimeout(function(){ location.href='create.html?copy='+id; }, 800);
+  }
+}
+
+function showToast(msg){
+  var toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:2000;padding:10px 20px;background:#fff;border-radius:8px;box-shadow:0 3px 6px rgba(0,0,0,0.15);font-size:14px;display:flex;align-items:center;gap:8px;';
+  toast.innerHTML = '<i class="fa-solid fa-check-circle" style="color:#52c41a;"></i>' + msg;
+  document.body.appendChild(toast);
+  setTimeout(function(){ toast.remove(); }, 2000);
+}
+
+</script>
+</body>
+</html>

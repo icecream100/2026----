@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>链路拓扑图 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--ant-primary:#1677ff;--ant-primary-hover:#4096ff;--ant-primary-bg:#e6f4ff;--ant-success:#52c41a;--ant-warning:#faad14;--ant-error:#ff4d4f;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--ant-bg:#f5f5f5;--shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);--shadow-2:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08);}
+    *{box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}
+    .sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}
+    .main{flex:1;padding:24px;overflow:auto;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}
+    .menu-item.active{color:#fff;background:var(--ant-primary);}
+    .menu-item i{width:16px;text-align:center;}
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;transition:all 0.2s;}
+    .ant-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .ant-btn-primary{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .ant-btn-primary:hover{background:var(--ant-primary-hover);}
+    .ant-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);}
+    .ant-card-head{display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:15px;font-weight:600;}
+    .ant-card-body{padding:24px;}
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}
+    .breadcrumb a:hover{color:var(--ant-primary);}
+    /* Topology */
+    .topo-container{display:flex;align-items:center;justify-content:center;padding:40px 20px;gap:0;min-height:360px;}
+    .topo-node{display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;cursor:pointer;transition:transform 0.2s;}
+    .topo-node:hover{transform:scale(1.05);}
+    .topo-node-icon{width:80px;height:80px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:30px;position:relative;transition:box-shadow 0.2s;}
+    .topo-node-label{font-size:14px;font-weight:600;color:var(--ant-text);}
+    .topo-node-status{font-size:12px;padding:2px 10px;border-radius:12px;font-weight:500;}
+    .topo-node-badge{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+    .topo-connector{display:flex;align-items:center;position:relative;min-width:80px;height:3px;}
+    .topo-connector-line{flex:1;height:100%;position:relative;}
+    .topo-connector-arrow{width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;position:absolute;right:-2px;top:50%;transform:translateY(-50%);}
+    /* Diagnostic panel */
+    .diag-panel{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:320px;background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.15);z-index:200;display:none;border:1px solid var(--ant-border-secondary);overflow:hidden;}
+    .diag-panel.show{display:block;}
+    .diag-panel-head{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--ant-border-secondary);background:#fff1f0;}
+    .diag-panel-body{padding:16px;}
+    .diag-row{display:flex;margin-bottom:12px;font-size:13px;}
+    .diag-row:last-child{margin-bottom:0;}
+    .diag-label{min-width:80px;color:var(--ant-text-tertiary);flex-shrink:0;}
+    .diag-value{color:var(--ant-text);font-weight:500;}
+    /* Legend */
+    .topo-legend{display:flex;align-items:center;justify-content:center;gap:24px;padding:16px;border-top:1px solid var(--ant-border-secondary);margin-top:10px;}
+    .topo-legend-item{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ant-text-secondary);}
+    .topo-legend-dot{width:12px;height:12px;border-radius:3px;}
+    /* Device info bar */
+    .device-info-bar{display:flex;align-items:center;gap:20px;padding:12px 20px;background:#f0f7ff;border:1px solid #bae0ff;border-radius:8px;margin-bottom:16px;font-size:13px;}
+    .device-info-item{display:flex;align-items:center;gap:6px;}
+    .device-info-item .label{color:var(--ant-text-tertiary);}
+    .device-info-item .value{font-weight:600;color:var(--ant-text);}
+    .device-info-divider{width:1px;height:20px;background:#bae0ff;}
+    /* Overlay for closing panel */
+    .panel-overlay{position:fixed;inset:0;z-index:150;display:none;}
+    .panel-overlay.show{display:block;}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video text-white text-sm"></i></div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-4">
+      <span style="color:rgba(255,255,255,0.65);font-size:13px;cursor:pointer;"><i class="fa-regular fa-bell mr-1"></i>3</span>
+      <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+        <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+        <span style="font-size:13px;">张工程师</span>
+      </div>
+    </div>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item" onclick="location.href='../ops-inspection/list.html'"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item active"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item" onclick="location.href='../ops-sla/index.html'"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item" onclick="location.href='../ops-predict/list.html'"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-triangle-exclamation"></i>设备告警</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">智能运维</a><span>/</span>
+        <a href="list.html">巡检日志</a><span>/</span>
+        <span style="color:var(--ant-text);">链路拓扑图</span>
+      </div>
+
+      <div class="flex items-center justify-between mb-4">
+        <button class="ant-btn" onclick="history.back()"><i class="fa-solid fa-arrow-left"></i>返回</button>
+      </div>
+
+      <!-- Device info bar -->
+      <div class="device-info-bar">
+        <div class="device-info-item">
+          <i class="fa-solid fa-video" style="color:var(--ant-primary);"></i>
+          <span class="label">点位名称</span>
+          <span class="value">CAM-001</span>
+        </div>
+        <div class="device-info-divider"></div>
+        <div class="device-info-item">
+          <i class="fa-solid fa-barcode" style="color:var(--ant-primary);"></i>
+          <span class="label">平台编码</span>
+          <span class="value">GB28181-001</span>
+        </div>
+        <div class="device-info-divider"></div>
+        <div class="device-info-item">
+          <i class="fa-solid fa-map-location-dot" style="color:var(--ant-primary);"></i>
+          <span class="label">区域</span>
+          <span class="value">南区</span>
+        </div>
+      </div>
+
+      <!-- Normal state: topology card -->
+      <div id="stateNormal">
+        <div class="ant-card">
+          <div class="ant-card-head">
+            <span><i class="fa-solid fa-diagram-project" style="color:var(--ant-primary);margin-right:8px;"></i>链路拓扑图</span>
+            <span style="font-size:13px;font-weight:400;color:var(--ant-text-tertiary);">点击异常节点查看详情</span>
+          </div>
+          <div class="ant-card-body" style="position:relative;">
+            <!-- Overlay for closing diagnostic panel -->
+            <div class="panel-overlay" id="panelOverlay" onclick="closeDiagPanel()"></div>
+
+            <!-- Topology diagram -->
+            <div class="topo-container">
+              <!-- Node 1: 终端 (摄像头) -->
+              <div class="topo-node" style="z-index:2;">
+                <div class="topo-node-icon" style="background:#f6ffed;border:2px solid #b7eb8f;color:#52c41a;">
+                  <i class="fa-solid fa-video"></i>
+                </div>
+                <div class="topo-node-label">终端</div>
+                <div class="topo-node-status" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">正常</div>
+              </div>
+
+              <!-- Connector 1: green solid -->
+              <div class="topo-connector">
+                <div class="topo-connector-line" style="background:#52c41a;">
+                  <div class="topo-connector-arrow" style="border-left:8px solid #52c41a;"></div>
+                </div>
+              </div>
+
+              <!-- Node 2: 接入网关 -->
+              <div class="topo-node" style="z-index:2;">
+                <div class="topo-node-icon" style="background:#f6ffed;border:2px solid #b7eb8f;color:#52c41a;">
+                  <i class="fa-solid fa-server"></i>
+                </div>
+                <div class="topo-node-label">接入网关</div>
+                <div class="topo-node-status" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">正常</div>
+              </div>
+
+              <!-- Connector 2: green solid -->
+              <div class="topo-connector">
+                <div class="topo-connector-line" style="background:#52c41a;">
+                  <div class="topo-connector-arrow" style="border-left:8px solid #52c41a;"></div>
+                </div>
+              </div>
+
+              <!-- Node 3: SIP Server -->
+              <div class="topo-node" style="z-index:2;">
+                <div class="topo-node-icon" style="background:#fffbe6;border:2px solid #ffe58f;color:#faad14;">
+                  <i class="fa-solid fa-network-wired"></i>
+                </div>
+                <div class="topo-node-label">SIP Server</div>
+                <div class="topo-node-status" style="color:#faad14;background:#fffbe6;border:1px solid #ffe58f;">超时</div>
+              </div>
+
+              <!-- Connector 3: red dashed -->
+              <div class="topo-connector">
+                <div class="topo-connector-line" style="background:repeating-linear-gradient(90deg,#ff4d4f 0,#ff4d4f 8px,transparent 8px,transparent 14px);height:3px;">
+                  <div class="topo-connector-arrow" style="border-left:8px solid #ff4d4f;"></div>
+                </div>
+              </div>
+
+              <!-- Node 4: 上级平台 (ERROR) -->
+              <div class="topo-node" id="errorNode" onclick="showDiagPanel()" style="z-index:2;">
+                <div class="topo-node-icon" id="errorNodeIcon" style="background:#fff1f0;border:2px solid #ffa39e;color:#ff4d4f;">
+                  <i class="fa-solid fa-building"></i>
+                  <!-- Error badge -->
+                  <div class="topo-node-badge" style="background:#ff4d4f;color:#fff;">
+                    <i class="fa-solid fa-xmark"></i>
+                  </div>
+                </div>
+                <div class="topo-node-label">上级平台</div>
+                <div class="topo-node-status" style="color:#ff4d4f;background:#fff1f0;border:1px solid #ffa39e;">异常</div>
+              </div>
+            </div>
+
+            <!-- Diagnostic floating panel -->
+            <div class="diag-panel" id="diagPanel">
+              <div class="diag-panel-head">
+                <span style="font-weight:600;font-size:14px;display:flex;align-items:center;gap:6px;">
+                  <i class="fa-solid fa-bug" style="color:#ff4d4f;"></i>诊断信息
+                </span>
+                <span style="cursor:pointer;font-size:18px;color:var(--ant-text-tertiary);" onclick="closeDiagPanel()">&times;</span>
+              </div>
+              <div class="diag-panel-body">
+                <div class="diag-row">
+                  <div class="diag-label">节点名称</div>
+                  <div class="diag-value">上级平台</div>
+                </div>
+                <div class="diag-row">
+                  <div class="diag-label">错误码</div>
+                  <div class="diag-value" style="color:#ff4d4f;font-family:monospace;font-weight:700;">SIP-408</div>
+                </div>
+                <div class="diag-row">
+                  <div class="diag-label">错误描述</div>
+                  <div class="diag-value">上级平台响应超时</div>
+                </div>
+                <div class="diag-row">
+                  <div class="diag-label">建议措施</div>
+                  <div class="diag-value" style="font-weight:400;line-height:1.6;">检查上级平台网络连通性，确认SIP服务是否正常运行</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Legend（v5新增：无数据态） -->
+            <div class="topo-legend">
+              <div class="topo-legend-item">
+                <div class="topo-legend-dot" style="background:#52c41a;"></div>正常
+              </div>
+              <div class="topo-legend-item">
+                <div class="topo-legend-dot" style="background:#faad14;"></div>超时
+              </div>
+              <div class="topo-legend-item">
+                <div class="topo-legend-dot" style="background:#ff4d4f;"></div>异常
+              </div>
+              <div class="topo-legend-item">
+                <div class="topo-legend-dot" style="background:#d9d9d9;"></div>无数据
+              </div>
+              <div class="topo-legend-item">
+                <div style="width:24px;border-top:2px solid #52c41a;"></div>正常连线
+              </div>
+              <div class="topo-legend-item">
+                <div style="width:24px;border-top:2px dashed #ff4d4f;"></div>异常连线
+              </div>
+              <div class="topo-legend-item">
+                <div style="width:24px;border-top:2px dashed #d9d9d9;"></div>无数据连线
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 无数据态拓扑示例（v5新增） -->
+      <div class="ant-card" style="margin-top:16px;">
+        <div class="ant-card-head">
+          <span><i class="fa-solid fa-diagram-project" style="color:rgba(0,0,0,0.25);margin-right:8px;"></i>链路拓扑图 — 无数据示例</span>
+          <span style="font-size:13px;font-weight:400;color:var(--ant-text-tertiary);">该设备未配置链路检测维度</span>
+        </div>
+        <div class="ant-card-body">
+          <div class="topo-container">
+            <div class="topo-node" style="z-index:2;">
+              <div class="topo-node-icon" style="background:#f5f5f5;border:2px solid #d9d9d9;color:rgba(0,0,0,0.25);">
+                <i class="fa-solid fa-video"></i>
+              </div>
+              <div class="topo-node-label" style="color:rgba(0,0,0,0.45);">终端</div>
+              <div class="topo-node-status" style="color:rgba(0,0,0,0.45);background:#f5f5f5;border:1px solid #d9d9d9;">N/A</div>
+            </div>
+            <div class="topo-connector">
+              <div class="topo-connector-line" style="background:repeating-linear-gradient(90deg,#d9d9d9 0,#d9d9d9 6px,transparent 6px,transparent 12px);height:3px;">
+              </div>
+            </div>
+            <div class="topo-node" style="z-index:2;">
+              <div class="topo-node-icon" style="background:#f5f5f5;border:2px solid #d9d9d9;color:rgba(0,0,0,0.25);">
+                <i class="fa-solid fa-server"></i>
+              </div>
+              <div class="topo-node-label" style="color:rgba(0,0,0,0.45);">接入网关</div>
+              <div class="topo-node-status" style="color:rgba(0,0,0,0.45);background:#f5f5f5;border:1px solid #d9d9d9;">N/A</div>
+            </div>
+            <div class="topo-connector">
+              <div class="topo-connector-line" style="background:repeating-linear-gradient(90deg,#d9d9d9 0,#d9d9d9 6px,transparent 6px,transparent 12px);height:3px;">
+              </div>
+            </div>
+            <div class="topo-node" style="z-index:2;">
+              <div class="topo-node-icon" style="background:#f5f5f5;border:2px solid #d9d9d9;color:rgba(0,0,0,0.25);">
+                <i class="fa-solid fa-network-wired"></i>
+              </div>
+              <div class="topo-node-label" style="color:rgba(0,0,0,0.45);">SIP Server</div>
+              <div class="topo-node-status" style="color:rgba(0,0,0,0.45);background:#f5f5f5;border:1px solid #d9d9d9;">N/A</div>
+            </div>
+            <div class="topo-connector">
+              <div class="topo-connector-line" style="background:repeating-linear-gradient(90deg,#d9d9d9 0,#d9d9d9 6px,transparent 6px,transparent 12px);height:3px;">
+              </div>
+            </div>
+            <div class="topo-node" style="z-index:2;">
+              <div class="topo-node-icon" style="background:#f5f5f5;border:2px solid #d9d9d9;color:rgba(0,0,0,0.25);">
+                <i class="fa-solid fa-building"></i>
+              </div>
+              <div class="topo-node-label" style="color:rgba(0,0,0,0.45);">上级平台</div>
+              <div class="topo-node-status" style="color:rgba(0,0,0,0.45);background:#f5f5f5;border:1px solid #d9d9d9;">N/A</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+<script>
+function showDiagPanel(){
+  document.getElementById('diagPanel').classList.add('show');
+  document.getElementById('panelOverlay').classList.add('show');
+}
+
+function closeDiagPanel(){
+  document.getElementById('diagPanel').classList.remove('show');
+  document.getElementById('panelOverlay').classList.remove('show');
+}
+</script>
+</body>
+</html>

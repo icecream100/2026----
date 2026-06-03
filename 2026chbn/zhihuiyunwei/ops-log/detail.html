@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设备巡检结果 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--ant-primary:#1677ff;--ant-primary-bg:#e6f4ff;--ant-success:#52c41a;--ant-warning:#faad14;--ant-error:#ff4d4f;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);--shadow-2:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08);}
+    *{box-sizing:border-box;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}.sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}.main{flex:1;padding:24px;overflow:auto;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}.menu-item.active{color:#fff;background:var(--ant-primary);}.menu-item i{width:16px;text-align:center;}
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;transition:all 0.2s;}
+    .ant-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .ant-btn-sm{height:26px;padding:0 10px;font-size:12px;}
+    .ant-btn-link{border:none;background:none;color:var(--ant-primary);padding:0;height:auto;font-size:13px;cursor:pointer;}.ant-btn-link:hover{text-decoration:underline;}
+    .ant-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);}.ant-card-head{display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:15px;font-weight:600;}.ant-card-body{padding:24px;}
+    .ant-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;}
+    .ant-table th{padding:10px 14px;font-weight:600;background:#fafafa;border-bottom:1px solid var(--ant-border-secondary);text-align:left;white-space:nowrap;font-size:13px;}
+    .ant-table td{padding:10px 14px;border-bottom:1px solid var(--ant-border-secondary);}
+    .ant-table tbody tr:hover td{background:rgba(0,0,0,0.02);}
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}.breadcrumb a:hover{color:var(--ant-primary);}
+    .filter-btn{height:28px;padding:0 12px;font-size:12px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;cursor:pointer;transition:all 0.15s;color:var(--ant-text-secondary);}
+    .filter-btn:hover,.filter-btn.active{border-color:var(--ant-primary);color:var(--ant-primary);background:var(--ant-primary-bg);}
+    .ant-input{height:32px;padding:0 11px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;outline:none;background:#fff;}.ant-input:focus{border-color:var(--ant-primary);}
+    /* 弹窗 */
+    .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:none;align-items:center;justify-content:center;}
+    .modal-mask.show{display:flex;}
+    .modal{width:820px;max-width:94vw;background:#fff;border-radius:8px;box-shadow:var(--shadow-2);overflow:hidden;}
+    .modal-head{padding:16px 24px;border-bottom:1px solid var(--ant-border-secondary);display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:16px;}
+    .modal-body{padding:24px;max-height:72vh;overflow:auto;}
+    .modal-foot{padding:12px 24px;border-top:1px solid var(--ant-border-secondary);display:flex;justify-content:flex-end;gap:10px;background:#fafafa;}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 24px;font-size:14px;}
+    .info-label{color:var(--ant-text-tertiary);font-size:13px;margin-bottom:2px;}.info-val{font-weight:500;}
+    .section-title{font-size:14px;font-weight:600;margin:20px 0 10px;display:flex;align-items:center;gap:6px;}
+    .section-title::before{content:'';display:inline-block;width:3px;height:14px;background:var(--ant-primary);border-radius:2px;}
+    /* 维度结果卡片 */
+    .dim-card{border:1px solid var(--ant-border-secondary);border-radius:8px;padding:16px;margin-bottom:12px;}
+    .dim-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .dim-card-title{font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px;}
+    .dim-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;font-size:13px;}
+    .dim-detail-label{color:var(--ant-text-tertiary);}.dim-detail-val{font-weight:500;}
+    /* Modal Tabs */
+    .modal-tabs{display:flex;border-bottom:1px solid var(--ant-border-secondary);margin-bottom:16px;}
+    .modal-tab{padding:10px 16px;font-size:13px;color:var(--ant-text-secondary);cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+    .modal-tab:hover{color:var(--ant-primary);}
+    .modal-tab.active{color:var(--ant-primary);font-weight:600;border-bottom-color:var(--ant-primary);}
+    .modal-tab .tab-dot{width:6px;height:6px;border-radius:50%;display:inline-block;}
+    .modal-tab-panel{display:none;}.modal-tab-panel.active{display:block;}
+    /* Metric mini cards */
+    .metric-mini{padding:12px;border-radius:6px;border:1px solid var(--ant-border-secondary);text-align:center;}
+    .metric-mini-title{font-size:11px;color:var(--ant-text-tertiary);margin-bottom:4px;}
+    .metric-mini-val{font-size:20px;font-weight:700;line-height:1.2;}
+    .metric-mini-hint{font-size:11px;margin-top:2px;}
+    /* Sequence diagram (compact) */
+    .seq-compact{display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding:8px 0;}
+    .seq-step-c{display:flex;flex-direction:column;align-items:center;min-width:80px;flex-shrink:0;}
+    .seq-node-c{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid;background:#fff;}
+    .seq-node-c-normal{border-color:var(--ant-primary);color:var(--ant-primary);background:var(--ant-primary-bg);}
+    .seq-node-c-error{border-color:var(--ant-error);color:var(--ant-error);background:var(--ant-error-bg);}
+    .seq-node-c-pending{border-color:#d9d9d9;color:#bfbfbf;background:#fafafa;}
+    .seq-label-c{font-size:10px;font-weight:600;margin-top:4px;text-align:center;line-height:1.3;}
+    .seq-time-c{font-size:9px;color:var(--ant-text-tertiary);font-family:monospace;margin-top:2px;}
+    .seq-status-c{font-size:10px;font-weight:500;margin-top:1px;}
+    .seq-arrow-c{display:flex;align-items:center;min-width:24px;flex:1;align-self:flex-start;margin-top:18px;}
+    /* Log compact */
+    .log-compact{background:#1e1e1e;color:#d4d4d4;font-family:'Menlo','Monaco','Courier New',monospace;font-size:11px;line-height:1.5;padding:12px;max-height:200px;overflow:auto;border-radius:6px;white-space:pre;}
+    /* 链路拓扑 */
+    .topo-row{display:flex;align-items:center;justify-content:center;gap:0;padding:16px 0;}
+    .topo-node{width:120px;text-align:center;padding:10px 8px;border-radius:8px;border:2px solid;font-size:13px;font-weight:600;}
+    .topo-line{width:40px;height:3px;margin:0 -2px;}
+    .topo-line-dashed{border-top:3px dashed;}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video text-white text-sm"></i></div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+      <span style="font-size:13px;">张工程师</span>
+    </div>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item" onclick="location.href='../ops-inspection/list.html'"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item active"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item" onclick="location.href='../ops-sla/index.html'"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item" onclick="location.href='../ops-predict/list.html'"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-bell"></i>设备告警</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span>
+        <a href="list.html">巡检日志</a><span>/</span>
+        <span style="color:var(--ant-text);">设备列表</span>
+      </div>
+
+      <div class="flex items-center gap-3 mb-4">
+        <button class="ant-btn" onclick="location.href='list.html'"><i class="fa-solid fa-arrow-left"></i> 返回列表</button>
+        <h2 style="margin:0;font-size:18px;font-weight:600;">南区-链路诊断巡检</h2>
+        <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:13px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffccc7;">
+          <span style="width:7px;height:7px;border-radius:50%;background:#ff4d4f;"></span>存在异常
+        </span>
+        <span style="font-size:13px;color:var(--ant-text-tertiary);">2026-05-20 10:30 · 共 536 台 · 耗时 3m12s</span>
+      </div>
+
+      <div class="flex gap-4 mb-4">
+        <div style="flex:1;background:#fff;border:1px solid var(--ant-border-secondary);border-radius:8px;padding:16px;text-align:center;">
+          <div style="font-size:24px;font-weight:700;color:var(--ant-primary);">536</div>
+          <div style="font-size:12px;color:var(--ant-text-secondary);">设备总数</div>
+        </div>
+        <div style="flex:1;background:#fff;border:1px solid var(--ant-border-secondary);border-radius:8px;padding:16px;text-align:center;">
+          <div style="font-size:24px;font-weight:700;color:#52c41a;">531</div>
+          <div style="font-size:12px;color:var(--ant-text-secondary);">正常</div>
+        </div>
+        <div style="flex:1;background:#fff;border:1px solid var(--ant-border-secondary);border-radius:8px;padding:16px;text-align:center;">
+          <div style="font-size:24px;font-weight:700;color:#ff4d4f;">5</div>
+          <div style="font-size:12px;color:var(--ant-text-secondary);">异常</div>
+        </div>
+        <div style="flex:1;background:#fff;border:1px solid var(--ant-border-secondary);border-radius:8px;padding:16px;text-align:center;">
+          <div style="font-size:24px;font-weight:700;color:#52c41a;">99.1%</div>
+          <div style="font-size:12px;color:var(--ant-text-secondary);">正常率</div>
+        </div>
+      </div>
+
+      <div class="ant-card">
+        <div class="ant-card-head">
+          <span>设备巡检结果</span>
+          <div class="flex items-center gap-2">
+            <input class="ant-input" style="width:160px;height:28px;font-size:13px;" placeholder="搜索点位名称">
+            <button class="filter-btn active" onclick="filterDevices('all',this)">全部 (536)</button>
+            <button class="filter-btn" onclick="filterDevices('normal',this)">正常 (531)</button>
+            <button class="filter-btn" onclick="filterDevices('abnormal',this)">异常 (5)</button>
+          </div>
+        </div>
+        <div class="ant-card-body" style="padding:0;">
+          <table class="ant-table">
+            <thead>
+              <tr>
+                <th>序号</th>
+                <th>点位名称</th>
+                <th>平台编码</th>
+                <th>综合状态</th>
+                <th>链路</th>
+                <th>网络</th>
+                <th>画面</th>
+                <th>故障类型</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="deviceTable"></tbody>
+          </table>
+          <div style="padding:16px 24px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:var(--ant-text-tertiary);">共 536 台，当前 1-20</span>
+            <div class="flex items-center gap-1">
+              <button class="ant-btn ant-btn-sm" disabled style="opacity:0.4;">«</button>
+              <button class="ant-btn ant-btn-sm" disabled style="opacity:0.4;">‹</button>
+              <button class="ant-btn ant-btn-sm" style="background:var(--ant-primary);color:#fff;border-color:var(--ant-primary);">1</button>
+              <button class="ant-btn ant-btn-sm">2</button><button class="ant-btn ant-btn-sm">3</button>
+              <span style="color:var(--ant-text-tertiary);padding:0 4px;">...</span>
+              <button class="ant-btn ant-btn-sm">27</button>
+              <button class="ant-btn ant-btn-sm">›</button>
+              <button class="ant-btn ant-btn-sm">»</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 设备巡检结果弹窗 -->
+  <div class="modal-mask" id="deviceModal">
+    <div class="modal">
+      <div class="modal-head">
+        <span id="modalTitle"><i class="fa-solid fa-microscope" style="color:var(--ant-primary);margin-right:8px;"></i>设备巡检结果</span>
+        <button onclick="closeModal()" style="border:none;background:none;cursor:pointer;font-size:18px;color:var(--ant-text-tertiary);"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot">
+        <button class="ant-btn" onclick="closeModal()">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  var devices = [
+    {idx:1,name:'南区-路口-C001',code:'PLAT-S001',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:2,name:'南区-路口-C002',code:'PLAT-S002',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:3,name:'南区-路口-C003',code:'PLAT-S003',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:4,name:'南区-路口-C004',code:'PLAT-S004',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:5,name:'南区-路口-C005',code:'PLAT-S005',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:6,name:'南区-路口-C006',code:'PLAT-S006',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:7,name:'南区-路口-C007',code:'PLAT-S007',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:8,name:'南区-路口-C008',code:'PLAT-S008',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:9,name:'南区-路口-C009',code:'PLAT-S009',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:10,name:'南区-路口-C010',code:'PLAT-S010',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:11,name:'南区-路口-C011',code:'PLAT-S011',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:12,name:'南区-路口-C012',code:'PLAT-S012',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:13,name:'南区-路口-C013',code:'PLAT-S013',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:14,name:'南区-路口-C014',code:'PLAT-S014',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:15,name:'南区-路口-C015',code:'PLAT-S015',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:16,name:'南区-路口-C016',code:'PLAT-S016',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:17,name:'南区-路口-C017',code:'PLAT-S017',status:'异常',signaling:'链路超时',network:'码流异常',quality:'正常',fault:'链路超时'},
+    {idx:18,name:'南区-路口-C018',code:'PLAT-S018',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:19,name:'南区-路口-C019',code:'PLAT-S019',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+    {idx:20,name:'南区-路口-C020',code:'PLAT-S020',status:'正常',signaling:'正常',network:'正常',quality:'正常',fault:'—'},
+  ];
+
+  // 本次巡检各设备检测明细（模拟，展示维度：链路诊断+网络+画质）
+  var deviceResults = {
+    '南区-路口-C017': {
+      linkResult: { status:'异常', heartbeatTimeout:'18.5%', playSuccess:'0%',
+        steps:[
+          {name:'收到点播请求',status:'normal',time:'2026-05-20 10:30:01.234',label:'成功'},
+          {name:'未查到可用媒体流',status:'normal',time:'2026-05-20 10:30:01.298',label:'未命中缓存'},
+          {name:'发送邀请指令',status:'normal',time:'2026-05-20 10:30:01.456',label:'INVITE'},
+          {name:'邀请指令响应',status:'error',time:'2026-05-20 10:30:03.964',label:'超时无响应'},
+          {name:'收到RTP流',status:'pending',time:'--',label:'未执行'},
+          {name:'点播结束',status:'pending',time:'--',label:'未执行'}
+        ],
+        logs:[
+          {ts:'2026-05-20 10:30:01.234',content:'收到点播请求 sip:34020000001320000001'},
+          {ts:'2026-05-20 10:30:01.298',content:'未查到可用的媒体流，设备编码: 34020000001320000001'},
+          {ts:'2026-05-20 10:30:01.456',content:'发送邀请 INVITE sip:34020000001320000001@10.55.216.94:5080'},
+          {ts:'2026-05-20 10:30:03.964',content:'邀请指令响应超时，等待 2508ms 无响应 (408 Request Timeout)'},
+          {ts:'',content:'诊断结论: 设备未响应INVITE请求，疑似链路中断或设备离线'}
+        ],
+        desc:'SIP Server 连接超时，错误代码 408' },
+      networkResult: { status:'异常', rtpLoss:'8.7%', bitrate:'0 kbps', tcpPorts:[
+        {name:'RTSP (554)',status:'timeout'},{name:'SIP (5060)',status:'timeout'},{name:'HTTP (80)',status:'timeout'}
+      ], desc:'上行码流中断，RTP丢包严重' },
+      qualityResult: { status:'正常', score:'85', resolution:'1920×1080', fps:'25', bitrate:'4096 kbps', desc:'—' }
+    },
+    '_default_normal': {
+      linkResult: { status:'正常', heartbeatTimeout:'0%', playSuccess:'99.8%',
+        steps:[
+          {name:'收到点播请求',status:'normal',time:'2026-05-20 10:30:01.234',label:'成功'},
+          {name:'查到可用媒体流',status:'normal',time:'2026-05-20 10:30:01.298',label:'命中缓存'},
+          {name:'发送邀请指令',status:'normal',time:'2026-05-20 10:30:01.456',label:'INVITE'},
+          {name:'邀请指令响应',status:'normal',time:'2026-05-20 10:30:01.712',label:'200 OK'},
+          {name:'收到RTP流',status:'normal',time:'2026-05-20 10:30:02.103',label:'正常'},
+          {name:'点播结束',status:'normal',time:'2026-05-20 10:30:32.103',label:'正常结束'}
+        ],
+        logs:[
+          {ts:'2026-05-20 10:30:01.234',content:'收到点播请求 sip:34020000001320000001'},
+          {ts:'2026-05-20 10:30:01.298',content:'查到可用媒体流，直接复用'},
+          {ts:'2026-05-20 10:30:01.456',content:'发送 INVITE'},
+          {ts:'2026-05-20 10:30:01.712',content:'收到 200 OK 响应'},
+          {ts:'2026-05-20 10:30:32.103',content:'点播正常结束，会话持续 30s'}
+        ],
+        desc:'—' },
+      networkResult: { status:'正常', rtpLoss:'0.1%', bitrate:'4096 kbps', tcpPorts:[
+        {name:'RTSP (554)',status:'ok'},{name:'SIP (5060)',status:'ok'},{name:'HTTP (80)',status:'ok'}
+      ], desc:'—' },
+      qualityResult: { status:'正常', score:'85', resolution:'1920×1080', fps:'25', bitrate:'4096 kbps', desc:'—' }
+    },
+    '_default_abnormal_link': {
+      linkResult: { status:'异常', heartbeatTimeout:'100%', playSuccess:'0%',
+        steps:[
+          {name:'收到点播请求',status:'normal',time:'2026-05-20 10:30:01.234',label:'成功'},
+          {name:'发送邀请指令',status:'error',time:'2026-05-20 10:30:01.456',label:'超时'},
+          {name:'收到RTP流',status:'pending',time:'--',label:'未执行'},
+          {name:'点播结束',status:'pending',time:'--',label:'未执行'}
+        ],
+        logs:[
+          {ts:'2026-05-20 10:30:01.234',content:'收到点播请求'},
+          {ts:'2026-05-20 10:30:01.456',content:'INVITE 超时，设备不可达'},
+          {ts:'',content:'诊断结论: 链路不可达，设备疑似离线'}
+        ],
+        desc:'链路不可达，链路诊断无法执行' },
+      networkResult: { status:'异常', rtpLoss:'—', bitrate:'—', tcpPorts:[
+        {name:'RTSP (554)',status:'timeout'},{name:'SIP (5060)',status:'timeout'},{name:'HTTP (80)',status:'timeout'}
+      ], desc:'链路不可达，网络状态无法检测' },
+      qualityResult: { status:'—', score:'—', resolution:'—', fps:'—', bitrate:'—', desc:'链路不可达，无法获取画质数据' }
+    }
+  };
+
+  function getResultForDevice(d) {
+    if (deviceResults[d.name]) return deviceResults[d.name];
+    if (d.status === '异常') return deviceResults['_default_abnormal_link'];
+    return deviceResults['_default_normal'];
+  }
+
+  function render(list) {
+    var tb = document.getElementById('deviceTable');
+    tb.innerHTML = '';
+    list.forEach(function(d) {
+      var sc = d.status==='正常' ? {c:'#52c41a',bg:'#f6ffed',b:'#b7eb8f'} : {c:'#ff4d4f',bg:'#fff1f0',b:'#ffa39e'};
+      var sigH = d.signaling==='正常' ? '<span style="color:#52c41a;">✓ 正常</span>' : '<span style="color:#ff4d4f;">✗ '+d.signaling+'</span>';
+      var netH = d.network==='正常' ? '<span style="color:#52c41a;">✓ 正常</span>' : '<span style="color:#ff4d4f;">✗ '+d.network+'</span>';
+      var quaH = d.quality==='正常' ? '<span style="color:#52c41a;">✓ 正常</span>' : '<span style="color:#ff4d4f;">✗ '+d.quality+'</span>';
+      var faultH = d.fault==='—' ? '<span style="color:var(--ant-text-tertiary);">—</span>' : '<span style="color:#ff4d4f;">'+d.fault+'</span>';
+      var tr = document.createElement('tr');
+      if (d.status !== '正常') tr.style.background = '#fffbe6';
+      tr.innerHTML = '<td style="color:var(--ant-text-tertiary);">'+d.idx+'</td>'
+        +'<td><strong>'+d.name+'</strong></td>'
+        +'<td style="font-size:13px;color:var(--ant-text-secondary);">'+d.code+'</td>'
+        +'<td><span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:12px;color:'+sc.c+';background:'+sc.bg+';border:1px solid '+sc.b+';"><span style="width:5px;height:5px;border-radius:50%;background:'+sc.c+';"></span>'+d.status+'</span></td>'
+        +'<td>'+sigH+'</td>'
+        +'<td>'+netH+'</td>'
+        +'<td>'+quaH+'</td>'
+        +'<td>'+faultH+'</td>'
+        +'<td><button class="ant-btn-link" onclick="openResultModal(\''+d.name+'\',\''+d.code+'\',\''+d.status+'\')"><i class="fa-solid fa-microscope" style="margin-right:3px;"></i>查看结果</button></td>';
+      tb.appendChild(tr);
+    });
+  }
+
+  function filterDevices(type, btn) {
+    document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    if (type === 'all') render(devices);
+    else if (type === 'normal') render(devices.filter(function(d){return d.status==='正常';}));
+    else render(devices.filter(function(d){return d.status!=='正常';}));
+  }
+
+  /* ====== 弹窗 Tab 切换 ====== */
+  function switchModalTab(key) {
+    document.querySelectorAll('.modal-tab').forEach(function(t){ t.classList.toggle('active', t.dataset.mtab === key); });
+    document.querySelectorAll('.modal-tab-panel').forEach(function(p){ p.classList.toggle('active', p.id === 'mtab-' + key); });
+  }
+
+  /* ====== 渲染链路时序图（紧凑版） ====== */
+  function renderCompactSeq(steps) {
+    var html = '<div class="seq-compact">';
+    steps.forEach(function(step, i) {
+      var nc = 'seq-node-c-' + step.status;
+      var sc = 'color:' + (step.status==='normal'?'var(--ant-primary)':step.status==='error'?'var(--ant-error)':'#bfbfbf') + ';';
+      html += '<div class="seq-step-c"><div class="seq-node-c ' + nc + '"><i class="fa-solid fa-' + (step.status==='normal'?'check':step.status==='error'?'xmark':'minus') + '" style="font-size:11px;"></i></div>'
+        + '<div class="seq-label-c">' + step.name + '</div>'
+        + '<div class="seq-time-c">' + step.time + '</div>'
+        + '<div class="seq-status-c" style="' + sc + '">' + step.label + '</div></div>';
+      if (i < steps.length - 1) {
+        var ac = step.status==='error'?'var(--ant-error)':steps[i+1].status==='pending'?'#d9d9d9':'var(--ant-primary)';
+        var dash = (step.status==='error'||steps[i+1].status==='pending')?'stroke-dasharray="3,2"':'';
+        html += '<div class="seq-arrow-c"><svg width="100%" height="2" viewBox="0 0 100 2" preserveAspectRatio="none"><line x1="0" y1="1" x2="90" y2="1" stroke="'+ac+'" stroke-width="1.5" '+dash+'/><polygon points="90,0 100,1 90,2" fill="'+ac+'"/></svg></div>';
+      }
+    });
+    html += '</div>';
+    return html;
+  }
+
+  /* ====== 渲染原始日志（紧凑版） ====== */
+  function renderCompactLog(logs) {
+    var html = '<div class="log-compact">';
+    logs.forEach(function(l) {
+      var ts = l.ts ? '<span style="color:#6a9955;">[' + l.ts + ']</span> ' : '                      ';
+      var content = l.content.replace(/超时|错误|异常|失败/g, function(m){ return '<span style="color:#f44747;">' + m + '</span>'; });
+      html += ts + content + '\n';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  /* ====== TCP 端口渲染（紧凑版） ====== */
+  function renderCompactTcp(ports) {
+    var html = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">';
+    ports.forEach(function(p) {
+      var ok = p.status === 'ok';
+      var bg = ok ? 'var(--ant-success-bg)' : 'var(--ant-error-bg)';
+      var bdr = ok ? '#b7eb8f' : '#ffccc7';
+      var c = ok ? '#52c41a' : '#ff4d4f';
+      html += '<div style="padding:10px;border-radius:6px;border:1px solid '+bdr+';background:'+bg+';text-align:center;">'
+        + '<div style="font-size:12px;color:var(--ant-text-secondary);margin-bottom:2px;">'+p.name+'</div>'
+        + '<div style="font-size:16px;font-weight:700;color:'+c+';">'+(ok?'正常':'超时')+'</div></div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  /* ====== 状态颜色辅助 ====== */
+  function statusTag(status, okLabel, failLabel) {
+    var isOk = status === '正常';
+    var c = isOk ? '#52c41a' : '#ff4d4f';
+    var bg = isOk ? '#f6ffed' : '#fff1f0';
+    var bdr = isOk ? '#b7eb8f' : '#ffa39e';
+    return '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:12px;color:'+c+';background:'+bg+';border:1px solid '+bdr+';">'+(isOk?(okLabel||'正常'):(failLabel||status))+'</span>';
+  }
+
+  function openResultModal(name, code, status) {
+    var r = getResultForDevice({name:name,code:code,status:status});
+    var sc = status==='正常' ? {c:'#52c41a',bg:'#f6ffed',b:'#b7eb8f'} : {c:'#ff4d4f',bg:'#fff1f0',b:'#ffa39e'};
+
+    document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-microscope" style="color:var(--ant-primary);margin-right:8px;"></i>'+name+' — 本次巡检结果';
+
+    var html = ''
+      // 基本信息
+      +'<div class="info-grid">'
+      +'<div><div class="info-label">点位名称</div><div class="info-val">'+name+'</div></div>'
+      +'<div><div class="info-label">平台编码</div><div class="info-val">'+code+'</div></div>'
+      +'<div><div class="info-label">综合状态</div><div><span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:12px;color:'+sc.c+';background:'+sc.bg+';border:1px solid '+sc.b+';"><span style="width:5px;height:5px;border-radius:50%;background:'+sc.c+';"></span>'+status+'</span></div></div>'
+      +'</div>'
+      // Tab 导航
+      +'<div class="modal-tabs">'
+      +'<div class="modal-tab active" data-mtab="link" onclick="switchModalTab(\'link\')"><i class="fa-solid fa-link" style="font-size:11px;"></i>链路诊断</div>'
+      +'<div class="modal-tab" data-mtab="network" onclick="switchModalTab(\'network\')"><i class="fa-solid fa-network-wired" style="font-size:11px;"></i>网络状态</div>'
+      +'<div class="modal-tab" data-mtab="quality" onclick="switchModalTab(\'quality\')"><i class="fa-solid fa-image" style="font-size:11px;"></i>画质类</div>'
+      +'</div>';
+
+    // ====== 链路诊断 Tab ======
+    if (r.linkResult) {
+      var lr = r.linkResult;
+      var hbColor = parseFloat(lr.heartbeatTimeout) > 10 ? '#ff4d4f' : '#52c41a';
+      var psColor = parseFloat(lr.playSuccess) < 90 ? '#ff4d4f' : '#52c41a';
+      html += '<div class="modal-tab-panel active" id="mtab-link">'
+        // 指标卡片
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">'
+        +'<div class="metric-mini" style="border-left:3px solid '+(parseFloat(lr.heartbeatTimeout)>10?'var(--ant-error)':'var(--ant-success)')+';">'
+        +'<div class="metric-mini-title">心跳超时率</div><div class="metric-mini-val" style="color:'+hbColor+';">'+lr.heartbeatTimeout+'</div>'
+        +'<div class="metric-mini-hint" style="color:'+hbColor+';">'+(parseFloat(lr.heartbeatTimeout)>10?'⚠ 超标':'正常')+'</div></div>'
+        +'<div class="metric-mini" style="border-left:3px solid '+(parseFloat(lr.playSuccess)<90?'var(--ant-error)':'var(--ant-success)')+';">'
+        +'<div class="metric-mini-title">点播成功率</div><div class="metric-mini-val" style="color:'+psColor+';">'+lr.playSuccess+'</div>'
+        +'<div class="metric-mini-hint" style="color:'+psColor+';">'+(parseFloat(lr.playSuccess)<90?'⚠ 异常':'正常')+'</div></div>'
+        +'</div>'
+        // 诊断报告（时序图）
+        +'<div style="font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-stethoscope" style="color:var(--ant-primary);"></i>诊断报告</div>'
+        +renderCompactSeq(lr.steps)
+        // 原始日志
+        +'<div style="font-size:13px;font-weight:600;margin:12px 0 6px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-file-code" style="color:var(--ant-primary);"></i>原始日志</div>'
+        +renderCompactLog(lr.logs)
+        +(lr.desc!=='—' ? '<div style="margin-top:10px;font-size:13px;color:#ff4d4f;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>'+lr.desc+'</div>' : '')
+        +'</div>';
+    }
+
+    // ====== 网络状态 Tab ======
+    if (r.networkResult) {
+      var nr = r.networkResult;
+      html += '<div class="modal-tab-panel" id="mtab-network">'
+        // 指标卡片
+        +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">'
+        +'<div class="metric-mini" style="border-left:3px solid '+(parseFloat(nr.rtpLoss)>5?'var(--ant-error)':'var(--ant-success)')+';">'
+        +'<div class="metric-mini-title">RTP 丢包率</div><div class="metric-mini-val" style="color:'+(parseFloat(nr.rtpLoss)>5?'#ff4d4f':'#52c41a')+';">'+nr.rtpLoss+'</div></div>'
+        +'<div class="metric-mini" style="border-left:3px solid '+(nr.bitrate==='0 kbps'||nr.bitrate==='—'?'var(--ant-error)':'var(--ant-success)')+';">'
+        +'<div class="metric-mini-title">视频流码率</div><div class="metric-mini-val" style="color:'+(nr.bitrate==='0 kbps'||nr.bitrate==='—'?'#ff4d4f':'#52c41a')+';">'+nr.bitrate+'</div></div>'
+        +'<div class="metric-mini" style="border-left:3px solid '+(nr.tcpPorts&&nr.tcpPorts.some(function(p){return p.status!=='ok';})?'var(--ant-error)':'var(--ant-success)')+';">'
+        +'<div class="metric-mini-title">TCP 端口</div><div class="metric-mini-val" style="color:'+(nr.tcpPorts&&nr.tcpPorts.some(function(p){return p.status!=='ok';})?'#ff4d4f':'#52c41a')+';">'+(nr.tcpPorts&&nr.tcpPorts.every(function(p){return p.status==='ok';})?'全部可达':'不可达')+'</div></div>'
+        +'</div>'
+        // TCP 端口详情
+        +'<div style="font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-plug" style="color:var(--ant-primary);"></i>TCP 端口可达性</div>'
+        +renderCompactTcp(nr.tcpPorts || [])
+        +(nr.desc!=='—' ? '<div style="margin-top:10px;font-size:13px;color:#ff4d4f;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>'+nr.desc+'</div>' : '')
+        +'</div>';
+    }
+
+    // ====== 画质类 Tab ======
+    if (r.qualityResult) {
+      var qr = r.qualityResult;
+      var qScore = parseInt(qr.score) || 0;
+      var qColor = qScore >= 80 ? '#389e0d' : qScore >= 60 ? '#fa8c16' : '#ff4d4f';
+      var qBg = qScore >= 80 ? 'var(--ant-success-bg)' : qScore >= 60 ? '#fff7e6' : 'var(--ant-error-bg)';
+      html += '<div class="modal-tab-panel" id="mtab-quality">'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">'
+        // 左：截图
+        +'<div style="background:#f5f5f5;border:2px dashed var(--ant-border);border-radius:8px;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">'
+        +'<i class="fa-solid fa-camera" style="font-size:28px;color:var(--ant-text-quaternary);"></i>'
+        +'<div style="font-size:12px;color:var(--ant-text-tertiary);">最近巡检截图</div></div>'
+        // 右：画质评分 + 参数
+        +'<div style="display:flex;flex-direction:column;gap:10px;">'
+        +'<div style="text-align:center;padding:12px;background:'+qBg+';border:1px solid '+(qScore>=80?'#b7eb8f':'#ffa39e')+';border-radius:8px;">'
+        +'<div style="font-size:32px;font-weight:800;color:'+qColor+';line-height:1;">'+qr.score+'</div>'
+        +'<div style="font-size:11px;color:var(--ant-text-tertiary);margin-top:2px;">/ 100</div></div>'
+        +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">'
+        +'<div class="metric-mini"><div class="metric-mini-title">分辨率</div><div style="font-size:13px;font-weight:600;">'+qr.resolution+'</div></div>'
+        +'<div class="metric-mini"><div class="metric-mini-title">码率</div><div style="font-size:13px;font-weight:600;">'+qr.bitrate+'</div></div>'
+        +'<div class="metric-mini"><div class="metric-mini-title">帧率</div><div style="font-size:13px;font-weight:600;">'+qr.fps+' fps</div></div>'
+        +'</div></div></div>'
+        +(qr.desc!=='—' ? '<div style="margin-top:10px;font-size:13px;color:#ff4d4f;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>'+qr.desc+'</div>' : '')
+        +'</div>';
+    }
+
+    document.getElementById('modalBody').innerHTML = html;
+    document.getElementById('deviceModal').classList.add('show');
+  }
+
+  function closeModal() { document.getElementById('deviceModal').classList.remove('show'); }
+  document.getElementById('deviceModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+
+  render(devices);
+</script>
+</body>
+</html>

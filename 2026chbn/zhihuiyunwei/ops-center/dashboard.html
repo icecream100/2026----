@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>告警仪表盘 - 报警中心</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--ant-primary:#1677ff;--ant-primary-hover:#4096ff;--ant-success:#52c41a;--ant-warning:#faad14;--ant-error:#ff4d4f;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--ant-bg:#f5f5f5;--ant-bg-container:#fff;--shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);--shadow-2:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08);}
+    *{box-sizing:border-box;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}
+    .sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}
+    .main{flex:1;padding:24px;overflow:auto;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);text-transform:uppercase;}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}
+    .menu-item.active{color:#fff;background:var(--ant-primary);}
+    .menu-item i{width:16px;text-align:center;}
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;transition:all 0.2s;}
+    .ant-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .ant-btn-primary{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
+    .ant-btn-primary:hover{background:var(--ant-primary-hover);}
+    .ant-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);}
+    .ant-card-body{padding:24px;}
+    .ant-tag{display:inline-flex;align-items:center;height:22px;padding:0 7px;font-size:12px;border-radius:4px;}
+    .ant-tag-red{color:#f5222d;background:#fff1f0;border:1px solid #ffa39e;}
+    .ant-tag-blue{color:#1677ff;background:#e6f4ff;border:1px solid #91caff;}
+    .ant-tag-green{color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;}
+    .ant-tag-orange{color:#fa8c16;background:#fff7e6;border:1px solid #ffd591;}
+    .ant-tag-purple{color:#722ed1;background:#f9f0ff;border:1px solid #d3adf7;}
+    .ant-tag-gray{color:rgba(0,0,0,0.45);background:#fafafa;border:1px solid #d9d9d9;}
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}
+    .breadcrumb a:hover{color:var(--ant-primary);}
+    .stat-card{background:#fff;border-radius:8px;padding:20px;box-shadow:var(--shadow-1);transition:all 0.2s;}
+    .stat-card:hover{box-shadow:var(--shadow-2);}
+    .stat-card-icon{width:44px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+    .stat-card-value{font-size:28px;font-weight:700;line-height:1.2;}
+    .stat-card-label{font-size:13px;color:var(--ant-text-secondary);margin-top:4px;}
+    .stat-card-change{font-size:12px;display:flex;align-items:center;gap:2px;margin-top:6px;}
+    .pending-card{background:linear-gradient(135deg,#fff1f0,#ffebe8);border:1px solid #ffa39e;border-radius:12px;padding:24px;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;}
+    .pending-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,34,45,0.15);}
+    .pending-card::after{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:rgba(245,34,45,0.06);border-radius:50%;}
+    .pending-value{font-size:36px;font-weight:800;color:#f5222d;line-height:1;}
+    .ring-chart-container{position:relative;width:200px;height:200px;margin:0 auto;}
+    .ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+    .ring-center-value{font-size:28px;font-weight:700;color:var(--ant-text);}
+    .ring-center-label{font-size:12px;color:var(--ant-text-tertiary);}
+    .ring-segment{transition:opacity 0.2s;cursor:pointer;}
+    .ring-segment:hover{opacity:0.8;}
+    .ring-tooltip{position:absolute;background:rgba(0,0,0,0.75);color:#fff;padding:6px 10px;border-radius:4px;font-size:12px;pointer-events:none;white-space:nowrap;display:none;z-index:10;}
+    .legend-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ant-text-secondary);}
+    .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    .chart-bar{height:8px;border-radius:4px;background:#f0f0f0;overflow:hidden;position:relative;}
+    .chart-bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease;}
+    .trend-line{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+    .trend-dot{r:3;fill:#fff;stroke-width:2;}
+    .alarm-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--ant-border-secondary);transition:background 0.15s;}
+    .alarm-row:last-child{border-bottom:none;}
+    .alarm-row:hover{background:rgba(0,0,0,0.02);}
+    .alarm-level-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:2000;padding:10px 16px;background:#fff;border-radius:8px;box-shadow:var(--shadow-2);display:none;align-items:center;gap:8px;font-size:14px;}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;">
+        <i class="fa-solid fa-video text-white text-sm"></i>
+      </div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-4">
+      <span style="color:rgba(255,255,255,0.65);font-size:13px;cursor:pointer;" title="站内信通知"><i class="fa-regular fa-bell mr-1"></i><span style="background:#f5222d;color:#fff;border-radius:10px;padding:0 5px;font-size:11px;margin-left:2px;">3</span></span>
+      <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+        <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+        <span style="font-size:13px;">张工程师</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">报警中心</div>
+      <div class="menu-item active" onclick="showMsg('当前页面：告警仪表盘')"><i class="fa-solid fa-gauge-high"></i>告警仪表盘</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-bell"></i>设备检测告警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-robot"></i>感知任务告警</div>
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item" onclick="location.href='../ops-inspection/list.html'"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item" onclick="location.href='../ops-log/list.html'"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item" onclick="location.href='../ops-sla/index.html'"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item" onclick="location.href='../ops-predict/list.html'"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-bell"></i>设备告警</div>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span>报警中心</span><span>/</span><span style="color:var(--ant-text);">告警仪表盘</span>
+      </div>
+
+      <!-- 统计周期选择 -->
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-semibold m-0" style="color:var(--ant-text);">告警仪表盘</h2>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1" style="background:#fff;border:1px solid var(--ant-border);border-radius:4px;padding:2px;">
+            <button class="period-btn active" onclick="switchPeriod(this,'today')" style="padding:4px 12px;font-size:13px;border:none;background:var(--ant-primary);color:#fff;border-radius:3px;cursor:pointer;">今天</button>
+            <button class="period-btn" onclick="switchPeriod(this,'week')" style="padding:4px 12px;font-size:13px;border:none;background:transparent;color:var(--ant-text-secondary);border-radius:3px;cursor:pointer;">近一周</button>
+            <button class="period-btn" onclick="switchPeriod(this,'month')" style="padding:4px 12px;font-size:13px;border:none;background:transparent;color:var(--ant-text-secondary);border-radius:3px;cursor:pointer;">近一月</button>
+          </div>
+          <button class="ant-btn" onclick="showMsg('数据已刷新')"><i class="fa-solid fa-rotate"></i>刷新</button>
+        </div>
+      </div>
+
+      <!-- 核心指标卡片 + 待处置告警卡片 -->
+      <div class="grid grid-cols-5 gap-4 mb-6">
+        <!-- 今日告警 -->
+        <div class="stat-card">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="stat-card-value" style="color:#f5222d;">128</div>
+              <div class="stat-card-label">今日告警</div>
+            </div>
+            <div class="stat-card-icon" style="background:#fff1f0;"><i class="fa-solid fa-triangle-exclamation" style="color:#f5222d;"></i></div>
+          </div>
+          <div class="stat-card-change" style="color:#f5222d;"><i class="fa-solid fa-arrow-up"></i> 12.5% 较昨日</div>
+        </div>
+        <!-- 今日处理 -->
+        <div class="stat-card">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="stat-card-value" style="color:#1677ff;">96</div>
+              <div class="stat-card-label">今日处理</div>
+            </div>
+            <div class="stat-card-icon" style="background:#e6f4ff;"><i class="fa-solid fa-circle-check" style="color:#1677ff;"></i></div>
+          </div>
+          <div class="stat-card-change" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i> 8.3% 较昨日</div>
+        </div>
+        <!-- 处理效率 -->
+        <div class="stat-card">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="stat-card-value" style="color:#faad14;">75%</div>
+              <div class="stat-card-label">处理效率</div>
+            </div>
+            <div class="stat-card-icon" style="background:#fffbe6;"><i class="fa-solid fa-gauge" style="color:#faad14;"></i></div>
+          </div>
+          <div class="stat-card-change" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i> 3.2% 较昨日</div>
+        </div>
+        <!-- 本月告警 -->
+        <div class="stat-card">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="stat-card-value" style="color:var(--ant-text);">2,847</div>
+              <div class="stat-card-label">本月告警</div>
+            </div>
+            <div class="stat-card-icon" style="background:#f0f0f0;"><i class="fa-solid fa-calendar" style="color:var(--ant-text-secondary);"></i></div>
+          </div>
+          <div class="stat-card-change" style="color:#f5222d;"><i class="fa-solid fa-arrow-down"></i> 5.1% 较上月</div>
+        </div>
+        <!-- 待处置告警（新增，可点击跳转） -->
+        <div class="pending-card" onclick="location.href='../ops-alert/list.html'">
+          <div class="flex items-start justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-fire" style="color:#f5222d;font-size:16px;"></i>
+              <span style="font-size:13px;font-weight:600;color:#cf1322;">待处置告警</span>
+            </div>
+            <span style="background:#f5222d;color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;">32</span>
+          </div>
+          <div class="pending-value">32</div>
+          <div style="font-size:12px;color:var(--ant-text-secondary);margin-top:6px;">今日新增 <span style="color:#f5222d;font-weight:600;">8</span> 条</div>
+          <div style="font-size:11px;color:var(--ant-text-tertiary);margin-top:4px;"><i class="fa-solid fa-arrow-right mr-1"></i>点击查看详情</div>
+        </div>
+      </div>
+
+      <!-- 第二行：来源分布环形图 + 告警趋势图 -->
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <!-- 来源分布环形图 -->
+        <div class="ant-card">
+          <div class="ant-card-body">
+            <div class="flex items-center justify-between mb-4">
+              <span class="font-semibold" style="font-size:15px;">告警来源分布</span>
+              <span style="font-size:12px;color:var(--ant-text-tertiary);">按告警来源统计</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <!-- 环形图 -->
+              <div style="position:relative;width:200px;height:200px;">
+                <svg viewBox="0 0 200 200" width="200" height="200" id="ringChart">
+                  <!-- 检测任务 45% 蓝色 -->
+                  <circle class="ring-segment" cx="100" cy="100" r="70" fill="none" stroke="#1677ff" stroke-width="28"
+                    stroke-dasharray="197.92 241.74" stroke-dashoffset="0"
+                    transform="rotate(-90 100 100)"
+                    onmouseenter="showRingTip(evt,'检测任务',58,'45%')" onmouseleave="hideRingTip()"/>
+                  <!-- 巡检任务 35% 橙色 -->
+                  <circle class="ring-segment" cx="100" cy="100" r="70" fill="none" stroke="#fa8c16" stroke-width="28"
+                    stroke-dasharray="153.94 285.72" stroke-dashoffset="-197.92"
+                    transform="rotate(-90 100 100)"
+                    onmouseenter="showRingTip(evt,'巡检任务',45,'35%')" onmouseleave="hideRingTip()"/>
+                  <!-- 感知任务 20% 绿色 -->
+                  <circle class="ring-segment" cx="100" cy="100" r="70" fill="none" stroke="#52c41a" stroke-width="28"
+                    stroke-dasharray="87.96 351.70" stroke-dashoffset="-351.86"
+                    transform="rotate(-90 100 100)"
+                    onmouseenter="showRingTip(evt,'感知任务',25,'20%')" onmouseleave="hideRingTip()"/>
+                </svg>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                  <div style="font-size:28px;font-weight:700;color:var(--ant-text);">128</div>
+                  <div style="font-size:12px;color:var(--ant-text-tertiary);">告警总数</div>
+                </div>
+                <div class="ring-tooltip" id="ringTooltip"></div>
+              </div>
+              <!-- 图例 -->
+              <div style="display:flex;flex-direction:column;gap:16px;padding-left:24px;">
+                <div class="legend-item" style="cursor:pointer;" onclick="showMsg('筛选来源=检测任务')">
+                  <span class="legend-dot" style="background:#1677ff;"></span>
+                  <span style="flex:1;">检测任务</span>
+                  <span style="font-weight:600;color:var(--ant-text);">58</span>
+                  <span style="color:var(--ant-text-tertiary);font-size:12px;">45%</span>
+                </div>
+                <div class="legend-item" style="cursor:pointer;" onclick="showMsg('筛选来源=巡检任务')">
+                  <span class="legend-dot" style="background:#fa8c16;"></span>
+                  <span style="flex:1;">巡检任务</span>
+                  <span style="font-weight:600;color:var(--ant-text);">45</span>
+                  <span style="color:var(--ant-text-tertiary);font-size:12px;">35%</span>
+                </div>
+                <div class="legend-item" style="cursor:pointer;" onclick="showMsg('筛选来源=感知任务')">
+                  <span class="legend-dot" style="background:#52c41a;"></span>
+                  <span style="flex:1;">感知任务</span>
+                  <span style="font-weight:600;color:var(--ant-text);">25</span>
+                  <span style="color:var(--ant-text-tertiary);font-size:12px;">20%</span>
+                </div>
+                <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--ant-border-secondary);font-size:11px;color:var(--ant-text-tertiary);">
+                  <i class="fa-solid fa-circle-info mr-1"></i>点击图例可跳转至对应来源的告警列表
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 告警趋势图 -->
+        <div class="ant-card">
+          <div class="ant-card-body">
+            <div class="flex items-center justify-between mb-4">
+              <span class="font-semibold" style="font-size:15px;">告警趋势</span>
+              <div class="flex items-center gap-3">
+                <span class="legend-item"><span class="legend-dot" style="background:#f5222d;"></span>告警数</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#1677ff;"></span>处理数</span>
+              </div>
+            </div>
+            <svg viewBox="0 0 500 200" width="100%" height="200" style="overflow:visible;">
+              <!-- 网格线 -->
+              <line x1="40" y1="20" x2="490" y2="20" stroke="#f0f0f0" stroke-width="1"/>
+              <line x1="40" y1="60" x2="490" y2="60" stroke="#f0f0f0" stroke-width="1"/>
+              <line x1="40" y1="100" x2="490" y2="100" stroke="#f0f0f0" stroke-width="1"/>
+              <line x1="40" y1="140" x2="490" y2="140" stroke="#f0f0f0" stroke-width="1"/>
+              <line x1="40" y1="180" x2="490" y2="180" stroke="#f0f0f0" stroke-width="1"/>
+              <!-- Y轴标签 -->
+              <text x="35" y="24" text-anchor="end" fill="rgba(0,0,0,0.45)" font-size="11">50</text>
+              <text x="35" y="64" text-anchor="end" fill="rgba(0,0,0,0.45)" font-size="11">40</text>
+              <text x="35" y="104" text-anchor="end" fill="rgba(0,0,0,0.45)" font-size="11">30</text>
+              <text x="35" y="144" text-anchor="end" fill="rgba(0,0,0,0.45)" font-size="11">20</text>
+              <text x="35" y="184" text-anchor="end" fill="rgba(0,0,0,0.45)" font-size="11">10</text>
+              <!-- X轴标签 -->
+              <text x="80" y="198" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="11">00:00</text>
+              <text x="155" y="198" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="11">04:00</text>
+              <text x="230" y="198" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="11">08:00</text>
+              <text x="305" y="198" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="11">12:00</text>
+              <text x="380" y="198" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="11">16:00</text>
+              <text x="455" y="198" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="11">20:00</text>
+              <!-- 告警数折线（红色） -->
+              <polyline class="trend-line" stroke="#f5222d" points="80,140 120,120 155,100 195,80 230,60 270,90 305,70 345,110 380,130 420,100 455,80"/>
+              <circle class="trend-dot" cx="80" cy="140" stroke="#f5222d"/>
+              <circle class="trend-dot" cx="155" cy="100" stroke="#f5222d"/>
+              <circle class="trend-dot" cx="230" cy="60" stroke="#f5222d"/>
+              <circle class="trend-dot" cx="305" cy="70" stroke="#f5222d"/>
+              <circle class="trend-dot" cx="380" cy="130" stroke="#f5222d"/>
+              <circle class="trend-dot" cx="455" cy="80" stroke="#f5222d"/>
+              <!-- 处理数折线（蓝色） -->
+              <polyline class="trend-line" stroke="#1677ff" points="80,150 120,135 155,115 195,95 230,75 270,100 305,85 345,120 380,140 420,110 455,90"/>
+              <circle class="trend-dot" cx="80" cy="150" stroke="#1677ff"/>
+              <circle class="trend-dot" cx="155" cy="115" stroke="#1677ff"/>
+              <circle class="trend-dot" cx="230" cy="75" stroke="#1677ff"/>
+              <circle class="trend-dot" cx="305" cy="85" stroke="#1677ff"/>
+              <circle class="trend-dot" cx="380" cy="140" stroke="#1677ff"/>
+              <circle class="trend-dot" cx="455" cy="90" stroke="#1677ff"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第三行：告警分布TOP5 + 最新告警 -->
+      <div class="grid grid-cols-2 gap-4">
+        <!-- 告警TOP5 -->
+        <div class="ant-card">
+          <div class="ant-card-body">
+            <div class="flex items-center justify-between mb-4">
+              <span class="font-semibold" style="font-size:15px;">告警TOP5</span>
+              <span style="font-size:12px;color:var(--ant-text-tertiary);">按告警数量排序</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px;">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span style="font-size:13px;">链路异常-心跳超时</span>
+                  <span style="font-weight:600;color:#f5222d;">38</span>
+                </div>
+                <div class="chart-bar"><div class="chart-bar-fill" style="width:100%;background:linear-gradient(90deg,#f5222d,#ff7875);"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span style="font-size:13px;">网络异常-RTP丢包</span>
+                  <span style="font-weight:600;color:#fa8c16;">28</span>
+                </div>
+                <div class="chart-bar"><div class="chart-bar-fill" style="width:73%;background:linear-gradient(90deg,#fa8c16,#ffc069);"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span style="font-size:13px;">链路异常</span>
+                  <span style="font-weight:600;color:#faad14;">22</span>
+                </div>
+                <div class="chart-bar"><div class="chart-bar-fill" style="width:58%;background:linear-gradient(90deg,#faad14,#ffe58f);"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span style="font-size:13px;">画面异常</span>
+                  <span style="font-weight:600;color:#1677ff;">18</span>
+                </div>
+                <div class="chart-bar"><div class="chart-bar-fill" style="width:47%;background:linear-gradient(90deg,#1677ff,#69b1ff);"></div></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span style="font-size:13px;">丢包致花屏</span>
+                  <span style="font-weight:600;color:#722ed1;">12</span>
+                </div>
+                <div class="chart-bar"><div class="chart-bar-fill" style="width:32%;background:linear-gradient(90deg,#722ed1,#b37feb);"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 最新告警 -->
+        <div class="ant-card">
+          <div class="ant-card-body">
+            <div class="flex items-center justify-between mb-4">
+              <span class="font-semibold" style="font-size:15px;">最新告警</span>
+              <a href="../ops-alert/list.html" style="font-size:12px;color:var(--ant-primary);text-decoration:none;">查看全部 <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i></a>
+            </div>
+            <div>
+              <div class="alarm-row" style="cursor:pointer;" onclick="location.href='../ops-alert/detail.html'">
+                <span class="alarm-level-dot" style="background:#ff4d4f;"></span>
+                <span class="ant-tag ant-tag-red" style="height:20px;padding:0 5px;font-size:11px;">紧急</span>
+                <span style="flex:1;font-size:13px;">园区A-大门入口摄像头 链路异常</span>
+                <span style="font-size:12px;color:var(--ant-text-tertiary);white-space:nowrap;">2分钟前</span>
+              </div>
+              <div class="alarm-row" style="cursor:pointer;" onclick="location.href='../ops-alert/detail.html'">
+                <span class="alarm-level-dot" style="background:#fa8c16;"></span>
+                <span class="ant-tag ant-tag-orange" style="height:20px;padding:0 5px;font-size:11px;">警告</span>
+                <span style="flex:1;font-size:13px;">园区B-停车场3区 网络异常-RTP丢包</span>
+                <span style="font-size:12px;color:var(--ant-text-tertiary);white-space:nowrap;">8分钟前</span>
+              </div>
+              <div class="alarm-row" style="cursor:pointer;" onclick="location.href='../ops-alert/detail.html'">
+                <span class="alarm-level-dot" style="background:#ff4d4f;"></span>
+                <span class="ant-tag ant-tag-red" style="height:20px;padding:0 5px;font-size:11px;">紧急</span>
+                <span style="flex:1;font-size:13px;">园区C-主楼大厅 画面异常（模糊）</span>
+                <span style="font-size:12px;color:var(--ant-text-tertiary);white-space:nowrap;">15分钟前</span>
+              </div>
+              <div class="alarm-row" style="cursor:pointer;" onclick="location.href='../ops-alert/detail.html'">
+                <span class="alarm-level-dot" style="background:#1677ff;"></span>
+                <span class="ant-tag ant-tag-blue" style="height:20px;padding:0 5px;font-size:11px;">提示</span>
+                <span style="flex:1;font-size:13px;">园区A-仓库区 链路异常（ICMP不可达）</span>
+                <span style="font-size:12px;color:var(--ant-text-tertiary);white-space:nowrap;">23分钟前</span>
+              </div>
+              <div class="alarm-row" style="cursor:pointer;" onclick="location.href='../ops-alert/detail.html'">
+                <span class="alarm-level-dot" style="background:#1677ff;"></span>
+                <span class="ant-tag ant-tag-blue" style="height:20px;padding:0 5px;font-size:11px;">提示</span>
+                <span style="flex:1;font-size:13px;">园区B-出入口 码率不足（低于阈值）</span>
+                <span style="font-size:12px;color:var(--ant-text-tertiary);white-space:nowrap;">31分钟前</span>
+              </div>
+              <div class="alarm-row" style="cursor:pointer;" onclick="location.href='../ops-alert/detail.html'">
+                <span class="alarm-level-dot" style="background:#fa8c16;"></span>
+                <span class="ant-tag ant-tag-orange" style="height:20px;padding:0 5px;font-size:11px;">警告</span>
+                <span style="flex:1;font-size:13px;">园区D-道路监控2 链路异常-点播失败</span>
+                <span style="font-size:12px;color:var(--ant-text-tertiary);white-space:nowrap;">42分钟前</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check" style="color:#52c41a;"></i><span id="toastText"></span></div>
+
+<script>
+  // 菜单高亮
+  document.querySelectorAll('.sider .menu-item').forEach(item => {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.sider .menu-item').forEach(i => i.classList.remove('active'));
+      if (this.textContent.includes('告警仪表盘')) this.classList.add('active');
+    });
+  });
+
+  // Toast
+  function showMsg(text) {
+    var t = document.getElementById('toast');
+    document.getElementById('toastText').textContent = text;
+    t.style.display = 'flex';
+    setTimeout(function() { t.style.display = 'none'; }, 2000);
+  }
+
+  // 统计周期切换
+  function switchPeriod(btn, period) {
+    document.querySelectorAll('.period-btn').forEach(function(b) {
+      b.style.background = 'transparent';
+      b.style.color = 'var(--ant-text-secondary)';
+    });
+    btn.style.background = 'var(--ant-primary)';
+    btn.style.color = '#fff';
+    showMsg('已切换至：' + (period === 'today' ? '今天' : period === 'week' ? '近一周' : '近一月'));
+  }
+
+  // 环形图Tooltip
+  function showRingTip(evt, name, count, pct) {
+    var tip = document.getElementById('ringTooltip');
+    tip.textContent = name + '：' + count + '条（' + pct + '）';
+    tip.style.display = 'block';
+    var rect = evt.target.closest('svg').getBoundingClientRect();
+    var cx = parseFloat(evt.target.getAttribute('cx'));
+    var cy = parseFloat(evt.target.getAttribute('cy'));
+    tip.style.left = (cx - 40) + 'px';
+    tip.style.top = (cy - 30) + 'px';
+  }
+  function hideRingTip() {
+    document.getElementById('ringTooltip').style.display = 'none';
+  }
+</script>
+</body>
+</html>
