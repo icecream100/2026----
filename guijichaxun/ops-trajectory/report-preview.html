@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>轨迹分析报告预览</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-body: #f0f2f5;
+            --bg-card: #ffffff;
+            --border: #dcdfe6;
+            --border-light: #e4e7ed;
+            --text-primary: #303133;
+            --text-secondary: #606266;
+            --text-muted: #909399;
+            --primary: #409eff;
+            --primary-light: #ecf5ff;
+            --success: #67c23a;
+            --success-light: #f0f9eb;
+            --warning: #e6a23c;
+            --danger: #f56c6c;
+            --radius: 4px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 页面容器 */
+        .page-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .action-bar h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            height: 36px;
+            padding: 0 20px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+            font-weight: 500;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: #66b1ff;
+            border-color: #66b1ff;
+        }
+
+        .btn-default {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+
+        .btn-default:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* 报告页面 */
+        .report-page {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+
+        /* 封面 */
+        .report-cover {
+            background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
+            color: #fff;
+            padding: 60px 48px;
+            text-align: center;
+        }
+
+        .cover-logo {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .cover-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .cover-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .cover-meta {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            font-size: 14px;
+            opacity: 0.85;
+        }
+
+        .cover-meta-item {
+            text-align: left;
+        }
+
+        .cover-meta-label {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+
+        .cover-meta-value {
+            font-weight: 600;
+        }
+
+        /* 报告内容 */
+        .report-content {
+            padding: 48px;
+        }
+
+        /* 章节标题 */
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title .icon {
+            width: 28px;
+            height: 28px;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        /* 统计概览 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--primary-light);
+            border: 1px solid #b3d8ff;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card.green {
+            background: var(--success-light);
+            border-color: #b3e19d;
+        }
+
+        .stat-card.orange {
+            background: #fdf6ec;
+            border-color: #f5dab1;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-card.green .stat-value { color: var(--success); }
+        .stat-card.orange .stat-value { color: var(--warning); }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* 基本信息 */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .info-item {
+            display: flex;
+            padding: 12px 16px;
+            background: #fafafa;
+            border-radius: 6px;
+        }
+
+        .info-label {
+            width: 100px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        .info-value.highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* 地图区域 */
+        .map-container {
+            background: #0a1628;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 32px;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .map-placeholder {
+            text-align: center;
+            color: #64748b;
+        }
+
+        .map-placeholder .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .map-placeholder p {
+            font-size: 14px;
+        }
+
+        .map-caption {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+
+        /* 时间线表格 */
+        .timeline-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 32px;
+        }
+
+        .timeline-table th {
+            background: #fafafa;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .timeline-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 13px;
+        }
+
+        .timeline-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .timeline-table .time {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .timeline-table .similarity {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .sim-high {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .sim-mid {
+            background: #fdf6ec;
+            color: #b88230;
+        }
+
+        .timeline-table .stop-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #fdf6ec;
+            color: var(--warning);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* 抓拍图片网格 */
+        .capture-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .capture-item {
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .capture-img {
+            height: 120px;
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 32px;
+        }
+
+        .capture-info {
+            padding: 10px 12px;
+        }
+
+        .capture-time {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .capture-location {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .capture-sim {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--success);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* 页脚 */
+        .report-footer {
+            background: #fafafa;
+            border-top: 1px solid var(--border-light);
+            padding: 24px 48px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* 打印样式 */
+        @media print {
+            body {
+                background: #fff;
+            }
+            .action-bar {
+                display: none;
+            }
+            .page-container {
+                margin: 0;
+                padding: 0;
+            }
+            .report-page {
+                box-shadow: none;
+                border: none;
+                margin: 0;
+            }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .capture-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .cover-meta {
+                flex-direction: column;
+                gap: 16px;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- 操作栏 -->
+        <div class="action-bar">
+            <h1>轨迹分析报告预览</h1>
+            <div class="btn-group">
+                <button class="btn btn-default" onclick="window.history.back()">
+                    <i class="fa-solid fa-arrow-left"></i>返回
+                </button>
+                <button class="btn btn-default" onclick="window.print()">
+                    <i class="fa-solid fa-print"></i>打印
+                </button>
+                <button class="btn btn-primary" onclick="alert('PDF下载中...')">
+                    <i class="fa-solid fa-download"></i>下载PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- 报告封面 -->
+        <div class="report-page">
+            <div class="report-cover">
+                <div class="cover-logo">
+                    <i class="fa-solid fa-video"></i>
+                    视频智能运维平台
+                </div>
+                <div class="cover-title">人员轨迹分析报告</div>
+                <div class="cover-subtitle">Person Trajectory Analysis Report</div>
+                <div class="cover-meta">
+                    <div class="cover-meta-item">
+                        <div class="cover-meta-label">报告编号</div>
+                        <div class="cover-meta-value">RPT-20260529-001</div>
+                    </div>
+                    <div class="cover-meta-item">
+                        <div class="cover-meta-label">生成时间</div>
+                        <div class="cover-meta-value">2026-05-29 14:32</div>
+                    </div>
+                    <div class="cover-meta-item">
+                        <div class="cover-meta-label">查询人员</div>
+                        <div class="cover-meta-value">alex</div>
+                    </div>
+                    <div class="cover-meta-item">
+                        <div class="cover-meta-label">密级</div>
+                        <div class="cover-meta-value">内部</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计概览 -->
+        <div class="report-page">
+            <div class="report-content">
+                <div class="section-title">
+                    <span class="icon">1</span>
+                    统计概览
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">抓拍次数</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-value">6</div>
+                        <div class="stat-label">涉及摄像头</div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-value">2h15m</div>
+                        <div class="stat-label">活动时长</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">95%</div>
+                        <div class="stat-label">最高相似度</div>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">人员编号</span>
+                        <span class="info-value highlight">P-00231</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">性别</span>
+                        <span class="info-value">男</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">上衣颜色</span>
+                        <span class="info-value">黑色</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">下装颜色</span>
+                        <span class="info-value">深蓝色</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">首次出现</span>
+                        <span class="info-value">2026-05-29 09:12:35</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">末次出现</span>
+                        <span class="info-value">2026-05-29 11:27:44</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">查询时间范围</span>
+                        <span class="info-value">2026-05-29 00:00 ~ 23:59</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">置信度阈值</span>
+                        <span class="info-value">≥ 90%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 轨迹地图 -->
+        <div class="report-page">
+            <div class="report-content">
+                <div class="section-title">
+                    <span class="icon">2</span>
+                    轨迹地图
+                </div>
+
+                <div class="map-container">
+                    <div class="map-placeholder">
+                        <div class="icon"><i class="fa-solid fa-map-location-dot"></i></div>
+                        <p>轨迹地图截图</p>
+                        <p style="font-size:12px;margin-top:8px;opacity:0.7">显示人员在园区内的移动轨迹，包含摄像头点位和停留标注</p>
+                    </div>
+                </div>
+                <div class="map-caption">图 2-1 人员轨迹地图（截图时间：2026-05-29 14:32）</div>
+            </div>
+        </div>
+
+        <!-- 时间线 -->
+        <div class="report-page">
+            <div class="report-content">
+                <div class="section-title">
+                    <span class="icon">3</span>
+                    时间线记录
+                </div>
+
+                <table class="timeline-table">
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>时间</th>
+                            <th>点位名称</th>
+                            <th>摄像头编码</th>
+                            <th>相似度</th>
+                            <th>停留时长</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td class="time">09:12:35</td>
+                            <td>南区入口</td>
+                            <td style="color:var(--text-muted)">CAM-SOUTH-001</td>
+                            <td><span class="similarity sim-high">95%</span></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td class="time">09:28:12</td>
+                            <td>南区B栋西</td>
+                            <td style="color:var(--text-muted)">CAM-SOUTH-003</td>
+                            <td><span class="similarity sim-high">92%</span></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td class="time">09:45:08</td>
+                            <td>南区通道</td>
+                            <td style="color:var(--text-muted)">CAM-SOUTH-004</td>
+                            <td><span class="similarity sim-mid">88%</span></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td class="time">10:02:41</td>
+                            <td>中央广场南</td>
+                            <td style="color:var(--text-muted)">CAM-CENTRAL-001</td>
+                            <td><span class="similarity sim-high">91%</span></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td class="time">10:05:22</td>
+                            <td>中央广场中心</td>
+                            <td style="color:var(--text-muted)">CAM-CENTRAL-002</td>
+                            <td><span class="similarity sim-high">94%</span></td>
+                            <td><span class="stop-badge">18分钟</span></td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td class="time">10:28:55</td>
+                            <td>中央广场东</td>
+                            <td style="color:var(--text-muted)">CAM-CENTRAL-003</td>
+                            <td><span class="similarity sim-mid">87%</span></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td class="time">10:50:13</td>
+                            <td>北区通道</td>
+                            <td style="color:var(--text-muted)">CAM-NORTH-001</td>
+                            <td><span class="similarity sim-mid">83%</span></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td class="time">11:27:44</td>
+                            <td>北区C栋南</td>
+                            <td style="color:var(--text-muted)">CAM-NORTH-002</td>
+                            <td><span class="similarity sim-high">90%</span></td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 抓拍图片 -->
+        <div class="report-page">
+            <div class="report-content">
+                <div class="section-title">
+                    <span class="icon">4</span>
+                    抓拍图片
+                </div>
+
+                <div class="capture-grid">
+                    <div class="capture-item" style="position:relative">
+                        <div class="capture-img"><i class="fa-solid fa-user"></i></div>
+                        <span class="capture-sim">95%</span>
+                        <div class="capture-info">
+                            <div class="capture-time">09:12:35</div>
+                            <div class="capture-location"><i class="fa-solid fa-location-dot"></i> 南区入口</div>
+                        </div>
+                    </div>
+                    <div class="capture-item" style="position:relative">
+                        <div class="capture-img"><i class="fa-solid fa-user"></i></div>
+                        <span class="capture-sim">92%</span>
+                        <div class="capture-info">
+                            <div class="capture-time">09:28:12</div>
+                            <div class="capture-location"><i class="fa-solid fa-location-dot"></i> 南区B栋西</div>
+                        </div>
+                    </div>
+                    <div class="capture-item" style="position:relative">
+                        <div class="capture-img"><i class="fa-solid fa-user"></i></div>
+                        <span class="capture-sim" style="background:var(--warning)">88%</span>
+                        <div class="capture-info">
+                            <div class="capture-time">09:45:08</div>
+                            <div class="capture-location"><i class="fa-solid fa-location-dot"></i> 南区通道</div>
+                        </div>
+                    </div>
+                    <div class="capture-item" style="position:relative">
+                        <div class="capture-img"><i class="fa-solid fa-user"></i></div>
+                        <span class="capture-sim">91%</span>
+                        <div class="capture-info">
+                            <div class="capture-time">10:02:41</div>
+                            <div class="capture-location"><i class="fa-solid fa-location-dot"></i> 中央广场南</div>
+                        </div>
+                    </div>
+                    <div class="capture-item" style="position:relative">
+                        <div class="capture-img"><i class="fa-solid fa-user"></i></div>
+                        <span class="capture-sim">94%</span>
+                        <div class="capture-info">
+                            <div class="capture-time">10:05:22</div>
+                            <div class="capture-location"><i class="fa-solid fa-location-dot"></i> 中央广场中心</div>
+                        </div>
+                    </div>
+                    <div class="capture-item" style="position:relative">
+                        <div class="capture-img"><i class="fa-solid fa-user"></i></div>
+                        <span class="capture-sim" style="background:var(--warning)">87%</span>
+                        <div class="capture-info">
+                            <div class="capture-time">10:28:55</div>
+                            <div class="capture-location"><i class="fa-solid fa-location-dot"></i> 中央广场东</div>
+                        </div>
+                    </div>
+                    <div class="capture-item" style="position:relative">
+                        <div class="capture-img"><i class="fa-solid fa-user"></i></div>
+                        <span class="capture-sim" style="background:var(--warning)">83%</span>
+                        <div class="capture-info">
+                            <div class="capture-time">10:50:13</div>
+                            <div class="capture-location"><i class="fa-solid fa-location-dot"></i> 北区通道</div>
+                        </div>
+                    </div>
+                    <div class="capture-item" style="position:relative">
+                        <div class="capture-img"><i class="fa-solid fa-user"></i></div>
+                        <span class="capture-sim">90%</span>
+                        <div class="capture-info">
+                            <div class="capture-time">11:27:44</div>
+                            <div class="capture-location"><i class="fa-solid fa-location-dot"></i> 北区C栋南</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="font-size:12px;color:var(--text-muted);text-align:center">
+                    共 8 张抓拍图片，相似度 ≥ 90% 的有 5 张
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="report-page">
+            <div class="report-footer">
+                <div>
+                    <div style="margin-bottom:4px">视频智能运维平台 · 轨迹分析报告</div>
+                    <div>报告编号：RPT-20260529-001 | 生成时间：2026-05-29 14:32</div>
+                </div>
+                <div style="text-align:right">
+                    <div style="margin-bottom:4px">第 1 页 / 共 1 页</div>
+                    <div>本报告仅供内部使用，请妥善保管</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

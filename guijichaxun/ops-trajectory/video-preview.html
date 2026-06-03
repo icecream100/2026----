@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频预览 - 视频智能运维管理平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --ant-primary: #1677ff;
+            --ant-primary-hover: #4096ff;
+            --ant-primary-active: #0958d9;
+            --ant-primary-bg: #e6f4ff;
+            --ant-primary-border: #91caff;
+            --ant-success: #52c41a;
+            --ant-warning: #faad14;
+            --ant-error: #ff4d4f;
+            --ant-bg: #f5f5f5;
+            --ant-bg-container: #ffffff;
+            --ant-text: rgba(0,0,0,0.88);
+            --ant-text-secondary: rgba(0,0,0,0.65);
+            --ant-text-tertiary: rgba(0,0,0,0.45);
+            --ant-border-secondary: #f0f0f0;
+            --ant-border-color: #d9d9d9;
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --ant-shadow-lg: 0 6px 16px 0 rgba(0,0,0,0.08), 0 3px 6px -4px rgba(0,0,0,0.12), 0 9px 28px 8px rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+            background: var(--ant-bg);
+            color: var(--ant-text);
+            font-size: 14px;
+            min-height: 100vh;
+        }
+
+        /* === 背景占位内容（模拟来源页面） === */
+        .bg-page {
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .bg-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--ant-text-tertiary);
+            margin-bottom: 16px;
+        }
+
+        .bg-breadcrumb a {
+            color: var(--ant-primary);
+            text-decoration: none;
+        }
+
+        .bg-card {
+            background: var(--ant-bg-container);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            box-shadow: var(--ant-shadow-lg);
+            margin-bottom: 16px;
+        }
+
+        .bg-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bg-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--ant-border-secondary);
+        }
+
+        .bg-row:last-child { border-bottom: none; }
+
+        .bg-thumb {
+            width: 120px;
+            height: 68px;
+            background: #e8e8e8;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ant-text-tertiary);
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .bg-info { flex: 1; }
+
+        .bg-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid var(--ant-border-color);
+            background: #fff;
+            color: var(--ant-text);
+            transition: all 0.2s;
+        }
+
+        .bg-btn:hover {
+            color: var(--ant-primary);
+            border-color: var(--ant-primary);
+        }
+
+        .bg-btn-primary {
+            background: var(--ant-primary);
+            border-color: var(--ant-primary);
+            color: #fff;
+        }
+
+        .bg-btn-primary:hover {
+            background: var(--ant-primary-hover);
+            border-color: var(--ant-primary-hover);
+            color: #fff;
+        }
+
+        /* === 遮罩层 === */
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: maskFadeIn 0.2s ease;
+        }
+
+        @keyframes maskFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* === 弹窗主体 === */
+        .modal-wrapper {
+            width: 800px;
+            max-height: 90vh;
+            background: var(--ant-bg-container);
+            border-radius: var(--radius-md);
+            box-shadow: var(--ant-shadow-lg);
+            display: flex;
+            flex-direction: column;
+            animation: modalSlideIn 0.25s ease;
+            overflow: hidden;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 标题栏 */
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--ant-border-secondary);
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: transparent;
+            color: var(--ant-text-tertiary);
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--ant-border-secondary);
+            color: var(--ant-text);
+        }
+
+        /* 内容区 */
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+        }
+
+        /* 信息栏 */
+        .info-bar {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 12px 16px;
+            background: var(--ant-bg);
+            border-radius: var(--radius-sm);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-label {
+            color: var(--ant-text-tertiary);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .info-value {
+            color: var(--ant-text);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .info-divider {
+            width: 1px;
+            height: 16px;
+            background: var(--ant-border-color);
+        }
+
+        /* 视频播放器 */
+        .player-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #1a1a2e;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .player-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .play-btn-large {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .play-btn-large:hover {
+            background: rgba(255,255,255,0.25);
+            border-color: rgba(255,255,255,0.4);
+            transform: scale(1.08);
+        }
+
+        .play-btn-large i {
+            font-size: 28px;
+            color: #fff;
+            margin-left: 4px;
+        }
+
+        /* 已播放状态隐藏大播放按钮 */
+        .player-container.playing .play-btn-large { display: none; }
+
+        /* 模拟视频画面 */
+        .video-simulated-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .video-grid {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            opacity: 0.06;
+        }
+
+        .video-grid div {
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* 摄像头视角模拟 */
+        .cam-view {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background: radial-gradient(ellipse at center, rgba(26,26,46,0) 0%, #1a1a2e 85%);
+        }
+
+        /* 水印 */
+        .watermark {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .watermark-text {
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+            font-family: monospace;
+        }
+
+        /* 底部时间线条 */
+        .timeline-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 36px;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            z-index: 3;
+            display: flex;
+            align-items: flex-end;
+            padding: 0 12px 8px;
+        }
+
+        .timeline-track {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 40%;
+            background: var(--ant-primary);
+            border-radius: 2px;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            top: -6px;
+            left: 40%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 16px;
+            background: #faad14;
+            border-radius: 1px;
+            z-index: 1;
+        }
+
+        .timeline-marker-label {
+            position: absolute;
+            bottom: 20px;
+            left: 40%;
+            transform: translateX(-50%);
+            background: #faad14;
+            color: #000;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 2px;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .timeline-time {
+            position: absolute;
+            right: 0;
+            bottom: 14px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            font-family: monospace;
+        }
+
+        /* 播放状态指示 */
+        .status-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-playing {
+            background: rgba(82, 196, 26, 0.2);
+            color: #73d13d;
+            border: 1px solid rgba(82, 196, 26, 0.3);
+        }
+
+        .status-paused {
+            background: rgba(250, 173, 20, 0.2);
+            color: #ffc53d;
+            border: 1px solid rgba(250, 173, 20, 0.3);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-playing .status-dot {
+            animation: statusPulse 1.5s infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* 控制栏 */
+        .controls-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--ant-bg);
+            border-radius: var(--radius-sm);
+            margin-top: 12px;
+        }
+
+        .ctrl-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: transparent;
+            color: var(--ant-text-secondary);
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .ctrl-btn:hover {
+            background: var(--ant-border-secondary);
+            color: var(--ant-primary);
+        }
+
+        .ctrl-btn.active {
+            color: var(--ant-primary);
+        }
+
+        /* 进度条 */
+        .ctrl-progress-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ctrl-progress {
+            flex: 1;
+            height: 6px;
+            background: var(--ant-border-secondary);
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+            overflow: visible;
+        }
+
+        .ctrl-progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 40%;
+            background: var(--ant-primary);
+            border-radius: 3px;
+            transition: width 0.1s;
+        }
+
+        .ctrl-progress-thumb {
+            position: absolute;
+            top: 50%;
+            left: 40%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: var(--ant-primary);
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .ctrl-progress:hover .ctrl-progress-thumb { opacity: 1; }
+
+        .ctrl-progress-marker {
+            position: absolute;
+            top: -3px;
+            left: 40%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 12px;
+            background: var(--ant-warning);
+            clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .ctrl-time {
+            font-size: 12px;
+            color: var(--ant-text-tertiary);
+            font-family: monospace;
+            white-space: nowrap;
+            min-width: 80px;
+        }
+
+        /* 音量 */
+        .volume-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .volume-slider {
+            width: 70px;
+            height: 4px;
+            background: var(--ant-border-secondary);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .volume-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 75%;
+            background: var(--ant-text-secondary);
+            border-radius: 2px;
+        }
+
+        /* 速度选择器 */
+        .speed-selector {
+            position: relative;
+        }
+
+        .speed-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--ant-border-color);
+            background: #fff;
+            color: var(--ant-text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .speed-btn:hover {
+            color: var(--ant-primary);
+            border-color: var(--ant-primary);
+        }
+
+        .speed-dropdown {
+            position: absolute;
+            bottom: calc(100% + 6px);
+            right: 0;
+            background: #fff;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--ant-shadow-lg);
+            border: 1px solid var(--ant-border-secondary);
+            padding: 4px 0;
+            display: none;
+            z-index: 10;
+            min-width: 60px;
+        }
+
+        .speed-dropdown.show { display: block; }
+
+        .speed-option {
+            padding: 6px 16px;
+            font-size: 13px;
+            color: var(--ant-text);
+            cursor: pointer;
+            transition: background 0.15s;
+            text-align: center;
+        }
+
+        .speed-option:hover { background: var(--ant-bg); }
+
+        .speed-option.active {
+            color: var(--ant-primary);
+            font-weight: 500;
+        }
+
+        /* 不可用状态 */
+        .player-unavailable {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #2a2a3e;
+        }
+
+        .player-unavailable i {
+            font-size: 48px;
+            color: rgba(255,255,255,0.15);
+            margin-bottom: 16px;
+        }
+
+        .player-unavailable-text {
+            font-size: 15px;
+            color: rgba(255,255,255,0.45);
+        }
+
+        .player-unavailable-sub {
+            font-size: 12px;
+            color: rgba(255,255,255,0.25);
+            margin-top: 6px;
+        }
+
+        /* 切换按钮 */
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .toggle-btn {
+            padding: 6px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--ant-border-color);
+            background: #fff;
+            color: var(--ant-text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .toggle-btn.active {
+            background: var(--ant-primary);
+            border-color: var(--ant-primary);
+            color: #fff;
+        }
+
+        .toggle-btn:hover:not(.active) {
+            color: var(--ant-primary);
+            border-color: var(--ant-primary);
+        }
+
+        /* 底部 */
+        .modal-footer {
+            padding: 12px 24px;
+            border-top: 1px solid var(--ant-border-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .demo-link {
+            font-size: 13px;
+            color: var(--ant-text-tertiary);
+        }
+
+        .demo-link a {
+            color: var(--ant-primary);
+            text-decoration: none;
+        }
+
+        .demo-link a:hover { text-decoration: underline; }
+
+        .footer-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .footer-btn {
+            padding: 6px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid var(--ant-border-color);
+            background: #fff;
+            color: var(--ant-text);
+            transition: all 0.15s;
+        }
+
+        .footer-btn:hover {
+            color: var(--ant-primary);
+            border-color: var(--ant-primary);
+        }
+
+        .footer-btn-primary {
+            background: var(--ant-primary);
+            border-color: var(--ant-primary);
+            color: #fff;
+        }
+
+        .footer-btn-primary:hover {
+            background: var(--ant-primary-hover);
+            border-color: var(--ant-primary-hover);
+            color: #fff;
+        }
+
+        /* 下载截图等辅助按钮 */
+        .player-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 12px;
+            justify-content: flex-end;
+        }
+
+        .action-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            color: var(--ant-text-secondary);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: all 0.15s;
+        }
+
+        .action-link:hover {
+            background: var(--ant-border-secondary);
+            color: var(--ant-primary);
+        }
+    </style>
+</head>
+<body>
+
+<!-- 背景页面（模拟来源） -->
+<div class="bg-page">
+    <div class="bg-breadcrumb">
+        <a href="index.html"><i class="fas fa-home"></i></a>
+        <span>/</span>
+        <span>轨迹管理</span>
+        <span>/</span>
+        <span>轨迹查询结果</span>
+    </div>
+
+    <div class="bg-card">
+        <div class="bg-card-title">
+            <i class="fas fa-route" style="color: var(--ant-primary);"></i>
+            轨迹查询结果 - 张三
+        </div>
+
+        <div class="bg-row">
+            <div class="bg-thumb"><i class="fas fa-video"></i></div>
+            <div class="bg-info">
+                <div style="font-weight:500; margin-bottom:4px;">东区入口-A03</div>
+                <div style="font-size:12px; color:var(--ant-text-tertiary);">CAM-20260528-001 &nbsp;|&nbsp; 2026-05-28 14:32:15</div>
+            </div>
+            <button class="bg-btn bg-btn-primary" onclick="showModal('available')">
+                <i class="fas fa-play"></i> 查看录像
+            </button>
+        </div>
+
+        <div class="bg-row">
+            <div class="bg-thumb"><i class="fas fa-video"></i></div>
+            <div class="bg-info">
+                <div style="font-weight:500; margin-bottom:4px;">西区通道-B07</div>
+                <div style="font-size:12px; color:var(--ant-text-tertiary);">CAM-20260528-002 &nbsp;|&nbsp; 2026-05-28 14:35:42</div>
+            </div>
+            <button class="bg-btn" onclick="showModal('unavailable')">
+                <i class="fas fa-play"></i> 查看录像
+            </button>
+        </div>
+    </div>
+
+    <div style="text-align:center; padding:24px; color:var(--ant-text-tertiary); font-size:13px;">
+        <i class="fas fa-arrow-up" style="margin-right:4px;"></i>
+        点击上方 "查看录像" 按钮打开视频预览弹窗（P-004）
+    </div>
+</div>
+
+<!-- 遮罩层 + 弹窗 -->
+<div class="modal-mask" id="modalMask">
+    <div class="modal-wrapper">
+        <!-- 标题栏 -->
+        <div class="modal-header">
+            <div class="modal-title">
+                <i class="fas fa-video" style="color: var(--ant-primary);"></i>
+                视频预览
+            </div>
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- 内容 -->
+        <div class="modal-body">
+            <!-- 信息栏 -->
+            <div class="info-bar" id="infoBar">
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-map-marker-alt"></i> 点位名称</span>
+                    <span class="info-value">东区入口-A03</span>
+                </div>
+                <div class="info-divider"></div>
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-camera"></i> 摄像头编码</span>
+                    <span class="info-value">CAM-20260528-001</span>
+                </div>
+                <div class="info-divider"></div>
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-clock"></i> 抓拍时间</span>
+                    <span class="info-value">2026-05-28 14:32:15</span>
+                </div>
+            </div>
+
+            <!-- 视频画面切换 -->
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="switchView(this, 'available')">
+                    <i class="fas fa-check-circle"></i> 正常录像
+                </button>
+                <button class="toggle-btn" onclick="switchView(this, 'unavailable')">
+                    <i class="fas fa-exclamation-circle"></i> 无录像
+                </button>
+            </div>
+
+            <!-- 播放器 -->
+            <div class="player-container playing" id="playerContainer">
+                <!-- 模拟画面 -->
+                <div class="video-simulated-bg">
+                    <div class="video-grid">
+                        <div></div><div></div><div></div><div></div>
+                        <div></div><div></div><div></div><div></div>
+                        <div></div><div></div><div></div><div></div>
+                    </div>
+                    <div class="cam-view"></div>
+                </div>
+
+                <!-- 水印 -->
+                <div class="watermark" id="watermark">
+                    <span class="watermark-text">CAM-20260528-001</span>
+                    <span class="watermark-text">2026-05-28 14:32:15</span>
+                </div>
+
+                <!-- 状态指示 -->
+                <div class="status-badge status-playing" id="statusBadge">
+                    <span class="status-dot"></span>
+                    <span id="statusText">正在播放</span>
+                </div>
+
+                <!-- 大播放按钮 -->
+                <div class="player-overlay" id="playerOverlay">
+                    <div class="play-btn-large" onclick="togglePlay()">
+                        <i class="fas fa-play" id="playIconLarge"></i>
+                    </div>
+                </div>
+
+                <!-- 底部时间线 -->
+                <div class="timeline-bar" id="timelineBar">
+                    <div class="timeline-track">
+                        <div class="timeline-progress"></div>
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-marker-label">抓拍点 14:32:15</div>
+                    </div>
+                    <span class="timeline-time">00:36 / 01:30</span>
+                </div>
+
+                <!-- 不可用状态（默认隐藏） -->
+                <div class="player-unavailable" id="playerUnavailable" style="display:none;">
+                    <i class="fas fa-video-slash"></i>
+                    <div class="player-unavailable-text">该摄像头暂无录像</div>
+                    <div class="player-unavailable-sub">摄像头可能处于离线状态或录像未存储</div>
+                </div>
+            </div>
+
+            <!-- 控制栏 -->
+            <div class="controls-bar" id="controlsBar">
+                <button class="ctrl-btn" onclick="stepBackward()" title="后退10秒">
+                    <i class="fas fa-backward"></i>
+                </button>
+                <button class="ctrl-btn active" onclick="togglePlay()" title="播放/暂停" id="playPauseBtn">
+                    <i class="fas fa-pause" id="playPauseIcon"></i>
+                </button>
+                <button class="ctrl-btn" onclick="stepForward()" title="前进10秒">
+                    <i class="fas fa-forward"></i>
+                </button>
+
+                <div class="ctrl-progress-wrap">
+                    <div class="ctrl-progress">
+                        <div class="ctrl-progress-fill"></div>
+                        <div class="ctrl-progress-thumb"></div>
+                        <div class="ctrl-progress-marker" title="抓拍点 14:32:15"></div>
+                    </div>
+                    <span class="ctrl-time">00:30 / 01:30</span>
+                </div>
+
+                <div class="volume-wrap">
+                    <button class="ctrl-btn" title="音量">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                    <div class="volume-slider">
+                        <div class="volume-fill"></div>
+                    </div>
+                </div>
+
+                <div class="speed-selector">
+                    <button class="speed-btn" onclick="toggleSpeed()">
+                        <span id="speedLabel">1x</span>
+                        <i class="fas fa-caret-down" style="font-size:10px;"></i>
+                    </button>
+                    <div class="speed-dropdown" id="speedDropdown">
+                        <div class="speed-option active" onclick="setSpeed(this, '1x')">1x</div>
+                        <div class="speed-option" onclick="setSpeed(this, '2x')">2x</div>
+                        <div class="speed-option" onclick="setSpeed(this, '4x')">4x</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 辅助操作 -->
+            <div class="player-actions" id="playerActions">
+                <button class="action-link">
+                    <i class="fas fa-download"></i> 下载录像
+                </button>
+                <button class="action-link">
+                    <i class="fas fa-camera"></i> 截图当前帧
+                </button>
+                <button class="action-link">
+                    <i class="fas fa-expand"></i> 全屏播放
+                </button>
+            </div>
+        </div>
+
+        <!-- 底部 -->
+        <div class="modal-footer">
+            <div class="demo-link">
+                <a href="index.html"><i class="fas fa-arrow-left"></i> 返回导航页</a>
+            </div>
+            <div class="footer-actions">
+                <button class="footer-btn" onclick="closeModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 状态管理
+    let isPlaying = true;
+
+    function closeModal() {
+        document.getElementById('modalMask').style.display = 'none';
+    }
+
+    function showModal(type) {
+        const mask = document.getElementById('modalMask');
+        mask.style.display = 'flex';
+        if (type === 'unavailable') {
+            setUnavailable(true);
+        } else {
+            setUnavailable(false);
+        }
+    }
+
+    function togglePlay() {
+        isPlaying = !isPlaying;
+        const container = document.getElementById('playerContainer');
+        const icon = document.getElementById('playPauseIcon');
+        const iconLarge = document.getElementById('playIconLarge');
+        const badge = document.getElementById('statusBadge');
+        const statusText = document.getElementById('statusText');
+
+        if (isPlaying) {
+            container.classList.add('playing');
+            icon.className = 'fas fa-pause';
+            iconLarge.className = 'fas fa-pause';
+            badge.className = 'status-badge status-playing';
+            statusText.textContent = '正在播放';
+        } else {
+            container.classList.remove('playing');
+            icon.className = 'fas fa-play';
+            iconLarge.className = 'fas fa-play';
+            badge.className = 'status-badge status-paused';
+            statusText.textContent = '已暂停';
+        }
+    }
+
+    function setUnavailable(val) {
+        const unavailable = document.getElementById('playerUnavailable');
+        const overlay = document.getElementById('playerOverlay');
+        const timeline = document.getElementById('timelineBar');
+        const controls = document.getElementById('controlsBar');
+        const actions = document.getElementById('playerActions');
+        const badge = document.getElementById('statusBadge');
+        const watermark = document.getElementById('watermark');
+
+        if (val) {
+            unavailable.style.display = 'flex';
+            overlay.style.display = 'none';
+            timeline.style.display = 'none';
+            controls.style.opacity = '0.4';
+            controls.style.pointerEvents = 'none';
+            actions.style.opacity = '0.4';
+            badge.style.display = 'none';
+            watermark.style.display = 'none';
+        } else {
+            unavailable.style.display = 'none';
+            overlay.style.display = 'flex';
+            timeline.style.display = 'flex';
+            controls.style.opacity = '1';
+            controls.style.pointerEvents = 'auto';
+            actions.style.opacity = '1';
+            badge.style.display = 'flex';
+            watermark.style.display = 'flex';
+        }
+    }
+
+    function switchView(btn, type) {
+        document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        setUnavailable(type === 'unavailable');
+    }
+
+    function stepBackward() {
+        // 模拟后退
+    }
+
+    function stepForward() {
+        // 模拟前进
+    }
+
+    // 速度选择
+    function toggleSpeed() {
+        const dd = document.getElementById('speedDropdown');
+        dd.classList.toggle('show');
+    }
+
+    function setSpeed(el, speed) {
+        document.getElementById('speedLabel').textContent = speed;
+        document.querySelectorAll('.speed-option').forEach(o => o.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('speedDropdown').classList.remove('show');
+    }
+
+    // 点击外部关闭速度下拉
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.speed-selector')) {
+            document.getElementById('speedDropdown').classList.remove('show');
+        }
+    });
+
+    // 点击遮罩关闭弹窗
+    document.getElementById('modalMask').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+</script>
+
+</body>
+</html>

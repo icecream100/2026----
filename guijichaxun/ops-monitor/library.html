@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>布控目标库 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --ant-bg: #f5f5f5;
+      --ant-bg-container: #ffffff;
+      --ant-bg-elevated: #ffffff;
+      --ant-border-secondary: #f0f0f0;
+      --ant-border: #d9d9d9;
+      --ant-primary: #1677ff;
+      --ant-primary-hover: #4096ff;
+      --ant-primary-active: #0958d9;
+      --ant-primary-bg: #e6f4ff;
+      --ant-text: rgba(0,0,0,0.88);
+      --ant-text-secondary: rgba(0,0,0,0.65);
+      --ant-text-tertiary: rgba(0,0,0,0.45);
+      --ant-text-quaternary: rgba(0,0,0,0.25);
+      --ant-success: #52c41a;
+      --ant-success-bg: #f6ffed;
+      --ant-success-border: #b7eb8f;
+      --ant-warning: #faad14;
+      --ant-warning-bg: #fffbe6;
+      --ant-warning-border: #ffe58f;
+      --ant-error: #ff4d4f;
+      --ant-error-bg: #fff2f0;
+      --ant-error-border: #ffccc7;
+      --ant-info: #1677ff;
+      --ant-info-bg: #e6f4ff;
+      --ant-info-border: #91caff;
+      --ant-purple: #722ed1;
+      --ant-purple-bg: #f9f0ff;
+      --ant-purple-border: #d3adf7;
+      --ant-cyan: #13c2c2;
+      --ant-cyan-bg: #e6fffb;
+      --ant-cyan-border: #87e8de;
+      --ant-radius-sm: 4px;
+      --ant-radius: 6px;
+      --ant-radius-lg: 8px;
+      --ant-shadow: 0 6px 16px 0 rgba(0,0,0,0.08), 0 3px 6px -4px rgba(0,0,0,0.12), 0 9px 28px 8px rgba(0,0,0,0.05);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; font-size: 14px; color: var(--ant-text); background: var(--ant-bg); overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--ant-bg); }
+    ::-webkit-scrollbar-thumb { background: var(--ant-border); border-radius: 3px; }
+
+    /* Top Nav */
+    .top-nav { height: 52px; background: var(--ant-bg-container); border-bottom: 1px solid var(--ant-border-secondary); display: flex; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 200; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02); }
+    .top-nav .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; color: var(--ant-text); }
+    .top-nav .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--ant-primary), #9254de); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ant-text-tertiary); margin-left: 24px; }
+    .breadcrumb a { color: var(--ant-text-tertiary); text-decoration: none; transition: color 0.2s; }
+    .breadcrumb a:hover { color: var(--ant-primary); }
+    .breadcrumb .sep { color: var(--ant-text-quaternary); }
+    .breadcrumb .current { color: var(--ant-text-secondary); }
+
+    /* Layout (Ant Design style) */
+    .ant-layout-header { height: 52px; background: #ffffff; border-bottom: 1px solid var(--ant-border-secondary); display: flex; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 200; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .ant-layout-sider { width: 208px; background: #ffffff; border-right: 1px solid var(--ant-border-secondary); flex-shrink: 0; overflow-y: auto; }
+    .ant-menu { padding: 8px 0; }
+    .ant-menu-item { display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 16px; margin: 4px 12px; font-size: 14px; border-radius: 4px; cursor: pointer; transition: all 0.2s; text-decoration: none; color: var(--ant-text); }
+    .ant-menu-item:hover { background: rgba(0,0,0,0.06); }
+    .ant-menu-item-selected { background: var(--ant-primary-bg); color: var(--ant-primary); }
+    .ant-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ant-text-tertiary); }
+    .ant-breadcrumb a { color: var(--ant-text-tertiary); text-decoration: none; }
+    .ant-breadcrumb a:hover { color: var(--ant-primary); }
+
+    /* Buttons - Ant Design 5.x Style */
+    .ant-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 15px; font-size: 14px; border: 1px solid var(--ant-border); border-radius: var(--ant-radius-sm); background: var(--ant-bg-container); color: var(--ant-text); cursor: pointer; transition: all 0.2s; white-space: nowrap; line-height: 1; }
+    .ant-btn:hover { border-color: var(--ant-primary); color: var(--ant-primary); }
+    .ant-btn-primary { background: var(--ant-primary); border-color: var(--ant-primary); color: #fff; box-shadow: 0 2px 0 rgba(5,145,255,0.1); }
+    .ant-btn-primary:hover { background: var(--ant-primary-hover); border-color: var(--ant-primary-hover); color: #fff; }
+    .ant-btn-danger { background: var(--ant-bg-container); border-color: var(--ant-error); color: var(--ant-error); }
+    .ant-btn-danger:hover { background: var(--ant-error-bg); border-color: var(--ant-error); color: var(--ant-error); }
+    .ant-btn-sm { height: 24px; padding: 0 7px; font-size: 12px; }
+    .ant-btn-ghost { background: transparent; border-color: transparent; color: var(--ant-text-secondary); }
+    .ant-btn-ghost:hover { color: var(--ant-primary); background: var(--ant-primary-bg); }
+
+    /* Inputs - Ant Design 5.x Style */
+    .ant-input { height: 32px; padding: 0 11px; font-size: 14px; border: 1px solid var(--ant-border); border-radius: var(--ant-radius-sm); background: var(--ant-bg-container); color: var(--ant-text); outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; }
+    .ant-input:focus { border-color: var(--ant-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .ant-input::placeholder { color: var(--ant-text-quaternary); }
+    .ant-select { height: 32px; padding: 0 28px 0 11px; font-size: 14px; border: 1px solid var(--ant-border); border-radius: var(--ant-radius-sm); background: var(--ant-bg-container); color: var(--ant-text); outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(0,0,0,0.25)' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; transition: border-color 0.2s; }
+    .ant-select:focus { border-color: var(--ant-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .ant-select option { background: var(--ant-bg-container); color: var(--ant-text); }
+
+    /* Table - Ant Design 5.x Style */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .data-table th { padding: 16px; text-align: left; font-weight: 600; color: var(--ant-text); background: #fafafa; border-bottom: 1px solid var(--ant-border-secondary); white-space: nowrap; font-size: 13px; }
+    .data-table td { padding: 16px; border-bottom: 1px solid var(--ant-border-secondary); vertical-align: middle; }
+    .data-table tbody tr { transition: background 0.15s; }
+    .data-table tbody tr:hover { background: var(--ant-primary-bg); }
+
+    /* Tags - Ant Design 5.x Style */
+    .ant-tag { display: inline-flex; align-items: center; height: 22px; padding: 0 7px; font-size: 12px; border-radius: var(--ant-radius-sm); border: 1px solid; white-space: nowrap; line-height: 20px; }
+    .ant-tag-green { background: var(--ant-success-bg); border-color: var(--ant-success-border); color: var(--ant-success); }
+    .ant-tag-blue { background: var(--ant-primary-bg); border-color: var(--ant-info-border); color: var(--ant-primary); }
+    .ant-tag-gray { background: #fafafa; border-color: var(--ant-border); color: var(--ant-text-secondary); }
+    .ant-tag-orange { background: var(--ant-warning-bg); border-color: var(--ant-warning-border); color: #d48806; }
+    .ant-tag-red { background: var(--ant-error-bg); border-color: var(--ant-error-border); color: var(--ant-error); }
+    .ant-tag-purple { background: var(--ant-purple-bg); border-color: var(--ant-purple-border); color: var(--ant-purple); }
+    .ant-tag-cyan { background: var(--ant-cyan-bg); border-color: var(--ant-cyan-border); color: var(--ant-cyan); }
+
+    /* Modal - Ant Design 5.x Style */
+    .ant-modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; z-index: 500; }
+    .ant-modal-mask.active { display: flex; align-items: flex-start; justify-content: center; padding-top: 100px; overflow-y: auto; }
+    .ant-modal { background: var(--ant-bg-container); border-radius: var(--ant-radius-lg); box-shadow: var(--ant-shadow); width: 500px; max-width: 92vw; margin-bottom: 40px; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--ant-border-secondary); }
+    .modal-header h3 { font-size: 16px; font-weight: 600; color: var(--ant-text); }
+    .modal-close { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: var(--ant-radius-sm); cursor: pointer; color: var(--ant-text-tertiary); transition: all 0.2s; background: transparent; border: none; }
+    .modal-close:hover { background: rgba(0,0,0,0.06); color: var(--ant-text); }
+    .modal-body { padding: 24px; max-height: 60vh; overflow-y: auto; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 24px; border-top: 1px solid var(--ant-border-secondary); }
+
+    /* Pagination - Ant Design 5.x Style */
+    .pagination { display: flex; align-items: center; gap: 4px; justify-content: flex-end; margin-top: 16px; }
+    .page-item { min-width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--ant-border); border-radius: var(--ant-radius-sm); cursor: pointer; padding: 0 8px; font-size: 14px; background: var(--ant-bg-container); color: var(--ant-text); transition: all 0.2s; }
+    .page-item:hover { border-color: var(--ant-primary); color: var(--ant-primary); }
+    .page-item.active { background: var(--ant-primary); border-color: var(--ant-primary); color: #fff; }
+    .page-info { font-size: 13px; color: var(--ant-text-secondary); margin-right: 8px; }
+
+    /* Segment - Ant Design 5.x Style */
+    .segment { display: inline-flex; border: 1px solid var(--ant-border); border-radius: var(--ant-radius-sm); overflow: hidden; }
+    .segment-item { padding: 6px 14px; font-size: 14px; color: var(--ant-text-secondary); cursor: pointer; transition: all 0.2s; border-right: 1px solid var(--ant-border); }
+    .segment-item:last-child { border-right: none; }
+    .segment-item.active { background: var(--ant-primary-bg); color: var(--ant-primary); font-weight: 500; }
+    .segment-item:hover:not(.active) { color: var(--ant-primary); }
+
+    /* Toast - Ant Design 5.x Style */
+    .toast-container { position: fixed; top: 60px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 9px 16px; border-radius: var(--ant-radius-sm); font-size: 14px; color: var(--ant-text); animation: toastIn 0.3s ease; box-shadow: 0 6px 16px 0 rgba(0,0,0,0.08), 0 3px 6px -4px rgba(0,0,0,0.12), 0 9px 28px 8px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px; border: 1px solid; }
+    .toast-success { background: var(--ant-success-bg); border-color: var(--ant-success-border); }
+    .toast-success i { color: var(--ant-success); }
+    .toast-error { background: var(--ant-error-bg); border-color: var(--ant-error-border); }
+    .toast-error i { color: var(--ant-error); }
+    .toast-warning { background: var(--ant-warning-bg); border-color: var(--ant-warning-border); }
+    .toast-warning i { color: var(--ant-warning); }
+    .toast-info { background: var(--ant-info-bg); border-color: var(--ant-info-border); }
+    .toast-info i { color: var(--ant-info); }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(30px); } }
+
+    /* Target card - Ant Design 5.x Style */
+    .target-card { width: 200px; height: 240px; background: var(--ant-bg-container); border: 1px solid var(--ant-border-secondary); border-radius: var(--ant-radius-lg); overflow: hidden; position: relative; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+    .target-card:hover { border-color: var(--ant-primary); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+    .target-card .card-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.65); display: none; align-items: center; justify-content: center; gap: 8px; flex-direction: column; }
+    .target-card:hover .card-overlay { display: flex; }
+
+    /* Upload area - Ant Design 5.x Style */
+    .upload-area { width: 120px; height: 120px; border: 1px dashed var(--ant-border); border-radius: var(--ant-radius-lg); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: var(--ant-text-tertiary); font-size: 12px; gap: 6px; background: var(--ant-bg); }
+    .upload-area:hover { border-color: var(--ant-primary); color: var(--ant-primary); background: var(--ant-primary-bg); }
+
+    /* Form group */
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 14px; color: var(--ant-text); margin-bottom: 6px; font-weight: 500; }
+    .form-label .required { color: var(--ant-error); margin-left: 2px; }
+
+    /* Divider */
+    .divider { height: 1px; background: var(--ant-border-secondary); margin: 16px 0; }
+
+    /* Card */
+    .card { background: var(--ant-bg-container); border: 1px solid var(--ant-border-secondary); border-radius: var(--ant-radius-lg); overflow: hidden; }
+
+    /* AI status spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ai-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--ant-primary); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+    /* Tag input */
+    .tag-input-wrap { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 8px; min-height: 32px; border: 1px solid var(--ant-border); border-radius: var(--ant-radius-sm); background: var(--ant-bg-container); align-items: center; transition: border-color 0.2s, box-shadow 0.2s; }
+    .tag-input-wrap:focus-within { border-color: var(--ant-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .tag-input-wrap .tag-item { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px; background: var(--ant-primary-bg); border: 1px solid var(--ant-info-border); border-radius: var(--ant-radius-sm); font-size: 12px; color: var(--ant-primary); }
+    .tag-input-wrap .tag-item .tag-remove { cursor: pointer; opacity: 0.6; transition: opacity 0.2s; }
+    .tag-input-wrap .tag-item .tag-remove:hover { opacity: 1; }
+    .tag-input-wrap input { border: none; background: transparent; outline: none; font-size: 14px; color: var(--ant-text); flex: 1; min-width: 80px; }
+    .tag-input-wrap input::placeholder { color: var(--ant-text-quaternary); }
+  </style>
+</head>
+<body>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Top Navigation -->
+<nav class="top-nav">
+  <div class="logo">
+    <div class="logo-icon"><i class="fa-solid fa-video" style="color:#fff;font-size:14px;"></i></div>
+    <span>视频智能运维管理平台</span>
+  </div>
+  <div style="flex:1;"></div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div style="position:relative;cursor:pointer;" onclick="showToast('info','您有 2 条新告警通知')">
+      <i class="fa-regular fa-bell" style="color:var(--ant-text-secondary);font-size:16px;"></i>
+      <span style="position:absolute;top:-4px;right:-6px;width:16px;height:16px;background:var(--ant-error);border-radius:50%;font-size:10px;color:#fff;display:flex;align-items:center;justify-content:center;">2</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--ant-primary),#9254de);display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:600;">张</div>
+      <span style="font-size:13px;color:var(--ant-text-secondary);">张工程师</span>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Layout -->
+<div style="display:flex;min-height:calc(100vh - 52px);">
+
+  <!-- 左侧边栏 -->
+  <div class="ant-layout-sider">
+    <div class="ant-menu">
+      <div style="padding: 12px 16px 8px; font-size: 12px; color: var(--ant-text-tertiary); font-weight: 600;">
+        <i class="fa-solid fa-route" style="margin-right: 6px;"></i>轨迹查询
+      </div>
+      <a href="../ops-trajectory/search.html" class="ant-menu-item">
+        <i class="fa-solid fa-person"></i>人员轨迹查询
+      </a>
+      <a href="../ops-trajectory/vehicle-search.html" class="ant-menu-item">
+        <i class="fa-solid fa-car"></i>车辆轨迹查询
+      </a>
+      <a href="../ops-trajectory/compare.html" class="ant-menu-item">
+        <i class="fa-solid fa-users-viewfinder"></i>多目标对比
+      </a>
+
+      <div style="padding: 12px 16px 8px; font-size: 12px; color: var(--ant-text-tertiary); font-weight: 600; margin-top: 8px;">
+        <i class="fa-solid fa-shield-halved" style="margin-right: 6px;"></i>布控管理
+      </div>
+      <a href="list.html" class="ant-menu-item">
+        <i class="fa-solid fa-crosshairs"></i>布控任务
+      </a>
+      <a href="library.html" class="ant-menu-item ant-menu-item-selected">
+        <i class="fa-solid fa-database"></i>目标库
+      </a>
+      <a href="alerts.html" class="ant-menu-item">
+        <i class="fa-solid fa-bell"></i>布控告警
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div style="flex:1;padding:16px 20px;min-width:0;">
+
+    <!-- Top Toolbar -->
+    <div class="card" style="padding:16px 20px;">
+      <!-- Top Actions + Filters -->
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+        <div style="font-size:16px;font-weight:700;">布控目标库</div>
+        <select class="ant-select" id="filterType" style="width:110px;" onchange="filterTargets()">
+          <option value="">全部类型</option>
+          <option value="人员">人员</option>
+          <option value="车辆">车辆</option>
+        </select>
+        <div style="position:relative;">
+          <input type="text" class="ant-input" id="searchInput" style="width:200px;padding-left:32px;" placeholder="按名称搜索..." oninput="filterTargets()">
+          <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--ant-text-quaternary);pointer-events:none;"></i>
+        </div>
+        <span style="font-size:13px;color:var(--ant-text-tertiary);" id="totalCount">共 9 个目标</span>
+        <div style="flex:1;"></div>
+        <button class="ant-btn ant-btn-primary" onclick="openAddModal()"><i class="fa-solid fa-plus"></i>添加目标</button>
+      </div>
+
+      <!-- View Switch -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div></div>
+        <div class="segment" id="viewSwitch">
+          <div class="segment-item active" onclick="switchView('card')"><i class="fa-solid fa-grip"></i></div>
+          <div class="segment-item" onclick="switchView('list')"><i class="fa-solid fa-list"></i></div>
+        </div>
+      </div>
+
+      <!-- Card View -->
+      <div id="cardView" style="display:flex;flex-wrap:wrap;gap:16px;"></div>
+
+      <!-- List View -->
+      <div id="listView" style="display:none;">
+        <div style="overflow-x:auto;">
+          <table class="data-table" id="targetTable">
+            <thead>
+              <tr>
+                <th>照片</th>
+                <th>目标名称</th>
+                <th>类型</th>
+                <th>标签</th>
+                <th>历史布控次数</th>
+                <th>最近布控时间</th>
+                <th>创建时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="targetListBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== P-008: Add/Edit Target Modal ==================== -->
+<div class="ant-modal-mask" id="targetModal">
+  <div class="ant-modal" style="width:500px;">
+    <div class="modal-header">
+      <h3 id="modalTitle"><i class="fa-solid fa-user-plus" style="color:var(--ant-primary);margin-right:8px;"></i>添加目标</h3>
+      <button class="modal-close" onclick="closeTargetModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <!-- Step 1: Target Type -->
+      <div class="form-group">
+        <label class="form-label">目标类型 <span class="required">*</span></label>
+        <div class="segment" id="modalTypeSegment">
+          <div class="segment-item active" onclick="switchModalType('人员')"><i class="fa-solid fa-user" style="margin-right:4px;"></i>人员</div>
+          <div class="segment-item" onclick="switchModalType('车辆')"><i class="fa-solid fa-car" style="margin-right:4px;"></i>车辆</div>
+        </div>
+      </div>
+      <!-- Target Name -->
+      <div class="form-group">
+        <label class="form-label" id="targetNameLabel">目标名称 <span class="required">*</span></label>
+        <input type="text" class="ant-input" id="targetNameInput" maxlength="30" placeholder="请输入目标名称，最多30字">
+        <div style="text-align:right;font-size:11px;color:var(--ant-text-tertiary);margin-top:4px;"><span id="nameCharCount">0</span>/30</div>
+      </div>
+
+      <!-- Upload Photo -->
+      <div class="form-group">
+        <label class="form-label">上传照片</label>
+        <div style="display:flex;align-items:flex-start;gap:16px;">
+          <!-- Preview area -->
+          <div style="position:relative;">
+            <div id="photoPreview" style="width:120px;height:120px;border-radius:var(--ant-radius-lg);border:1px dashed var(--ant-border);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;cursor:pointer;transition:all 0.2s;color:var(--ant-text-tertiary);font-size:12px;background:var(--ant-bg);" onclick="document.getElementById('photoInput').click()">
+              <i class="fa-solid fa-cloud-arrow-up" style="font-size:24px;"></i>
+              <span>点击上传</span>
+              <span style="font-size:10px;">JPG/PNG, 最大5MB</span>
+            </div>
+            <!-- Preview image (hidden initially) -->
+            <div id="photoPreviewImg" style="display:none;width:120px;height:120px;border-radius:var(--ant-radius-lg);border:1px solid var(--ant-success-border);overflow:hidden;position:relative;">
+              <div style="width:100%;height:100%;background:linear-gradient(135deg,#e6f4ff,#f0f5ff);display:flex;align-items:center;justify-content:center;">
+                <i class="fa-solid fa-user" style="font-size:40px;color:var(--ant-text-quaternary);"></i>
+              </div>
+              <button onclick="removePhoto()" style="position:absolute;top:4px;right:4px;width:20px;height:20px;background:rgba(255,77,79,0.8);border:none;border-radius:50%;color:#fff;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="file" id="photoInput" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
+          </div>
+
+          <!-- AI Status -->
+          <div id="aiStatusArea" style="display:none;padding-top:8px;">
+            <div style="font-size:12px;color:var(--ant-text-tertiary);margin-bottom:6px;">AI特征提取</div>
+            <div id="aiStatus" style="display:flex;align-items:center;gap:6px;font-size:12px;">
+              <span class="ai-spinner"></span>
+              <span style="color:var(--ant-primary);">特征提取中...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="form-group">
+        <label class="form-label">标签 <span style="font-weight:normal;color:var(--ant-text-tertiary);font-size:11px;">（最多5个，每标签最多10字）</span></label>
+        <div class="tag-input-wrap" id="tagInputWrap">
+          <input type="text" id="tagInput" placeholder="输入标签后点击添加" maxlength="10">
+        </div>
+        <div style="margin-top:8px;">
+          <button class="ant-btn ant-btn-sm" onclick="addTag()"><i class="fa-solid fa-plus"></i>添加</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="ant-btn" onclick="closeTargetModal()">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="saveTarget()"><i class="fa-solid fa-check"></i>确认保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== Sidebar Group Toggle ====================
+function toggleSidebarGroup(el) {
+  const items = el.nextElementSibling;
+  const icon = el.querySelector('i:last-child');
+  items.classList.toggle('collapsed');
+  icon.classList.toggle('expanded');
+}
+
+// ==================== Mock Data ====================
+const targets = [
+  { id: 1, name: '嫌疑人A', type: '人员', tags: ['重点关注', '盗窃案'], tagColors: ['red', 'orange'], count: 3, lastDeploy: '2026-05-29', createTime: '2026-05-25 09:15' },
+  { id: 2, name: '张某', type: '人员', tags: ['协查通报'], tagColors: ['blue'], count: 1, lastDeploy: '2026-05-28', createTime: '2026-05-26 10:30' },
+  { id: 3, name: '可疑人员B', type: '人员', tags: ['外来人员'], tagColors: ['cyan'], count: 2, lastDeploy: '2026-05-27', createTime: '2026-05-20 08:00' },
+  { id: 4, name: '李某', type: '人员', tags: ['重点关注', '诈骗'], tagColors: ['red', 'orange'], count: 5, lastDeploy: '2026-05-29', createTime: '2026-05-15 14:20' },
+  { id: 5, name: '王某', type: '人员', tags: ['盗窃案'], tagColors: ['orange'], count: 1, lastDeploy: '2026-05-26', createTime: '2026-05-22 11:00' },
+  { id: 6, name: '外来人员C', type: '人员', tags: ['外来人员', '重点关注'], tagColors: ['cyan', 'red'], count: 4, lastDeploy: '2026-05-28', createTime: '2026-05-18 16:45' },
+  { id: 7, name: '京A·88888', type: '车辆', tags: ['套牌嫌疑'], tagColors: ['red'], count: 2, lastDeploy: '2026-05-29', createTime: '2026-05-27 09:00' },
+  { id: 8, name: '沪B·66666', type: '车辆', tags: ['频繁出入'], tagColors: ['orange'], count: 1, lastDeploy: '2026-05-28', createTime: '2026-05-26 14:30' },
+  { id: 9, name: '粤C·12345', type: '车辆', tags: ['重点关注', '肇事逃逸'], tagColors: ['red', 'orange'], count: 3, lastDeploy: '2026-05-29', createTime: '2026-05-24 11:20' },
+];
+
+const tagColorPool = ['red', 'orange', 'blue', 'cyan', 'purple', 'green'];
+
+let currentView = 'card';
+let currentPage = 1;
+const pageSize = 8;
+let filteredTargets = [...targets];
+let editingTarget = null; // null = add mode, object = edit mode
+let modalTags = [];
+let photoUploaded = false;
+let modalType = '人员';
+
+// ==================== View Switch ====================
+function switchView(view) {
+  currentView = view;
+  const items = document.querySelectorAll('#viewSwitch .segment-item');
+  items[0].className = 'segment-item' + (view === 'card' ? ' active' : '');
+  items[1].className = 'segment-item' + (view === 'list' ? ' active' : '');
+  document.getElementById('cardView').style.display = view === 'card' ? 'flex' : 'none';
+  document.getElementById('listView').style.display = view === 'list' ? 'block' : 'none';
+  renderAll();
+}
+
+// ==================== Filter ====================
+function filterTargets() {
+  const keyword = document.getElementById('searchInput').value.trim();
+  const typeVal = document.getElementById('filterType').value;
+  filteredTargets = targets.filter(t => {
+    if (keyword && !t.name.includes(keyword)) return false;
+    if (typeVal && t.type !== typeVal) return false;
+    return true;
+  });
+  currentPage = 1;
+  document.getElementById('totalCount').textContent = '共 ' + filteredTargets.length + ' 个目标';
+  renderAll();
+}
+
+// ==================== Render ====================
+function renderAll() {
+  if (currentView === 'card') {
+    renderCards();
+  } else {
+    renderList();
+  }
+  renderPagination();
+}
+
+function renderCards() {
+  const container = document.getElementById('cardView');
+  const start = (currentPage - 1) * pageSize;
+  const pageData = filteredTargets.slice(start, start + pageSize);
+  container.innerHTML = '';
+
+  pageData.forEach(t => {
+    const tagsHtml = t.tags.map((tag, i) => `<span class="ant-tag ant-tag-${t.tagColors[i]}" style="font-size:11px;">${tag}</span>`).join('');
+    const typeTag = t.type === '车辆' ? '<span class="ant-tag ant-tag-green" style="font-size:11px;margin-bottom:4px;">车辆</span>' : '<span class="ant-tag ant-tag-blue" style="font-size:11px;margin-bottom:4px;">人员</span>';
+    const cardIcon = t.type === '车辆' ? 'fa-car' : 'fa-user';
+    container.innerHTML += `
+      <div class="target-card">
+        <div style="padding:16px;text-align:center;">
+          <div style="width:120px;height:120px;margin:0 auto 10px;background:linear-gradient(135deg,#e6f4ff,#f0f5ff);border-radius:var(--ant-radius-lg);border:1px solid var(--ant-border-secondary);display:flex;align-items:center;justify-content:center;">
+            <i class="fa-solid ${cardIcon}" style="font-size:42px;color:var(--ant-text-quaternary);"></i>
+          </div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px;">${t.name}</div>
+          <div style="margin-bottom:4px;">${typeTag}</div>
+          <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-bottom:6px;">${tagsHtml}</div>
+          <div style="font-size:11px;color:var(--ant-text-tertiary);">创建于 ${t.createTime}</div>
+        </div>
+        <div class="card-overlay">
+          <button class="ant-btn ant-btn-sm ant-btn-primary" onclick="redeployTarget(${t.id})"><i class="fa-solid fa-radar"></i>布控</button>
+          <button class="ant-btn ant-btn-sm" onclick="editTarget(${t.id})"><i class="fa-solid fa-pen"></i>编辑</button>
+          <button class="ant-btn ant-btn-sm ant-btn-danger" onclick="deleteTarget(${t.id})"><i class="fa-solid fa-trash"></i>删除</button>
+        </div>
+      </div>`;
+  });
+}
+
+function renderList() {
+  const tbody = document.getElementById('targetListBody');
+  const start = (currentPage - 1) * pageSize;
+  const pageData = filteredTargets.slice(start, start + pageSize);
+  tbody.innerHTML = '';
+
+  pageData.forEach(t => {
+    const tagsHtml = t.tags.map((tag, i) => `<span class="ant-tag ant-tag-${t.tagColors[i]}" style="font-size:11px;margin-right:4px;">${tag}</span>`).join('');
+    const typeTag = t.type === '车辆' ? '<span class="ant-tag ant-tag-green">车辆</span>' : '<span class="ant-tag ant-tag-blue">人员</span>';
+    const rowIcon = t.type === '车辆' ? 'fa-car' : 'fa-user';
+    tbody.innerHTML += `<tr>
+      <td><div style="width:48px;height:48px;border-radius:var(--ant-radius-sm);border:1px solid var(--ant-border-secondary);background:linear-gradient(135deg,#e6f4ff,#f0f5ff);display:flex;align-items:center;justify-content:center;"><i class="fa-solid ${rowIcon}" style="font-size:18px;color:var(--ant-text-quaternary);"></i></div></td>
+      <td><span style="font-weight:500;">${t.name}</span></td>
+      <td>${typeTag}</td>
+      <td>${tagsHtml}</td>
+      <td><span style="color:var(--ant-text-secondary);">${t.count}次</span></td>
+      <td><span style="color:var(--ant-text-tertiary);font-size:12px;">${t.lastDeploy}</span></td>
+      <td><span style="color:var(--ant-text-tertiary);font-size:12px;">${t.createTime}</span></td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="ant-btn ant-btn-sm ant-btn-primary" onclick="redeployTarget(${t.id})"><i class="fa-solid fa-radar"></i>布控</button>
+          <button class="ant-btn ant-btn-sm" onclick="editTarget(${t.id})"><i class="fa-solid fa-pen"></i>编辑</button>
+          <button class="ant-btn ant-btn-sm ant-btn-danger" onclick="deleteTarget(${t.id})"><i class="fa-solid fa-trash"></i>删除</button>
+        </div>
+      </td>
+    </tr>`;
+  });
+}
+
+// ==================== Pagination ====================
+function renderPagination() {
+  const total = filteredTargets.length;
+  const totalPages = Math.ceil(total / pageSize);
+  const container = document.getElementById('pagination');
+
+  if (total === 0) {
+    container.innerHTML = '<span class="page-info">暂无数据</span>';
+    return;
+  }
+
+  let html = `<span class="page-info">共 ${total} 条</span>`;
+  html += `<div class="page-item" onclick="changePage(${currentPage - 1})" style="${currentPage <= 1 ? 'opacity:0.3;pointer-events:none;' : ''}"><i class="fa-solid fa-chevron-left" style="font-size:11px;"></i></div>`;
+
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<div class="page-item${i === currentPage ? ' active' : ''}" onclick="changePage(${i})">${i}</div>`;
+  }
+
+  html += `<div class="page-item" onclick="changePage(${currentPage + 1})" style="${currentPage >= totalPages ? 'opacity:0.3;pointer-events:none;' : ''}"><i class="fa-solid fa-chevron-right" style="font-size:11px;"></i></div>`;
+  container.innerHTML = html;
+}
+
+function changePage(p) {
+  const totalPages = Math.ceil(filteredTargets.length / pageSize);
+  if (p < 1 || p > totalPages) return;
+  currentPage = p;
+  renderAll();
+}
+
+// ==================== Target Actions ====================
+function redeployTarget(id) {
+  const t = targets.find(item => item.id === id);
+  showToast('info', '已跳转至创建布控任务');
+}
+
+function editTarget(id) {
+  const t = targets.find(item => item.id === id);
+  if (!t) return;
+  editingTarget = t;
+  modalTags = [...t.tags];
+  modalType = t.type || '人员';
+  photoUploaded = true;
+
+  document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen" style="color:var(--ant-primary);margin-right:8px;"></i>编辑目标';
+  document.getElementById('targetNameInput').value = t.name;
+  document.getElementById('nameCharCount').textContent = t.name.length;
+
+  // Set type segment
+  const typeItems = document.querySelectorAll('#modalTypeSegment .segment-item');
+  typeItems[0].className = 'segment-item' + (modalType === '人员' ? ' active' : '');
+  typeItems[1].className = 'segment-item' + (modalType === '车辆' ? ' active' : '');
+  if (modalType === '车辆') {
+    document.getElementById('targetNameLabel').innerHTML = '车牌号 <span class="required">*</span>';
+    document.getElementById('targetNameInput').placeholder = 'AI自动识别或手动输入';
+  } else {
+    document.getElementById('targetNameLabel').innerHTML = '目标名称 <span class="required">*</span>';
+    document.getElementById('targetNameInput').placeholder = '请输入目标名称，最多30字';
+  }
+
+  // Show photo preview
+  document.getElementById('photoPreview').style.display = 'none';
+  document.getElementById('photoPreviewImg').style.display = 'block';
+
+  // AI status success
+  document.getElementById('aiStatusArea').style.display = 'block';
+  document.getElementById('aiStatus').innerHTML = '<span style="color:var(--ant-success);"><i class="fa-solid fa-check-circle"></i></span> <span style="color:var(--ant-success);">特征提取成功</span>';
+
+  renderModalTags();
+  document.getElementById('targetModal').classList.add('active');
+}
+
+function deleteTarget(id) {
+  const t = targets.find(item => item.id === id);
+  if (!t) return;
+  if (confirm('确认删除目标「' + t.name + '」？\n删除后不可恢复。')) {
+    const idx = targets.findIndex(item => item.id === id);
+    targets.splice(idx, 1);
+    filterTargets();
+    showToast('success', '目标「' + t.name + '」已删除');
+  }
+}
+
+// ==================== Add/Edit Modal ====================
+function openAddModal() {
+  editingTarget = null;
+  modalTags = [];
+  photoUploaded = false;
+  modalType = '人员';
+
+  document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-user-plus" style="color:var(--ant-primary);margin-right:8px;"></i>添加目标';
+  document.getElementById('targetNameInput').value = '';
+  document.getElementById('targetNameInput').placeholder = '请输入目标名称，最多30字';
+  document.getElementById('targetNameLabel').innerHTML = '目标名称 <span class="required">*</span>';
+  document.getElementById('nameCharCount').textContent = '0';
+  document.getElementById('photoPreview').style.display = 'flex';
+  document.getElementById('photoPreviewImg').style.display = 'none';
+  document.getElementById('aiStatusArea').style.display = 'none';
+  document.getElementById('tagInput').value = '';
+
+  // Reset type segment
+  const typeItems = document.querySelectorAll('#modalTypeSegment .segment-item');
+  typeItems[0].className = 'segment-item active';
+  typeItems[1].className = 'segment-item';
+
+  renderModalTags();
+  document.getElementById('targetModal').classList.add('active');
+}
+
+function closeTargetModal() {
+  document.getElementById('targetModal').classList.remove('active');
+}
+
+function saveTarget() {
+  const name = document.getElementById('targetNameInput').value.trim();
+  if (!name) {
+    showToast('error', '请输入目标名称');
+    return;
+  }
+
+  if (editingTarget) {
+    // Edit mode
+    editingTarget.name = name;
+    editingTarget.type = modalType;
+    editingTarget.tags = [...modalTags];
+    editingTarget.tagColors = modalTags.map((_, i) => tagColorPool[i % tagColorPool.length]);
+    showToast('success', '目标「' + name + '」已更新');
+  } else {
+    // Add mode
+    const newId = targets.length > 0 ? Math.max(...targets.map(t => t.id)) + 1 : 1;
+    const now = new Date();
+    const timeStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' +
+      String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    targets.push({
+      id: newId,
+      name: name,
+      type: modalType,
+      tags: [...modalTags],
+      tagColors: modalTags.map((_, i) => tagColorPool[i % tagColorPool.length]),
+      count: 0,
+      lastDeploy: '-',
+      createTime: timeStr
+    });
+    showToast('success', '目标「' + name + '」已添加');
+  }
+
+  closeTargetModal();
+  filterTargets();
+}
+
+// ==================== Photo Upload ====================
+function handlePhotoUpload(input) {
+  if (input.files && input.files[0]) {
+    simulatePhotoUpload();
+  }
+}
+
+function simulatePhotoUpload() {
+  photoUploaded = true;
+  document.getElementById('photoPreview').style.display = 'none';
+  document.getElementById('photoPreviewImg').style.display = 'block';
+
+  // Show AI status
+  document.getElementById('aiStatusArea').style.display = 'block';
+  document.getElementById('aiStatus').innerHTML = '<span class="ai-spinner"></span> <span style="color:var(--ant-primary);">特征提取中...</span>';
+  showToast('success', '照片上传成功，AI特征提取中...');
+
+  setTimeout(() => {
+    document.getElementById('aiStatus').innerHTML = '<span style="color:var(--ant-success);"><i class="fa-solid fa-check-circle"></i></span> <span style="color:var(--ant-success);">特征提取成功</span>';
+    showToast('success', 'AI特征提取完成');
+  }, 2000);
+}
+
+function removePhoto() {
+  photoUploaded = false;
+  document.getElementById('photoPreview').style.display = 'flex';
+  document.getElementById('photoPreviewImg').style.display = 'none';
+  document.getElementById('aiStatusArea').style.display = 'none';
+  document.getElementById('photoInput').value = '';
+}
+
+// ==================== Modal Type Switch ====================
+function switchModalType(type) {
+  modalType = type;
+  const items = document.querySelectorAll('#modalTypeSegment .segment-item');
+  items[0].className = 'segment-item' + (type === '人员' ? ' active' : '');
+  items[1].className = 'segment-item' + (type === '车辆' ? ' active' : '');
+  if (type === '车辆') {
+    document.getElementById('targetNameLabel').innerHTML = '车牌号 <span class="required">*</span>';
+    document.getElementById('targetNameInput').placeholder = 'AI自动识别或手动输入';
+  } else {
+    document.getElementById('targetNameLabel').innerHTML = '目标名称 <span class="required">*</span>';
+    document.getElementById('targetNameInput').placeholder = '请输入目标名称，最多30字';
+  }
+  showToast('info', '已切换为' + type + '目标');
+}
+
+// ==================== Tag Input ====================
+function addTag() {
+  const input = document.getElementById('tagInput');
+  const value = input.value.trim();
+  if (!value) {
+    showToast('warning', '请输入标签内容');
+    return;
+  }
+  if (modalTags.length >= 5) {
+    showToast('warning', '标签最多5个');
+    return;
+  }
+  if (value.length > 10) {
+    showToast('warning', '标签最多10个字');
+    return;
+  }
+  if (modalTags.includes(value)) {
+    showToast('warning', '标签已存在');
+    return;
+  }
+  modalTags.push(value);
+  input.value = '';
+  renderModalTags();
+}
+
+function removeModalTag(index) {
+  modalTags.splice(index, 1);
+  renderModalTags();
+}
+
+function renderModalTags() {
+  const wrap = document.getElementById('tagInputWrap');
+  const input = document.getElementById('tagInput');
+  // Remove existing tag items but keep input
+  wrap.querySelectorAll('.tag-item').forEach(el => el.remove());
+  // Insert tag items before input
+  modalTags.forEach((tag, i) => {
+    const el = document.createElement('span');
+    el.className = 'tag-item';
+    el.innerHTML = tag + '<span class="tag-remove" onclick="removeModalTag(' + i + ')"><i class="fa-solid fa-xmark"></i></span>';
+    wrap.insertBefore(el, input);
+  });
+}
+
+// ==================== Toast ====================
+function showToast(type, msg) {
+  const container = document.getElementById('toastContainer');
+  const icons = { success: 'fa-check-circle', error: 'fa-xmark-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+  const toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.innerHTML = '<i class="fa-solid ' + icons[type] + '"></i>' + msg;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'toastOut 0.3s ease forwards';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// ==================== Keyboard ====================
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    if (document.getElementById('targetModal').classList.contains('active')) closeTargetModal();
+  }
+});
+
+// Modal mask click to close
+document.querySelectorAll('.ant-modal-mask').forEach(mask => {
+  mask.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('active');
+    }
+  });
+});
+
+// Tag input enter key
+document.getElementById('tagInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    addTag();
+  }
+});
+
+// Name char count
+document.getElementById('targetNameInput').addEventListener('input', function() {
+  document.getElementById('nameCharCount').textContent = this.value.length;
+});
+
+// ==================== Init ====================
+renderAll();
+</script>
+</body>
+</html>

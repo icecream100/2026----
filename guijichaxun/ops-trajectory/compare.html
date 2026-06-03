@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P-012 多目标对比分析</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  /* Proto-UI 设计系统 — Ant Design 5.x 风格 */
+  :root {
+    --ant-primary: #1677ff;
+    --ant-primary-hover: #4096ff;
+    --ant-primary-active: #0958d9;
+    --ant-primary-bg: #e6f4ff;
+    --ant-success: #52c41a;
+    --ant-success-bg: #f6ffed;
+    --ant-warning: #faad14;
+    --ant-warning-bg: #fff7e6;
+    --ant-error: #ff4d4f;
+    --ant-error-bg: #fff1f0;
+    --ant-text: rgba(0,0,0,0.88);
+    --ant-text-secondary: rgba(0,0,0,0.65);
+    --ant-text-tertiary: rgba(0,0,0,0.45);
+    --ant-text-disabled: rgba(0,0,0,0.25);
+    --ant-border: #d9d9d9;
+    --ant-border-secondary: #f0f0f0;
+    --ant-bg: #f5f5f5;
+    --ant-bg-container: #fff;
+    --radius-base: 4px;
+    --radius-lg: 8px;
+    --shadow-1: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+    --shadow-2: 0 3px 6px -4px rgba(0,0,0,0.12), 0 6px 16px 0 rgba(0,0,0,0.08), 0 9px 28px 8px rgba(0,0,0,0.05);
+    --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+    --color1: #1677ff;
+    --color2: #ff4d4f;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px; line-height: 22px;
+    background: var(--ant-bg); color: var(--ant-text); height: 100vh; overflow: hidden;
+  }
+  button { cursor:pointer; border:none; outline:none; font-family:inherit; font-size:12px; }
+  input,select {
+    font-family:inherit; font-size:12px;
+    background: var(--ant-bg-container);
+    border:1px solid var(--ant-border); color:var(--ant-text);
+    border-radius: var(--radius-base); padding:6px 8px; outline:none;
+    transition: all 0.2s var(--ease-in-out);
+  }
+  input:focus,select:focus { border-color: var(--ant-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-thumb { background: var(--ant-border); border-radius:2px; }
+
+  /* 顶部导航栏 */
+  .ant-layout-header {
+    height: 64px; background: var(--ant-bg-container);
+    border-bottom: 1px solid var(--ant-border-secondary);
+    display: flex; align-items: center; padding: 0 24px;
+  }
+
+  /* 侧边栏 */
+  .ant-layout-sider {
+    width: 208px; background: var(--ant-bg-container);
+    border-right: 1px solid var(--ant-border-secondary);
+    overflow-y: auto;
+  }
+
+  /* 菜单 */
+  .ant-menu { padding: 8px 0; }
+  .ant-menu-item {
+    display: flex; align-items: center; gap: 10px;
+    height: 40px; padding: 0 16px; margin: 4px 12px;
+    font-size: 14px; border-radius: var(--radius-base);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .ant-menu-item:hover { background: rgba(0,0,0,0.06); }
+  .ant-menu-item-selected { background: var(--ant-primary-bg); color: var(--ant-primary); }
+
+  /* 面包屑 */
+  .ant-breadcrumb {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; color: var(--ant-text-tertiary); margin-bottom: 16px;
+  }
+  .ant-breadcrumb a { color: var(--ant-text-tertiary); text-decoration: none; }
+  .ant-breadcrumb a:hover { color: var(--ant-primary); }
+
+  /* 主布局 */
+  .main { display:flex; flex:1; min-width:0; height:calc(100vh - 64px); }
+
+  /* 侧面板 */
+  .side-panel { width:280px; min-width:280px; background: var(--ant-bg-container); border-right:1px solid var(--ant-border-secondary); display:flex; flex-direction:column; }
+  .side-panel.right { border-right:none; border-left:1px solid var(--ant-border-secondary); }
+
+  /* 面板头部 */
+  .panel-header { padding:12px 16px; border-bottom:1px solid var(--ant-border-secondary); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .panel-header-left { display:flex; align-items:center; gap:8px; }
+  .panel-header .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .panel-header .title { font-size:14px; font-weight:600; }
+  .panel-header .type-tag { font-size:11px; padding:2px 8px; border-radius: var(--radius-base); background: var(--ant-bg); color: var(--ant-text-tertiary); }
+  .panel-header .status { font-size:11px; padding:2px 8px; border-radius: var(--radius-base); }
+  .panel-header .status.done { background: var(--ant-success-bg); color: var(--ant-success); }
+  .panel-header .status.pending { background: var(--ant-bg); color: var(--ant-text-tertiary); }
+
+  /* 类型切换 */
+  .type-switch { display:flex; border-bottom:1px solid var(--ant-border-secondary); flex-shrink:0; }
+  .type-switch-btn { flex:1; padding:10px; text-align:center; font-size:12px; color: var(--ant-text-tertiary); cursor:pointer; transition:all 0.2s; border-bottom:2px solid transparent; }
+  .type-switch-btn.active { color: var(--ant-primary); border-bottom-color: var(--ant-primary); background: var(--ant-primary-bg); }
+  .type-switch-btn:hover:not(.active) { color: var(--ant-text-secondary); }
+
+  /* 面板滚动区 */
+  .panel-scroll { flex:1; overflow-y:auto; padding:16px; }
+
+  /* 表单 */
+  .ant-form-item { margin-bottom: 16px; }
+  .ant-form-label { display:block; font-size: 12px; color: var(--ant-text-secondary); margin-bottom: 6px; }
+  .ant-form-label-required::before { content: '*'; color: var(--ant-error); margin-right: 4px; }
+
+  /* 上传区域 */
+  .upload-zone { border:2px dashed var(--ant-border); border-radius: var(--radius-lg); padding:16px; text-align:center; cursor:pointer; transition:all 0.2s; margin-bottom:12px; }
+  .upload-zone:hover { border-color: var(--ant-primary); background: var(--ant-primary-bg); }
+  .upload-zone .icon { font-size:24px; margin-bottom:8px; color: var(--ant-text-tertiary); }
+  .upload-zone p { font-size:11px; color: var(--ant-text-tertiary); }
+
+  /* 颜色选择 */
+  .color-options { display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
+  .color-block { width:22px; height:22px; border-radius: var(--radius-base); cursor:pointer; border:2px solid transparent; transition:all 0.2s; }
+  .color-block:hover,.color-block.active { border-color: var(--ant-primary); transform:scale(1.1); }
+  .color-block[data-color="black"]{background:#1a1a1a} .color-block[data-color="white"]{background:#f5f5f5; border-color: var(--ant-border);}
+  .color-block[data-color="red"]{background:#ef4444} .color-block[data-color="blue"]{background:#3b82f6}
+  .color-block[data-color="yellow"]{background:#eab308} .color-block[data-color="green"]{background:#22c55e}
+  .color-block[data-color="gray"]{background:#6b7280} .color-block[data-color="silver"]{background:#c0c0c0}
+
+  /* 快捷时间 */
+  .quick-times { display:flex; gap:6px; margin-bottom:8px; }
+  .quick-time-btn { background: var(--ant-bg-container); border:1px solid var(--ant-border); color: var(--ant-text-secondary); padding:4px 10px; border-radius: var(--radius-base); font-size:11px; cursor:pointer; transition:all 0.2s; }
+  .quick-time-btn:hover,.quick-time-btn.active { border-color: var(--ant-primary); color: var(--ant-primary); background: var(--ant-primary-bg); }
+
+  /* 按钮 */
+  .ant-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 32px; padding: 4px 15px; font-size: 12px;
+    border: 1px solid var(--ant-border); border-radius: var(--radius-base);
+    background: var(--ant-bg-container); cursor: pointer;
+    transition: all 0.2s var(--ease-in-out);
+  }
+  .ant-btn:hover { color: var(--ant-primary-hover); border-color: var(--ant-primary-hover); }
+  .ant-btn-primary { background: var(--ant-primary); border-color: var(--ant-primary); color: #fff; }
+  .ant-btn-primary:hover { background: var(--ant-primary-hover); border-color: var(--ant-primary-hover); color: #fff; }
+  .ant-btn-success { background: var(--ant-success); border-color: var(--ant-success); color: #fff; }
+  .ant-btn-success:hover { background: #73d13d; border-color: #73d13d; color: #fff; }
+  .ant-btn-default { background: var(--ant-bg-container); border-color: var(--ant-border); color: var(--ant-text); }
+
+  /* 候选列表 */
+  .candidate-section { border-top:1px solid var(--ant-border-secondary); flex:1; display:flex; flex-direction:column; min-height:0; }
+  .candidate-header { padding:10px 16px; border-bottom:1px solid var(--ant-border-secondary); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .candidate-header h5 { font-size:12px; color: var(--ant-text-tertiary); }
+  .candidate-header .back-btn { font-size:11px; color: var(--ant-primary); cursor:pointer; background:none; display:flex; align-items:center; gap:4px; }
+  .candidate-header .back-btn:hover { text-decoration:underline; }
+  .candidate-list { flex:1; overflow-y:auto; padding:12px; }
+  .candidate-card { display:flex; align-items:center; gap:10px; padding:12px; background: var(--ant-bg); border:1px solid var(--ant-border-secondary); border-radius: var(--radius-lg); margin-bottom:8px; cursor:pointer; transition:all 0.2s; }
+  .candidate-card:hover { border-color: var(--ant-primary); }
+  .candidate-card.selected { border-color: var(--ant-primary); background: var(--ant-primary-bg); }
+  .candidate-avatar { width:40px; height:40px; border-radius: var(--radius-lg); background: var(--ant-bg-container); display:flex; align-items:center; justify-content:center; font-size:16px; color: var(--ant-text-tertiary); flex-shrink:0; }
+  .candidate-info { flex:1; min-width:0; }
+  .candidate-name { font-size:13px; font-weight:500; margin-bottom:2px; }
+  .candidate-meta { font-size:11px; color: var(--ant-text-tertiary); display:flex; gap:8px; }
+  .candidate-sim { font-size:11px; padding:2px 6px; border-radius: var(--radius-base); font-weight:600; flex-shrink:0; }
+  .sim-high { background: var(--ant-success-bg); color: var(--ant-success); }
+  .sim-mid { background: var(--ant-warning-bg); color: #d46b08; }
+  .sim-low { background: var(--ant-error-bg); color: var(--ant-error); }
+
+  /* 确认按钮 */
+  .confirm-btn { width:100%; padding:8px; background: var(--ant-success); color:#fff; border:none; border-radius: var(--radius-base); font-size:12px; font-weight:500; cursor:pointer; transition:all 0.2s; margin:12px; display:none; align-items:center; justify-content:center; gap:6px; flex-shrink:0; }
+  .confirm-btn:hover { box-shadow:0 4px 12px rgba(82,196,26,0.35); }
+  .confirm-btn.show { display:flex; }
+  .confirm-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+  /* 中心内容 */
+  .center-content { flex:1; display:flex; flex-direction:column; min-width:0; }
+
+  /* 地图区域 */
+  .map-area { flex:1; min-height:0; position:relative; background: var(--ant-bg); overflow:hidden; }
+  .map-svg { width:100%; height:100%; }
+
+  .map-toolbar { position:absolute; top:12px; left:12px; display:flex; gap:6px; z-index:10; }
+  .map-tb-btn { background: var(--ant-bg-container); border:1px solid var(--ant-border-secondary); color: var(--ant-text-secondary); padding:6px 12px; border-radius: var(--radius-base); font-size:11px; transition:all 0.2s; display:flex; align-items:center; gap:6px; box-shadow: var(--shadow-1); }
+  .map-tb-btn:hover { border-color: var(--ant-primary); color: var(--ant-primary); }
+  .zoom-btns { display:flex; flex-direction:column; gap:2px; }
+  .zoom-btns button { width:28px; height:28px; background: var(--ant-bg-container); border:1px solid var(--ant-border-secondary); color: var(--ant-text-secondary); border-radius: var(--radius-base); font-size:14px; box-shadow: var(--shadow-1); }
+  .zoom-btns button:hover { border-color: var(--ant-primary); color: var(--ant-primary); }
+
+  .map-legend { position:absolute; bottom:12px; left:12px; background: var(--ant-bg-container); border:1px solid var(--ant-border-secondary); border-radius: var(--radius-lg); padding:8px 12px; z-index:20; box-shadow: var(--shadow-1); }
+  .legend-item { display:flex; align-items:center; gap:6px; font-size:11px; margin-bottom:4px; }
+  .legend-item:last-child { margin-bottom:0; }
+  .legend-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .legend-line { width:16px; height:2px; flex-shrink:0; border-radius:1px; }
+
+  .tooltip-box { position:absolute; background: var(--ant-bg-container); border:1px solid var(--ant-primary); border-radius: var(--radius-lg); padding:10px 14px; font-size:12px; z-index:200; pointer-events:none; display:none; box-shadow: var(--shadow-2); max-width:240px; }
+  .tooltip-box .tt-time { color: var(--ant-primary); font-weight:600; margin-bottom:4px; }
+  .tooltip-box .tt-loc { color: var(--ant-text-secondary); }
+  .tooltip-box.encounter-tip { border-color: var(--ant-warning); }
+  .tooltip-box.encounter-tip .tt-time { color: #d46b08; }
+
+  @keyframes encounterPulse { 0%{r:12;opacity:.8} 50%{r:22;opacity:.2} 100%{r:12;opacity:.8} }
+  @keyframes encounterGlow { 0%{r:8;opacity:1} 50%{r:14;opacity:.5} 100%{r:8;opacity:1} }
+  .encounter-pulse { animation: encounterPulse 1.5s ease-in-out infinite; }
+  .encounter-glow { animation: encounterGlow 1.5s ease-in-out infinite; }
+
+  /* 空状态 */
+  .empty-overlay { position:absolute; inset:0; background: rgba(245,245,245,0.8); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:30; }
+  .empty-overlay i { font-size:48px; color: var(--ant-text-tertiary); margin-bottom:16px; opacity:.4; }
+  .empty-overlay h3 { font-size:14px; color: var(--ant-text-secondary); margin-bottom:8px; }
+  .empty-overlay p { font-size:12px; color: var(--ant-text-tertiary); }
+
+  /* 加载状态 */
+  .loading-overlay { position:absolute; inset:0; background: rgba(255,255,255,0.9); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; }
+  .loading-overlay .spinner { width:32px; height:32px; border:3px solid var(--ant-border-secondary); border-top-color: var(--ant-primary); border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:12px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loading-overlay .loading-text { color: var(--ant-text-secondary); font-size:12px; }
+
+  /* 分析区域 */
+  .analysis-area { height:180px; min-height:180px; background: var(--ant-bg-container); border-top:1px solid var(--ant-border-secondary); display:flex; flex-direction:column; }
+  .analysis-header { height:36px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; border-bottom:1px solid var(--ant-border-secondary); flex-shrink:0; }
+  .analysis-header h4 { font-size:13px; display:flex; align-items:center; gap:6px; }
+  .analysis-header h4 i { color: var(--ant-warning); }
+  .analysis-toggle { background:transparent; color: var(--ant-text-tertiary); font-size:12px; padding:4px; cursor:pointer; transition:color 0.2s; }
+  .analysis-toggle:hover { color: var(--ant-text); }
+  .analysis-body { display:flex; flex:1; min-height:0; }
+  .analysis-body.collapsed { display:none; }
+
+  .overlap-timeline { flex:1; min-width:0; padding:10px 16px; border-right:1px solid var(--ant-border-secondary); display:flex; flex-direction:column; }
+  .overlap-timeline h5 { font-size:11px; color: var(--ant-text-tertiary); margin-bottom:8px; }
+  .tl-canvas-wrap { flex:1; min-height:40px; }
+  #overlapCanvas { width:100%; height:100%; display:block; }
+
+  .encounter-panel { width:320px; min-width:320px; display:flex; flex-direction:column; }
+  .encounter-panel-header { padding:8px 12px; border-bottom:1px solid var(--ant-border-secondary); display:flex; align-items:center; justify-content:space-between; }
+  .encounter-panel-header h5 { font-size:11px; color: var(--ant-text-tertiary); }
+  .encounter-panel-body { flex:1; overflow-y:auto; padding:8px 12px; }
+
+  .enc-item { background: var(--ant-bg); border:1px solid var(--ant-border-secondary); border-radius: var(--radius-lg); padding:10px 12px; margin-bottom:8px; cursor:pointer; transition:all 0.2s; }
+  .enc-item:hover { border-color: var(--ant-warning); }
+  .enc-item-head { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+  .enc-type { font-size:10px; padding:2px 6px; border-radius: var(--radius-base); font-weight:600; }
+  .enc-type.together { background: var(--ant-primary-bg); color: var(--ant-primary); }
+  .enc-type.contact { background: var(--ant-warning-bg); color: #d46b08; }
+  .enc-time { font-size:12px; color: #d46b08; font-weight:600; }
+  .enc-loc { font-size:12px; color: var(--ant-text-secondary); }
+  .enc-detail { font-size:11px; color: var(--ant-text-tertiary); margin-top:4px; }
+
+  .summary-row { display:flex; gap:16px; padding:8px 16px; border-top:1px solid var(--ant-border-secondary); flex-shrink:0; }
+  .summary-item { display:flex; align-items:center; gap:6px; font-size:11px; color: var(--ant-text-tertiary); }
+  .summary-item .val { color: #d46b08; font-weight:600; font-size:13px; }
+
+  /* Toast */
+  .ant-message {
+    position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+    z-index: 2000; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .ant-message-notice {
+    background: var(--ant-bg-container); padding: 9px 16px;
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-2);
+    display: flex; align-items: center; gap: 8px; font-size: 14px;
+    animation: fadeInDown 0.3s var(--ease-in-out);
+  }
+  .ant-message-success .ant-message-icon { color: var(--ant-success); }
+  .ant-message-error .ant-message-icon { color: var(--ant-error); }
+  .ant-message-warning .ant-message-icon { color: var(--ant-warning); }
+  .ant-message-info .ant-message-icon { color: var(--ant-primary); }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="ant-message" id="messageContainer"></div>
+
+<!-- 顶部导航栏 -->
+<div class="ant-layout-header">
+  <div class="flex items-center gap-3">
+    <i class="fa-solid fa-video text-lg" style="color: var(--ant-primary);"></i>
+    <span class="font-semibold text-base">视频智能运维</span>
+  </div>
+  <div class="flex items-center gap-4 ml-auto">
+    <button class="ant-btn ant-btn-default" onclick="exportReport()">
+      <i class="fa-solid fa-file-export"></i>导出报告
+    </button>
+  </div>
+</div>
+
+<!-- 布局 -->
+<div style="display:flex;height:calc(100vh - 64px);">
+  <!-- 侧边栏 -->
+  <div class="ant-layout-sider">
+    <div class="ant-menu">
+      <div style="padding: 12px 16px 8px; font-size: 12px; color: var(--ant-text-tertiary); font-weight: 600;">
+        <i class="fa-solid fa-route" style="margin-right: 6px;"></i>轨迹查询
+      </div>
+      <a href="search.html" class="ant-menu-item">
+        <i class="fa-solid fa-person"></i>人员轨迹查询
+      </a>
+      <a href="vehicle-search.html" class="ant-menu-item">
+        <i class="fa-solid fa-car"></i>车辆轨迹查询
+      </a>
+      <a href="compare.html" class="ant-menu-item ant-menu-item-selected">
+        <i class="fa-solid fa-users-viewfinder"></i>多目标对比
+      </a>
+
+      <div style="padding: 12px 16px 8px; font-size: 12px; color: var(--ant-text-tertiary); font-weight: 600; margin-top: 8px;">
+        <i class="fa-solid fa-shield-halved" style="margin-right: 6px;"></i>布控管理
+      </div>
+      <a href="../ops-monitor/list.html" class="ant-menu-item">
+        <i class="fa-solid fa-crosshairs"></i>布控任务
+      </a>
+      <a href="../ops-monitor/library.html" class="ant-menu-item">
+        <i class="fa-solid fa-database"></i>目标库
+      </a>
+      <a href="../ops-monitor/alerts.html" class="ant-menu-item">
+        <i class="fa-solid fa-bell"></i>布控告警
+      </a>
+    </div>
+  </div>
+
+  <!-- 内容区 -->
+  <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <!-- 主内容 -->
+    <div class="main">
+    <!-- ===== 左侧面板: 目标1 ===== -->
+    <div class="side-panel" id="leftPanel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <span class="dot" style="background:var(--color1)"></span>
+          <span class="title">目标1</span>
+          <span class="type-tag" id="leftTypeTag">人员</span>
+        </div>
+        <span class="status pending" id="leftStatus">待查询</span>
+      </div>
+      <div class="type-switch" id="leftTypeSwitch">
+        <div class="type-switch-btn active" onclick="switchType('left','person')"><i class="fa-solid fa-person" style="margin-right:4px;"></i>人员</div>
+        <div class="type-switch-btn" onclick="switchType('left','vehicle')"><i class="fa-solid fa-car" style="margin-right:4px;"></i>车辆</div>
+      </div>
+
+      <div class="panel-scroll">
+        <!-- 人员表单 -->
+        <div id="leftPersonForm">
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">上传照片</label>
+            <div class="upload-zone" onclick="showMessage('请上传目标人员照片','info')"><div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div><p>点击上传人脸照片</p></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
+            <div class="quick-times">
+              <button class="quick-time-btn" onclick="setQuickTime(this)">近1h</button>
+              <button class="quick-time-btn" onclick="setQuickTime(this)">近6h</button>
+              <button class="quick-time-btn active" onclick="setQuickTime(this)">近24h</button>
+              <button class="quick-time-btn" onclick="setQuickTime(this)">近7天</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="datetime-local" value="2026-05-29T00:00" style="flex:1;">
+              <span style="color: var(--ant-text-tertiary); font-size: 11px;">至</span>
+              <input type="datetime-local" value="2026-05-29T23:59" style="flex:1;">
+            </div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">地点范围</label><select><option>全部区域</option><option>A栋</option><option>B栋</option><option>C栋</option></select></div>
+          <div class="ant-form-item"><label class="ant-form-label">性别</label><select><option>全部</option><option>男</option><option>女</option></select></div>
+          <div class="ant-form-item"><label class="ant-form-label">上衣颜色</label>
+            <div class="color-options">
+              <div class="color-block" data-color="black" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="white" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="red" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="blue" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="yellow" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="green" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="gray" onclick="selectColor(this)"></div>
+            </div>
+          </div>
+          <button class="ant-btn ant-btn-primary" style="width:100%;" onclick="doSearch('left')"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+        </div>
+
+        <!-- 车辆表单 -->
+        <div id="leftVehicleForm" style="display:none">
+          <div class="ant-form-item"><label class="ant-form-label">车牌号</label><input type="text" placeholder="如：京A12345"></div>
+          <div class="ant-form-item"><label class="ant-form-label">或上传车辆照片</label>
+            <div class="upload-zone" onclick="showMessage('请上传车辆照片','info')" style="padding:12px;"><div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div><p>点击上传</p></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
+            <div class="flex items-center gap-2">
+              <input type="datetime-local" value="2026-05-29T00:00" style="flex:1;">
+              <span style="color: var(--ant-text-tertiary); font-size: 11px;">至</span>
+              <input type="datetime-local" value="2026-05-29T23:59" style="flex:1;">
+            </div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">地点范围</label><select><option>全部卡口</option><option>北门卡口</option><option>南门卡口</option></select></div>
+          <div class="ant-form-item"><label class="ant-form-label">车辆类型</label><select><option>全部</option><option>小型轿车</option><option>SUV</option></select></div>
+          <div class="ant-form-item"><label class="ant-form-label">车身颜色</label>
+            <div class="color-options">
+              <div class="color-block" data-color="black" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="white" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="silver" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="red" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="blue" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="gray" onclick="selectColor(this)"></div>
+            </div>
+          </div>
+          <button class="ant-btn ant-btn-primary" style="width:100%;" onclick="doSearch('left')"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+        </div>
+      </div>
+
+      <!-- 候选列表 -->
+      <div class="candidate-section" id="leftCandidates" style="display:none">
+        <div class="candidate-header">
+          <h5>候选目标 <span id="leftCandidateCount">0</span></h5>
+          <button class="back-btn" onclick="backToForm('left')"><i class="fa-solid fa-arrow-left"></i> 重查</button>
+        </div>
+        <div class="candidate-list" id="leftCandidateList"></div>
+        <button class="confirm-btn" id="leftConfirmBtn" onclick="confirmTarget('left')" disabled>确认选择</button>
+      </div>
+    </div>
+
+    <!-- ===== 中心: 地图 + 分析 ===== -->
+    <div class="center-content">
+      <div class="map-area" id="mapArea">
+        <div class="map-toolbar">
+          <div class="zoom-btns">
+            <button onclick="showMessage('放大','info')">+</button>
+            <button onclick="showMessage('缩小','info')">-</button>
+          </div>
+        </div>
+
+        <svg class="map-svg" id="mapSvg" viewBox="0 0 1200 700">
+          <defs>
+            <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#1677ff"/></marker>
+            <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#ff4d4f"/></marker>
+            <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f0f0f0" stroke-width="0.5"/></pattern>
+          <rect width="1200" height="700" fill="url(#grid)"/>
+
+          <!-- 建筑物 -->
+          <rect x="80" y="100" width="160" height="120" rx="4" fill="#fafafa" stroke="#d9d9d9" stroke-width="1.5"/><text x="160" y="165" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="13">南区A栋</text>
+          <rect x="280" y="80" width="120" height="100" rx="4" fill="#fafafa" stroke="#d9d9d9" stroke-width="1.5"/><text x="340" y="135" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="13">南区B栋</text>
+          <rect x="480" y="260" width="240" height="180" rx="6" fill="#f5f5f5" stroke="#d9d9d9" stroke-width="2"/><text x="600" y="360" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="14" font-weight="600">中央广场</text>
+          <rect x="850" y="80" width="180" height="140" rx="4" fill="#fafafa" stroke="#d9d9d9" stroke-width="1.5"/><text x="940" y="155" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="13">北区C栋</text>
+          <rect x="1060" y="120" width="100" height="100" rx="4" fill="#fafafa" stroke="#d9d9d9" stroke-width="1.5"/><text x="1110" y="175" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="13">北区D栋</text>
+          <rect x="720" y="270" width="100" height="60" rx="4" fill="#fafafa" stroke="#d9d9d9" stroke-width="1"/><text x="770" y="305" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="11">中央走廊</text>
+          <rect x="40" y="380" width="140" height="160" rx="4" fill="#fafafa" stroke="#d9d9d9" stroke-width="1.5"/><text x="110" y="465" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="13">西区E栋</text>
+          <rect x="900" y="480" width="220" height="140" rx="4" fill="#fafafa" stroke="#d9d9d9" stroke-width="1" stroke-dasharray="4"/><text x="1010" y="555" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="13">停车场</text>
+
+          <!-- 道路 -->
+          <line x1="240" y1="160" x2="480" y2="300" stroke="#d9d9d9" stroke-width="2" stroke-dasharray="8,4"/>
+          <line x1="400" y1="130" x2="520" y2="280" stroke="#d9d9d9" stroke-width="2" stroke-dasharray="8,4"/>
+          <line x1="720" y1="340" x2="850" y2="160" stroke="#d9d9d9" stroke-width="2" stroke-dasharray="8,4"/>
+          <line x1="720" y1="380" x2="900" y2="500" stroke="#d9d9d9" stroke-width="2" stroke-dasharray="8,4"/>
+          <line x1="180" y1="220" x2="180" y2="380" stroke="#d9d9d9" stroke-width="2" stroke-dasharray="8,4"/>
+          <line x1="480" y1="350" x2="40" y2="440" stroke="#d9d9d9" stroke-width="2" stroke-dasharray="8,4"/>
+
+          <!-- 摄像头 -->
+          <g>
+            <g transform="translate(160,90)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C01</text></g>
+            <g transform="translate(280,110)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C03</text></g>
+            <g transform="translate(380,200)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C04</text></g>
+            <g transform="translate(520,300)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C05</text></g>
+            <g transform="translate(600,310)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C06</text></g>
+            <g transform="translate(700,300)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C07</text></g>
+            <g transform="translate(770,290)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C18</text></g>
+            <g transform="translate(800,200)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C09</text></g>
+            <g transform="translate(900,120)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C10</text></g>
+            <g transform="translate(980,80)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C11</text></g>
+            <g transform="translate(1100,140)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C12</text></g>
+          </g>
+
+          <!-- 轨迹1 (蓝色) -->
+          <g id="trajectory1" style="display:none">
+            <path d="M160,90 L280,110 L380,200 L520,300 L600,310 L700,300 L800,200 L900,120" stroke="#1677ff" stroke-width="2.5" fill="none" marker-end="url(#arrowBlue)" filter="url(#glow)" opacity="0.9"/>
+            <g style="cursor:pointer" onmouseenter="showTip(evt,'09:12:35','目标1 | 南区入口')" onmouseleave="hideTip()"><circle cx="160" cy="90" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="160" y="74" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-1</text></g>
+            <g style="cursor:pointer" onmouseenter="showTip(evt,'09:28:12','目标1 | 南区B栋西')" onmouseleave="hideTip()"><circle cx="280" cy="110" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="280" y="94" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-2</text></g>
+            <g style="cursor:pointer" onmouseenter="showTip(evt,'09:45:08','目标1 | 南区通道')" onmouseleave="hideTip()"><circle cx="380" cy="200" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="380" y="184" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-3</text></g>
+            <g style="cursor:pointer" onmouseenter="showTip(evt,'10:02:41','目标1 | 中央广场南')" onmouseleave="hideTip()"><circle cx="520" cy="300" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="520" y="284" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-4</text></g>
+            <g style="cursor:pointer" onmouseenter="showTip(evt,'10:05:22','目标1 | 中央广场中心')" onmouseleave="hideTip()"><circle cx="600" cy="310" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="600" y="338" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-5</text></g>
+            <g style="cursor:pointer" onmouseenter="showTip(evt,'10:28:55','目标1 | 中央广场东')" onmouseleave="hideTip()"><circle cx="700" cy="300" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="700" y="284" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-6</text></g>
+            <g style="cursor:pointer" onmouseenter="showTip(evt,'10:50:13','目标1 | 北区通道')" onmouseleave="hideTip()"><circle cx="800" cy="200" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="800" y="184" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-7</text></g>
+            <g style="cursor:pointer" onmouseenter="showTip(evt,'11:27:44','目标1 | 北区C栋南')" onmouseleave="hideTip()"><circle cx="900" cy="120" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="900" y="104" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-8</text></g>
+          </g>
+
+          <!-- 轨迹2 (红色) -->
+          <g id="trajectory2" style="display:none">
+            <path d="M520,300 L600,310 L770,290 L900,120 L980,80 L1100,140" stroke="#ff4d4f" stroke-width="2.5" fill="none" marker-end="url(#arrowRed)" filter="url(#glow)" opacity="0.9"/>
+            <g style="cursor:pointer" onmouseenter="showTip(evt,'09:05:18','目标2 | 中央广场南')" onmouseleave="hideTip()"><circle cx="520" cy="300" r="6" fill="#ff4d4f" stroke="#fff" stroke-width="2"/><text x="520" y="324" text-anchor="middle" fill="#ff4d4f" font-size="8" font-weight="700">T2-1</text></g>
+            <g style="cursor:pointer" onmouseenter="showTip(evt,'09:28:09','目标2 | 中央广场中心')" onmouseleave="hideTip()"><circle cx="600" cy="310" r="6" fill="#ff4d4f" stroke="#fff" stroke-width="2"/><text x="622" y="326" text-anchor="middle" fill="#ff4d4f" font-size="8" font-weight="700">T2-2</text></g>
+            <g style="cursor:pointer" onmouseenter="showTip(evt,'09:52:33','目标2 | 中央走廊')" onmouseleave="hideTip()"><circle cx="770" cy="290" r="6" fill="#ff4d4f" stroke="#fff" stroke-width="2"/><text x="770" y="274" text-anchor="middle" fill="#ff4d4f" font-size="8" font-weight="700">T2-3</text></g>
+            <g style="cursor:pointer" onmouseenter="showTip(evt,'10:45:21','目标2 | 北区C栋南')" onmouseleave="hideTip()"><circle cx="900" cy="120" r="6" fill="#ff4d4f" stroke="#fff" stroke-width="2"/><text x="900" y="138" text-anchor="middle" fill="#ff4d4f" font-size="8" font-weight="700">T2-4</text></g>
+            <g style="cursor:pointer" onmouseenter="showTip(evt,'11:05:47','目标2 | 北区C栋东')" onmouseleave="hideTip()"><circle cx="980" cy="80" r="6" fill="#ff4d4f" stroke="#fff" stroke-width="2"/><text x="980" y="66" text-anchor="middle" fill="#ff4d4f" font-size="8" font-weight="700">T2-5</text></g>
+            <g style="cursor:pointer" onmouseenter="showTip(evt,'11:32:15','目标2 | 北区D栋')" onmouseleave="hideTip()"><circle cx="1100" cy="140" r="6" fill="#ff4d4f" stroke="#fff" stroke-width="2"/><text x="1100" y="158" text-anchor="middle" fill="#ff4d4f" font-size="8" font-weight="700">T2-6</text></g>
+          </g>
+
+          <!-- 接触点 -->
+          <g id="encounterLayer" style="display:none">
+            <g style="cursor:pointer" onmouseenter="showEncTip(evt,'目标1 与 目标2 同行','09:05:18','中央广场南')" onmouseleave="hideTip()">
+              <circle cx="520" cy="300" r="12" fill="#faad14" opacity="0.3" class="encounter-pulse"/><circle cx="520" cy="300" r="8" fill="#faad14" opacity="0.8" class="encounter-glow"/><circle cx="520" cy="300" r="4" fill="#fff" opacity="1"/>
+            </g>
+            <g style="cursor:pointer" onmouseenter="showEncTip(evt,'目标1 与 目标2 接触','09:28:09','中央广场中心')" onmouseleave="hideTip()">
+              <circle cx="600" cy="310" r="12" fill="#faad14" opacity="0.3" class="encounter-pulse"/><circle cx="600" cy="310" r="8" fill="#faad14" opacity="0.8" class="encounter-glow"/><circle cx="600" cy="310" r="4" fill="#fff" opacity="1"/>
+            </g>
+            <g style="cursor:pointer" onmouseenter="showEncTip(evt,'目标1 与 目标2 同行','10:45:21','北区大门')" onmouseleave="hideTip()">
+              <circle cx="900" cy="120" r="12" fill="#faad14" opacity="0.3" class="encounter-pulse"/><circle cx="900" cy="120" r="8" fill="#faad14" opacity="0.8" class="encounter-glow"/><circle cx="900" cy="120" r="4" fill="#fff" opacity="1"/>
+            </g>
+          </g>
+        </svg>
+
+        <!-- 图例 -->
+        <div class="map-legend">
+          <div class="legend-item"><span class="legend-line" style="background:#1677ff"></span><span>目标1 轨迹</span></div>
+          <div class="legend-item" id="legend2Wrap" style="display:none"><span class="legend-line" style="background:#ff4d4f"></span><span>目标2 轨迹</span></div>
+          <div class="legend-item" id="legendEncWrap" style="display:none"><span class="legend-dot" style="background:#faad14"></span><span>同行/接触点</span></div>
+        </div>
+
+        <div class="tooltip-box" id="mapTip"><div class="tt-time" id="tipTime"></div><div class="tt-loc" id="tipLoc"></div></div>
+
+        <div class="empty-overlay" id="emptyState">
+          <i class="fa-solid fa-users-viewfinder"></i>
+          <h3>左右两侧分别选择目标并查询</h3>
+          <p>系统将自动检测同行/接触关系</p>
+        </div>
+
+        <div class="loading-overlay" id="loadingOverlay" style="display:none">
+          <div class="spinner"></div>
+          <div class="loading-text" id="loadingText">正在检索中...</div>
+        </div>
+      </div>
+
+      <!-- 分析区域 -->
+      <div class="analysis-area" id="analysisArea">
+        <div class="analysis-header">
+          <h4><i class="fa-solid fa-chart-line"></i> 时空分析</h4>
+          <button class="analysis-toggle" onclick="toggleAnalysis()"><i class="fa-solid fa-chevron-down"></i></button>
+        </div>
+        <div class="analysis-body" id="analysisBody">
+          <div class="overlap-timeline"><h5>时空重叠时间轴</h5><div class="tl-canvas-wrap"><canvas id="overlapCanvas"></canvas></div></div>
+          <div class="encounter-panel">
+            <div class="encounter-panel-header"><h5>同行/接触记录</h5><span style="font-size:11px;color: var(--ant-text-tertiary);" id="encCount">0 条</span></div>
+            <div class="encounter-panel-body" id="encounterList"><div style="text-align:center;padding:20px;color: var(--ant-text-tertiary);font-size:12px;">暂无记录</div></div>
+          </div>
+        </div>
+        <div class="summary-row" id="summaryRow" style="display:none">
+          <div class="summary-item">同行 <span class="val" id="sumTogether">0</span></div>
+          <div class="summary-item">接触 <span class="val" id="sumContact">0</span></div>
+          <div class="summary-item">首次 <span class="val" id="sumFirst">-</span></div>
+          <div class="summary-item">末次 <span class="val" id="sumLast">-</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 右侧面板: 目标2 ===== -->
+    <div class="side-panel right" id="rightPanel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <span class="dot" style="background:var(--color2)"></span>
+          <span class="title">目标2</span>
+          <span class="type-tag" id="rightTypeTag">人员</span>
+        </div>
+        <span class="status pending" id="rightStatus">待查询</span>
+      </div>
+      <div class="type-switch" id="rightTypeSwitch">
+        <div class="type-switch-btn active" onclick="switchType('right','person')"><i class="fa-solid fa-person" style="margin-right:4px;"></i>人员</div>
+        <div class="type-switch-btn" onclick="switchType('right','vehicle')"><i class="fa-solid fa-car" style="margin-right:4px;"></i>车辆</div>
+      </div>
+
+      <div class="panel-scroll">
+        <!-- 人员表单 -->
+        <div id="rightPersonForm">
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">上传照片</label>
+            <div class="upload-zone" onclick="showMessage('请上传目标人员照片','info')"><div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div><p>点击上传人脸照片</p></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
+            <div class="quick-times">
+              <button class="quick-time-btn" onclick="setQuickTime(this)">近1h</button>
+              <button class="quick-time-btn" onclick="setQuickTime(this)">近6h</button>
+              <button class="quick-time-btn active" onclick="setQuickTime(this)">近24h</button>
+              <button class="quick-time-btn" onclick="setQuickTime(this)">近7天</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="datetime-local" value="2026-05-29T00:00" style="flex:1;">
+              <span style="color: var(--ant-text-tertiary); font-size: 11px;">至</span>
+              <input type="datetime-local" value="2026-05-29T23:59" style="flex:1;">
+            </div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">地点范围</label><select><option>全部区域</option><option>A栋</option><option>B栋</option><option>C栋</option></select></div>
+          <div class="ant-form-item"><label class="ant-form-label">性别</label><select><option>全部</option><option>男</option><option>女</option></select></div>
+          <div class="ant-form-item"><label class="ant-form-label">上衣颜色</label>
+            <div class="color-options">
+              <div class="color-block" data-color="black" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="white" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="red" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="blue" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="yellow" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="green" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="gray" onclick="selectColor(this)"></div>
+            </div>
+          </div>
+          <button class="ant-btn ant-btn-primary" style="width:100%;" onclick="doSearch('right')"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+        </div>
+
+        <!-- 车辆表单 -->
+        <div id="rightVehicleForm" style="display:none">
+          <div class="ant-form-item"><label class="ant-form-label">车牌号</label><input type="text" placeholder="如：京A12345"></div>
+          <div class="ant-form-item"><label class="ant-form-label">或上传车辆照片</label>
+            <div class="upload-zone" onclick="showMessage('请上传车辆照片','info')" style="padding:12px;"><div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div><p>点击上传</p></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
+            <div class="flex items-center gap-2">
+              <input type="datetime-local" value="2026-05-29T00:00" style="flex:1;">
+              <span style="color: var(--ant-text-tertiary); font-size: 11px;">至</span>
+              <input type="datetime-local" value="2026-05-29T23:59" style="flex:1;">
+            </div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">地点范围</label><select><option>全部卡口</option><option>北门卡口</option><option>南门卡口</option></select></div>
+          <div class="ant-form-item"><label class="ant-form-label">车辆类型</label><select><option>全部</option><option>小型轿车</option><option>SUV</option></select></div>
+          <div class="ant-form-item"><label class="ant-form-label">车身颜色</label>
+            <div class="color-options">
+              <div class="color-block" data-color="black" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="white" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="silver" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="red" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="blue" onclick="selectColor(this)"></div>
+              <div class="color-block" data-color="gray" onclick="selectColor(this)"></div>
+            </div>
+          </div>
+          <button class="ant-btn ant-btn-primary" style="width:100%;" onclick="doSearch('right')"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+        </div>
+      </div>
+
+      <!-- 候选列表 -->
+      <div class="candidate-section" id="rightCandidates" style="display:none">
+        <div class="candidate-header">
+          <h5>候选目标 <span id="rightCandidateCount">0</span></h5>
+          <button class="back-btn" onclick="backToForm('right')"><i class="fa-solid fa-arrow-left"></i> 重查</button>
+        </div>
+        <div class="candidate-list" id="rightCandidateList"></div>
+        <button class="confirm-btn" id="rightConfirmBtn" onclick="confirmTarget('right')" disabled>确认选择</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const encounters = [
+  {type:'together',time:'09:05:18',loc:'中央广场南',desc:'同摄像头出现，间隔<5分钟'},
+  {type:'contact',time:'09:28:09',loc:'中央广场中心',desc:'距离<50米，间隔<2分钟'},
+  {type:'together',time:'10:45:21',loc:'北区C栋南',desc:'同摄像头出现，间隔<5分钟'}
+];
+
+const personCandidates = [
+  {id:'p1',name:'张三',gender:'男',color:'黑色上衣',appearances:12,sim:95},
+  {id:'p2',name:'李四',gender:'男',color:'蓝色上衣',appearances:8,sim:88},
+  {id:'p3',name:'王五',gender:'女',color:'红色上衣',appearances:5,sim:76},
+  {id:'p4',name:'赵六',gender:'男',color:'白色上衣',appearances:3,sim:68},
+];
+const vehicleCandidates = [
+  {id:'v1',name:'京A·12345',type:'白色SUV',brand:'丰田',appearances:15,sim:98},
+  {id:'v2',name:'京B·67890',type:'黑色轿车',brand:'大众',appearances:9,sim:91},
+  {id:'v3',name:'京C·11111',type:'银色SUV',brand:'宝马',appearances:4,sim:72},
+];
+
+const state = {
+  left: { type:'person', status:'pending', selectedCandidate:null },
+  right: { type:'person', status:'pending', selectedCandidate:null }
+};
+
+let analysisExpanded = true;
+
+function showMessage(text, type = 'success') {
+  let container = document.getElementById('messageContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.className = 'ant-message';
+    container.id = 'messageContainer';
+    document.body.appendChild(container);
+  }
+  const icons = {
+    success: 'fa-circle-check',
+    error: 'fa-circle-xmark',
+    warning: 'fa-triangle-exclamation',
+    info: 'fa-circle-info'
+  };
+  const notice = document.createElement('div');
+  notice.className = `ant-message-notice ant-message-${type}`;
+  notice.innerHTML = `<i class="fa-solid ${icons[type] || icons.success} ant-message-icon"></i><span>${text}</span>`;
+  container.appendChild(notice);
+  setTimeout(() => notice.remove(), 3000);
+}
+
+// 类型切换
+function switchType(side, type) {
+  state[side].type = type;
+  state[side].selectedCandidate = null;
+
+  // 更新标签UI
+  const switchEl = document.getElementById(side+'TypeSwitch');
+  switchEl.querySelectorAll('.type-switch-btn').forEach((b,i) => {
+    b.classList.toggle('active', (i===0&&type==='person')||(i===1&&type==='vehicle'));
+  });
+
+  // 更新类型标签
+  document.getElementById(side+'TypeTag').textContent = type==='person'?'人员':'车辆';
+
+  // 切换表单
+  document.getElementById(side+'PersonForm').style.display = type==='person'?'':'none';
+  document.getElementById(side+'VehicleForm').style.display = type==='vehicle'?'':'none';
+
+  // 隐藏候选列表，显示表单滚动区
+  document.getElementById(side+'Candidates').style.display = 'none';
+  document.querySelector('#'+side+'Panel .panel-scroll').style.display = '';
+}
+
+function setQuickTime(btn) {
+  btn.parentElement.querySelectorAll('.quick-time-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function selectColor(block) {
+  block.parentElement.querySelectorAll('.color-block').forEach(b=>b.classList.remove('active'));
+  block.classList.add('active');
+}
+
+// 搜索 → 显示候选
+function doSearch(side) {
+  const type = state[side].type;
+  const candidates = type==='person' ? personCandidates : vehicleCandidates;
+
+  // 隐藏表单，显示候选
+  document.querySelector('#'+side+'Panel .panel-scroll').style.display = 'none';
+  const section = document.getElementById(side+'Candidates');
+  section.style.display = 'flex';
+
+  document.getElementById(side+'CandidateCount').textContent = candidates.length;
+  state[side].selectedCandidate = null;
+
+  const list = document.getElementById(side+'CandidateList');
+  if (type==='person') {
+    list.innerHTML = candidates.map(c => {
+      const simClass = c.sim>=85?'sim-high':c.sim>=70?'sim-mid':'sim-low';
+      return `<div class="candidate-card" data-id="${c.id}" onclick="pickCandidate('${side}','${c.id}')">
+        <div class="candidate-avatar"><i class="fa-solid fa-user"></i></div>
+        <div class="candidate-info"><div class="candidate-name">${c.name}</div><div class="candidate-meta"><span>${c.gender}</span><span>${c.color}</span><span>${c.appearances}次</span></div></div>
+        <span class="candidate-sim ${simClass}">${c.sim}%</span>
+      </div>`;
+    }).join('');
+  } else {
+    list.innerHTML = candidates.map(c => {
+      const simClass = c.sim>=85?'sim-high':c.sim>=70?'sim-mid':'sim-low';
+      return `<div class="candidate-card" data-id="${c.id}" onclick="pickCandidate('${side}','${c.id}')">
+        <div class="candidate-avatar"><i class="fa-solid fa-car"></i></div>
+        <div class="candidate-info"><div class="candidate-name">${c.name}</div><div class="candidate-meta"><span>${c.type}</span><span>${c.brand}</span><span>${c.appearances}次</span></div></div>
+        <span class="candidate-sim ${simClass}">${c.sim}%</span>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById(side+'ConfirmBtn').classList.remove('show');
+  document.getElementById(side+'ConfirmBtn').disabled = true;
+}
+
+function pickCandidate(side, id) {
+  state[side].selectedCandidate = id;
+  const section = document.getElementById(side+'Candidates');
+  section.querySelectorAll('.candidate-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.id===id);
+  });
+  const btn = document.getElementById(side+'ConfirmBtn');
+  btn.classList.add('show');
+  btn.disabled = false;
+}
+
+function backToForm(side) {
+  state[side].selectedCandidate = null;
+  document.getElementById(side+'Candidates').style.display = 'none';
+  document.querySelector('#'+side+'Panel .panel-scroll').style.display = '';
+}
+
+// 确认 → 执行轨迹查询
+function confirmTarget(side) {
+  if (!state[side].selectedCandidate) return;
+
+  const type = state[side].type;
+  const candidates = type==='person' ? personCandidates : vehicleCandidates;
+  const selected = candidates.find(c=>c.id===state[side].selectedCandidate);
+
+  showMessage((side==='left'?'目标1':'目标2')+'：已选择「'+selected.name+'」','success');
+
+  // 更新状态
+  state[side].status = 'done';
+  document.getElementById(side+'Status').textContent = '已查询';
+  document.getElementById(side+'Status').className = 'status done';
+
+  // 显示轨迹
+  document.getElementById('trajectory'+(side==='left'?1:2)).style.display = '';
+
+  // 更新空状态和接触点
+  updateEmptyState();
+  checkEncounters();
+}
+
+function updateEmptyState() {
+  const anyDone = state.left.status==='done' || state.right.status==='done';
+  document.getElementById('emptyState').style.display = anyDone ? 'none' : 'flex';
+}
+
+function checkEncounters() {
+  const bothDone = state.left.status==='done' && state.right.status==='done';
+  document.getElementById('encounterLayer').style.display = bothDone ? '' : 'none';
+  document.getElementById('legend2Wrap').style.display = bothDone ? '' : 'none';
+  document.getElementById('legendEncWrap').style.display = bothDone ? '' : 'none';
+  document.getElementById('summaryRow').style.display = bothDone ? '' : 'none';
+
+  if (bothDone) {
+    renderEncounterList();
+    drawOverlapTimeline();
+  }
+}
+
+function renderEncounterList() {
+  const list = document.getElementById('encounterList');
+  document.getElementById('encCount').textContent = encounters.length+' 条';
+  document.getElementById('sumTogether').textContent = encounters.filter(e=>e.type==='together').length;
+  document.getElementById('sumContact').textContent = encounters.filter(e=>e.type==='contact').length;
+  document.getElementById('sumFirst').textContent = encounters[0].time;
+  document.getElementById('sumLast').textContent = encounters[encounters.length-1].time;
+
+  list.innerHTML = encounters.map(e => {
+    const tl = e.type==='together'?'同行':'接触';
+    const tc = e.type==='together'?'together':'contact';
+    return `<div class="enc-item"><div class="enc-item-head"><span class="enc-type ${tc}">${tl}</span><span class="enc-time">${e.time}</span><span class="enc-loc">${e.loc}</span></div><div class="enc-detail">目标1 与 目标2 — ${e.desc}</div></div>`;
+  }).join('');
+}
+
+function drawOverlapTimeline() {
+  const canvas = document.getElementById('overlapCanvas');
+  const wrap = canvas.parentElement;
+  canvas.width = wrap.offsetWidth;
+  canvas.height = wrap.offsetHeight;
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const startMin=540, endMin=720, range=endMin-startMin;
+  ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.font='9px sans-serif';
+  for(let m=startMin;m<=endMin;m+=30){
+    const x=20+((m-startMin)/range)*(W-40);
+    ctx.fillText(String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'),x-12,H-2);
+    ctx.strokeStyle='#f0f0f0'; ctx.lineWidth=.5; ctx.beginPath(); ctx.moveTo(x,8); ctx.lineTo(x,H-12); ctx.stroke();
+  }
+
+  [{color:'#1677ff',y:16},{color:'#ff4d4f',y:36}].forEach((t,i)=>{
+    ctx.fillStyle=t.color+'15'; ctx.fillRect(20,t.y-4,W-40,12);
+    ctx.fillStyle=t.color; ctx.font='9px sans-serif'; ctx.fillText('目标'+(i+1),2,t.y+5);
+  });
+
+  encounters.forEach(e=>{
+    const parts=e.time.split(':');
+    const mins=parseInt(parts[0])*60+parseInt(parts[1]);
+    const x=20+((mins-startMin)/range)*(W-40);
+    ctx.fillStyle='#faad14';
+    ctx.beginPath(); ctx.moveTo(x,8); ctx.lineTo(x-3,4); ctx.lineTo(x+3,4); ctx.closePath(); ctx.fill();
+  });
+}
+
+function showTip(evt,time,loc) {
+  const tip=document.getElementById('mapTip');
+  tip.classList.remove('encounter-tip');
+  document.getElementById('tipTime').textContent=time;
+  document.getElementById('tipLoc').textContent=loc;
+  positionTip(evt,tip);
+}
+function showEncTip(evt,desc,time,loc) {
+  const tip=document.getElementById('mapTip');
+  tip.classList.add('encounter-tip');
+  document.getElementById('tipTime').textContent=desc;
+  document.getElementById('tipLoc').textContent=loc+' | '+time;
+  positionTip(evt,tip);
+}
+function positionTip(evt,tip) {
+  const rect=document.getElementById('mapArea').getBoundingClientRect();
+  let left=evt.clientX-rect.left+12, top=evt.clientY-rect.top-8;
+  if(left+220>rect.width) left=left-240;
+  if(top+50>rect.height) top=top-50;
+  tip.style.left=left+'px'; tip.style.top=top+'px'; tip.style.display='block';
+}
+function hideTip() { document.getElementById('mapTip').style.display='none'; }
+
+function toggleAnalysis() {
+  analysisExpanded = !analysisExpanded;
+  document.getElementById('analysisBody').classList.toggle('collapsed',!analysisExpanded);
+  document.getElementById('analysisArea').style.height = analysisExpanded?'180px':'36px';
+  if(analysisExpanded) setTimeout(drawOverlapTimeline,100);
+}
+
+function exportReport() {
+  showMessage('正在生成对比报告...','info');
+  setTimeout(()=>showMessage('报告已生成','success'),2000);
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  updateEmptyState();
+  window.addEventListener('resize',()=>{ if(analysisExpanded) drawOverlapTimeline(); });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P-001A 人员轨迹查询 - 搜索页</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            /* Ant Design 5.x 浅色主题变量 */
+            --ant-primary: #1677ff;
+            --ant-primary-hover: #4096ff;
+            --ant-primary-active: #0958d9;
+            --ant-primary-bg: #e6f4ff;
+            --ant-primary-border: #91caff;
+
+            --ant-success: #52c41a;
+            --ant-success-bg: #f6ffed;
+            --ant-warning: #faad14;
+            --ant-warning-bg: #fffbe6;
+            --ant-error: #ff4d4f;
+            --ant-error-bg: #fff2f0;
+
+            --ant-bg-layout: #f5f5f5;
+            --ant-bg-container: #ffffff;
+            --ant-bg-elevated: #ffffff;
+            --ant-bg-spotlight: rgba(0, 0, 0, 0.85);
+
+            --ant-text: rgba(0, 0, 0, 0.88);
+            --ant-text-secondary: rgba(0, 0, 0, 0.65);
+            --ant-text-tertiary: rgba(0, 0, 0, 0.45);
+            --ant-text-quaternary: rgba(0, 0, 0, 0.25);
+
+            --ant-border: #d9d9d9;
+            --ant-border-secondary: #f0f0f0;
+
+            --ant-radius: 6px;
+            --ant-radius-lg: 8px;
+            --ant-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+            --ant-shadow-lg: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+            background: var(--ant-bg-layout);
+            color: var(--ant-text);
+            font-size: 14px;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 布局 */
+        .ant-layout {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 左侧导航 - Ant Design Sider */
+        .ant-layout-sider {
+            width: 208px;
+            background: var(--ant-bg-container);
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-right: 1px solid var(--ant-border-secondary);
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .ant-layout-sider-logo {
+            height: 56px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ant-text);
+            border-bottom: 1px solid var(--ant-border-secondary);
+            gap: 8px;
+        }
+
+        .ant-layout-sider-logo svg {
+            width: 22px; height: 22px;
+            color: var(--ant-primary);
+        }
+
+        /* Ant Design Menu */
+        .ant-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .ant-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 40px;
+            padding: 0 16px;
+            margin: 4px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: var(--ant-text);
+        }
+
+        .ant-menu-item:hover {
+            background: rgba(0,0,0,0.06);
+        }
+
+        .ant-menu-item-selected {
+            background: var(--ant-primary-bg);
+            color: var(--ant-primary);
+        }
+
+        /* 主内容区 */
+        .ant-layout-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 顶部栏 - Ant Design Header */
+        .ant-layout-header {
+            height: 56px;
+            background: var(--ant-bg-container);
+            border-bottom: 1px solid var(--ant-border-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            flex-shrink: 0;
+        }
+
+        /* Ant Design Breadcrumb */
+        .ant-breadcrumb {
+            font-size: 14px;
+            color: var(--ant-text-tertiary);
+        }
+
+        .ant-breadcrumb .ant-breadcrumb-separator {
+            margin: 0 6px;
+            color: var(--ant-text-quaternary);
+        }
+
+        .ant-breadcrumb .ant-breadcrumb-link:last-child {
+            color: var(--ant-text);
+            font-weight: 500;
+        }
+
+        .ant-breadcrumb .ant-breadcrumb-link {
+            color: var(--ant-text-tertiary);
+            transition: color 0.2s;
+        }
+
+        .ant-breadcrumb .ant-breadcrumb-link:hover {
+            color: var(--ant-primary);
+        }
+
+        .ant-header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Ant Design Icon Button */
+        .ant-btn-icon {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            color: var(--ant-text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .ant-btn-icon:hover {
+            background: var(--ant-primary-bg);
+            color: var(--ant-primary);
+        }
+
+        .ant-badge {
+            position: absolute; top: -2px; right: -2px;
+            min-width: 14px; height: 14px;
+            background: var(--ant-error);
+            border-radius: 7px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            padding: 0 4px;
+            line-height: 1;
+        }
+
+        .ant-avatar {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: var(--ant-primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 600; color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ant-avatar:hover {
+            box-shadow: 0 0 0 2px var(--ant-primary-bg);
+        }
+
+        /* 内容区 */
+        .ant-layout-content-main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+        }
+
+        /* Ant Design Card */
+        .ant-card {
+            background: var(--ant-bg-container);
+            border-radius: var(--ant-radius-lg);
+            border: 1px solid var(--ant-border-secondary);
+            margin-bottom: 16px;
+            box-shadow: var(--ant-shadow);
+        }
+
+        .ant-card-head {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--ant-border-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ant-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ant-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Ant Design Tag */
+        .ant-tag {
+            font-size: 12px;
+            padding: 2px 8px;
+            background: var(--ant-primary-bg);
+            color: var(--ant-primary);
+            border-radius: var(--ant-radius);
+            font-weight: 400;
+            border: 1px solid var(--ant-primary-border);
+            line-height: 1.5;
+        }
+
+        .ant-card-body {
+            padding: 20px;
+        }
+
+        /* Ant Design Tabs */
+        .ant-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--ant-border-secondary);
+        }
+
+        .ant-tabs-tab {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            color: var(--ant-text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ant-tabs-tab:hover { color: var(--ant-primary); }
+
+        .ant-tabs-tab-active {
+            color: var(--ant-primary);
+            border-bottom-color: var(--ant-primary);
+        }
+
+        /* Ant Design Form */
+        .ant-form {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px 24px;
+        }
+
+        .ant-form-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .ant-form-item-full-width {
+            grid-column: 1 / -1;
+        }
+
+        .ant-form-item-half-width {
+            grid-column: span 2;
+        }
+
+        .ant-form-label {
+            font-size: 13px;
+            color: var(--ant-text-secondary);
+            font-weight: 500;
+        }
+
+        .ant-form-label .ant-form-item-required {
+            color: var(--ant-error);
+            margin-left: 2px;
+        }
+
+        .ant-form-label .ant-form-item-hint {
+            font-weight: 400;
+            color: var(--ant-text-tertiary);
+            font-size: 12px;
+            margin-left: 6px;
+        }
+
+        /* Ant Design Input */
+        .ant-input,
+        .ant-select {
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid var(--ant-border);
+            border-radius: var(--ant-radius);
+            font-size: 13px;
+            color: var(--ant-text);
+            outline: none;
+            transition: all 0.2s;
+            font-family: inherit;
+            background: var(--ant-bg-container);
+        }
+
+        .ant-input:focus,
+        .ant-select:focus {
+            border-color: var(--ant-primary);
+            box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+        }
+
+        .ant-input:hover,
+        .ant-select:hover {
+            border-color: var(--ant-primary);
+        }
+
+        .ant-input::placeholder {
+            color: var(--ant-text-quaternary);
+        }
+
+        .ant-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300000040' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
+        }
+
+        /* 时间范围 */
+        .ant-time-range {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ant-time-range .ant-input {
+            flex: 1;
+        }
+
+        .ant-time-separator {
+            color: var(--ant-text-tertiary);
+            font-size: 13px;
+        }
+
+        /* Ant Design Tag Group (Quick Tags) */
+        .ant-tag-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .ant-tag-checkable {
+            padding: 4px 12px;
+            border: 1px solid var(--ant-border);
+            background: var(--ant-bg-container);
+            color: var(--ant-text-secondary);
+            border-radius: var(--ant-radius);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ant-tag-checkable:hover {
+            border-color: var(--ant-primary);
+            color: var(--ant-primary);
+        }
+
+        .ant-tag-checkable-checked {
+            background: var(--ant-primary);
+            border-color: var(--ant-primary);
+            color: #fff;
+        }
+
+        /* Ant Design Upload */
+        .ant-upload {
+            border: 1px dashed var(--ant-border);
+            border-radius: var(--ant-radius);
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--ant-bg-layout);
+        }
+
+        .ant-upload:hover {
+            border-color: var(--ant-primary);
+            background: var(--ant-primary-bg);
+        }
+
+        .ant-upload-has-files {
+            border-style: solid;
+            border-color: var(--ant-border-secondary);
+            padding: 16px;
+            text-align: left;
+        }
+
+        .ant-upload-default .ant-upload-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: var(--ant-text-tertiary);
+        }
+
+        .ant-upload-default .ant-upload-text {
+            font-size: 14px;
+            color: var(--ant-text);
+            margin-bottom: 4px;
+        }
+
+        .ant-upload-default .ant-upload-hint {
+            font-size: 12px;
+            color: var(--ant-text-tertiary);
+        }
+
+        .ant-upload-list {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .ant-upload-list-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: var(--ant-radius);
+            overflow: hidden;
+            border: 1px solid var(--ant-border-secondary);
+            background: var(--ant-bg-container);
+        }
+
+        .ant-upload-list-item img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+
+        .ant-upload-list-item .ant-upload-list-item-remove {
+            position: absolute; top: 2px; right: 2px;
+            width: 18px; height: 18px;
+            background: var(--ant-error);
+            border: none; border-radius: 50%;
+            color: #fff; font-size: 12px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.2s;
+        }
+
+        .ant-upload-list-item:hover .ant-upload-list-item-remove { opacity: 1; }
+
+        .ant-upload-list-item .ant-upload-list-item-status {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 2px 4px;
+            font-size: 10px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .ant-upload-list-item-status-success {
+            background: var(--ant-success);
+            color: #fff;
+        }
+
+        .ant-upload-list-item-status-warning {
+            background: var(--ant-warning);
+            color: #fff;
+        }
+
+        .ant-upload-add {
+            width: 80px; height: 80px;
+            border: 1px dashed var(--ant-border);
+            border-radius: var(--ant-radius);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            color: var(--ant-text-tertiary);
+            font-size: 24px;
+            transition: all 0.2s;
+            background: var(--ant-bg-container);
+        }
+
+        .ant-upload-add:hover {
+            border-color: var(--ant-primary);
+            color: var(--ant-primary);
+            background: var(--ant-primary-bg);
+        }
+
+        .ant-upload-tip {
+            margin-top: 8px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .ant-upload-tip-show { display: block; }
+        .ant-upload-tip-success { color: var(--ant-success); }
+        .ant-upload-tip-warning { color: var(--ant-warning); }
+
+        /* Ant Design Color Picker */
+        .ant-color-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .ant-color-block {
+            width: 28px; height: 28px;
+            border-radius: var(--ant-radius);
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .ant-color-block:hover,
+        .ant-color-block-selected {
+            border-color: var(--ant-primary);
+            transform: scale(1.1);
+            box-shadow: 0 0 0 2px var(--ant-primary-bg);
+        }
+
+        .ant-color-block[data-color="black"] { background: #1a1a1a; }
+        .ant-color-block[data-color="white"] { background: #f5f5f5; border-color: var(--ant-border); }
+        .ant-color-block[data-color="red"] { background: #ef4444; }
+        .ant-color-block[data-color="blue"] { background: #3b82f6; }
+        .ant-color-block[data-color="yellow"] { background: #eab308; }
+        .ant-color-block[data-color="green"] { background: #22c55e; }
+        .ant-color-block[data-color="gray"] { background: #6b7280; }
+
+        /* Ant Design Button */
+        .ant-btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--ant-border-secondary);
+        }
+
+        .ant-btn {
+            height: 36px;
+            padding: 0 20px;
+            border-radius: var(--ant-radius);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+
+        .ant-btn-primary {
+            background: var(--ant-primary);
+            color: #fff;
+            border-color: var(--ant-primary);
+        }
+
+        .ant-btn-primary:hover:not(:disabled) {
+            background: var(--ant-primary-hover);
+            border-color: var(--ant-primary-hover);
+        }
+
+        .ant-btn-primary:active:not(:disabled) {
+            background: var(--ant-primary-active);
+            border-color: var(--ant-primary-active);
+        }
+
+        .ant-btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .ant-btn-default {
+            background: var(--ant-bg-container);
+            color: var(--ant-text);
+            border-color: var(--ant-border);
+        }
+
+        .ant-btn-default:hover {
+            color: var(--ant-primary);
+            border-color: var(--ant-primary);
+        }
+
+        .ant-btn-text {
+            background: transparent;
+            color: var(--ant-text-secondary);
+            border: none;
+            padding: 0 12px;
+        }
+
+        .ant-btn-text:hover {
+            color: var(--ant-primary);
+            background: var(--ant-primary-bg);
+        }
+
+        /* 历史记录 */
+        .ant-history-section {
+            margin-top: 16px;
+        }
+
+        .ant-history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .ant-history-title {
+            font-size: 13px;
+            color: var(--ant-text-tertiary);
+            font-weight: 500;
+        }
+
+        .ant-history-clear {
+            font-size: 12px;
+            color: var(--ant-error);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .ant-history-clear:hover {
+            color: #ff7875;
+        }
+
+        .ant-history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .ant-history-chip {
+            padding: 6px 12px;
+            background: var(--ant-bg-container);
+            border: 1px solid var(--ant-border-secondary);
+            border-radius: var(--ant-radius);
+            font-size: 12px;
+            color: var(--ant-text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ant-history-chip:hover {
+            border-color: var(--ant-primary);
+            color: var(--ant-primary);
+            background: var(--ant-primary-bg);
+        }
+
+        .ant-history-chip .ant-history-chip-type {
+            font-size: 10px;
+            padding: 1px 5px;
+            background: var(--ant-primary);
+            color: #fff;
+            border-radius: 2px;
+        }
+
+        /* Ant Design Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="ant-layout">
+        <!-- 左侧导航 -->
+        <div class="ant-layout-sider">
+            <div class="ant-menu">
+                <div style="padding: 12px 16px 8px; font-size: 12px; color: var(--ant-text-tertiary); font-weight: 600;">
+                    <i class="fa-solid fa-route" style="margin-right: 6px;"></i>轨迹查询
+                </div>
+                <a href="search.html" class="ant-menu-item ant-menu-item-selected">
+                    <i class="fa-solid fa-person"></i>人员轨迹查询
+                </a>
+                <a href="vehicle-search.html" class="ant-menu-item">
+                    <i class="fa-solid fa-car"></i>车辆轨迹查询
+                </a>
+                <a href="compare.html" class="ant-menu-item">
+                    <i class="fa-solid fa-users-viewfinder"></i>多目标对比
+                </a>
+
+                <div style="padding: 12px 16px 8px; font-size: 12px; color: var(--ant-text-tertiary); font-weight: 600; margin-top: 8px;">
+                    <i class="fa-solid fa-shield-halved" style="margin-right: 6px;"></i>布控管理
+                </div>
+                <a href="../ops-monitor/list.html" class="ant-menu-item">
+                    <i class="fa-solid fa-crosshairs"></i>布控任务
+                </a>
+                <a href="../ops-monitor/library.html" class="ant-menu-item">
+                    <i class="fa-solid fa-database"></i>目标库
+                </a>
+                <a href="../ops-monitor/alerts.html" class="ant-menu-item">
+                    <i class="fa-solid fa-bell"></i>布控告警
+                </a>
+            </div>
+        </div>
+
+        <!-- 主内容 -->
+        <div class="ant-layout-content">
+            <div class="ant-layout-content-main">
+                <!-- 搜索表单 -->
+                <div class="ant-card">
+                    <div class="ant-card-head">
+                        <div class="ant-card-title">
+                            查询条件
+                            <span class="ant-tag" id="modeTag">以图搜人</span>
+                        </div>
+                    </div>
+                    <div class="ant-card-body">
+                        <!-- 查询模式 -->
+                        <div class="ant-tabs">
+                            <button class="ant-tabs-tab ant-tabs-tab-active" onclick="switchMode('image')">
+                                <i class="fa-solid fa-image"></i>以图搜人
+                            </button>
+                            <button class="ant-tabs-tab" onclick="switchMode('condition')">
+                                <i class="fa-solid fa-sliders"></i>条件检索
+                            </button>
+                        </div>
+
+                        <!-- 以图搜人 -->
+                        <div id="imageForm">
+                            <div class="ant-form">
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">时间范围 <span class="ant-form-item-required">*</span></label>
+                                    <div class="ant-tag-group">
+                                        <button class="ant-tag-checkable ant-tag-checkable-checked" onclick="setQuickTime(this, '1h')">近1小时</button>
+                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '6h')">近6小时</button>
+                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '24h')">近24小时</button>
+                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '7d')">近7天</button>
+                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '30d')">近30天</button>
+                                    </div>
+                                    <div class="ant-time-range">
+                                        <input type="datetime-local" class="ant-input" id="startTime">
+                                        <span class="ant-time-separator">至</span>
+                                        <input type="datetime-local" class="ant-input" id="endTime">
+                                    </div>
+                                </div>
+
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">地点范围</label>
+                                    <select class="ant-select" id="locationSelect">
+                                        <option value="">全部区域</option>
+                                        <option value="a">A栋</option>
+                                        <option value="b">B栋</option>
+                                        <option value="c">C栋</option>
+                                    </select>
+                                </div>
+
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">置信度阈值</label>
+                                    <select class="ant-select">
+                                        <option value="80">≥ 80%</option>
+                                        <option value="85">≥ 85%</option>
+                                        <option value="90" selected>≥ 90%</option>
+                                        <option value="95">≥ 95%</option>
+                                    </select>
+                                </div>
+
+                                <div class="ant-form-item ant-form-item-full-width">
+                                    <label class="ant-form-label">
+                                        上传人脸照片 <span class="ant-form-item-required">*</span>
+                                        <span class="ant-form-item-hint">最多3张，系统将自动选取最优人脸进行比对</span>
+                                    </label>
+                                    <div class="ant-upload" id="uploadBox" onclick="document.getElementById('fileInput').click()">
+                                        <div class="ant-upload-default" id="uploadDefault">
+                                            <div class="ant-upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                                            <div class="ant-upload-text">点击或拖拽上传人脸照片</div>
+                                            <div class="ant-upload-hint">支持 JPG、PNG 格式，最多3张，单张不超过 5MB</div>
+                                        </div>
+                                        <div class="ant-upload-list" id="previewList" style="display:none;"></div>
+                                    </div>
+                                    <input type="file" id="fileInput" accept="image/jpeg,image/png" multiple onchange="handleFiles(event)" style="display:none;">
+                                    <div class="ant-upload-tip" id="uploadTip"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 条件检索 -->
+                        <div id="conditionForm" style="display:none;">
+                            <div class="ant-form">
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">性别</label>
+                                    <select class="ant-select">
+                                        <option value="">全部</option>
+                                        <option value="male">男</option>
+                                        <option value="female">女</option>
+                                    </select>
+                                </div>
+                                <div class="ant-form-item ant-form-item-half-width">
+                                    <label class="ant-form-label">上衣颜色</label>
+                                    <div class="ant-color-options">
+                                        <div class="ant-color-block" data-color="black" onclick="selectColor(this)"></div>
+                                        <div class="ant-color-block" data-color="white" onclick="selectColor(this)"></div>
+                                        <div class="ant-color-block" data-color="red" onclick="selectColor(this)"></div>
+                                        <div class="ant-color-block" data-color="blue" onclick="selectColor(this)"></div>
+                                        <div class="ant-color-block" data-color="yellow" onclick="selectColor(this)"></div>
+                                        <div class="ant-color-block" data-color="green" onclick="selectColor(this)"></div>
+                                        <div class="ant-color-block" data-color="gray" onclick="selectColor(this)"></div>
+                                    </div>
+                                </div>
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">时间范围 <span class="ant-form-item-required">*</span></label>
+                                    <div class="ant-tag-group">
+                                        <button class="ant-tag-checkable ant-tag-checkable-checked" onclick="setQuickTime(this, '1h')">近1小时</button>
+                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '6h')">近6小时</button>
+                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '24h')">近24小时</button>
+                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '7d')">近7天</button>
+                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '30d')">近30天</button>
+                                    </div>
+                                    <div class="ant-time-range">
+                                        <input type="datetime-local" class="ant-input" id="cStartTime">
+                                        <span class="ant-time-separator">至</span>
+                                        <input type="datetime-local" class="ant-input" id="cEndTime">
+                                    </div>
+                                </div>
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">地点范围</label>
+                                    <select class="ant-select">
+                                        <option value="">全部区域</option>
+                                        <option value="a">A栋</option>
+                                        <option value="b">B栋</option>
+                                        <option value="c">C栋</option>
+                                    </select>
+                                </div>
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">置信度阈值</label>
+                                    <select class="ant-select">
+                                        <option value="80">≥ 80%</option>
+                                        <option value="85">≥ 85%</option>
+                                        <option value="90" selected>≥ 90%</option>
+                                        <option value="95">≥ 95%</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 操作按钮 -->
+                        <div class="ant-btn-group">
+                            <button class="ant-btn ant-btn-text" onclick="resetForm()">🔄 重置</button>
+                            <button class="ant-btn ant-btn-default" onclick="saveTemplate()">💾 保存为模板</button>
+                            <button class="ant-btn ant-btn-primary" id="queryBtn" onclick="doQuery()" disabled>
+                                <i class="fa-solid fa-magnifying-glass"></i>查询
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 历史记录 -->
+                <div class="ant-history-section">
+                    <div class="ant-history-header">
+                        <span class="ant-history-title">最近查询</span>
+                        <span class="ant-history-clear" onclick="clearHistory()">清空</span>
+                    </div>
+                    <div class="ant-history-list" id="historyList">
+                        <div class="ant-history-chip" onclick="loadHistory('image')">
+                            <span class="ant-history-chip-type">以图</span>
+                            近24小时 · 全部区域 · 置信度≥90%
+                        </div>
+                        <div class="ant-history-chip" onclick="loadHistory('condition')">
+                            <span class="ant-history-chip-type">条件</span>
+                            男性 · 黑色上衣 · 近7天
+                        </div>
+                        <div class="ant-history-chip" onclick="loadHistory('image')">
+                            <span class="ant-history-chip-type">以图</span>
+                            近1小时 · 全部区域 · 置信度≥95%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'image';
+        let files = [];
+
+        function initTime() {
+            const now = new Date('2026-05-29T23:59:00');
+            const start = new Date(now);
+            start.setHours(start.getHours() - 1);
+            const fmt = d => {
+                const p = n => n.toString().padStart(2, '0');
+                return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+            };
+            document.getElementById('startTime').value = fmt(start);
+            document.getElementById('endTime').value = fmt(now);
+            document.getElementById('cStartTime').value = fmt(start);
+            document.getElementById('cEndTime').value = fmt(now);
+        }
+        initTime();
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.ant-tabs-tab').forEach(b => b.classList.remove('ant-tabs-tab-active'));
+            event.target.closest('.ant-tabs-tab').classList.add('ant-tabs-tab-active');
+            document.getElementById('modeTag').textContent = mode === 'image' ? '以图搜人' : '条件检索';
+
+            if (mode === 'image') {
+                document.getElementById('imageForm').style.display = 'block';
+                document.getElementById('conditionForm').style.display = 'none';
+            } else {
+                document.getElementById('imageForm').style.display = 'none';
+                document.getElementById('conditionForm').style.display = 'block';
+            }
+            updateQueryBtn();
+        }
+
+        function handleFiles(e) {
+            const newFiles = Array.from(e.target.files);
+            const remain = 3 - files.length;
+            if (newFiles.length > remain) {
+                showTip('最多只能上传3张照片', 'warning');
+                return;
+            }
+            newFiles.forEach(file => {
+                if (file.size > 5 * 1024 * 1024) {
+                    showTip(`"${file.name}" 超过5MB限制`, 'warning');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    files.push({ name: file.name, src: ev.target.result, ok: Math.random() > 0.3 });
+                    updatePreview();
+                    updateQueryBtn();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function updatePreview() {
+            const box = document.getElementById('uploadBox');
+            const def = document.getElementById('uploadDefault');
+            const list = document.getElementById('previewList');
+
+            if (files.length > 0) {
+                box.classList.add('ant-upload-has-files');
+                def.style.display = 'none';
+                list.style.display = 'flex';
+
+                list.innerHTML = files.map((f, i) => `
+                    <div class="ant-upload-list-item">
+                        <img src="${f.src}" alt="${f.name}">
+                        <button class="ant-upload-list-item-remove" onclick="removeFile(${i})">×</button>
+                        <div class="ant-upload-list-item-status ant-upload-list-item-status-${f.ok ? 'success' : 'warning'}">${f.ok ? '人脸有效' : '质量较低'}</div>
+                    </div>
+                `).join('') + (files.length < 3 ? `
+                    <div class="ant-upload-add" onclick="document.getElementById('fileInput').click()">+</div>
+                ` : '');
+
+                const allOk = files.every(f => f.ok);
+                showTip(allOk ? `已上传 ${files.length} 张照片，检测到有效人脸` : '部分照片人脸质量较低，建议重新上传清晰正面照', allOk ? 'success' : 'warning');
+            } else {
+                box.classList.remove('ant-upload-has-files');
+                def.style.display = 'block';
+                list.style.display = 'none';
+                document.getElementById('uploadTip').classList.remove('ant-upload-tip-show');
+            }
+        }
+
+        function removeFile(i) {
+            files.splice(i, 1);
+            updatePreview();
+            updateQueryBtn();
+        }
+
+        function showTip(text, type) {
+            const tip = document.getElementById('uploadTip');
+            tip.textContent = text;
+            tip.className = 'ant-upload-tip ant-upload-tip-' + type + ' ant-upload-tip-show';
+        }
+
+        function updateQueryBtn() {
+            document.getElementById('queryBtn').disabled = currentMode === 'image' && files.length === 0;
+        }
+
+        function setQuickTime(el, type) {
+            el.parentElement.querySelectorAll('.ant-tag-checkable').forEach(t => t.classList.remove('ant-tag-checkable-checked'));
+            el.classList.add('ant-tag-checkable-checked');
+
+            const now = new Date('2026-05-29T23:59:00');
+            const start = new Date(now);
+            switch(type) {
+                case '1h': start.setHours(start.getHours() - 1); break;
+                case '6h': start.setHours(start.getHours() - 6); break;
+                case '24h': start.setHours(start.getHours() - 24); break;
+                case '7d': start.setDate(start.getDate() - 7); break;
+                case '30d': start.setDate(start.getDate() - 30); break;
+            }
+            const fmt = d => {
+                const p = n => n.toString().padStart(2, '0');
+                return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+            };
+
+            const parent = el.closest('.ant-form-item');
+            const inputs = parent.querySelectorAll('.ant-input');
+            inputs[0].value = fmt(start);
+            inputs[1].value = fmt(now);
+        }
+
+        document.querySelectorAll('.ant-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const tags = this.closest('.ant-form-item').querySelectorAll('.ant-tag-checkable');
+                tags.forEach(t => t.classList.remove('ant-tag-checkable-checked'));
+            });
+        });
+
+        function selectColor(block) {
+            block.parentElement.querySelectorAll('.ant-color-block').forEach(b => b.classList.remove('ant-color-block-selected'));
+            block.classList.add('ant-color-block-selected');
+        }
+
+        function resetForm() {
+            files = [];
+            updatePreview();
+            document.querySelectorAll('.ant-input').forEach(i => i.value = '');
+            document.querySelectorAll('.ant-select').forEach(s => s.selectedIndex = 0);
+            document.querySelectorAll('.ant-tag-checkable').forEach((t, i) => t.classList.toggle('ant-tag-checkable-checked', i === 0));
+            document.querySelectorAll('.ant-color-block').forEach(b => b.classList.remove('ant-color-block-selected'));
+            initTime();
+            updateQueryBtn();
+        }
+
+        function saveTemplate() {
+            alert('查询条件已保存为模板');
+        }
+
+        function doQuery() {
+            window.location.href = 'result.html';
+        }
+
+        function clearHistory() {
+            document.getElementById('historyList').innerHTML = '';
+        }
+
+        function loadHistory(type) {
+            if (type === 'image') {
+                document.querySelectorAll('.ant-tabs-tab')[0].click();
+            } else {
+                document.querySelectorAll('.ant-tabs-tab')[1].click();
+            }
+        }
+    </script>
+</body>
+</html>

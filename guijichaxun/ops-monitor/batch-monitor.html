@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>批量布控 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ===== Ant Design 5.x 浅色主题变量 ===== */
+    :root {
+      --ant-primary: #1677ff;
+      --ant-primary-hover: #4096ff;
+      --ant-primary-active: #0958d9;
+      --ant-bg: #f5f5f5;
+      --ant-bg-container: #fff;
+      --ant-bg-elevated: #fff;
+      --ant-text: rgba(0,0,0,0.88);
+      --ant-text-secondary: rgba(0,0,0,0.65);
+      --ant-text-tertiary: rgba(0,0,0,0.45);
+      --ant-text-quaternary: rgba(0,0,0,0.25);
+      --ant-border-secondary: #f0f0f0;
+      --ant-border-color: #d9d9d9;
+      --ant-success: #52c41a;
+      --ant-warning: #faad14;
+      --ant-danger: #ff4d4f;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      font-size: 14px;
+      color: var(--ant-text);
+      background: var(--ant-bg);
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--ant-bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+
+    /* ===== 遮罩层 ===== */
+    .modal-mask {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.45);
+      display: flex; align-items: flex-start; justify-content: center;
+      padding-top: 60px;
+      overflow-y: auto;
+    }
+
+    /* ===== Modal ===== */
+    .modal-box {
+      width: 700px; max-width: 95vw;
+      background: var(--ant-bg-container);
+      border-radius: var(--radius-md);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08), 0 3px 6px rgba(0,0,0,0.05);
+      display: flex; flex-direction: column;
+      max-height: calc(100vh - 120px);
+      margin-bottom: 40px;
+      animation: modalIn 0.25s ease-out;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--ant-border-secondary);
+      flex-shrink: 0;
+    }
+    .modal-header h2 {
+      font-size: 16px; font-weight: 600; color: var(--ant-text); margin: 0;
+    }
+    .modal-close {
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      border: none; background: transparent; cursor: pointer;
+      border-radius: var(--radius-sm); color: var(--ant-text-tertiary);
+      font-size: 14px; transition: all 0.2s;
+    }
+    .modal-close:hover { background: rgba(0,0,0,0.06); color: var(--ant-text); }
+
+    .modal-body {
+      padding: 20px 24px;
+      overflow-y: auto; flex: 1;
+    }
+    .modal-footer {
+      display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+      padding: 12px 24px;
+      border-top: 1px solid var(--ant-border-secondary);
+      flex-shrink: 0;
+    }
+
+    /* ===== Buttons ===== */
+    .ant-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      height: 32px; padding: 0 15px; font-size: 14px;
+      border: 1px solid var(--ant-border-color); border-radius: var(--radius-sm);
+      background: #fff; color: var(--ant-text); cursor: pointer;
+      transition: all 0.2s; white-space: nowrap; line-height: 1;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.02);
+    }
+    .ant-btn:hover { border-color: var(--ant-primary); color: var(--ant-primary); }
+    .ant-btn-primary {
+      background: var(--ant-primary); border-color: var(--ant-primary); color: #fff;
+      box-shadow: 0 2px 0 rgba(5,145,255,0.1);
+    }
+    .ant-btn-primary:hover { background: var(--ant-primary-hover); border-color: var(--ant-primary-hover); color: #fff; }
+    .ant-btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+    .ant-btn-link {
+      border: none; background: transparent; color: var(--ant-primary);
+      padding: 0 4px; height: auto; box-shadow: none;
+    }
+    .ant-btn-link:hover { color: var(--ant-primary-hover); }
+    .ant-btn-link.danger { color: var(--ant-danger); }
+    .ant-btn-link.danger:hover { color: #ff7875; }
+    .ant-btn-outline-primary {
+      background: #fff; border-color: var(--ant-primary); color: var(--ant-primary);
+    }
+    .ant-btn-outline-primary:hover {
+      background: rgba(22,119,255,0.06); border-color: var(--ant-primary-hover); color: var(--ant-primary-hover);
+    }
+
+    /* ===== Tags ===== */
+    .ant-tag {
+      display: inline-flex; align-items: center; height: 22px;
+      padding: 0 8px; font-size: 12px; border-radius: var(--radius-sm);
+      border: 1px solid; white-space: nowrap; line-height: 1;
+    }
+    .ant-tag-green { background: #f6ffed; border-color: #b7eb8f; color: #389e0d; }
+    .ant-tag-blue { background: #e6f4ff; border-color: #91caff; color: #1677ff; }
+    .ant-tag-gray { background: #f5f5f5; border-color: #d9d9d9; color: var(--ant-text-tertiary); }
+    .ant-tag-orange { background: #fff7e6; border-color: #ffd591; color: #d46b08; }
+    .ant-tag-red { background: #fff2f0; border-color: #ffccc7; color: #cf1322; }
+
+    /* ===== Radio / Checkbox ===== */
+    .ant-radio-group { display: inline-flex; gap: 0; }
+    .ant-radio-wrapper {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; font-size: 14px; cursor: pointer;
+      border: 1px solid var(--ant-border-color); border-radius: var(--radius-sm);
+      background: #fff; color: var(--ant-text);
+      transition: all 0.2s; user-select: none; height: 32px;
+    }
+    .ant-radio-wrapper:not(:first-child) { margin-left: -1px; }
+    .ant-radio-wrapper:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+    .ant-radio-wrapper:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+    .ant-radio-wrapper:hover { color: var(--ant-primary); border-color: var(--ant-primary); z-index: 1; position: relative; }
+    .ant-radio-wrapper.checked {
+      background: #e6f4ff; border-color: var(--ant-primary); color: var(--ant-primary); z-index: 1; position: relative;
+    }
+    .ant-radio-wrapper input[type="radio"] { display: none; }
+
+    .ant-checkbox-wrapper {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 14px; cursor: pointer; color: var(--ant-text);
+      user-select: none;
+    }
+    .ant-checkbox-wrapper input[type="checkbox"] {
+      width: 16px; height: 16px; accent-color: var(--ant-primary);
+      cursor: pointer;
+    }
+
+    /* ===== Form Items ===== */
+    .form-item { margin-bottom: 16px; }
+    .form-item:last-child { margin-bottom: 0; }
+    .form-label {
+      display: block; font-size: 14px; color: var(--ant-text); margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .form-label .required { color: var(--ant-danger); margin-left: 2px; }
+
+    .ant-input, .ant-select, .ant-textarea {
+      height: 32px; padding: 4px 11px; font-size: 14px;
+      border: 1px solid var(--ant-border-color); border-radius: var(--radius-sm);
+      background: #fff; color: var(--ant-text); outline: none;
+      transition: all 0.2s; width: 100%; line-height: 1.5;
+      font-family: inherit;
+    }
+    .ant-input:focus, .ant-select:focus, .ant-textarea:focus {
+      border-color: var(--ant-primary);
+      box-shadow: 0 0 0 2px rgba(22,119,255,0.1);
+    }
+    .ant-input::placeholder, .ant-textarea::placeholder { color: var(--ant-text-quaternary); }
+    .ant-textarea { height: auto; min-height: 64px; resize: vertical; }
+    .ant-select {
+      appearance: none; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2300000040' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
+      padding-right: 28px;
+    }
+
+    /* ===== Slider ===== */
+    .slider-wrap { display: flex; align-items: center; gap: 12px; }
+    .slider-wrap input[type="range"] {
+      flex: 1; height: 6px; appearance: none;
+      background: #e6e6e6; border-radius: 3px; outline: none;
+    }
+    .slider-wrap input[type="range"]::-webkit-slider-thumb {
+      appearance: none; width: 16px; height: 16px;
+      background: var(--ant-primary); border-radius: 50%;
+      border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+      cursor: pointer;
+    }
+    .slider-value {
+      min-width: 48px; text-align: center; font-size: 14px;
+      font-weight: 600; color: var(--ant-primary);
+    }
+
+    /* ===== Upload area ===== */
+    .upload-area {
+      border: 1px dashed var(--ant-border-color); border-radius: var(--radius-sm);
+      padding: 20px; text-align: center; cursor: pointer;
+      transition: all 0.2s; background: #fafafa;
+    }
+    .upload-area:hover { border-color: var(--ant-primary); background: #e6f4ff; }
+    .upload-area i { font-size: 28px; color: var(--ant-text-quaternary); margin-bottom: 8px; }
+    .upload-area p { color: var(--ant-text-secondary); font-size: 14px; }
+    .upload-area .hint { font-size: 12px; color: var(--ant-text-tertiary); margin-top: 4px; }
+
+    /* ===== Targets Table ===== */
+    .targets-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .targets-table th {
+      padding: 10px 12px; text-align: left; font-weight: 600;
+      color: var(--ant-text); background: #fafafa;
+      border-bottom: 1px solid var(--ant-border-secondary); white-space: nowrap;
+    }
+    .targets-table td {
+      padding: 10px 12px; border-bottom: 1px solid var(--ant-border-secondary);
+      vertical-align: middle;
+    }
+    .targets-table tbody tr:hover { background: rgba(22,119,255,0.03); }
+    .targets-table .thumb {
+      width: 36px; height: 36px; border-radius: var(--radius-sm);
+      background: #f0f0f0; display: flex; align-items: center; justify-content: center;
+      color: var(--ant-text-quaternary); font-size: 16px; overflow: hidden;
+    }
+    .targets-table .thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* ===== Section divider ===== */
+    .section-title {
+      font-size: 14px; font-weight: 600; color: var(--ant-text);
+      padding-bottom: 12px; border-bottom: 1px solid var(--ant-border-secondary);
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-title i { color: var(--ant-primary); font-size: 13px; }
+
+    /* ===== Multi-select dropdown (mock) ===== */
+    .multi-select {
+      border: 1px solid var(--ant-border-color); border-radius: var(--radius-sm);
+      min-height: 32px; padding: 4px 8px; display: flex; flex-wrap: wrap; gap: 4px;
+      cursor: pointer; transition: all 0.2s; background: #fff; position: relative;
+      align-items: center;
+    }
+    .multi-select:focus-within, .multi-select.open {
+      border-color: var(--ant-primary);
+      box-shadow: 0 0 0 2px rgba(22,119,255,0.1);
+    }
+    .multi-select .placeholder { color: var(--ant-text-quaternary); font-size: 14px; }
+    .multi-select .selected-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #f0f0f0; border-radius: var(--radius-sm);
+      padding: 2px 8px; font-size: 12px; color: var(--ant-text);
+    }
+    .multi-select .selected-tag .remove {
+      cursor: pointer; color: var(--ant-text-tertiary); font-size: 10px;
+    }
+    .multi-select .selected-tag .remove:hover { color: var(--ant-danger); }
+    .multi-select .arrow {
+      margin-left: auto; color: var(--ant-text-quaternary); font-size: 10px;
+      padding-left: 8px;
+    }
+    .dropdown-menu {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: #fff; border-radius: var(--radius-sm);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08), 0 3px 6px rgba(0,0,0,0.05);
+      z-index: 50; display: none; max-height: 200px; overflow-y: auto;
+      border: 1px solid var(--ant-border-secondary);
+    }
+    .dropdown-menu.show { display: block; }
+    .dropdown-item {
+      padding: 8px 12px; font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      transition: background 0.15s;
+    }
+    .dropdown-item:hover { background: rgba(22,119,255,0.06); }
+    .dropdown-item.selected { color: var(--ant-primary); }
+    .dropdown-item input[type="checkbox"] { accent-color: var(--ant-primary); }
+
+    /* ===== Target library modal (mock overlay) ===== */
+    .lib-overlay {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lib-box {
+      width: 560px; max-width: 90vw; background: #fff;
+      border-radius: var(--radius-md);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      animation: modalIn 0.2s ease-out;
+    }
+    .lib-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; border-bottom: 1px solid var(--ant-border-secondary);
+    }
+    .lib-header h3 { font-size: 15px; font-weight: 600; }
+    .lib-body { padding: 16px 20px; }
+    .lib-footer {
+      display: flex; justify-content: flex-end; gap: 8px;
+      padding: 12px 20px; border-top: 1px solid var(--ant-border-secondary);
+    }
+    .lib-search {
+      width: 100%; height: 32px; padding: 4px 11px; font-size: 14px;
+      border: 1px solid var(--ant-border-color); border-radius: var(--radius-sm);
+      outline: none; margin-bottom: 12px;
+    }
+    .lib-search:focus { border-color: var(--ant-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .lib-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: var(--radius-sm);
+      cursor: pointer; transition: background 0.15s;
+    }
+    .lib-item:hover { background: rgba(22,119,255,0.04); }
+    .lib-item.selected { background: #e6f4ff; }
+    .lib-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #f0f0f0; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: var(--ant-text-tertiary);
+    }
+
+    /* ===== Result overlay ===== */
+    .result-overlay {
+      position: absolute; inset: 0; z-index: 10;
+      background: #fff; border-radius: var(--radius-md);
+      display: none; flex-direction: column;
+    }
+    .result-overlay.show { display: flex; }
+    .result-header {
+      padding: 20px 24px; text-align: center;
+      border-bottom: 1px solid var(--ant-border-secondary);
+    }
+    .result-body { padding: 16px 24px; overflow-y: auto; flex: 1; }
+    .result-footer {
+      display: flex; justify-content: center; gap: 8px;
+      padding: 12px 24px; border-top: 1px solid var(--ant-border-secondary);
+    }
+
+    /* ===== Spinning loader ===== */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    /* ===== Background hint ===== */
+    .bg-hint {
+      position: fixed; top: 16px; left: 24px;
+      font-size: 12px; color: rgba(255,255,255,0.7);
+      z-index: 999;
+    }
+    .bg-hint a { color: rgba(255,255,255,0.9); text-decoration: underline; }
+
+    /* ===== Form row ===== */
+    .form-row { display: flex; gap: 16px; }
+    .form-row .form-item { flex: 1; }
+
+    /* char count */
+    .char-count { font-size: 12px; color: var(--ant-text-tertiary); text-align: right; margin-top: 4px; }
+
+    /* ===== Loading bar for retry ===== */
+    .retry-bar {
+      height: 4px; background: #e6e6e6; border-radius: 2px;
+      overflow: hidden; margin: 8px 0;
+    }
+    .retry-bar-inner {
+      height: 100%; background: var(--ant-primary); border-radius: 2px;
+      width: 0; transition: width 0.8s ease;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 背景提示 -->
+<div class="bg-hint">
+  <i class="fa-solid fa-circle-info"></i> P-011 批量布控弹窗原型 &nbsp;|&nbsp;
+  <a href="../index.html">返回导航页</a>
+</div>
+
+<!-- 遮罩层 -->
+<div class="modal-mask" id="modalMask">
+
+  <!-- 弹窗主体 -->
+  <div class="modal-box" style="position:relative;" id="modalBox">
+
+    <!-- 弹窗头部 -->
+    <div class="modal-header">
+      <h2><i class="fa-solid fa-layer-group" style="color:var(--ant-primary);margin-right:8px;font-size:15px;"></i>批量布控</h2>
+      <button class="modal-close" onclick="alert('关闭弹窗（原型演示）')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- 弹窗内容 -->
+    <div class="modal-body" id="modalBody">
+
+      <!-- ========== 上半区：目标添加区 ========== -->
+      <div class="section-title"><i class="fa-solid fa-crosshairs"></i> 添加布控目标</div>
+
+      <!-- 目标类型选择 -->
+      <div class="form-item">
+        <div class="form-label">目标类型</div>
+        <div class="ant-radio-group" id="targetTypeGroup">
+          <label class="ant-radio-wrapper checked" data-val="person" onclick="selectRadio(this,'targetTypeGroup')">
+            <input type="radio" name="targetType" value="person" checked> 人员
+          </label>
+          <label class="ant-radio-wrapper" data-val="vehicle" onclick="selectRadio(this,'targetTypeGroup')">
+            <input type="radio" name="targetType" value="vehicle"> 车辆
+          </label>
+          <label class="ant-radio-wrapper" data-val="mixed" onclick="selectRadio(this,'targetTypeGroup')">
+            <input type="radio" name="targetType" value="mixed"> 混合（人员+车辆）
+          </label>
+        </div>
+      </div>
+
+      <!-- 上传区 + 目标库按钮 -->
+      <div class="form-item">
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div class="upload-area" style="flex:1;" onclick="alert('上传照片（原型演示）')">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <p>点击或拖拽上传照片（最多10张）</p>
+            <p class="hint">JPG/PNG/BMP, 单张&le;5MB</p>
+          </div>
+          <button class="ant-btn" style="white-space:nowrap;height:auto;padding:10px 16px;flex-shrink:0;" onclick="openLibrary()">
+            <i class="fa-solid fa-database"></i> 从目标库添加
+          </button>
+        </div>
+      </div>
+
+      <!-- 已添加目标列表 -->
+      <div class="form-item" style="margin-top:16px;">
+        <div class="form-label" style="margin-bottom:8px;">已添加目标 <span style="font-weight:400;color:var(--ant-text-tertiary);font-size:12px;" id="targetCount">(5)</span></div>
+        <div style="border:1px solid var(--ant-border-secondary);border-radius:var(--radius-sm);overflow:hidden;">
+          <table class="targets-table" id="targetsTable">
+            <thead>
+              <tr>
+                <th style="width:52px;">缩略图</th>
+                <th>目标名称/车牌号</th>
+                <th style="width:72px;">类型</th>
+                <th style="width:72px;">来源</th>
+                <th style="width:100px;">状态</th>
+                <th style="width:52px;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="targetsBody">
+              <!-- JS渲染 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========== 下半区：统一配置区 ========== -->
+      <div class="section-title" style="margin-top:24px;"><i class="fa-solid fa-sliders"></i> 统一配置</div>
+
+      <!-- 布控区域 -->
+      <div class="form-item">
+        <div class="form-label">布控区域 <span class="required">*</span></div>
+        <div class="multi-select" id="areaSelect" onclick="toggleDropdown('areaDropdown','areaSelect')">
+          <span class="selected-tag" data-val="east">东区摄像头组 <span class="remove" onclick="event.stopPropagation();removeTag(this,'areaDropdown')"><i class="fa-solid fa-xmark"></i></span></span>
+          <span class="selected-tag" data-val="south">南门卡口 <span class="remove" onclick="event.stopPropagation();removeTag(this,'areaDropdown')"><i class="fa-solid fa-xmark"></i></span></span>
+          <span class="arrow"><i class="fa-solid fa-chevron-down"></i></span>
+          <div class="dropdown-menu" id="areaDropdown">
+            <div class="dropdown-item selected" onclick="event.stopPropagation();toggleItem(this)"><input type="checkbox" checked> 东区摄像头组</div>
+            <div class="dropdown-item" onclick="event.stopPropagation();toggleItem(this)"><input type="checkbox"> 西区摄像头组</div>
+            <div class="dropdown-item selected" onclick="event.stopPropagation();toggleItem(this)"><input type="checkbox" checked> 南门卡口</div>
+            <div class="dropdown-item" onclick="event.stopPropagation();toggleItem(this)"><input type="checkbox"> 北门卡口</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 人员相似度阈值 + 车辆匹配模式 -->
+      <div class="form-row">
+        <div class="form-item">
+          <div class="form-label">人员目标 - 相似度阈值</div>
+          <div class="slider-wrap">
+            <input type="range" min="70" max="99" value="85" id="personSlider" oninput="document.getElementById('personVal').textContent=this.value+'%'">
+            <span class="slider-value" id="personVal">85%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ant-text-tertiary);margin-top:2px;">
+            <span>70%</span><span>99%</span>
+          </div>
+        </div>
+        <div class="form-item">
+          <div class="form-label">车辆目标 - 匹配模式</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <label class="ant-checkbox-wrapper">
+              <input type="radio" name="vehicleMode" value="plate" checked onchange="toggleVehicleMode()"> 车牌精确匹配
+            </label>
+            <label class="ant-checkbox-wrapper">
+              <input type="radio" name="vehicleMode" value="feature" onchange="toggleVehicleMode()"> 特征相似度匹配
+            </label>
+          </div>
+          <div id="vehicleSliderWrap" style="margin-top:8px;display:none;">
+            <div class="slider-wrap">
+              <input type="range" min="60" max="99" value="80" id="vehicleSlider" oninput="document.getElementById('vehicleVal').textContent=this.value+'%'">
+              <span class="slider-value" id="vehicleVal">80%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 布控时长 + 通知方式 -->
+      <div class="form-row">
+        <div class="form-item">
+          <div class="form-label">布控时长</div>
+          <select class="ant-select" id="durationSelect">
+            <option value="24h">24小时</option>
+            <option value="3d">3天</option>
+            <option value="7d" selected>7天</option>
+            <option value="15d">15天</option>
+            <option value="30d">30天</option>
+            <option value="custom">自定义</option>
+          </select>
+        </div>
+        <div class="form-item">
+          <div class="form-label">通知方式</div>
+          <div style="display:flex;gap:16px;align-items:center;height:32px;">
+            <label class="ant-checkbox-wrapper"><input type="checkbox" checked> 站内通知</label>
+            <label class="ant-checkbox-wrapper"><input type="checkbox"> 短信</label>
+            <label class="ant-checkbox-wrapper"><input type="checkbox"> 邮件</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 保存到目标库 + 备注 -->
+      <div class="form-item">
+        <label class="ant-checkbox-wrapper">
+          <input type="checkbox" checked> 保存到目标库
+        </label>
+      </div>
+
+      <div class="form-item">
+        <div class="form-label">备注</div>
+        <textarea class="ant-textarea" id="remarkInput" placeholder="请输入备注信息（选填）" maxlength="200" oninput="updateCharCount()"></textarea>
+        <div class="char-count"><span id="charNum">0</span>/200</div>
+      </div>
+
+    </div><!-- /modal-body -->
+
+    <!-- 弹窗底部按钮 -->
+    <div class="modal-footer" id="modalFooter">
+      <button class="ant-btn" onclick="alert('取消（原型演示）')">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="confirmCreate()">
+        <i class="fa-solid fa-check"></i> 确认创建
+      </button>
+    </div>
+
+    <!-- ========== 创建结果覆盖层 ========== -->
+    <div class="result-overlay" id="resultOverlay">
+      <div class="result-header">
+        <div style="width:56px;height:56px;margin:0 auto 12px;background:#fff7e6;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size:26px;color:var(--ant-warning);"></i>
+        </div>
+        <h3 style="font-size:16px;font-weight:600;margin-bottom:6px;">批量创建完成</h3>
+        <p style="font-size:14px;color:var(--ant-text-secondary);">
+          已创建 <strong style="color:var(--ant-success);">4</strong> 个布控任务，<strong style="color:var(--ant-danger);">1</strong> 个失败
+        </p>
+      </div>
+      <div class="result-body">
+        <div style="font-size:14px;font-weight:600;color:var(--ant-text);margin-bottom:10px;">
+          <i class="fa-solid fa-circle-xmark" style="color:var(--ant-danger);margin-right:4px;"></i> 失败目标
+        </div>
+        <div style="border:1px solid var(--ant-border-secondary);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:12px;">
+          <table class="targets-table">
+            <thead>
+              <tr>
+                <th>目标名称</th>
+                <th>类型</th>
+                <th>失败原因</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="failedRow">
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="thumb" style="width:28px;height:28px;font-size:12px;"><i class="fa-solid fa-car"></i></div>
+                    <span>京A·99887</span>
+                  </div>
+                </td>
+                <td><span class="ant-tag ant-tag-blue">车辆</span></td>
+                <td><span style="color:var(--ant-danger);">特征提取失败：图片模糊，无法识别车牌</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- 重试进度 -->
+        <div id="retryProgress" style="display:none;">
+          <div style="font-size:13px;color:var(--ant-text-secondary);margin-bottom:4px;">正在重试...</div>
+          <div class="retry-bar"><div class="retry-bar-inner" id="retryBarInner"></div></div>
+        </div>
+      </div>
+      <div class="result-footer">
+        <button class="ant-btn ant-btn-outline-primary" onclick="retryFailed()">
+          <i class="fa-solid fa-rotate-right"></i> 重试失败项
+        </button>
+        <button class="ant-btn" onclick="alert('关闭弹窗（原型演示）')">关闭</button>
+      </div>
+    </div>
+
+  </div><!-- /modal-box -->
+
+</div><!-- /modal-mask -->
+
+<!-- 目标库选择弹窗 -->
+<div class="lib-overlay" id="libOverlay" style="display:none;">
+  <div class="lib-box">
+    <div class="lib-header">
+      <h3><i class="fa-solid fa-database" style="color:var(--ant-primary);margin-right:6px;font-size:14px;"></i>选择目标库目标</h3>
+      <button class="modal-close" onclick="closeLibrary()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="lib-body">
+      <input type="text" class="lib-search" placeholder="搜索目标名称或车牌号...">
+      <div id="libList">
+        <div class="lib-item" onclick="this.classList.toggle('selected');this.querySelector('input').checked=this.classList.contains('selected')">
+          <input type="checkbox" style="accent-color:var(--ant-primary);">
+          <div class="lib-avatar"><i class="fa-solid fa-user"></i></div>
+          <div>
+            <div style="font-size:14px;font-weight:500;">赵六</div>
+            <div style="font-size:12px;color:var(--ant-text-tertiary);">人员 - 在逃人员库</div>
+          </div>
+        </div>
+        <div class="lib-item" onclick="this.classList.toggle('selected');this.querySelector('input').checked=this.classList.contains('selected')">
+          <input type="checkbox" style="accent-color:var(--ant-primary);">
+          <div class="lib-avatar"><i class="fa-solid fa-user"></i></div>
+          <div>
+            <div style="font-size:14px;font-weight:500;">孙七</div>
+            <div style="font-size:12px;color:var(--ant-text-tertiary);">人员 - 重点关注人员库</div>
+          </div>
+        </div>
+        <div class="lib-item" onclick="this.classList.toggle('selected');this.querySelector('input').checked=this.classList.contains('selected')">
+          <input type="checkbox" style="accent-color:var(--ant-primary);">
+          <div class="lib-avatar"><i class="fa-solid fa-car"></i></div>
+          <div>
+            <div style="font-size:14px;font-weight:500;">沪C·12345</div>
+            <div style="font-size:12px;color:var(--ant-text-tertiary);">车辆 - 嫌疑车辆库</div>
+          </div>
+        </div>
+        <div class="lib-item" onclick="this.classList.toggle('selected');this.querySelector('input').checked=this.classList.contains('selected')">
+          <input type="checkbox" style="accent-color:var(--ant-primary);">
+          <div class="lib-avatar"><i class="fa-solid fa-car"></i></div>
+          <div>
+            <div style="font-size:14px;font-weight:500;">粤B·67890</div>
+            <div style="font-size:12px;color:var(--ant-text-tertiary);">车辆 - 布控车辆库</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="lib-footer">
+      <button class="ant-btn" onclick="closeLibrary()">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="addFromLibrary()">确认添加</button>
+    </div>
+  </div>
+</div>
+
+<!-- 底部导航链接 -->
+<div style="text-align:center;padding:24px;font-size:13px;color:var(--ant-text-tertiary);">
+  <a href="../index.html" style="color:var(--ant-primary);text-decoration:none;">&larr; 返回导航页</a>
+</div>
+
+<script>
+/* ===== Mock 目标数据 ===== */
+let targets = [
+  { id: 1, name: '张三',      type: 'person', source: '上传',   status: 'success',  icon: 'fa-user' },
+  { id: 2, name: '李四',      type: 'person', source: '上传',   status: 'loading',  icon: 'fa-user' },
+  { id: 3, name: '王五',      type: 'person', source: '目标库', status: 'success',  icon: 'fa-user' },
+  { id: 4, name: '京A·88665', type: 'vehicle', source: '上传',  status: 'success',  icon: 'fa-car' },
+  { id: 5, name: '京A·99887', type: 'vehicle', source: '上传',  status: 'failed',   icon: 'fa-car' },
+];
+
+let nextId = 6;
+
+/* ===== 渲染目标列表 ===== */
+function renderTargets() {
+  const tbody = document.getElementById('targetsBody');
+  tbody.innerHTML = targets.map(t => {
+    let statusHtml = '';
+    if (t.status === 'success') {
+      statusHtml = '<span class="ant-tag ant-tag-green"><i class="fa-solid fa-check-circle" style="margin-right:3px;font-size:10px;"></i>成功</span>';
+    } else if (t.status === 'loading') {
+      statusHtml = '<span class="ant-tag ant-tag-orange"><i class="fa-solid fa-spinner spin" style="margin-right:3px;font-size:10px;"></i>提取中</span>';
+    } else if (t.status === 'failed') {
+      statusHtml = '<span class="ant-tag ant-tag-red"><i class="fa-solid fa-circle-xmark" style="margin-right:3px;font-size:10px;"></i>失败</span>';
+    }
+    const typeTag = t.type === 'person'
+      ? '<span class="ant-tag ant-tag-blue">人员</span>'
+      : '<span class="ant-tag ant-tag-blue">车辆</span>';
+    return `
+      <tr data-id="${t.id}">
+        <td><div class="thumb"><i class="fa-solid ${t.icon}"></i></div></td>
+        <td style="font-weight:500;">${t.name}</td>
+        <td>${typeTag}</td>
+        <td><span class="ant-tag ant-tag-gray">${t.source}</span></td>
+        <td>${statusHtml}</td>
+        <td><button class="ant-btn-link danger" onclick="removeTarget(${t.id})" title="删除"><i class="fa-solid fa-trash-can"></i></button></td>
+      </tr>`;
+  }).join('');
+  document.getElementById('targetCount').textContent = `(${targets.length})`;
+}
+
+/* ===== 删除目标 ===== */
+function removeTarget(id) {
+  targets = targets.filter(t => t.id !== id);
+  renderTargets();
+}
+
+/* ===== Radio 选中 ===== */
+function selectRadio(el, groupId) {
+  const group = document.getElementById(groupId);
+  group.querySelectorAll('.ant-radio-wrapper').forEach(w => w.classList.remove('checked'));
+  el.classList.add('checked');
+  el.querySelector('input').checked = true;
+}
+
+/* ===== 车辆匹配模式切换 ===== */
+function toggleVehicleMode() {
+  const mode = document.querySelector('input[name="vehicleMode"]:checked').value;
+  document.getElementById('vehicleSliderWrap').style.display = mode === 'feature' ? 'block' : 'none';
+}
+
+/* ===== 字数统计 ===== */
+function updateCharCount() {
+  const val = document.getElementById('remarkInput').value;
+  document.getElementById('charNum').textContent = val.length;
+}
+
+/* ===== 多选下拉 ===== */
+function toggleDropdown(menuId, selectId) {
+  const menu = document.getElementById(menuId);
+  const select = document.getElementById(selectId);
+  // Close other dropdowns first
+  document.querySelectorAll('.dropdown-menu').forEach(m => { if (m.id !== menuId) m.classList.remove('show'); });
+  document.querySelectorAll('.multi-select').forEach(s => { if (s.id !== selectId) s.classList.remove('open'); });
+  menu.classList.toggle('show');
+  select.classList.toggle('open');
+}
+
+function toggleItem(el) {
+  el.classList.toggle('selected');
+  el.querySelector('input').checked = el.classList.contains('selected');
+  updateSelectTags(el.closest('.dropdown-menu').id);
+}
+
+function removeTag(removeBtn, menuId) {
+  const tag = removeBtn.closest('.selected-tag');
+  const val = tag.dataset.val;
+  // Uncheck in dropdown
+  const menu = document.getElementById(menuId);
+  menu.querySelectorAll('.dropdown-item').forEach(item => {
+    if (item.textContent.trim() === tag.textContent.trim().replace(/\s+/g, '')) {
+      item.classList.remove('selected');
+      item.querySelector('input').checked = false;
+    }
+  });
+  tag.remove();
+}
+
+function updateSelectTags(menuId) {
+  // Simplified: just close dropdown (tags are manually managed for the prototype)
+}
+
+/* ===== 目标库弹窗 ===== */
+function openLibrary() {
+  document.getElementById('libOverlay').style.display = 'flex';
+}
+function closeLibrary() {
+  document.getElementById('libOverlay').style.display = 'none';
+}
+function addFromLibrary() {
+  const items = document.querySelectorAll('#libList .lib-item.selected');
+  items.forEach(item => {
+    const name = item.querySelector('div > div:first-child').textContent.trim();
+    const desc = item.querySelector('div > div:last-child').textContent.trim();
+    const isVehicle = desc.includes('车辆');
+    targets.push({
+      id: nextId++,
+      name: name,
+      type: isVehicle ? 'vehicle' : 'person',
+      source: '目标库',
+      status: 'success',
+      icon: isVehicle ? 'fa-car' : 'fa-user'
+    });
+  });
+  renderTargets();
+  closeLibrary();
+}
+
+/* ===== 确认创建 → 显示结果 ===== */
+function confirmCreate() {
+  // Count successes and failures
+  const successCount = targets.filter(t => t.status === 'success').length;
+  const failedTargets = targets.filter(t => t.status === 'failed');
+
+  // Update result header
+  const resultHeader = document.querySelector('.result-header p');
+  resultHeader.innerHTML = `已创建 <strong style="color:var(--ant-success);">${successCount}</strong> 个布控任务，<strong style="color:var(--ant-danger);">${failedTargets.length}</strong> 个失败`;
+
+  // Update failed table
+  const failedTbody = document.querySelector('#resultOverlay .targets-table tbody');
+  if (failedTargets.length > 0) {
+    failedTbody.innerHTML = failedTargets.map(t => {
+      const typeTag = t.type === 'person' ? '人员' : '车辆';
+      return `
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="thumb" style="width:28px;height:28px;font-size:12px;"><i class="fa-solid ${t.icon}"></i></div>
+              <span>${t.name}</span>
+            </div>
+          </td>
+          <td><span class="ant-tag ant-tag-blue">${typeTag}</span></td>
+          <td><span style="color:var(--ant-danger);">${t.type === 'vehicle' ? '特征提取失败：图片模糊，无法识别车牌' : '人脸检测失败：未检测到有效人脸'}</span></td>
+        </tr>`;
+    }).join('');
+  }
+
+  // Show result overlay
+  document.getElementById('resultOverlay').classList.add('show');
+  document.getElementById('modalBody').style.overflow = 'hidden';
+}
+
+/* ===== 重试失败项 ===== */
+function retryFailed() {
+  const progressWrap = document.getElementById('retryProgress');
+  const bar = document.getElementById('retryBarInner');
+  progressWrap.style.display = 'block';
+  bar.style.width = '0';
+
+  // Animate progress
+  requestAnimationFrame(() => {
+    bar.style.width = '30%';
+    setTimeout(() => { bar.style.width = '65%'; }, 600);
+    setTimeout(() => { bar.style.width = '100%'; }, 1400);
+  });
+
+  // After "retry", update statuses
+  setTimeout(() => {
+    // Update the main list: mark failed targets as success
+    targets.forEach(t => {
+      if (t.status === 'failed') t.status = 'success';
+    });
+    renderTargets();
+
+    // Update result UI
+    progressWrap.innerHTML = `
+      <div style="text-align:center;padding:12px 0;">
+        <i class="fa-solid fa-circle-check" style="color:var(--ant-success);font-size:20px;margin-right:6px;"></i>
+        <span style="color:var(--ant-success);font-weight:600;font-size:14px;">重试成功，所有目标已重新创建</span>
+      </div>`;
+  }, 2200);
+}
+
+/* ===== 点击外部关闭下拉 ===== */
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.multi-select')) {
+    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+    document.querySelectorAll('.multi-select').forEach(s => s.classList.remove('open'));
+  }
+});
+
+/* ===== 初始化 ===== */
+renderTargets();
+
+/* ===== 模拟提取中状态：2秒后自动变为成功 ===== */
+setTimeout(() => {
+  const loadingTarget = targets.find(t => t.status === 'loading');
+  if (loadingTarget) {
+    loadingTarget.status = 'success';
+    renderTargets();
+  }
+}, 3000);
+</script>
+
+</body>
+</html>
