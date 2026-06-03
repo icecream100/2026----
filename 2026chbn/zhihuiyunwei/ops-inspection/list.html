@@ -95,7 +95,6 @@
             <button class="ant-btn">重置</button>
             <div style="margin-left:auto;display:flex;gap:8px;">
               <button class="ant-btn ant-btn-primary" onclick="location.href='create.html'"><i class="fa-solid fa-plus"></i>新建巡检任务</button>
-              <button class="ant-btn"><i class="fa-solid fa-download"></i>导出</button>
             </div>
           </div>
         </div>
@@ -175,7 +174,7 @@
 +'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="copyTask(\''+t.id+'\')">复制</button>'
 +'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleStatus(this)">'+(t.enabled?'停用':'启用')+'</button>'
 +'<button class="ant-btn ant-btn-text ant-btn-sm" style="color:#ff4d4f;" onclick="if(confirm(\'确定删除该巡检任务？删除后不可恢复\')){this.closest(\'tr\').remove();showToast(\'删除成功\')}">删除</button>'
-+'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="if(confirm(\'确定立即执行一次巡检？\')){showToast(\'巡检已发起\')}">手动巡检</button>'
++'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="if(confirm(\'确定立即执行该巡检计划？\')){showToast(\'巡检已发起\')}">立即执行</button>'
 +'</td>';
     tb.appendChild(tr);
   });
