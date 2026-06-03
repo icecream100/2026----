@@ -54,6 +54,7 @@
     /* 概率环形图 */
     @keyframes probPulse{0%{opacity:0.7;}50%{opacity:1;}100%{opacity:0.7;}}
     .prob-glow{animation:probPulse 2s infinite;}
+
   </style>
 </head>
 <body>
@@ -173,29 +174,51 @@
         </div>
       </div>
 
-      <!-- 操作按钮栏 -->
-      <div style="display:flex;gap:10px;margin-bottom:16px;justify-content:flex-start;">
-        <button class="ant-btn ant-btn-primary" style="height:36px;font-size:14px;" onclick="confirmPredict()">
-          <i class="fa-solid fa-check"></i>已知晓
-        </button>
-        <button class="ant-btn" style="height:36px;" onclick="startInspection()">
-          <i class="fa-solid fa-magnifying-glass-location"></i>发起巡检验证
-        </button>
-        <button class="ant-btn" style="height:36px;border-color:#faad14;color:#faad14;" onclick="markFalse()">
-          <i class="fa-solid fa-xmark"></i>标记误报
-        </button>
+      <!-- 预警处理区（内联表单） -->
+      <div class="ant-card" style="margin-bottom:16px;" id="processSection">
+        <div class="ant-card-head">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-clipboard-check" style="color:var(--ant-primary);"></i>
+            <span>预警处理</span>
+          </div>
+          <button class="ant-btn" style="height:30px;font-size:13px;border-color:#52c41a;color:#52c41a;" onclick="startInspection()">
+            <i class="fa-solid fa-magnifying-glass-location"></i>巡检验证
+          </button>
+        </div>
+        <div class="ant-card-body">
+          <!-- 第1行：处理结果 -->
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+            <span style="font-size:13px;font-weight:500;flex-shrink:0;">处理结果 <span style="color:var(--ant-error);">*</span></span>
+            <div style="display:flex;gap:8px;" id="processResultCards">
+              <label style="display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border:1px solid var(--ant-border-secondary);border-radius:4px;cursor:pointer;transition:all 0.2s;font-size:13px;" onclick="selectProcessResult(this,'ack')">
+                <input type="radio" name="processResult" value="ack" style="accent-color:#1677ff;margin:0;">
+                <span style="font-weight:500;color:#1677ff;">已知晓</span>
+              </label>
+              <label style="display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border:1px solid var(--ant-border-secondary);border-radius:4px;cursor:pointer;transition:all 0.2s;font-size:13px;" onclick="selectProcessResult(this,'false')">
+                <input type="radio" name="processResult" value="false" style="accent-color:#faad14;margin:0;">
+                <span style="font-weight:500;color:#faad14;">标记误报</span>
+              </label>
+            </div>
+          </div>
+          <!-- 第2行：处理意见 -->
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+            <span style="font-size:13px;font-weight:500;flex-shrink:0;">处理意见</span>
+            <input type="text" id="processRemark" placeholder="请填写处理意见（选填）" maxlength="200" style="flex:1;height:32px;padding:0 11px;border:1px solid var(--ant-border);border-radius:4px;font-size:14px;box-sizing:border-box;" onfocus="this.style.borderColor='var(--ant-primary)'" onblur="this.style.borderColor='var(--ant-border)'">
+          </div>
+          <!-- 第3行：操作按钮 -->
+          <div style="display:flex;justify-content:flex-start;gap:8px;">
+            <button class="ant-btn ant-btn-primary" onclick="submitProcess()" style="height:36px;">提交</button>
+            <button class="ant-btn" onclick="cancelProcess()" style="height:36px;">取消</button>
+          </div>
+        </div>
       </div>
 
-      <!-- 趋势数据区（Tab切换） -->
+      <!-- 趋势诊断 & 关联告警（Tab切换） -->
           <div class="ant-card" style="margin-bottom:16px;">
             <div class="ant-card-head">
               <div class="flex items-center gap-2">
                 <i class="fa-solid fa-chart-line" style="color:var(--ant-primary);"></i>
-                <span>趋势数据</span>
-              </div>
-              <div style="display:flex;gap:4px;">
-                <span style="padding:2px 10px;border-radius:4px;font-size:11px;background:#1677ff;color:#fff;cursor:pointer;">7天</span>
-                <span style="padding:2px 10px;border-radius:4px;font-size:11px;background:#f0f0f0;color:rgba(0,0,0,0.65);cursor:pointer;">24小时</span>
+                <span>趋势诊断 & 关联告警</span>
               </div>
             </div>
             <!-- Tab栏 -->
@@ -203,77 +226,287 @@
               <div class="trend-tab active" id="tabNetwork" onclick="switchTrendTab('network')"><i class="fa-solid fa-network-wired mr-1"></i>网络质量</div>
               <div class="trend-tab" id="tabVideo" onclick="switchTrendTab('video')"><i class="fa-solid fa-film mr-1"></i>画面质量</div>
               <div class="trend-tab" id="tabSignal" onclick="switchTrendTab('signal')"><i class="fa-solid fa-tower-broadcast mr-1"></i>链路状态</div>
+              <div class="trend-tab" id="tabAlert" onclick="switchTrendTab('alert')"><i class="fa-solid fa-bell mr-1"></i>关联告警</div>
             </div>
             <div class="ant-card-body" style="padding:0;">
               <!-- 网络质量面板（默认显示） -->
               <div class="trend-panel active" id="panel-network" style="padding:24px;">
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;">
-                  <div style="padding:14px;border-radius:8px;border:1px solid var(--ant-border-secondary);text-align:center;">
-                    <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:6px;">当前丢包率</div>
-                    <div style="font-size:24px;font-weight:700;color:#ff4d4f;">8.7%</div>
-                    <div style="font-size:11px;color:#ff4d4f;margin-top:4px;"><i class="fa-solid fa-arrow-trend-up mr-1"></i>持续上升</div>
+                <!-- 近5次巡检变化趋势 -->
+                <div style="background:#fafafa;border-radius:8px;padding:16px;border:1px solid var(--ant-border-secondary);">
+                  <div style="font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+                    <i class="fa-solid fa-chart-line" style="color:var(--ant-primary);font-size:12px;"></i>近5次巡检变化趋势
                   </div>
-                  <div style="padding:14px;border-radius:8px;border:1px solid var(--ant-border-secondary);text-align:center;">
-                    <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:6px;">当前延迟</div>
-                    <div style="font-size:24px;font-weight:700;color:#52c41a;">45ms</div>
-                    <div style="font-size:11px;color:#52c41a;margin-top:4px;"><i class="fa-solid fa-arrow-trend-down mr-1"></i>正常</div>
+                  <!-- 丢包率趋势 -->
+                  <div style="margin-bottom:12px;">
+                    <div style="font-size:12px;color:rgba(0,0,0,0.65);margin-bottom:6px;">丢包率</div>
+                    <div style="display:flex;align-items:flex-end;gap:12px;">
+                      <div style="flex:1;display:flex;align-items:flex-end;gap:8px;height:60px;">
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                          <div style="width:100%;background:#52c41a;border-radius:3px 3px 0 0;height:6px;"></div>
+                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">1.2%</div>
+                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">05-30</div>
+                        </div>
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                          <div style="width:100%;background:#52c41a;border-radius:3px 3px 0 0;height:15px;"></div>
+                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">2.5%</div>
+                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-01</div>
+                        </div>
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                          <div style="width:100%;background:#faad14;border-radius:3px 3px 0 0;height:28px;"></div>
+                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">4.1%</div>
+                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-02</div>
+                        </div>
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                          <div style="width:100%;background:#fa8c16;border-radius:3px 3px 0 0;height:42px;"></div>
+                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">6.3%</div>
+                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-03</div>
+                        </div>
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                          <div style="width:100%;background:#ff4d4f;border-radius:3px 3px 0 0;height:56px;"></div>
+                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">8.7%</div>
+                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-04</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="font-size:10px;color:#ff4d4f;margin-top:4px;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:3px;"></i>超过预警阈值（5%）</div>
                   </div>
-                  <div style="padding:14px;border-radius:8px;border:1px solid var(--ant-border-secondary);text-align:center;">
-                    <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:6px;">当前抖动</div>
-                    <div style="font-size:24px;font-weight:700;color:#52c41a;">12ms</div>
-                    <div style="font-size:11px;color:#52c41a;margin-top:4px;"><i class="fa-solid fa-minus mr-1"></i>稳定</div>
+                  <!-- 延迟趋势 -->
+                  <div style="margin-bottom:12px;">
+                    <div style="font-size:12px;color:rgba(0,0,0,0.65);margin-bottom:6px;">延迟</div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">32ms</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">38ms</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">41ms</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">43ms</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">45ms</span>
+                      <span style="font-size:10px;color:rgba(0,0,0,0.25);margin-left:4px;">均在正常范围</span>
+                    </div>
+                  </div>
+                  <!-- 抖动趋势 -->
+                  <div>
+                    <div style="font-size:12px;color:rgba(0,0,0,0.65);margin-bottom:6px;">抖动</div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">8ms</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">10ms</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">9ms</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">11ms</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">12ms</span>
+                      <span style="font-size:10px;color:rgba(0,0,0,0.25);margin-left:4px;">均在正常范围</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <!-- 画面质量面板 -->
               <div class="trend-panel" id="panel-video" style="padding:24px;">
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;">
-                  <div style="padding:14px;border-radius:8px;border:1px solid var(--ant-border-secondary);text-align:center;">
-                    <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:6px;">当前画质评分</div>
-                    <div style="font-size:24px;font-weight:700;color:#fa8c16;">72</div>
-                    <div style="font-size:11px;color:#fa8c16;margin-top:4px;">/ 100</div>
+                <!-- 近5次巡检变化趋势 -->
+                <div style="background:#fafafa;border-radius:8px;padding:16px;border:1px solid var(--ant-border-secondary);">
+                  <div style="font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+                    <i class="fa-solid fa-chart-line" style="color:var(--ant-primary);font-size:12px;"></i>近5次巡检变化趋势
                   </div>
-                  <div style="padding:14px;border-radius:8px;border:1px solid var(--ant-border-secondary);text-align:center;">
-                    <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:6px;">画面清晰度</div>
-                    <div style="font-size:24px;font-weight:700;color:#faad14;">一般</div>
-                    <div style="font-size:11px;color:#faad14;margin-top:4px;">轻微模糊</div>
+                  <!-- 画质评分趋势 -->
+                  <div style="margin-bottom:12px;">
+                    <div style="font-size:12px;color:rgba(0,0,0,0.65);margin-bottom:6px;">画质评分</div>
+                    <div style="display:flex;align-items:flex-end;gap:12px;">
+                      <div style="flex:1;display:flex;align-items:flex-end;gap:8px;height:60px;">
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                          <div style="width:100%;background:#52c41a;border-radius:3px 3px 0 0;height:54px;"></div>
+                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">90</div>
+                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">05-30</div>
+                        </div>
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                          <div style="width:100%;background:#52c41a;border-radius:3px 3px 0 0;height:48px;"></div>
+                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">85</div>
+                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-01</div>
+                        </div>
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                          <div style="width:100%;background:#faad14;border-radius:3px 3px 0 0;height:42px;"></div>
+                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">80</div>
+                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-02</div>
+                        </div>
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                          <div style="width:100%;background:#fa8c16;border-radius:3px 3px 0 0;height:33px;"></div>
+                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">76</div>
+                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-03</div>
+                        </div>
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                          <div style="width:100%;background:#ff4d4f;border-radius:3px 3px 0 0;height:24px;"></div>
+                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">72</div>
+                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-04</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="font-size:10px;color:#ff4d4f;margin-top:4px;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:3px;"></i>低于预警阈值（75分）</div>
                   </div>
-                  <div style="padding:14px;border-radius:8px;border:1px solid var(--ant-border-secondary);text-align:center;">
-                    <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:6px;">SLA达标率</div>
-                    <div style="font-size:24px;font-weight:700;color:#ff4d4f;">6/7</div>
-                    <div style="font-size:11px;color:#ff4d4f;margin-top:4px;"><i class="fa-solid fa-arrow-trend-down mr-1"></i>未达标1天</div>
+                  <!-- 清晰度趋势 -->
+                  <div style="margin-bottom:12px;">
+                    <div style="font-size:12px;color:rgba(0,0,0,0.65);margin-bottom:6px;">画面清晰度</div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">清晰</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">清晰</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#fffbe6;border:1px solid #ffe58f;color:#faad14;">一般</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#fffbe6;border:1px solid #ffe58f;color:#faad14;">一般</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#fff7e6;border:1px solid #ffd591;color:#fa8c16;">轻微模糊</span>
+                    </div>
                   </div>
-                </div>              </div>
+                  <!-- SLA达标趋势 -->
+                  <div>
+                    <div style="font-size:12px;color:rgba(0,0,0,0.65);margin-bottom:6px;">SLA达标率</div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">7/7</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">7/7</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">7/7</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#fff1f0;border:1px solid #ffccc7;color:#ff4d4f;">6/7</span>
+                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
+                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#fff1f0;border:1px solid #ffccc7;color:#ff4d4f;">6/7</span>
+                      <span style="font-size:10px;color:#ff4d4f;margin-left:4px;">连续2天未达标</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <!-- 链路状态面板 -->
               <div class="trend-panel" id="panel-signal" style="padding:24px;">
-                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px;">
-                  <div style="padding:16px;border-radius:8px;border:1px solid var(--ant-border-secondary);text-align:center;position:relative;">
-                    <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:6px;">心跳超时率</div>
-                    <div style="font-size:24px;font-weight:700;color:#52c41a;">3.2%</div>
-                    <div style="font-size:11px;color:#52c41a;margin-top:4px;"><i class="fa-solid fa-arrow-trend-down mr-1"></i>下降</div>
-                    <span style="position:absolute;top:8px;right:8px;background:#f6ffed;color:#52c41a;font-size:10px;padding:1px 6px;border-radius:3px;border:1px solid #b7eb8f;">良好</span>
+                <!-- 近5次链路状态变化 -->
+                <div style="background:#fafafa;border-radius:8px;padding:16px;border:1px solid var(--ant-border-secondary);">
+                  <div style="font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+                    <i class="fa-solid fa-chart-line" style="color:var(--ant-primary);font-size:12px;"></i>近5次巡检链路状态变化
                   </div>
-                  <div style="padding:16px;border-radius:8px;border:1px solid var(--ant-border-secondary);text-align:center;position:relative;">
-                    <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:6px;">点播成功率</div>
-                    <div style="font-size:24px;font-weight:700;color:#52c41a;">96.5%</div>
-                    <div style="font-size:11px;color:#52c41a;margin-top:4px;"><i class="fa-solid fa-arrow-trend-up mr-1"></i>上升</div>
-                    <span style="position:absolute;top:8px;right:8px;background:#f6ffed;color:#52c41a;font-size:10px;padding:1px 6px;border-radius:3px;border:1px solid #b7eb8f;">良好</span>
-                  </div>
-                  <div style="padding:16px;border-radius:8px;border:1px solid var(--ant-border-secondary);text-align:center;position:relative;">
-                    <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:6px;">会话异常中断率</div>
-                    <div style="font-size:24px;font-weight:700;color:#52c41a;">1.8%</div>
-                    <div style="font-size:11px;color:#52c41a;margin-top:4px;"><i class="fa-solid fa-arrow-trend-down mr-1"></i>下降</div>
-                    <span style="position:absolute;top:8px;right:8px;background:#f6ffed;color:#52c41a;font-size:10px;padding:1px 6px;border-radius:3px;border:1px solid #b7eb8f;">良好</span>
-                  </div>
-                  <div style="padding:16px;border-radius:8px;border:1px solid var(--ant-border-secondary);text-align:center;position:relative;">
-                    <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:6px;">PTZ控制成功率</div>
-                    <div style="font-size:24px;font-weight:700;color:#faad14;">92.1%</div>
-                    <div style="font-size:11px;color:#faad14;margin-top:4px;"><i class="fa-solid fa-minus mr-1"></i>稳定</div>
-                    <span style="position:absolute;top:8px;right:8px;background:#fffbe6;color:#faad14;font-size:10px;padding:1px 6px;border-radius:3px;border:1px solid #ffe58f;">关注</span>
-                  </div>
-                </div>              </div>
+                  <table class="ant-table" style="width:100%;font-size:12px;">
+                    <thead>
+                      <tr>
+                        <th style="width:80px;">巡检日期</th>
+                        <th>整体状态</th>
+                        <th>收到请求</th>
+                        <th>查找流</th>
+                        <th>INVITE</th>
+                        <th>收到响应</th>
+                        <th>RTP流</th>
+                        <th>RTP注册</th>
+                        <th>注册响应</th>
+                        <th>点播结束</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td style="color:rgba(0,0,0,0.45);">05-30</td>
+                        <td><span style="display:inline-flex;align-items:center;height:20px;padding:0 6px;font-size:11px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">正常</span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                      </tr>
+                      <tr>
+                        <td style="color:rgba(0,0,0,0.45);">06-01</td>
+                        <td><span style="display:inline-flex;align-items:center;height:20px;padding:0 6px;font-size:11px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">正常</span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#faad14;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                      </tr>
+                      <tr>
+                        <td style="color:rgba(0,0,0,0.45);">06-02</td>
+                        <td><span style="display:inline-flex;align-items:center;height:20px;padding:0 6px;font-size:11px;border-radius:4px;background:#fffbe6;border:1px solid #ffe58f;color:#faad14;">部分异常</span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#faad14;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#faad14;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                      </tr>
+                      <tr>
+                        <td style="color:rgba(0,0,0,0.45);">06-03</td>
+                        <td><span style="display:inline-flex;align-items:center;height:20px;padding:0 6px;font-size:11px;border-radius:4px;background:#fff7e6;border:1px solid #ffd591;color:#fa8c16;">部分异常</span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#ff4d4f;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#faad14;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#faad14;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                      </tr>
+                      <tr style="background:#fff1f0;">
+                        <td style="color:rgba(0,0,0,0.65);font-weight:500;">06-04</td>
+                        <td><span style="display:inline-flex;align-items:center;height:20px;padding:0 6px;font-size:11px;border-radius:4px;background:#fff1f0;border:1px solid #ffccc7;color:#ff4d4f;">异常</span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#ff4d4f;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#faad14;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#faad14;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#ff4d4f;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#faad14;border-radius:50%;"></span></td>
+                        <td><span style="display:inline-block;width:10px;height:10px;background:#1677ff;border-radius:50%;"></span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div style="font-size:10px;color:#ff4d4f;margin-top:8px;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:3px;"></i>INVITE环节连续3次异常，RTP注册环节近2次异常</div>
+                </div>
+              </div>
+
+              <!-- 关联告警面板 -->
+              <div class="trend-panel" id="panel-alert" style="padding:24px;">
+                <div style="margin-bottom:12px;font-size:13px;color:rgba(0,0,0,0.45);">该设备近30天的实时告警记录（来自设备告警模块）</div>
+                <table class="ant-table" style="width:100%;">
+                  <thead>
+                    <tr>
+                      <th style="width:70px;">等级</th>
+                      <th>告警摘要</th>
+                      <th style="width:140px;">告警时间</th>
+                      <th style="width:80px;">状态</th>
+                      <th style="width:60px;">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;font-weight:500;border-radius:4px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffccc7;">紧急</span></td>
+                      <td style="font-size:13px;">网络异常-端口不可达</td>
+                      <td style="font-size:12px;color:rgba(0,0,0,0.45);">2026-06-03 10:23:45</td>
+                      <td><span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffccc7;">待处理</span></td>
+                      <td><a href="../ops-alert/detail.html" style="color:var(--ant-primary);font-size:12px;">查看</a></td>
+                    </tr>
+                    <tr>
+                      <td><span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;font-weight:500;border-radius:4px;color:#fa8c16;background:#fff7e6;border:1px solid #ffd591;">警告</span></td>
+                      <td style="font-size:13px;">网络异常-RTP丢包</td>
+                      <td style="font-size:12px;color:rgba(0,0,0,0.45);">2026-06-02 08:15:30</td>
+                      <td><span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;color:#8c8c8c;background:#fafafa;border:1px solid #d9d9d9;">已关闭</span></td>
+                      <td><a href="../ops-alert/detail.html" style="color:var(--ant-primary);font-size:12px;">查看</a></td>
+                    </tr>
+                    <tr>
+                      <td><span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;font-weight:500;border-radius:4px;color:#fa8c16;background:#fff7e6;border:1px solid #ffd591;">警告</span></td>
+                      <td style="font-size:13px;">丢包致花屏</td>
+                      <td style="font-size:12px;color:rgba(0,0,0,0.45);">2026-05-30 14:07:22</td>
+                      <td><span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;color:#8c8c8c;background:#fafafa;border:1px solid #d9d9d9;">已关闭</span></td>
+                      <td><a href="../ops-alert/detail.html" style="color:var(--ant-primary);font-size:12px;">查看</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
@@ -371,47 +604,11 @@
   </div>
 </div>
 
-<!-- 确认弹窗 -->
-<div class="ant-modal-mask" id="handleModal">
-  <div class="ant-modal" style="width:440px;">
-    <div class="ant-modal-header">
-      <span><i class="fa-solid fa-check-circle" style="margin-right:8px;color:#2f54eb;"></i>已知晓预警</span>
-      <span style="cursor:pointer;color:rgba(0,0,0,0.45);font-size:18px;" onclick="closeHandleModal()">×</span>
-    </div>
-    <div class="ant-modal-body">
-      <div style="margin-bottom:12px;font-size:14px;color:rgba(0,0,0,0.65);">确认已知晓此预警，窗口期内系统将自动验证或过期。</div>
-      <label style="display:block;margin-bottom:6px;font-size:14px;color:rgba(0,0,0,0.88);font-weight:500;">备注（选填）</label>
-      <textarea class="ant-input" id="handleReason" placeholder="如有需要可简要记录" style="height:80px;padding:8px 11px;resize:vertical;width:100%;box-sizing:border-box;" maxlength="200"></textarea>
-      <div style="text-align:right;font-size:12px;color:rgba(0,0,0,0.35);margin-top:4px;"><span id="handleCharCount">0</span>/200</div>
-    </div>
-    <div class="ant-modal-footer">
-      <button class="ant-btn" onclick="closeHandleModal()">取消</button>
-      <button class="ant-btn ant-btn-primary" style="background:#2f54eb;border-color:#2f54eb;" onclick="confirmHandle()">确认</button>
-    </div>
-  </div>
-</div>
-
-<!-- 标记确认弹窗 -->
-<div class="ant-modal-mask" id="markModal">
-  <div class="ant-modal" style="width:400px;">
-    <div class="ant-modal-header">
-      <span id="markTitle">确认操作</span>
-      <span style="cursor:pointer;color:rgba(0,0,0,0.45);font-size:18px;" onclick="closeMarkModal()">×</span>
-    </div>
-    <div class="ant-modal-body">
-      <div style="margin-bottom:12px;font-size:14px;color:rgba(0,0,0,0.65);" id="markDesc">确认执行此操作？</div>
-      <textarea class="ant-input" id="markNote" placeholder="填写备注（选填）" style="height:80px;padding:8px 11px;resize:vertical;width:100%;box-sizing:border-box;"></textarea>
-    </div>
-    <div class="ant-modal-footer">
-      <button class="ant-btn" onclick="closeMarkModal()">取消</button>
-      <button class="ant-btn ant-btn-primary" onclick="confirmMark()">确认</button>
-    </div>
-  </div>
-</div>
 
 <script>
-var currentMarkType = '';
+var selectedProcessResult = '';
 
+// Tab 切换
 function switchTrendTab(tab){
   document.querySelectorAll('.trend-tab').forEach(function(t){t.classList.remove('active');});
   document.querySelectorAll('.trend-panel').forEach(function(p){p.classList.remove('active');});
@@ -419,62 +616,75 @@ function switchTrendTab(tab){
   document.getElementById('panel-'+tab).classList.add('active');
 }
 
+// 处理结果卡片选择
+function selectProcessResult(el, value){
+  selectedProcessResult = value;
+  document.querySelectorAll('#processResultCards label').forEach(function(c){
+    c.style.borderColor = 'var(--ant-border-secondary)';
+    c.style.background = '#fff';
+  });
+  var colors = {ack:'#1677ff', inspect:'#52c41a', 'false':'#faad14'};
+  el.style.borderColor = colors[value];
+  el.style.background = value==='ack'?'#e6f4ff':value==='inspect'?'#f6ffed':'#fff7e6';
+  el.querySelector('input').checked = true;
+}
+
+// 取消
+function cancelProcess(){
+  selectedProcessResult = '';
+  document.querySelectorAll('#processResultCards label').forEach(function(c){
+    c.style.borderColor = 'var(--ant-border-secondary)';
+    c.style.background = '#fff';
+    c.querySelector('input').checked = false;
+  });
+  document.getElementById('processRemark').value = '';
+}
+
+// 提交
+function submitProcess(){
+  if(!selectedProcessResult){
+    showToast('请选择处理结果');
+    return;
+  }
+  if(selectedProcessResult === 'ack'){
+    var remark = document.getElementById('processRemark').value.trim();
+    alert('✅ 确认成功！\n\n故障预警已知晓'+(remark?'\n备注：'+remark:''));
+    setTimeout(function(){ location.href='list.html'; }, 500);
+  } else if(selectedProcessResult === 'false'){
+    if(confirm('确认将此故障预警标记为「误报」？\n\n误报数据将作为模型优化反馈。')){
+      alert('✅ 操作成功！\n\n故障预警已标记为「误报」\n数据将作为模型优化反馈。');
+      setTimeout(function(){ location.href='list.html'; }, 500);
+    }
+  }
+}
+
+// Toast
+function showToast(msg){
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#ff4d4f;color:#fff;padding:8px 20px;border-radius:6px;font-size:14px;z-index:2000;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2000);
+}
+
+// 巡检验证
 function startInspection(){
   document.getElementById('inspectModal').classList.add('active');
 }
 
+// 巡检弹窗
 function closeInspectModal(){
   document.getElementById('inspectModal').classList.remove('active');
 }
 
 function confirmInspect(){
-  alert('✅ 巡检已发起！\n\n设备：西区-CAM-0341\n巡检维度：网络质量、画面质量\n\n（一次性即时巡检，不触发告警链路，结果仅记录在巡检日志中）');
+  alert('✅ 巡检已发起！\n\n设备：西区-CAM-0341\n巡检维度：网络质量、画面质量\n\n（一次性即时巡检，不触发告警链路）');
   closeInspectModal();
 }
 
-function confirmPredict(){
-  document.getElementById('handleReason').value='';
-  document.getElementById('handleCharCount').textContent='0';
-  document.getElementById('handleModal').classList.add('active');
-}
+document.getElementById('inspectModal').addEventListener('click', function(e){ if(e.target===this) closeInspectModal(); });
 
-function closeHandleModal(){
-  document.getElementById('handleModal').classList.remove('active');
-}
 
-function confirmHandle(){
-  var reason = document.getElementById('handleReason').value.trim();
-  alert('✅ 确认成功！\n\n故障预警已知晓'+(reason?'\n备注：'+reason:''));
-  closeHandleModal();
-  setTimeout(function(){location.href='list.html';}, 500);
-}
-
-document.getElementById('handleReason').addEventListener('input',function(){
-  document.getElementById('handleCharCount').textContent=this.value.length;
-});
-
-function markFalse(){
-  currentMarkType = 'false';
-  document.getElementById('markTitle').innerHTML = '<i class="fa-solid fa-xmark" style="margin-right:8px;color:#ff4d4f;"></i>标记误报';
-  document.getElementById('markDesc').textContent = '确认将此故障预警标记为「误报」？误报数据将作为模型优化反馈。';
-  document.getElementById('markNote').value = '';
-  document.getElementById('markModal').classList.add('active');
-}
-
-function closeMarkModal(){
-  document.getElementById('markModal').classList.remove('active');
-  currentMarkType = '';
-}
-
-function confirmMark(){
-  alert('✅ 操作成功！\n\n故障预警已标记为「误报」\n数据将作为模型优化反馈。');
-  closeMarkModal();
-  setTimeout(function(){location.href='list.html';}, 500);
-}
-
-document.getElementById('markModal').addEventListener('click',function(e){if(e.target===this)closeMarkModal();});
-document.getElementById('inspectModal').addEventListener('click',function(e){if(e.target===this)closeInspectModal();});
-document.getElementById('handleModal').addEventListener('click',function(e){if(e.target===this)closeHandleModal();});
 </script>
 </body>
 </html>

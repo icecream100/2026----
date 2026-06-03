@@ -45,6 +45,12 @@
     .ant-page-item{min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--ant-border);border-radius:4px;cursor:pointer;padding:0 6px;font-size:14px;background:#fff;}
     .ant-page-item.active{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;}
     .ant-page-item:hover:not(.active){color:var(--ant-primary);border-color:var(--ant-primary);}
+    /* KPI卡片 */
+    .kpi-card{background:#fff;border-radius:12px;box-shadow:var(--shadow-1);padding:20px;display:flex;align-items:center;gap:16px;transition:box-shadow 0.2s;}
+    .kpi-card:hover{box-shadow:var(--shadow-2);}
+    .kpi-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+    .kpi-value{font-size:28px;font-weight:700;line-height:1;}
+    .kpi-label{font-size:13px;color:var(--ant-text-tertiary);margin-top:4px;}
     .status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;}
     .tab-bar{display:flex;border-bottom:2px solid var(--ant-border-secondary);margin-bottom:16px;}
     .tab-item{padding:10px 20px;cursor:pointer;font-size:14px;color:var(--ant-text-secondary);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;}
@@ -54,6 +60,12 @@
     .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}
     .breadcrumb a:hover{color:var(--ant-primary);}
     .kpi-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);padding:16px 20px;}
+    /* 全选下拉 */
+    .select-all-wrap{position:relative;display:inline-block;}
+    .select-all-dropdown{display:none;position:absolute;left:0;top:100%;margin-top:4px;background:#fff;border-radius:6px;box-shadow:0 6px 16px rgba(0,0,0,0.12);border:1px solid var(--ant-border-secondary);z-index:50;min-width:120px;padding:4px 0;white-space:nowrap;}
+    .select-all-dropdown.show{display:block;}
+    .select-all-item{display:flex;align-items:center;gap:6px;padding:8px 14px;font-size:13px;color:var(--ant-text);cursor:pointer;transition:background 0.15s;}
+    .select-all-item:hover{background:#f5f5f5;}
     /* 实时闪烁点 */
     @keyframes pulse{0%{opacity:1;}50%{opacity:0.4;}100%{opacity:1;}}
     .pulse-dot{animation:pulse 1.5s infinite;}
@@ -101,6 +113,38 @@
         <a href="../index.html">首页</a><span>/</span><span>智能运维</span><span>/</span><span style="color:var(--ant-text);">设备告警</span>
       </div>
 
+      <!-- KPI 统计卡片（行动导向） -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px;">
+        <div class="kpi-card" style="cursor:pointer;" onclick="filterByAlertStatus('pending')">
+          <div class="kpi-icon" style="background:#fff1f0;color:#ff4d4f;"><i class="fa-solid fa-bell"></i></div>
+          <div>
+            <div class="kpi-value" style="color:#ff4d4f;">8</div>
+            <div class="kpi-label">待处理告警</div>
+          </div>
+        </div>
+        <div class="kpi-card" style="cursor:pointer;" onclick="filterByAlertLevel('urgent')">
+          <div class="kpi-icon" style="background:#fff7e6;color:#fa8c16;"><i class="fa-solid fa-shield-halved"></i></div>
+          <div>
+            <div class="kpi-value" style="color:#fa8c16;">3</div>
+            <div class="kpi-label">紧急告警</div>
+          </div>
+        </div>
+        <div class="kpi-card" style="cursor:pointer;" onclick="filterByAlertStatus('closed')">
+          <div class="kpi-icon" style="background:#e6f4ff;color:#1677ff;"><i class="fa-solid fa-circle-check"></i></div>
+          <div>
+            <div class="kpi-value" style="color:#1677ff;">15</div>
+            <div class="kpi-label">今日已处理</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#f6ffed;color:#52c41a;"><i class="fa-solid fa-gauge"></i></div>
+          <div>
+            <div class="kpi-value" style="color:#52c41a;">65%</div>
+            <div class="kpi-label">处理效率</div>
+          </div>
+        </div>
+      </div>
+
       <!-- 下方：设备树 + 列表同级 -->
       <div style="display:flex;gap:16px;">
         <!-- 左侧设备树 -->
@@ -136,12 +180,11 @@
               <div class="flex gap-3 flex-wrap pb-4">
                 <input class="ant-input" id="searchInput" style="width:240px;" placeholder="搜索设备名称">
                 <select class="ant-select"><option>全部报警类型</option><option>链路异常</option><option>画面异常</option><option>丢包致花屏</option><option>无线信号弱</option><option>网络异常-端口不可达</option><option>网络异常-RTP丢包</option><option>网络异常-码率不足</option></select>
-                <select class="ant-select"><option>全部状态</option><option>待处置</option><option>已关闭</option></select>
+                <select class="ant-select"><option>全部状态</option><option>待处理</option><option>已关闭</option></select>
                 <select class="ant-select"><option>全部负责人</option><option>张工程师</option><option>李工程师</option><option>王工程师</option><option>赵工程师</option></select>
                 <button class="ant-btn" onclick="doSearch()"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
                 <div style="margin-left:auto;">
                   <button class="ant-btn ant-btn-sm" id="batchExportBtn" onclick="exportAlerts()"><i class="fa-solid fa-download mr-1"></i>批量导出</button>
-                  <button class="ant-btn ant-btn-sm" id="batchCloseBtn" style="display:none;" onclick="batchClose()"><i class="fa-solid fa-check-double"></i>批量关闭</button>
                 </div>
               </div>
               <!-- 列表 -->
@@ -149,7 +192,15 @@
               <table class="ant-table" style="min-width:1100px;">
                 <thead>
                   <tr>
-                    <th style="width:40px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()" style="accent-color:#1677ff;"></th>
+                    <th style="width:40px;">
+                      <div class="select-all-wrap">
+                        <input type="checkbox" id="selectAll" style="accent-color:#1677ff;cursor:pointer;" onclick="toggleSelectDropdown(event)">
+                        <div class="select-all-dropdown" id="selectAllDropdown">
+                          <div class="select-all-item" onclick="selectPage()"><i class="fa-solid fa-file" style="font-size:12px;color:var(--ant-text-tertiary);"></i>选中本页</div>
+                          <div class="select-all-item" onclick="selectAll()"><i class="fa-solid fa-list" style="font-size:12px;color:var(--ant-text-tertiary);"></i>选中全部</div>
+                        </div>
+                      </div>
+                    </th>
                     <th>事件ID</th>
                     <th>级别</th>
                     <th>设备名称</th>
@@ -195,22 +246,19 @@
           <label id="reasonFixed" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;border:2px solid var(--ant-border-secondary);border-radius:8px;transition:all 0.2s;" onclick="selectCloseReason('fixed')">
             <input type="radio" name="closeReason" value="fixed" style="accent-color:#52c41a;">
             <div>
-              <div style="font-weight:600;color:#52c41a;">已修复</div>
-              <div style="font-size:12px;color:rgba(0,0,0,0.45);">问题已解决，设备恢复正常</div>
+              <div style="font-weight:600;color:#52c41a;">已解决</div>
             </div>
           </label>
           <label id="reasonFalse" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;border:2px solid var(--ant-border-secondary);border-radius:8px;transition:all 0.2s;" onclick="selectCloseReason('false')">
             <input type="radio" name="closeReason" value="false" style="accent-color:#faad14;">
             <div>
               <div style="font-weight:600;color:#faad14;">误报</div>
-              <div style="font-size:12px;color:rgba(0,0,0,0.45);">检测误判，实际无异常</div>
             </div>
           </label>
           <label id="reasonIgnore" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;border:2px solid var(--ant-border-secondary);border-radius:8px;transition:all 0.2s;" onclick="selectCloseReason('ignore')">
             <input type="radio" name="closeReason" value="ignore" style="accent-color:rgba(0,0,0,0.45);">
             <div>
-              <div style="font-weight:600;color:rgba(0,0,0,0.65);">已忽略</div>
-              <div style="font-size:12px;color:rgba(0,0,0,0.45);">不影响业务，暂不处理</div>
+              <div style="font-weight:600;color:rgba(0,0,0,0.65);">忽略</div>
             </div>
           </label>
         </div>
@@ -218,51 +266,12 @@
       <div style="border-top:1px solid var(--ant-border-secondary);padding-top:16px;">
         <label style="display:block;margin-bottom:6px;font-size:14px;color:rgba(0,0,0,0.88);font-weight:500;">处置备注 <span id="remarkRequired" style="color:#ff4d4f;display:none;">*</span></label>
         <textarea class="ant-input" id="closeRemark" placeholder="选填，最多500字符" style="height:80px;padding:8px 11px;resize:vertical;width:100%;box-sizing:border-box;" maxlength="500"></textarea>
-        <div id="remarkError" style="color:#ff4d4f;font-size:12px;margin-top:4px;display:none;">已修复时备注为必填，请简述修复措施</div>
+        <div id="remarkError" style="color:#ff4d4f;font-size:12px;margin-top:4px;display:none;">已解决时备注为必填，请简述修复措施</div>
       </div>
     </div>
     <div class="ant-modal-footer">
       <button class="ant-btn" onclick="closeCloseModal()">取消</button>
       <button class="ant-btn ant-btn-primary" onclick="confirmClose()">确认提交</button>
-    </div>
-  </div>
-</div>
-
-<!-- 批量关闭安全确认弹窗（v6.2改造：50条上限+必填备注+仅已忽略/误报） -->
-<div class="ant-modal-mask" id="batchModal">
-  <div class="ant-modal" style="width:480px;">
-    <div class="ant-modal-header">
-      <span><i class="fa-solid fa-check-double" style="margin-right:8px;color:#faad14;"></i>批量关闭告警</span>
-      <span style="cursor:pointer;color:rgba(0,0,0,0.45);font-size:18px;" onclick="closeBatchModal()">×</span>
-    </div>
-    <div class="ant-modal-body">
-      <div id="batchSummary" style="margin-bottom:16px;"></div>
-      <div id="batchWarning" style="display:none;background:#fff2f0;border:1px solid #ffccc7;border-radius:6px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#cf1322;">
-        <i class="fa-solid fa-triangle-exclamation mr-1"></i><span id="batchWarningText"></span>
-      </div>
-      <div style="margin-bottom:16px;">
-        <label style="display:block;margin-bottom:8px;font-size:14px;font-weight:500;">关闭原因 <span style="color:#ff4d4f;">*</span></label>
-        <div style="display:flex;gap:10px;">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="radio" name="batchReason" value="ignore" checked style="accent-color:#1677ff;">已忽略</label>
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="radio" name="batchReason" value="false" style="accent-color:#faad14;">误报</label>
-        </div>
-        <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:6px;">批量关闭不支持"已修复"，需逐条处理</div>
-      </div>
-      <div style="margin-bottom:16px;">
-        <label style="display:block;margin-bottom:8px;font-size:14px;font-weight:500;">处理备注 <span style="color:#ff4d4f;">*</span></label>
-        <textarea id="batchRemark" style="width:100%;min-height:80px;border:1px solid #d9d9d9;border-radius:6px;padding:8px 12px;font-size:13px;resize:vertical;box-sizing:border-box;" placeholder="请简述批量关闭原因" maxlength="500" oninput="updateBatchSubmit()"></textarea>
-        <div id="batchRemarkError" style="display:none;font-size:12px;color:#ff4d4f;margin-top:4px;">请填写处理备注</div>
-      </div>
-      <div style="border-top:1px solid var(--ant-border-secondary);padding-top:12px;">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;" id="batchConfirmLabel">
-          <input type="checkbox" id="batchConfirmCheck" style="accent-color:#ff4d4f;" onchange="updateBatchSubmit()">
-          <span>我已确认以上告警可批量关闭</span>
-        </label>
-      </div>
-    </div>
-    <div class="ant-modal-footer">
-      <button class="ant-btn" onclick="closeBatchModal()">取消</button>
-      <button class="ant-btn ant-btn-primary" id="batchSubmitBtn" style="opacity:0.5;pointer-events:none;" onclick="confirmBatchClose()">确认批量关闭</button>
     </div>
   </div>
 </div>
@@ -283,7 +292,7 @@ const alerts = [
 ];
 
 const statusMap = {
-  pending:{label:'待处置',dot:'#ff4d4f'},
+  pending:{label:'待处理',dot:'#ff4d4f'},
   closed:{label:'已关闭',dot:'rgba(0,0,0,0.25)'}
 };
 
@@ -301,8 +310,8 @@ function renderTable(filter='all'){
       ? `<button class="ant-btn ant-btn-sm" style="border-color:#52c41a;color:#52c41a;" onclick="openCloseModal('${a.id}','handling')">关闭</button><button class="ant-btn ant-btn-sm" onclick="openTransferModal('${a.id}')">转单</button>`
       : `—`;
     return `<tr style="${isUrgent?'background:#fff1f0;':''}">
-      <td><input type="checkbox" class="alert-checkbox" value="${a.id}" onchange="updateBatchBtn()" style="accent-color:#1677ff;" ${a.status==='closed'?'disabled':''}></td>
-      <td><a href="detail.html?id=${a.id}" style="color:#1677ff;text-decoration:none;">${a.id}</a></td>
+      <td><input type="checkbox" class="alert-checkbox" value="${a.id}" onchange="updateBatchBtn()" style="accent-color:#1677ff;"></td>
+      <td style="font-size:13px;font-weight:500;">${a.id}</td>
       <td><span style="background:${a.levelBg};color:${a.levelColor};font-size:12px;padding:1px 7px;border-radius:4px;font-weight:600;border:1px solid ${a.levelColor};">${a.level}</span></td>
       <td style="font-size:13px;">${a.sites}</td>
       <td>${a.type}${isUrgent?'<span class="pulse-dot" style="color:#ff4d4f;margin-left:6px;font-size:10px;">●</span>':''}</td>
@@ -316,89 +325,32 @@ function renderTable(filter='all'){
   }).join('');
 }
 
-function toggleSelectAll(){
-  var checked = document.getElementById('selectAll').checked;
-  document.querySelectorAll('.alert-checkbox:not(:disabled)').forEach(cb=>{
-    cb.checked = checked;
-  });
+function toggleSelectDropdown(e){
+  e.stopPropagation();
+  var dd = document.getElementById('selectAllDropdown');
+  dd.classList.toggle('show');
+}
+
+function selectPage(){
+  document.querySelectorAll('.alert-checkbox').forEach(function(cb){ cb.checked = true; });
+  document.getElementById('selectAll').checked = true;
+  document.getElementById('selectAllDropdown').classList.remove('show');
   updateBatchBtn();
 }
 
+function selectAll(){
+  document.querySelectorAll('.alert-checkbox').forEach(function(cb){ cb.checked = true; });
+  document.getElementById('selectAll').checked = true;
+  document.getElementById('selectAllDropdown').classList.remove('show');
+  updateBatchBtn();
+}
+
+document.addEventListener('click', function(){
+  document.getElementById('selectAllDropdown').classList.remove('show');
+});
+
 function updateBatchBtn(){
-  var checkedCount = document.querySelectorAll('.alert-checkbox:checked').length;
-  var show = checkedCount > 0 ? '' : 'none';
-  document.getElementById('batchCloseBtn').style.display = show;
-}
-
-function batchClose(){
-  var checkedIds = [];
-  document.querySelectorAll('.alert-checkbox:checked').forEach(cb=>{
-    checkedIds.push(cb.value);
-  });
-  if(checkedIds.length === 0){
-    alert('请先选择要关闭的告警');
-    return;
-  }
-  // v6.2: 50条上限校验
-  if(checkedIds.length > 50){
-    alert('⚠ 单次批量关闭最多 50 条，请减少选择后重试');
-    return;
-  }
-  // 统计各级别数量
-  var levelCount = {'紧急':0,'警告':0,'提示':0};
-  checkedIds.forEach(function(id){
-    var a = alerts.find(function(x){return x.id===id;});
-    if(a) levelCount[a.level]++;
-  });
-  var summaryHtml = '<div style="font-size:14px;margin-bottom:12px;">已选择 <b>'+checkedIds.length+'</b> 条告警（上限50条）：</div>';
-  summaryHtml += '<div style="display:flex;gap:12px;flex-wrap:wrap;">';
-  if(levelCount['紧急']) summaryHtml += '<span style="background:#fff1f0;color:#ff4d4f;border:1px solid #ffa39e;padding:2px 10px;border-radius:4px;font-size:13px;">紧急 '+levelCount['紧急']+'条</span>';
-  if(levelCount['警告']) summaryHtml += '<span style="background:#fff7e6;color:#fa8c16;border:1px solid #ffd591;padding:2px 10px;border-radius:4px;font-size:13px;">警告 '+levelCount['警告']+'条</span>';
-  if(levelCount['提示']) summaryHtml += '<span style="background:#e6f4ff;color:#1677ff;border:1px solid #91caff;padding:2px 10px;border-radius:4px;font-size:13px;">提示 '+levelCount['提示']+'条</span>';
-  summaryHtml += '</div>';
-  document.getElementById('batchSummary').innerHTML = summaryHtml;
-  // 高优告警警告
-  var highCount = levelCount['紧急'];
-  document.getElementById('batchWarning').style.display = highCount > 0 ? '' : 'none';
-  document.getElementById('batchWarningText').textContent = '包含 '+highCount+' 条紧急告警，确认批量关闭？';
-  // 重置表单
-  document.getElementById('batchRemark').value = '';
-  document.getElementById('batchRemarkError').style.display = 'none';
-  document.querySelectorAll('input[name="batchReason"]')[0].checked = true;
-  document.getElementById('batchConfirmCheck').checked = false;
-  document.getElementById('batchSubmitBtn').style.opacity = '0.5';
-  document.getElementById('batchSubmitBtn').style.pointerEvents = 'none';
-  document.getElementById('batchModal').classList.add('active');
-}
-
-function closeBatchModal(){
-  document.getElementById('batchModal').classList.remove('active');
-}
-
-function toggleBatchConfirm(){
-  updateBatchSubmit();
-}
-
-function updateBatchSubmit(){
-  var checked = document.getElementById('batchConfirmCheck').checked;
-  var remark = document.getElementById('batchRemark').value.trim();
-  document.getElementById('batchSubmitBtn').style.opacity = (checked && remark) ? '1' : '0.5';
-  document.getElementById('batchSubmitBtn').style.pointerEvents = (checked && remark) ? '' : 'none';
-}
-
-function confirmBatchClose(){
-  var checkedIds = [];
-  document.querySelectorAll('.alert-checkbox:checked').forEach(cb=>checkedIds.push(cb.value));
-  var remark = document.getElementById('batchRemark').value.trim();
-  if(!remark){
-    document.getElementById('batchRemarkError').style.display = '';
-    return;
-  }
-  var reasonEl = document.querySelector('input[name="batchReason"]:checked');
-  var reasonLabel = reasonEl && reasonEl.value === 'false' ? '误报' : '已忽略';
-  alert('✅ 批量关闭成功！\n\n已关闭 '+checkedIds.length+' 条告警\n关闭原因：'+reasonLabel+'\n处理备注：'+remark);
-  closeBatchModal();
-  location.reload();
+  // 保留checkbox交互，无批量关闭按钮
 }
 
 var selectedCloseReason = '';
@@ -437,14 +389,13 @@ function confirmClose(){
     document.getElementById('remarkError').style.display = '';
     return;
   }
-  var labels = {fixed:'已修复',false:'误报',ignore:'已忽略'};
+  var labels = {fixed:'已解决',false:'误报',ignore:'忽略'};
   alert('✅ 关闭成功！\n\n告警 '+currentAlertId+' 已关闭\n关闭原因：'+labels[selectedCloseReason]+(remark?'\n处置备注：'+remark:''));
   closeCloseModal();
   location.reload();
 }
 
 document.getElementById('closeModal').addEventListener('click',function(e){if(e.target===this)closeCloseModal();});
-document.getElementById('batchModal').addEventListener('click',function(e){if(e.target===this)closeBatchModal();});
 
 var currentRegion = 'all';
 
@@ -481,11 +432,11 @@ renderTable = function(filter='all'){
     const s = statusMap[a.status];
     const isUrgent = a.level==='紧急';
     const actions = a.status==='pending'
-      ? `<div class="action-wrap"><button class="ant-btn ant-btn-sm" style="border-color:#1677ff;color:#1677ff;" onclick="openCloseModal('${a.id}')">处理</button></div>`
+      ? `<div class="action-wrap"><button class="ant-btn ant-btn-sm" style="border-color:#1677ff;color:#1677ff;" onclick="location.href='detail.html?id=${a.id}'">处理</button></div>`
       : `—`;
     return `<tr style="${isUrgent?'background:#fff1f0;':''}">
-      <td><input type="checkbox" class="alert-checkbox" value="${a.id}" onchange="updateBatchBtn()" style="accent-color:#1677ff;" ${a.status==='closed'?'disabled':''}></td>
-      <td><a href="detail.html?id=${a.id}" style="color:#1677ff;text-decoration:none;">${a.id}</a></td>
+      <td><input type="checkbox" class="alert-checkbox" value="${a.id}" onchange="updateBatchBtn()" style="accent-color:#1677ff;"></td>
+      <td style="font-size:13px;font-weight:500;">${a.id}</td>
       <td><span style="background:${a.levelBg};color:${a.levelColor};font-size:12px;padding:1px 7px;border-radius:4px;font-weight:600;border:1px solid ${a.levelColor};">${a.level}</span></td>
       <td style="font-size:13px;">${a.sites}</td>
       <td>${a.type}${isUrgent?'<span class="pulse-dot" style="color:#ff4d4f;margin-left:6px;font-size:10px;">●</span>':''}</td>
@@ -503,6 +454,22 @@ renderTable = function(filter='all'){
 renderTable();
 
 function doSearch(){
+  renderTable();
+}
+
+// KPI卡片点击筛选
+function filterByAlertStatus(status){
+  var sels = document.querySelectorAll('.ant-select');
+  // 状态筛选是第3个select
+  if(sels[2]){
+    if(status==='pending') sels[2].value='待处理';
+    else if(status==='closed') sels[2].value='已关闭';
+    renderTable();
+  }
+}
+function filterByAlertLevel(level){
+  // 级别映射到报警类型筛选不够直接，用Toast提示
+  if(level==='urgent') showToast('已筛选紧急告警');
   renderTable();
 }
 

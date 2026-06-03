@@ -127,33 +127,35 @@
         <div class="tab-btn active" id="tabList" onclick="switchMainTab('list')" style="padding:12px 24px;cursor:pointer;font-size:14px;color:var(--ant-primary);border-bottom:2px solid var(--ant-primary);margin-bottom:-2px;font-weight:600;">预警列表</div>
         <div class="tab-btn" id="tabConfig" onclick="switchMainTab('config')" style="padding:12px 24px;cursor:pointer;font-size:14px;color:var(--ant-text-secondary);border-bottom:2px solid transparent;margin-bottom:-2px;">
           <i class="fa-solid fa-gear mr-1"></i>预警配置
-          <span style="background:#f9f0ff;color:#722ed1;font-size:10px;padding:1px 5px;border-radius:8px;margin-left:4px;">P03</span>
+          <span style="background:#f9f0ff;color:#722ed1;font-size:10px;padding:1px 5px;border-radius:8px;margin-left:4px;"></span>
         </div>
       </div>
 
       <!-- 预警列表面板 -->
       <div id="panelList">
 
-      <!-- 信息提示 -->
-      <div style="background:linear-gradient(135deg,#f9f0ff,#e6f4ff);border:1px solid var(--predict-purple-border);border-radius:8px;padding:12px 20px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:13px;color:#531dab;">
-        <i class="fa-solid fa-brain" style="font-size:16px;"></i>
-        <span>故障预警由系统模型基于历史巡检数据自动生成，提前预判潜在故障风险。模型在后端持续运行，无需人工干预。</span>
-      </div>
 
-      <!-- KPI 统计卡片 -->
+      <!-- KPI 统计卡片（行动导向） -->
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px;">
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:#f9f0ff;color:#722ed1;"><i class="fa-solid fa-brain"></i></div>
+        <div class="kpi-card" style="cursor:pointer;" onclick="filterByStatus('pending')">
+          <div class="kpi-icon" style="background:#fff1f0;color:#ff4d4f;"><i class="fa-solid fa-bell"></i></div>
           <div>
-            <div class="kpi-value" style="color:#722ed1;">20</div>
-            <div class="kpi-label">今日预测数</div>
+            <div class="kpi-value" style="color:#ff4d4f;">5</div>
+            <div class="kpi-label">待处理预警</div>
           </div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:#fff1f0;color:#ff4d4f;"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="kpi-card" style="cursor:pointer;" onclick="filterByLevel('high')">
+          <div class="kpi-icon" style="background:#fff7e6;color:#fa8c16;"><i class="fa-solid fa-shield-halved"></i></div>
           <div>
-            <div class="kpi-value" style="color:#ff4d4f;">6</div>
-            <div class="kpi-label">高危预警数</div>
+            <div class="kpi-value" style="color:#fa8c16;">3</div>
+            <div class="kpi-label">高危预警</div>
+          </div>
+        </div>
+        <div class="kpi-card" style="cursor:pointer;" onclick="filterByStatus('ack')">
+          <div class="kpi-icon" style="background:#e6f4ff;color:#1677ff;"><i class="fa-solid fa-hourglass-half"></i></div>
+          <div>
+            <div class="kpi-value" style="color:#1677ff;">8</div>
+            <div class="kpi-label">已知晓未验证</div>
           </div>
         </div>
         <div class="kpi-card">
@@ -161,13 +163,6 @@
           <div>
             <div class="kpi-value" style="color:#52c41a;">82%</div>
             <div class="kpi-label">已验证准确率</div>
-          </div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:#e6f4ff;color:#1677ff;"><i class="fa-solid fa-clock"></i></div>
-          <div>
-            <div class="kpi-value" style="color:#1677ff;">4.2h</div>
-            <div class="kpi-label">平均预警提前量</div>
           </div>
         </div>
       </div>
@@ -310,16 +305,19 @@
               <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:#fff1f0;border:1px solid #ffccc7;border-radius:6px;">
                 <span style="font-weight:600;color:#ff4d4f;min-width:60px;">高危</span>
                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" checked style="accent-color:#1677ff;">站内信</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" checked style="accent-color:#1677ff;">短信</label>
                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" style="accent-color:#1677ff;">邮件</label>
               </div>
               <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:#fff7e6;border:1px solid #ffd591;border-radius:6px;">
                 <span style="font-weight:600;color:#fa8c16;min-width:60px;">中危</span>
                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" checked style="accent-color:#1677ff;">站内信</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" style="accent-color:#1677ff;">短信</label>
                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" style="accent-color:#1677ff;">邮件</label>
               </div>
               <div style="display:flex;align-items:center;gap:16px;padding:12px 16px;background:#fffbe6;border:1px solid #ffe58f;border-radius:6px;">
                 <span style="font-weight:600;color:#faad14;min-width:60px;">低危</span>
                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" checked style="accent-color:#1677ff;">站内信</label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" style="accent-color:#1677ff;">短信</label>
                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" style="accent-color:#1677ff;">邮件</label>
               </div>
             </div>
@@ -450,16 +448,9 @@ function renderTable(){
   tbody.innerHTML = filtered.map(function(p){
     var probColor = getProbColor(p.prob);
     var actions = '';
-    if(p.status==='pending'){
+    if(p.status==='pending'||p.status==='confirmed'){
       actions = '<div class="action-wrap">'
-        +'<button class="ant-btn ant-btn-sm" onclick="confirmPredict(\''+p.id+'\')" style="border-color:#2f54eb;color:#2f54eb;"><i class="fa-solid fa-check"></i>已知晓</button>'
-        +'<button class="ant-btn ant-btn-sm" onclick="inspectPredict(\''+p.id+'\')"><i class="fa-solid fa-magnifying-glass"></i>发起巡检</button>'
-        +'<button class="ant-btn ant-btn-sm" onclick="markAction(\''+p.id+'\',\'false\')" style="border-color:#faad14;color:#faad14;"><i class="fa-solid fa-xmark"></i>标记误报</button>'
-        +'</div>';
-    } else if(p.status==='confirmed'){
-      actions = '<div class="action-wrap">'
-        +'<button class="ant-btn ant-btn-sm" onclick="inspectPredict(\''+p.id+'\')"><i class="fa-solid fa-magnifying-glass"></i>发起巡检</button>'
-        +'<button class="ant-btn ant-btn-sm" onclick="markAction(\''+p.id+'\',\'false\')" style="border-color:#faad14;color:#faad14;"><i class="fa-solid fa-xmark"></i>标记误报</button>'
+        +'<button class="ant-btn ant-btn-sm" style="border-color:#1677ff;color:#1677ff;" onclick="location.href=\'detail.html?id='+p.id+'\'">处理</button>'
         +'</div>';
     } else {
       actions = '—';
@@ -468,7 +459,7 @@ function renderTable(){
     if(p.status==='expired') rowBg = 'background:#fafafa;opacity:0.7;';
 
     return '<tr style="'+(rowBg?rowBg:(p.level==='high'?'background:#fff2f0;':''))+'">'
-      +'<td><a href="detail.html?id='+p.id+'" style="color:var(--ant-primary);text-decoration:none;font-size:13px;font-weight:500;">'+p.id+'</a></td>'
+      +'<td style="font-size:13px;font-weight:500;">'+p.id+'</td>'
       +'<td style="font-size:13px;">'+p.device+'</td>'
       +'<td><span class="ant-tag '+levelClass[p.level]+'">'+p.levelLabel+'</span></td>'
       +'<td><span class="ant-tag '+typeClass[p.type]+'">'+p.typeLabel+'</span></td>'
@@ -583,6 +574,17 @@ function switchMainTab(tab){
   document.getElementById('tabConfig').style.fontWeight = tab==='config'?'600':'400';
   document.getElementById('panelList').style.display = tab==='list'?'':'none';
   document.getElementById('panelConfig').style.display = tab==='config'?'':'none';
+}
+
+// KPI卡片点击筛选
+function filterByStatus(status){
+  var sel = document.getElementById('filterStatus');
+  if(sel){sel.value=status; sel.dispatchEvent(new Event('change'));}
+  else{var rows=document.querySelectorAll('#predictTable tbody tr');rows.forEach(function(r){r.style.display='';});}
+}
+function filterByLevel(level){
+  var sel = document.getElementById('filterLevel');
+  if(sel){sel.value=level; sel.dispatchEvent(new Event('change'));}
 }
 
 function saveConfig(){

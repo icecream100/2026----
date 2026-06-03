@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html>![1780478074974](image/detail/1780478074974.png)
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -111,6 +111,7 @@
     .ant-tag-info { color: #1677ff; background: #e6f4ff; border: 1px solid #91caff; }
     .ant-tag-success { color: #389e0d; background: #f6ffed; border: 1px solid #b7eb8f; }
     .ant-tag-closed { color: var(--ant-text-tertiary); background: #f5f5f5; border: 1px solid #d9d9d9; }
+    .ant-tag-default { color: var(--ant-text-secondary); background: #fafafa; border: 1px solid var(--ant-border); }
     .ant-tag-level-urgent { color: #fff; background: var(--ant-error); border: none; font-weight: 600; }
     .ant-tag-level-warning { color: #fff; background: var(--ant-warning); border: none; font-weight: 600; }
     .ant-tag-level-info { color: #fff; background: var(--ant-primary); border: none; font-weight: 600; }
@@ -141,7 +142,7 @@
       display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
     }
     .ant-tabs-tab:hover { color: var(--ant-primary); }
-    .ant-tabs-tab-active { color: var(--ant-primary); font-weight: 600; border-bottom-color: var(--ant-primary); }
+    .ant-tabs-tab.active { color: var(--ant-primary); font-weight: 600; border-bottom-color: var(--ant-primary); }
     .ant-tabs-tab .tab-badge {
       display: inline-flex; align-items: center; justify-content: center;
       min-width: 18px; height: 18px; padding: 0 5px;
@@ -455,34 +456,18 @@
 
     <div class="main-scroll">
 
-      <!-- Layer 1: 异常概览横幅 -->
-      <div class="alert-banner alert-banner-error" id="alertBanner">
-        <i class="fa-solid fa-circle-exclamation alert-icon"></i>
-        <div class="alert-banner-content">
-          <div class="alert-title">紧急告警 · 设备离线 · 已持续 2h15m 未处理</div>
-          <div class="alert-desc">涉及 2 个异常维度：链路诊断（心跳超时率 18.5%、点播失败）、网络状态（RTP 丢包 8.7%、码率为 0、端口不可达）</div>
-        </div>
-        <button class="alert-banner-close" onclick="document.getElementById('alertBanner').style.display='none'">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <!-- Layer 2: 告警信息 Descriptions -->
+      <!-- Layer 1: 告警信息 Descriptions -->
       <div style="margin:16px 24px 0;">
         <div class="ant-descriptions">
           <div class="ant-descriptions-header">
             <div class="ant-descriptions-title">
-              <span style="background:linear-gradient(135deg,#cf1322,#ff4d4f);color:#fff;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:4px;margin-right:8px;">
-                <i class="fa-solid fa-triangle-exclamation" style="font-size:10px;"></i>设备告警
-              </span>
               ALT-20260414-001
             </div>
             <div style="display:flex;align-items:center;gap:8px;">
               <span style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;color:var(--ant-error);">
-                <span class="pulse-dot" style="width:7px;height:7px;border-radius:50%;background:var(--ant-error);display:inline-block;"></span>
-                待处置
+                <span style="width:7px;height:7px;border-radius:50%;background:var(--ant-error);display:inline-block;"></span>
+                待处理
               </span>
-              <button class="ant-btn ant-btn-danger" id="btnOpenModal"><i class="fa-solid fa-circle-check"></i>处理告警</button>
               <button class="ant-btn" id="btnMore"><i class="fa-solid fa-ellipsis"></i></button>
             </div>
           </div>
@@ -495,9 +480,9 @@
               <div class="ant-descriptions-item">
                 <div class="ant-descriptions-item-label">报警类型</div>
                 <div class="ant-descriptions-item-content">
-                  <span class="ant-tag ant-tag-error"><i class="fa-solid fa-link" style="font-size:10px;"></i>链路异常</span>
-                  <span class="ant-tag ant-tag-warning"><i class="fa-solid fa-heart-pulse" style="font-size:10px;"></i>心跳超时</span>
-                  <span class="ant-tag ant-tag-warning"><i class="fa-solid fa-network-wired" style="font-size:10px;"></i>端口不可达</span>
+                  <span class="ant-tag ant-tag-default"><i class="fa-solid fa-link" style="font-size:10px;"></i>链路异常</span>
+                  <span class="ant-tag ant-tag-default"><i class="fa-solid fa-heart-pulse" style="font-size:10px;"></i>心跳超时</span>
+                  <span class="ant-tag ant-tag-default"><i class="fa-solid fa-network-wired" style="font-size:10px;"></i>端口不可达</span>
                 </div>
               </div>
               <div class="ant-descriptions-item">
@@ -537,16 +522,59 @@
         </div>
       </div>
 
+      <!-- Layer 1.5: 快捷操作 -->
+      <div style="margin:16px 24px 0;display:flex;align-items:center;gap:12px;">
+        <button class="ant-btn" onclick="showToast('success','正在打开直播预览...')"><i class="fa-solid fa-video"></i>查看直播</button>
+      </div>
+
+      <!-- Layer 2: 处理模块（设备信息与诊断区之间） -->
+      <div style="margin:16px 24px 0;background:#fff;border-radius:8px;border:1px solid var(--ant-border-secondary);padding:16px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+          <i class="fa-solid fa-clipboard-check" style="color:var(--ant-primary);"></i>
+          <span style="font-size:15px;font-weight:600;">告警处理</span>
+        </div>
+        <!-- 第1行：处理结果 -->
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+          <span style="font-size:13px;font-weight:500;flex-shrink:0;">处理结果 <span style="color:var(--ant-error);">*</span></span>
+          <div style="display:flex;gap:8px;" id="processResultCards">
+            <label style="display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border:1px solid var(--ant-border-secondary);border-radius:4px;cursor:pointer;transition:all 0.2s;font-size:13px;" onclick="selectProcessResult(this,'fixed')">
+              <input type="radio" name="processResult" value="fixed" style="accent-color:#52c41a;margin:0;">
+              <span style="font-weight:500;color:#52c41a;">已解决</span>
+            </label>
+            <label style="display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border:1px solid var(--ant-border-secondary);border-radius:4px;cursor:pointer;transition:all 0.2s;font-size:13px;" onclick="selectProcessResult(this,'false')">
+              <input type="radio" name="processResult" value="false" style="accent-color:#faad14;margin:0;">
+              <span style="font-weight:500;color:#faad14;">误报</span>
+            </label>
+            <label style="display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border:1px solid var(--ant-border-secondary);border-radius:4px;cursor:pointer;transition:all 0.2s;font-size:13px;" onclick="selectProcessResult(this,'ignore')">
+              <input type="radio" name="processResult" value="ignore" style="accent-color:var(--ant-text-secondary);margin:0;">
+              <span style="font-weight:500;color:var(--ant-text-secondary);">忽略</span>
+            </label>
+          </div>
+        </div>
+        <!-- 第2行：处理意见 -->
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+          <span style="font-size:13px;font-weight:500;flex-shrink:0;">处理意见 <span id="remarkRequired" style="color:var(--ant-error);display:none;">*</span></span>
+          <input type="text" id="processRemark" placeholder="请填写处理意见（已解决时必填）" style="flex:1;height:32px;padding:0 11px;border:1px solid var(--ant-border);border-radius:4px;font-size:14px;box-sizing:border-box;">
+          <div id="remarkError" style="color:var(--ant-error);font-size:12px;margin-top:4px;display:none;">已解决时处理意见为必填</div>
+        </div>
+        <!-- 第3行：操作按钮 -->
+        <div style="display:flex;justify-content:flex-start;gap:8px;">
+          <button class="ant-btn ant-btn-primary" onclick="submitProcess()">提交</button>
+          <button class="ant-btn" onclick="cancelProcess()">取消</button>
+        </div>
+      </div>
+
       <!-- Layer 3: 诊断区 Tabs -->
-      <div class="ant-tabs">
-        <div class="ant-tabs-nav" id="tabsNav">
+      <div style="margin-top:24px;border-radius:8px;border:1px solid var(--ant-border-secondary);overflow:hidden;">
+      <div class="ant-tabs" style="margin-top:0;background:#fff;">
+        <div class="ant-tabs-nav" id="tabsNav" style="background:#fff;border-bottom:1px solid var(--ant-border-secondary);">
           <div class="ant-tabs-tab active" data-tab="signaling" onclick="switchTab('signaling')">
             <i class="fa-solid fa-link" style="font-size:12px;"></i>
-            链路诊断 <span class="tab-badge tab-badge-error">2</span>
+            链路诊断 <span class="tab-dot tab-dot-error"></span>
           </div>
           <div class="ant-tabs-tab" data-tab="network" onclick="switchTab('network')">
             <i class="fa-solid fa-network-wired" style="font-size:12px;"></i>
-            网络状态 <span class="tab-badge tab-badge-error">3</span>
+            网络状态 <span class="tab-dot tab-dot-error"></span>
           </div>
           <div class="ant-tabs-tab" data-tab="quality" onclick="switchTab('quality')">
             <i class="fa-solid fa-image" style="font-size:12px;"></i>
@@ -554,27 +582,10 @@
           </div>
         </div>
 
-        <div class="ant-tabs-content">
+        <div class="ant-tabs-content" style="padding:16px;">
 
           <!-- ===== 链路诊断 Tab ===== -->
           <div class="tab-panel active" id="panel-signaling">
-            <!-- 指标卡片 -->
-            <div class="metric-grid">
-              <div class="metric-card metric-card-abnormal">
-                <div class="ant-statistic">
-                  <div class="ant-statistic-title">心跳超时率</div>
-                  <div class="ant-statistic-content" style="color:var(--ant-error);">18.5<span class="ant-statistic-suffix">%</span></div>
-                  <div class="ant-statistic-footer" style="color:var(--ant-error);"><i class="fa-solid fa-triangle-exclamation" style="font-size:10px;"></i>严重超标</div>
-                </div>
-              </div>
-              <div class="metric-card metric-card-abnormal">
-                <div class="ant-statistic">
-                  <div class="ant-statistic-title">点播成功率</div>
-                  <div class="ant-statistic-content" style="color:var(--ant-error);">0<span class="ant-statistic-suffix">%</span></div>
-                  <div class="ant-statistic-footer" style="color:var(--ant-error);"><i class="fa-solid fa-circle-xmark" style="font-size:10px;"></i>设备离线</div>
-                </div>
-              </div>
-            </div>
             <!-- 诊断报告（链路时序图） -->
             <div class="ant-card" style="margin-bottom:16px;">
               <div class="ant-card-head">
@@ -709,6 +720,7 @@
 
         </div>
       </div>
+      </div>
 
       <!-- Layer 4: 处置记录 -->
       <div style="margin:16px 24px 0;">
@@ -744,6 +756,20 @@
               </div>
             </div>
             <div class="ant-timeline-pending">— 等待工程师处置 —</div>
+
+            <!-- 处理结果与意见 -->
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--ant-border-secondary);">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div>
+                  <div style="font-size:13px;color:var(--ant-text-secondary);margin-bottom:4px;">处理结果</div>
+                  <div style="font-size:14px;"><span class="ant-tag ant-tag-closed">待处理</span></div>
+                </div>
+                <div>
+                  <div style="font-size:13px;color:var(--ant-text-secondary);margin-bottom:4px;">处理意见</div>
+                  <div style="font-size:14px;color:var(--ant-text-tertiary);">—</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -769,7 +795,7 @@
       <div class="ant-form-item">
         <label class="ant-form-label" id="remarkLabel">处置备注</label>
         <textarea class="ant-textarea" id="closeRemark" placeholder="选填，最多500字符" rows="3" maxlength="500"></textarea>
-        <div class="ant-form-hint" id="remarkHint" style="color:var(--ant-error);display:none;">已修复时备注为必填，请简述修复措施</div>
+        <div class="ant-form-hint" id="remarkHint" style="color:var(--ant-error);display:none;">已解决时备注为必填，请简述修复措施</div>
         <div class="ant-form-hint" id="remarkCount">0 / 500</div>
       </div>
     </div>
@@ -900,9 +926,9 @@ document.getElementById('btnDownloadLog').addEventListener('click', function() {
 
 /* ========== 关闭原因渲染 ========== */
 var closeReasons = [
-  { value: 'fixed', label: '已修复', desc: '问题已解决，设备恢复正常', color: '#389e0d' },
+  { value: 'fixed', label: '已解决', desc: '问题已解决，设备恢复正常', color: '#389e0d' },
   { value: 'false', label: '误报', desc: '检测误判，实际无异常', color: '#d46b08' },
-  { value: 'ignore', label: '已忽略', desc: '不影响业务，暂不处理', color: 'var(--ant-text-secondary)' }
+  { value: 'ignore', label: '忽略', desc: '不影响业务，暂不处理', color: 'var(--ant-text-secondary)' }
 ];
 var selectedReason = '';
 
@@ -952,7 +978,7 @@ function confirmClose() {
     document.getElementById('remarkHint').style.display = '';
     return;
   }
-  var labels = { fixed: '已修复', 'false': '误报', ignore: '已忽略' };
+  var labels = { fixed: '已解决', 'false': '误报', ignore: '忽略' };
   var remark = document.getElementById('closeRemark').value.trim();
   closeModalFn();
   showToast('success', '告警已关闭（' + labels[selectedReason] + '）');
@@ -965,7 +991,6 @@ document.getElementById('closeRemark').addEventListener('input', function() {
 });
 
 /* ========== 事件绑定 ========== */
-document.getElementById('btnOpenModal').addEventListener('click', openModal);
 document.getElementById('btnCloseModal').addEventListener('click', closeModalFn);
 document.getElementById('btnCancelModal').addEventListener('click', closeModalFn);
 document.getElementById('btnConfirmClose').addEventListener('click', confirmClose);
@@ -977,6 +1002,47 @@ document.getElementById('closeModal').addEventListener('click', function(e) {
 renderTcpPorts();
 renderSeqDiagram();
 renderLogViewer();
+
+/* ========== 处理结果联动 ========== */
+var selectedProcessResult = '';
+
+function selectProcessResult(el, value) {
+  selectedProcessResult = value;
+  document.querySelectorAll('#processResultCards label').forEach(function(l) {
+    l.style.borderColor = 'var(--ant-border-secondary)';
+    l.style.background = '#fff';
+  });
+  el.style.borderColor = value === 'fixed' ? '#52c41a' : value === 'false' ? '#faad14' : 'rgba(0,0,0,0.25)';
+  el.style.background = value === 'fixed' ? '#f6ffed' : value === 'false' ? '#fffbe6' : '#fafafa';
+  document.getElementById('remarkRequired').style.display = value === 'fixed' ? '' : 'none';
+  document.getElementById('remarkError').style.display = 'none';
+}
+
+function submitProcess() {
+  var remark = document.getElementById('processRemark').value.trim();
+  if (!selectedProcessResult) {
+    showToast('error', '请选择处理结果');
+    return;
+  }
+  if (selectedProcessResult === 'fixed' && !remark) {
+    document.getElementById('remarkError').style.display = '';
+    return;
+  }
+  var labels = { fixed: '已解决', 'false': '误报', ignore: '忽略' };
+  showToast('success', '处理成功：' + labels[selectedProcessResult]);
+  setTimeout(function() { location.href = 'list.html'; }, 1500);
+}
+
+function cancelProcess() {
+  selectedProcessResult = '';
+  document.getElementById('processRemark').value = '';
+  document.getElementById('remarkRequired').style.display = 'none';
+  document.getElementById('remarkError').style.display = 'none';
+  document.querySelectorAll('#processResultCards label').forEach(function(l) {
+    l.style.borderColor = 'var(--ant-border-secondary)';
+    l.style.background = '#fff';
+  });
+}
 </script>
 </body>
 </html>

@@ -49,7 +49,7 @@
     .ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
     .ring-center-value{font-size:28px;font-weight:700;color:var(--ant-text);}
     .ring-center-label{font-size:12px;color:var(--ant-text-tertiary);}
-    .ring-segment{transition:opacity 0.2s;cursor:pointer;}
+    .ring-segment{transition:opacity 0.2s;cursor:default;}
     .ring-segment:hover{opacity:0.8;}
     .ring-tooltip{position:absolute;background:rgba(0,0,0,0.75);color:#fff;padding:6px 10px;border-radius:4px;font-size:12px;pointer-events:none;white-space:nowrap;display:none;z-index:10;}
     .legend-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ant-text-secondary);}
@@ -88,7 +88,7 @@
     <aside class="sider">
       <div class="menu-group-title">报警中心</div>
       <div class="menu-item active" onclick="showMsg('当前页面：告警仪表盘')"><i class="fa-solid fa-gauge-high"></i>告警仪表盘</div>
-      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-bell"></i>设备检测告警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-bell"></i>设备检测告警 <span style="font-size:10px;color:rgba(255,255,255,0.45);margin-left:4px;">已有功能升级</span></div>
       <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-robot"></i>感知任务告警</div>
       <div class="menu-group-title">智能运维</div>
       <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
@@ -104,21 +104,14 @@
         <a href="../index.html">首页</a><span>/</span><span>报警中心</span><span>/</span><span style="color:var(--ant-text);">告警仪表盘</span>
       </div>
 
-      <!-- 统计周期选择 -->
+      <!-- 页面标题 -->
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-lg font-semibold m-0" style="color:var(--ant-text);">告警仪表盘</h2>
-        <div class="flex items-center gap-3">
-          <div class="flex items-center gap-1" style="background:#fff;border:1px solid var(--ant-border);border-radius:4px;padding:2px;">
-            <button class="period-btn active" onclick="switchPeriod(this,'today')" style="padding:4px 12px;font-size:13px;border:none;background:var(--ant-primary);color:#fff;border-radius:3px;cursor:pointer;">今天</button>
-            <button class="period-btn" onclick="switchPeriod(this,'week')" style="padding:4px 12px;font-size:13px;border:none;background:transparent;color:var(--ant-text-secondary);border-radius:3px;cursor:pointer;">近一周</button>
-            <button class="period-btn" onclick="switchPeriod(this,'month')" style="padding:4px 12px;font-size:13px;border:none;background:transparent;color:var(--ant-text-secondary);border-radius:3px;cursor:pointer;">近一月</button>
-          </div>
-          <button class="ant-btn" onclick="showMsg('数据已刷新')"><i class="fa-solid fa-rotate"></i>刷新</button>
-        </div>
+        <button class="ant-btn" onclick="showMsg('数据已刷新')"><i class="fa-solid fa-rotate"></i>刷新</button>
       </div>
 
-      <!-- 核心指标卡片 + 待处置告警卡片 -->
-      <div class="grid grid-cols-5 gap-4 mb-6">
+      <!-- 核心指标卡片（保持现有4个统计卡片，逻辑不变，仅样式升级） -->
+      <div class="grid grid-cols-4 gap-4 mb-6">
         <!-- 今日告警 -->
         <div class="stat-card">
           <div class="flex items-start justify-between">
@@ -128,7 +121,7 @@
             </div>
             <div class="stat-card-icon" style="background:#fff1f0;"><i class="fa-solid fa-triangle-exclamation" style="color:#f5222d;"></i></div>
           </div>
-          <div class="stat-card-change" style="color:#f5222d;"><i class="fa-solid fa-arrow-up"></i> 12.5% 较昨日</div>
+          <div class="stat-card-change" style="color:#f5222d;"><i class="fa-solid fa-arrow-up"></i>12.5%</div>
         </div>
         <!-- 今日处理 -->
         <div class="stat-card">
@@ -139,7 +132,7 @@
             </div>
             <div class="stat-card-icon" style="background:#e6f4ff;"><i class="fa-solid fa-circle-check" style="color:#1677ff;"></i></div>
           </div>
-          <div class="stat-card-change" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i> 8.3% 较昨日</div>
+          <div class="stat-card-change" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i>8.3%</div>
         </div>
         <!-- 处理效率 -->
         <div class="stat-card">
@@ -150,7 +143,7 @@
             </div>
             <div class="stat-card-icon" style="background:#fffbe6;"><i class="fa-solid fa-gauge" style="color:#faad14;"></i></div>
           </div>
-          <div class="stat-card-change" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i> 3.2% 较昨日</div>
+          <div class="stat-card-change" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i>3.2%</div>
         </div>
         <!-- 本月告警 -->
         <div class="stat-card">
@@ -161,20 +154,7 @@
             </div>
             <div class="stat-card-icon" style="background:#f0f0f0;"><i class="fa-solid fa-calendar" style="color:var(--ant-text-secondary);"></i></div>
           </div>
-          <div class="stat-card-change" style="color:#f5222d;"><i class="fa-solid fa-arrow-down"></i> 5.1% 较上月</div>
-        </div>
-        <!-- 待处置告警（新增，可点击跳转） -->
-        <div class="pending-card" onclick="location.href='../ops-alert/list.html'">
-          <div class="flex items-start justify-between mb-2">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-fire" style="color:#f5222d;font-size:16px;"></i>
-              <span style="font-size:13px;font-weight:600;color:#cf1322;">待处置告警</span>
-            </div>
-            <span style="background:#f5222d;color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;">32</span>
-          </div>
-          <div class="pending-value">32</div>
-          <div style="font-size:12px;color:var(--ant-text-secondary);margin-top:6px;">今日新增 <span style="color:#f5222d;font-weight:600;">8</span> 条</div>
-          <div style="font-size:11px;color:var(--ant-text-tertiary);margin-top:4px;"><i class="fa-solid fa-arrow-right mr-1"></i>点击查看详情</div>
+          <div class="stat-card-change" style="color:#52c41a;"><i class="fa-solid fa-arrow-down"></i>5.1%</div>
         </div>
       </div>
 
@@ -184,28 +164,28 @@
         <div class="ant-card">
           <div class="ant-card-body">
             <div class="flex items-center justify-between mb-4">
-              <span class="font-semibold" style="font-size:15px;">告警来源分布</span>
-              <span style="font-size:12px;color:var(--ant-text-tertiary);">按告警来源统计</span>
+              <span class="font-semibold" style="font-size:15px;">告警分布</span>
+              <span style="font-size:12px;color:var(--ant-text-tertiary);">按任务/流程统计</span>
             </div>
             <div class="flex items-center justify-between">
               <!-- 环形图 -->
               <div style="position:relative;width:200px;height:200px;">
                 <svg viewBox="0 0 200 200" width="200" height="200" id="ringChart">
-                  <!-- 检测任务 45% 蓝色 -->
+                  <!-- 巡检流程-西区日常 56% 蓝色 -->
                   <circle class="ring-segment" cx="100" cy="100" r="70" fill="none" stroke="#1677ff" stroke-width="28"
-                    stroke-dasharray="197.92 241.74" stroke-dashoffset="0"
+                    stroke-dasharray="246.30 193.36" stroke-dashoffset="0"
                     transform="rotate(-90 100 100)"
-                    onmouseenter="showRingTip(evt,'检测任务',58,'45%')" onmouseleave="hideRingTip()"/>
-                  <!-- 巡检任务 35% 橙色 -->
-                  <circle class="ring-segment" cx="100" cy="100" r="70" fill="none" stroke="#fa8c16" stroke-width="28"
-                    stroke-dasharray="153.94 285.72" stroke-dashoffset="-197.92"
+                    onmouseenter="showRingTip(evt,'巡检流程-西区日常',72,'56%')" onmouseleave="hideRingTip()"/>
+                  <!-- 巡检流程-东区夜间 24% 青色 -->
+                  <circle class="ring-segment" cx="100" cy="100" r="70" fill="none" stroke="#13c2c2" stroke-width="28"
+                    stroke-dasharray="105.56 334.10" stroke-dashoffset="-246.30"
                     transform="rotate(-90 100 100)"
-                    onmouseenter="showRingTip(evt,'巡检任务',45,'35%')" onmouseleave="hideRingTip()"/>
-                  <!-- 感知任务 20% 绿色 -->
+                    onmouseenter="showRingTip(evt,'巡检流程-东区夜间',31,'24%')" onmouseleave="hideRingTip()"/>
+                  <!-- 温湿度监测感知任务 20% 绿色 -->
                   <circle class="ring-segment" cx="100" cy="100" r="70" fill="none" stroke="#52c41a" stroke-width="28"
                     stroke-dasharray="87.96 351.70" stroke-dashoffset="-351.86"
                     transform="rotate(-90 100 100)"
-                    onmouseenter="showRingTip(evt,'感知任务',25,'20%')" onmouseleave="hideRingTip()"/>
+                    onmouseenter="showRingTip(evt,'温湿度监测感知任务',25,'20%')" onmouseleave="hideRingTip()"/>
                 </svg>
                 <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
                   <div style="font-size:28px;font-weight:700;color:var(--ant-text);">128</div>
@@ -215,26 +195,23 @@
               </div>
               <!-- 图例 -->
               <div style="display:flex;flex-direction:column;gap:16px;padding-left:24px;">
-                <div class="legend-item" style="cursor:pointer;" onclick="showMsg('筛选来源=检测任务')">
+                <div class="legend-item">
                   <span class="legend-dot" style="background:#1677ff;"></span>
-                  <span style="flex:1;">检测任务</span>
-                  <span style="font-weight:600;color:var(--ant-text);">58</span>
-                  <span style="color:var(--ant-text-tertiary);font-size:12px;">45%</span>
+                  <span style="flex:1;">巡检流程-西区日常</span>
+                  <span style="font-weight:600;color:var(--ant-text);">72</span>
+                  <span style="color:var(--ant-text-tertiary);font-size:12px;">56%</span>
                 </div>
-                <div class="legend-item" style="cursor:pointer;" onclick="showMsg('筛选来源=巡检任务')">
-                  <span class="legend-dot" style="background:#fa8c16;"></span>
-                  <span style="flex:1;">巡检任务</span>
-                  <span style="font-weight:600;color:var(--ant-text);">45</span>
-                  <span style="color:var(--ant-text-tertiary);font-size:12px;">35%</span>
+                <div class="legend-item">
+                  <span class="legend-dot" style="background:#13c2c2;"></span>
+                  <span style="flex:1;">巡检流程-东区夜间</span>
+                  <span style="font-weight:600;color:var(--ant-text);">31</span>
+                  <span style="color:var(--ant-text-tertiary);font-size:12px;">24%</span>
                 </div>
-                <div class="legend-item" style="cursor:pointer;" onclick="showMsg('筛选来源=感知任务')">
+                <div class="legend-item">
                   <span class="legend-dot" style="background:#52c41a;"></span>
-                  <span style="flex:1;">感知任务</span>
+                  <span style="flex:1;">温湿度监测感知任务</span>
                   <span style="font-weight:600;color:var(--ant-text);">25</span>
                   <span style="color:var(--ant-text-tertiary);font-size:12px;">20%</span>
-                </div>
-                <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--ant-border-secondary);font-size:11px;color:var(--ant-text-tertiary);">
-                  <i class="fa-solid fa-circle-info mr-1"></i>点击图例可跳转至对应来源的告警列表
                 </div>
               </div>
             </div>
@@ -245,7 +222,14 @@
         <div class="ant-card">
           <div class="ant-card-body">
             <div class="flex items-center justify-between mb-4">
-              <span class="font-semibold" style="font-size:15px;">告警趋势</span>
+              <div class="flex items-center gap-4">
+                <span class="font-semibold" style="font-size:15px;">告警趋势</span>
+                <div class="flex items-center gap-1" style="background:#f5f5f5;border-radius:4px;padding:2px;">
+                  <button class="period-btn active" onclick="switchPeriod(this,'today')" style="padding:4px 12px;font-size:12px;border:none;background:var(--ant-primary);color:#fff;border-radius:3px;cursor:pointer;">今天</button>
+                  <button class="period-btn" onclick="switchPeriod(this,'week')" style="padding:4px 12px;font-size:12px;border:none;background:transparent;color:var(--ant-text-secondary);border-radius:3px;cursor:pointer;">近一周</button>
+                  <button class="period-btn" onclick="switchPeriod(this,'month')" style="padding:4px 12px;font-size:12px;border:none;background:transparent;color:var(--ant-text-secondary);border-radius:3px;cursor:pointer;">近一月</button>
+                </div>
+              </div>
               <div class="flex items-center gap-3">
                 <span class="legend-item"><span class="legend-dot" style="background:#f5222d;"></span>告警数</span>
                 <span class="legend-item"><span class="legend-dot" style="background:#1677ff;"></span>处理数</span>
@@ -346,7 +330,6 @@
           <div class="ant-card-body">
             <div class="flex items-center justify-between mb-4">
               <span class="font-semibold" style="font-size:15px;">最新告警</span>
-              <a href="../ops-alert/list.html" style="font-size:12px;color:var(--ant-primary);text-decoration:none;">查看全部 <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i></a>
             </div>
             <div>
               <div class="alarm-row" style="cursor:pointer;" onclick="location.href='../ops-alert/detail.html'">
