@@ -103,11 +103,43 @@
   .sim-low { background: var(--ant-error-bg); color: var(--ant-error); }
   .count { color: var(--ant-text-tertiary); }
 
+  /* 人工确认状态 */
+  .confirm-state { display:none; flex:1; min-width:0; overflow-y:auto; flex-direction:column; }
+  .confirm-state.active { display:flex; }
+  .confirm-top { display:flex; align-items:center; gap:16px; padding:16px 20px; background:var(--ant-bg-container); border-bottom:1px solid var(--ant-border-secondary); flex-shrink:0; }
+  .confirm-top-img { width:64px; height:64px; border-radius:8px; overflow:hidden; border:2px solid var(--ant-primary); flex-shrink:0; background:var(--ant-bg); }
+  .confirm-top-img img { width:100%; height:100%; object-fit:cover; }
+  .confirm-top-info { flex:1; }
+  .confirm-top-info .query-mode { font-size:14px; font-weight:600; margin-bottom:4px; }
+  .confirm-top-info .query-params { font-size:12px; color:var(--ant-text-tertiary); display:flex; gap:16px; flex-wrap:wrap; }
+  .confirm-grid-title { padding:16px 20px 8px; font-size:14px; font-weight:600; color:var(--ant-text-secondary); display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .confirm-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; padding:0 20px 12px; flex:1; align-content:start; }
+  .confirm-card { background:var(--ant-bg-container); border:2px solid var(--ant-border-secondary); border-radius:var(--radius-lg); overflow:hidden; transition:all 0.3s; display:flex; flex-direction:column; }
+  .confirm-card:hover { border-color:var(--ant-primary-border); box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+  .confirm-card-img { width:100%; aspect-ratio:16/10; overflow:hidden; background:var(--ant-bg); position:relative; }
+  .confirm-card-img img { width:100%; height:100%; object-fit:cover; }
+  .confirm-card-img .rank-badge { position:absolute; top:6px; left:6px; background:var(--ant-primary); color:white; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; }
+  .confirm-card-body { padding:8px 10px 10px; flex:1; display:flex; flex-direction:column; }
+  .confirm-card-body h4 { font-size:13px; font-weight:600; margin-bottom:4px; display:flex; align-items:center; gap:4px; }
+  .confirm-card-body .meta-row { font-size:11px; color:var(--ant-text-secondary); margin-bottom:2px; }
+  .confirm-card-actions { margin-top:auto; padding-top:8px; }
+  .confirm-card-actions .btn-confirm { width:100%; background-color:#52c41a !important; color:#fff !important; border:none !important; padding:7px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:500; transition:all 0.2s; }
+  .confirm-card-actions .btn-confirm:hover { background-color:#389e0d !important; }
+  .confirm-card-snapshots { display:none; }
+  .confirm-card.confirmed { border-color:var(--ant-success); background:var(--ant-success-bg); }
+  .confirm-card.skipped { opacity:0.4; pointer-events:none; }
+  .confirm-none { text-align:center; padding:40px 20px; color:var(--ant-text-tertiary); border-top:1px solid var(--ant-border-secondary); margin-top:auto; flex-shrink:0; }
+  .confirm-none p { margin-bottom:16px; font-size:14px; }
+  .confirm-none .btn-group { display:flex; gap:8px; justify-content:center; }
+  .confirm-none .btn-group button { padding:8px 16px; border-radius:6px; cursor:pointer; font-size:13px; }
+  .result-state { display:none; flex:1; min-width:0; }
+  .result-state.active { display:flex; }
+
   /* 右侧面板 */
-  .right-panel { flex:1; display:flex; flex-direction:column; min-width:0; }
+  .right-panel { flex:1; display:flex; flex-direction:column; min-width:0; overflow-y:auto; }
 
   /* 地图区域 */
-  .map-section { position:relative; background: #0a1628; margin:12px 12px 0; border-radius: var(--radius-lg); overflow:hidden; flex:1; min-height:300px; }
+  .map-section { position:relative; background: #0a1628; margin:12px 12px 0; border-radius: var(--radius-lg); overflow:hidden; height:55vh; }
   .map-toolbar { position:absolute; top:12px; left:12px; display:flex; gap:6px; z-index:10; }
   .map-tb-btn { background: var(--ant-bg-container); border:1px solid var(--ant-border-secondary); color: var(--ant-text-secondary); padding:6px 12px; border-radius: var(--radius-base); font-size:11px; cursor:pointer; transition:all 0.2s; box-shadow: var(--shadow-1); }
   .map-tb-btn:hover, .map-tb-btn.active { border-color: var(--ant-primary); color: var(--ant-primary); }
@@ -138,7 +170,7 @@
   .speed-btn:hover, .speed-btn.active { border-color: var(--ant-primary); color: var(--ant-primary); }
 
   /* 抓拍区域 */
-  .capture-section { margin:12px; background: var(--ant-bg-container); border:1px solid var(--ant-border-secondary); border-radius: var(--radius-lg); overflow:hidden; height:220px; display:flex; flex-direction:column; }
+  .capture-section { margin:12px; background: var(--ant-bg-container); border:1px solid var(--ant-border-secondary); border-radius: var(--radius-lg); overflow:hidden; flex:1; min-height:120px; display:flex; flex-direction:column; }
   .cap-header { padding:12px 16px; border-bottom:1px solid var(--ant-border-secondary); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
   .cap-header h4 { font-size:13px; display:flex; align-items:center; gap:8px; }
   .cap-header h4 i { color: var(--ant-primary); }
@@ -286,81 +318,226 @@
     <!-- 内容区 -->
     <div class="ant-layout-content">
       <!-- 页面标题 -->
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 16px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 16px;" id="pageTitle">
         <div style="font-size: 20px; font-weight: 600; color: var(--ant-text);">
-          人员轨迹查询结果
+          <span id="titleText">请确认目标人员</span>
         </div>
-        <div style="display:flex; gap:8px;">
-          <button class="df-secondary" onclick="if(confirm('此抓拍图片AI特征置信度为65%（演示数据），布控可能产生较多误报。\n\n建议：\n1. 上传更清晰的照片\n2. 在目标库中选择已有目标\n\n是否继续使用？')){showMessage('已跳转至布控任务页','info')}"><i class="fa-solid fa-shield-halved mr-1"></i>加入布控</button>
-          <button class="df-primary" onclick="openModal('modalExport')"><i class="fa-solid fa-file-export mr-1"></i>导出报告</button>
-        </div>
-      </div>
-
-      <!-- 左右分栏内容 -->
-      <div class="content-area">
-      <!-- 左侧面板 - 候选列表 -->
-      <div class="left-panel">
-        <div class="left-header">
-          <h3><i class="fa-solid fa-list" style="color: var(--ant-primary);"></i>候选目标</h3>
-          <div class="result-count">共找到 5 条结果</div>
-        </div>
-        <div class="candidate-list">
-          <div class="candidate-card active" onclick="selectCandidate(this, 0)">
-            <div class="candidate-avatar">
-              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Crect fill='%231677ff' width='48' height='48'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='white' font-size='14'%3E目标%3C/text%3E%3C/svg%3E">
-            </div>
-            <div class="candidate-info">
-              <div class="candidate-name">P-00231</div>
-              <div class="candidate-id">男 · 黑色上衣</div>
-              <div class="candidate-meta">
-                <span class="similarity sim-high">95%</span>
-                <span class="count">出现 8 次</span>
-              </div>
-            </div>
-          </div>
-          <div class="candidate-card" onclick="selectCandidate(this, 1)">
-            <div class="candidate-avatar">
-              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Crect fill='%2352c41a' width='48' height='48'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='white' font-size='14'%3E目标%3C/text%3E%3C/svg%3E">
-            </div>
-            <div class="candidate-info">
-              <div class="candidate-name">P-00187</div>
-              <div class="candidate-id">男 · 黑色上衣</div>
-              <div class="candidate-meta">
-                <span class="similarity sim-mid">88%</span>
-                <span class="count">出现 6 次</span>
-              </div>
-            </div>
-          </div>
-          <div class="candidate-card" onclick="selectCandidate(this, 2)">
-            <div class="candidate-avatar">
-              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Crect fill='%23faad14' width='48' height='48'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='white' font-size='14'%3E目标%3C/text%3E%3C/svg%3E">
-            </div>
-            <div class="candidate-info">
-              <div class="candidate-name">P-00342</div>
-              <div class="candidate-id">男 · 黑色上衣</div>
-              <div class="candidate-meta">
-                <span class="similarity sim-mid">82%</span>
-                <span class="count">出现 4 次</span>
-              </div>
-            </div>
-          </div>
-          <div class="candidate-card" onclick="selectCandidate(this, 3)">
-            <div class="candidate-avatar">
-              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Crect fill='%23ff4d4f' width='48' height='48'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='white' font-size='14'%3E目标%3C/text%3E%3C/svg%3E">
-            </div>
-            <div class="candidate-info">
-              <div class="candidate-name">P-00156</div>
-              <div class="candidate-id">女 · 白色上衣</div>
-              <div class="candidate-meta">
-                <span class="similarity sim-low">76%</span>
-                <span class="count">出现 3 次</span>
-              </div>
-            </div>
-          </div>
+        <div style="display:flex; gap:8px;" id="topActions">
+          <button class="df-secondary" onclick="window.location.href='search.html'" id="btnBack"><i class="fa-solid fa-arrow-left mr-1"></i>返回查询</button>
+          <button class="df-secondary" onclick="if(confirm('确认加入布控？')){showMessage('已跳转至布控任务页','info')}" style="display:none" id="btnMonitor"><i class="fa-solid fa-shield-halved mr-1"></i>加入布控</button>
+          <button class="df-primary" onclick="openModal('modalExport')" style="display:none" id="btnExport"><i class="fa-solid fa-file-export mr-1"></i>导出报告</button>
         </div>
       </div>
 
-      <!-- 右侧面板 -->
+      <!-- 人工确认状态 -->
+      <div class="confirm-state active" id="confirmState">
+        <!-- 顶部：查询条件摘要 -->
+        <div class="confirm-top">
+          <div class="confirm-top-img">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect fill='%23e6f4ff' width='64' height='64'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='%231677ff' font-size='11'%3E查询图%3C/text%3E%3C/svg%3E" alt="查询照片">
+          </div>
+          <div class="confirm-top-info">
+            <div class="query-mode"><span style="background:var(--ant-primary);color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;margin-right:6px;">以图搜人</span>请确认目标人员</div>
+            <div class="query-params">
+              <span><i class="fa-regular fa-clock" style="margin-right:3px;"></i>近24小时</span>
+              <span><i class="fa-solid fa-location-dot" style="margin-right:3px;"></i>全部区域</span>
+              <span><i class="fa-solid fa-sliders" style="margin-right:3px;"></i>标准匹配</span>
+              <span style="color:var(--ant-primary);"><i class="fa-solid fa-magnifying-glass" style="margin-right:3px;"></i>共 10 个候选</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 网格候选列表 -->
+        <div class="confirm-grid-title"><i class="fa-solid fa-images" style="color:var(--ant-primary);"></i>候选人员 — 按出现次数排序</div>
+        <div class="confirm-grid" id="confirmList">
+          <!-- 候选1 -->
+          <div class="confirm-card" data-idx="0">
+            <div class="confirm-card-img">
+              <div class="rank-badge">1</div>
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='225'%3E%3Crect fill='%23e6f4ff' width='300' height='225'/%3E%3Ctext x='50%25' y='45%25' text-anchor='middle' fill='%231677ff' font-size='18'%3EP-00231%3C/text%3E%3Ctext x='50%25' y='60%25' text-anchor='middle' fill='%231677ff' font-size='10'%3E代表抓拍图%3C/text%3E%3C/svg%3E" alt="候选1">
+            </div>
+            <div class="confirm-card-body">
+              <h4><i class="fa-solid fa-user" style="color:var(--ant-primary);"></i>P-00231</h4>
+              <div class="meta-row"><i class="fa-solid fa-crosshairs"></i>出现 <strong>8 次</strong></div>
+              <div class="meta-row"><i class="fa-regular fa-clock"></i>09:12 ~ 15:30</div>
+              <div class="meta-row"><i class="fa-solid fa-video"></i>6 个摄像头 · 6h18m</div>
+              <div class="confirm-card-actions">
+                <button class="btn-confirm" onclick="confirmTarget(0)">确认目标</button>
+              </div>
+            </div>
+            <div class="confirm-card-snapshots">
+              <div class="snap-grid">
+                <div class="snap-item"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect fill='%23f0f0f0' width='60' height='60'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='%23999' font-size='9'%3E09:12%3C/text%3E%3C/svg%3E"></div>
+                <div class="snap-item"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect fill='%23f0f0f0' width='60' height='60'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='%23999' font-size='9'%3E09:45%3C/text%3E%3C/svg%3E"></div>
+                <div class="snap-item"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect fill='%23f0f0f0' width='60' height='60'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='%23999' font-size='9'%3E10:23%3C/text%3E%3C/svg%3E"></div>
+                <div class="snap-item"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect fill='%23f0f0f0' width='60' height='60'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='%23999' font-size='9'%3E11:07%3C/text%3E%3C/svg%3E"></div>
+                <div class="snap-item"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect fill='%23f0f0f0' width='60' height='60'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='%23999' font-size='9'%3E13:15%3C/text%3E%3C/svg%3E"></div>
+                <div class="snap-item"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect fill='%23f0f0f0' width='60' height='60'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='%23999' font-size='9'%3E15:30%3C/text%3E%3C/svg%3E"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 候选2 -->
+          <div class="confirm-card" data-idx="1">
+            <div class="confirm-card-img">
+              <div class="rank-badge">2</div>
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='225'%3E%3Crect fill='%23f6ffed' width='300' height='225'/%3E%3Ctext x='50%25' y='45%25' text-anchor='middle' fill='%2352c41a' font-size='18'%3EP-00187%3C/text%3E%3Ctext x='50%25' y='60%25' text-anchor='middle' fill='%2352c41a' font-size='10'%3E代表抓拍图%3C/text%3E%3C/svg%3E" alt="候选2">
+            </div>
+            <div class="confirm-card-body">
+              <h4><i class="fa-solid fa-user" style="color:var(--ant-success);"></i>P-00187</h4>
+              <div class="meta-row"><i class="fa-solid fa-crosshairs"></i>出现 <strong>6 次</strong></div>
+              <div class="meta-row"><i class="fa-regular fa-clock"></i>10:05 ~ 14:22</div>
+              <div class="meta-row"><i class="fa-solid fa-video"></i>4 个摄像头 · 4h17m</div>
+              <div class="confirm-card-actions">
+                <button class="btn-confirm" onclick="confirmTarget(1)">确认目标</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 候选3 -->
+          <div class="confirm-card" data-idx="2">
+            <div class="confirm-card-img">
+              <div class="rank-badge">3</div>
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='225'%3E%3Crect fill='%23fffbe6' width='300' height='225'/%3E%3Ctext x='50%25' y='45%25' text-anchor='middle' fill='%23faad14' font-size='18'%3EP-00342%3C/text%3E%3Ctext x='50%25' y='60%25' text-anchor='middle' fill='%23faad14' font-size='10'%3E代表抓拍图%3C/text%3E%3C/svg%3E" alt="候选3">
+            </div>
+            <div class="confirm-card-body">
+              <h4><i class="fa-solid fa-user" style="color:var(--ant-warning);"></i>P-00342</h4>
+              <div class="meta-row"><i class="fa-solid fa-crosshairs"></i>出现 <strong>4 次</strong></div>
+              <div class="meta-row"><i class="fa-regular fa-clock"></i>11:30 ~ 13:45</div>
+              <div class="meta-row"><i class="fa-solid fa-video"></i>3 个摄像头 · 2h15m</div>
+              <div class="confirm-card-actions">
+                <button class="btn-confirm" onclick="confirmTarget(2)">确认目标</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 候选4 -->
+          <div class="confirm-card" data-idx="3">
+            <div class="confirm-card-img">
+              <div class="rank-badge">4</div>
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='225'%3E%3Crect fill='%23fff2f0' width='300' height='225'/%3E%3Ctext x='50%25' y='45%25' text-anchor='middle' fill='%23ff4d4f' font-size='18'%3EP-00415%3C/text%3E%3Ctext x='50%25' y='60%25' text-anchor='middle' fill='%23ff4d4f' font-size='10'%3E代表抓拍图%3C/text%3E%3C/svg%3E" alt="候选4">
+            </div>
+            <div class="confirm-card-body">
+              <h4><i class="fa-solid fa-user" style="color:var(--ant-error);"></i>P-00415</h4>
+              <div class="meta-row"><i class="fa-solid fa-crosshairs"></i>出现 <strong>3 次</strong></div>
+              <div class="meta-row"><i class="fa-regular fa-clock"></i>09:50 ~ 11:15</div>
+              <div class="meta-row"><i class="fa-solid fa-video"></i>2 个摄像头 · 1h25m</div>
+              <div class="confirm-card-actions">
+                <button class="btn-confirm" onclick="confirmTarget(3)">确认目标</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 候选5 -->
+          <div class="confirm-card" data-idx="4">
+            <div class="confirm-card-img">
+              <div class="rank-badge">5</div>
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='225'%3E%3Crect fill='%23f0f0f0' width='300' height='225'/%3E%3Ctext x='50%25' y='45%25' text-anchor='middle' fill='%23666' font-size='18'%3EP-00098%3C/text%3E%3Ctext x='50%25' y='60%25' text-anchor='middle' fill='%23666' font-size='10'%3E代表抓拍图%3C/text%3E%3C/svg%3E" alt="候选5">
+            </div>
+            <div class="confirm-card-body">
+              <h4><i class="fa-solid fa-user" style="color:var(--ant-text-secondary);"></i>P-00098</h4>
+              <div class="meta-row"><i class="fa-solid fa-crosshairs"></i>出现 <strong>2 次</strong></div>
+              <div class="meta-row"><i class="fa-regular fa-clock"></i>14:10 ~ 14:45</div>
+              <div class="meta-row"><i class="fa-solid fa-video"></i>2 个摄像头 · 0h35m</div>
+              <div class="confirm-card-actions">
+                <button class="btn-confirm" onclick="confirmTarget(4)">确认目标</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 候选6 -->
+          <div class="confirm-card" data-idx="5">
+            <div class="confirm-card-img">
+              <div class="rank-badge">6</div>
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='225'%3E%3Crect fill='%23f5f5f5' width='300' height='225'/%3E%3Ctext x='50%25' y='45%25' text-anchor='middle' fill='%23999' font-size='18'%3EP-00267%3C/text%3E%3Ctext x='50%25' y='60%25' text-anchor='middle' fill='%23999' font-size='10'%3E代表抓拍图%3C/text%3E%3C/svg%3E" alt="候选6">
+            </div>
+            <div class="confirm-card-body">
+              <h4><i class="fa-solid fa-user" style="color:var(--ant-text-tertiary);"></i>P-00267</h4>
+              <div class="meta-row"><i class="fa-solid fa-crosshairs"></i>出现 <strong>2 次</strong></div>
+              <div class="meta-row"><i class="fa-regular fa-clock"></i>10:30 ~ 10:55</div>
+              <div class="meta-row"><i class="fa-solid fa-video"></i>1 个摄像头 · 0h25m</div>
+              <div class="confirm-card-actions">
+                <button class="btn-confirm" onclick="confirmTarget(5)">确认目标</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 候选7 -->
+          <div class="confirm-card" data-idx="6">
+            <div class="confirm-card-img">
+              <div class="rank-badge">7</div>
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='187'%3E%3Crect fill='%23f9f0ff' width='300' height='187'/%3E%3Ctext x='50%25' y='45%25' text-anchor='middle' fill='%23722ed1' font-size='16'%3EP-00503%3C/text%3E%3C/svg%3E" alt="候选7">
+            </div>
+            <div class="confirm-card-body">
+              <h4>P-00503</h4>
+              <div class="meta-row">出现 <strong>2 次</strong></div>
+              <div class="meta-row">13:20 ~ 13:50</div>
+              <div class="meta-row">1 个摄像头 · 0h30m</div>
+              <div class="confirm-card-actions">
+                <button class="btn-confirm" onclick="confirmTarget(6)">确认目标</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 候选8 -->
+          <div class="confirm-card" data-idx="7">
+            <div class="confirm-card-img">
+              <div class="rank-badge">8</div>
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='187'%3E%3Crect fill='%23f0f5ff' width='300' height='187'/%3E%3Ctext x='50%25' y='45%25' text-anchor='middle' fill='%23597ef7' font-size='16'%3EP-00134%3C/text%3E%3C/svg%3E" alt="候选8">
+            </div>
+            <div class="confirm-card-body">
+              <h4>P-00134</h4>
+              <div class="meta-row">出现 <strong>1 次</strong></div>
+              <div class="meta-row">09:05 ~ 09:05</div>
+              <div class="meta-row">1 个摄像头 · 0h00m</div>
+              <div class="confirm-card-actions">
+                <button class="btn-confirm" onclick="confirmTarget(7)">确认目标</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 候选9 -->
+          <div class="confirm-card" data-idx="8">
+            <div class="confirm-card-img">
+              <div class="rank-badge">9</div>
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='187'%3E%3Crect fill='%23fcf4f0' width='300' height='187'/%3E%3Ctext x='50%25' y='45%25' text-anchor='middle' fill='%23cf6f2a' font-size='16'%3EP-00478%3C/text%3E%3C/svg%3E" alt="候选9">
+            </div>
+            <div class="confirm-card-body">
+              <h4>P-00478</h4>
+              <div class="meta-row">出现 <strong>1 次</strong></div>
+              <div class="meta-row">15:12 ~ 15:12</div>
+              <div class="meta-row">1 个摄像头 · 0h00m</div>
+              <div class="confirm-card-actions">
+                <button class="btn-confirm" onclick="confirmTarget(8)">确认目标</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 候选10 -->
+          <div class="confirm-card" data-idx="9">
+            <div class="confirm-card-img">
+              <div class="rank-badge">10</div>
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='187'%3E%3Crect fill='%23f6f6f6' width='300' height='187'/%3E%3Ctext x='50%25' y='45%25' text-anchor='middle' fill='%23bbb' font-size='16'%3EP-00319%3C/text%3E%3C/svg%3E" alt="候选10">
+            </div>
+            <div class="confirm-card-body">
+              <h4>P-00319</h4>
+              <div class="meta-row">出现 <strong>1 次</strong></div>
+              <div class="meta-row">16:40 ~ 16:40</div>
+              <div class="meta-row">1 个摄像头 · 0h00m</div>
+              <div class="confirm-card-actions">
+                <button class="btn-confirm" onclick="confirmTarget(9)">确认目标</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center;padding:4px 20px 8px;flex-shrink:0;">
+          <a href="search.html" style="color:var(--ant-text-tertiary);font-size:13px;text-decoration:none;">以上都不是？返回重新查询</a>
+        </div>
+      </div>
+
+      <!-- 结果展示状态（确认后显示） -->
+      <div class="result-state" id="resultState">
+      <!-- 右侧面板（全宽） -->
       <div class="right-panel">
         <!-- 地图区域 -->
         <div class="map-section">
@@ -569,7 +746,7 @@
         <button class="df-secondary" onclick="navigateDetail(1)">下一张<i class="fa-solid fa-chevron-right ml-1"></i></button>
         <button class="df-secondary" onclick="closeModal('modalDetail');showMessage('已定位到地图','info')"><i class="fa-solid fa-crosshairs mr-1"></i>定位到地图</button>
         <button class="df-primary" onclick="closeModal('modalDetail');openModal('modalVideo')"><i class="fa-solid fa-video mr-1"></i>查看录像</button>
-        <button class="df-secondary" onclick="closeModal('modalDetail');showMessage('以此图搜索已触发','info')"><i class="fa-solid fa-rotate mr-1"></i>以此图搜索</button>
+        <button class="df-secondary" onclick="iterSearch()"><i class="fa-solid fa-rotate mr-1"></i>以此图搜索</button>
         <button class="df-warn" onclick="if(confirm('此抓拍图片AI特征置信度为65%（演示数据），布控可能产生较多误报。\n\n建议：\n1. 上传更清晰的照片\n2. 在目标库中选择已有目标\n\n是否继续使用？')){showMessage('已跳转至布控任务页','info')}"><i class="fa-solid fa-shield-halved mr-1"></i>加入布控</button>
         <button class="df-secondary" onclick="closeModal('modalDetail')">关闭</button>
       </div>
@@ -655,7 +832,7 @@
       </div>
       <div class="modal-foot">
         <button class="df-secondary" onclick="closeModal('modalExport')">取消</button>
-        <button class="df-primary" onclick="showMessage('报告生成中...','info');closeModal('modalExport')"><i class="fa-solid fa-download mr-1"></i>生成报告</button>
+        <button class="df-primary" onclick="closeModal('modalExport');window.open('report-preview.html','_blank')"><i class="fa-solid fa-download mr-1"></i>生成报告</button>
       </div>
     </div>
   </div>
@@ -682,7 +859,42 @@
     let playProgress = 0;
     let currentDetailIdx = 0;
 
-    // 选择候选
+    // 人工确认 - 确认目标
+    function confirmTarget(idx) {
+      const cards = document.querySelectorAll('.confirm-card');
+      cards.forEach((c, i) => {
+        if (i === idx) {
+          c.classList.add('confirmed');
+          const actions = c.querySelector('.confirm-card-actions');
+          if (actions) actions.innerHTML = '<div style="color:var(--ant-success);font-weight:600;font-size:14px;text-align:center;padding:10px;"><i class="fa-solid fa-circle-check" style="margin-right:4px;"></i>已确认</div>';
+        } else {
+          c.classList.add('skipped');
+        }
+      });
+      // 切换到结果视图
+      setTimeout(() => switchToResult(), 500);
+    }
+
+    // 切换到结果展示视图
+    function switchToResult() {
+      document.getElementById('confirmState').classList.remove('active');
+      document.getElementById('resultState').classList.add('active');
+      document.getElementById('titleText').textContent = '人员轨迹查询结果';
+      document.getElementById('btnBack').style.display = 'none';
+      document.getElementById('btnMonitor').style.display = '';
+      document.getElementById('btnExport').style.display = '';
+      showMessage('已确认目标人员 P-00231，正在生成轨迹...', 'success');
+      // 触发轨迹绘制
+      setTimeout(() => {
+        const path = document.querySelector('.trajectory-path');
+        if (path) {
+          path.style.strokeDashoffset = '0';
+        }
+      }, 300);
+      renderCaptures();
+    }
+
+    // 选择候选（结果视图中）
     function selectCandidate(card, idx) {
       document.querySelectorAll('.candidate-card').forEach(c => c.classList.remove('active'));
       card.classList.add('active');
@@ -951,6 +1163,20 @@
 
     function closeModal(id) {
       document.getElementById(id).classList.remove('active');
+    }
+
+    // 迭代检索：结果页内直接替换
+    function iterSearch() {
+      closeModal('modalDetail');
+      // 更新查询摘要栏为迭代检索模式
+      document.getElementById('titleText').textContent = '迭代检索 — 请确认目标人员';
+      document.querySelector('.query-mode').innerHTML = '<span style="background:var(--ant-warning);color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;margin-right:6px;">迭代检索</span>已以此图替换查询条件';
+      // 更新查询图
+      document.querySelector('.confirm-top-img img').style.border = '2px solid var(--ant-warning)';
+      // 显示提示
+      showMessage('已以此图替换查询条件，请确认后重新搜索', 'info');
+      // 滚动到顶部查看摘要栏
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // Toast消息

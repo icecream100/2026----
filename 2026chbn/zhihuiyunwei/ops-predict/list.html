@@ -170,26 +170,48 @@
       <!-- 主表格卡片 -->
       <div style="display:flex;gap:16px;">
         <!-- 左侧设备树 -->
-        <div style="width:200px;flex-shrink:0;background:#fff;border-radius:8px;border:1px solid var(--ant-border-secondary);padding:16px;align-self:flex-start;">
-          <div style="font-weight:600;margin-bottom:12px;font-size:14px;">设备区域</div>
+        <div style="width:200px;flex-shrink:0;background:#fff;border-radius:8px;border:1px solid var(--ant-border-secondary);padding:12px;align-self:flex-start;">
+          <select class="ant-select" style="width:100%;margin-bottom:10px;font-size:12px;height:28px;">
+            <option>行政区域</option>
+            <option>监控场景</option>
+            <option>项目归属</option>
+          </select>
           <div id="deviceTree">
-            <div class="tree-node active" onclick="filterByRegion('all')" style="padding:8px 12px;cursor:pointer;border-radius:4px;background:#e6f4ff;color:#1677ff;font-weight:600;margin-bottom:4px;">
-              <i class="fa-solid fa-folder-open" style="margin-right:6px;"></i>全市 <span style="float:right;background:#722ed1;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">10</span>
+            <div class="tree-node" onclick="filterByRegion('all')" style="padding:6px 8px;cursor:pointer;border-radius:4px;font-size:13px;margin-bottom:1px;">
+              <i class="fa-solid fa-chevron-down" style="margin-right:4px;font-size:10px;color:var(--ant-text-tertiary);"></i><i class="fa-solid fa-folder-open" style="margin-right:6px;color:#faad14;"></i>全市
             </div>
-            <div class="tree-node" onclick="filterByRegion('西区')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
-              <i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>西区 <span style="float:right;background:#ff4d4f;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">3</span>
+            <div class="tree-node" style="margin-left:16px;">
+              <div style="padding:6px 8px;cursor:pointer;border-radius:4px;font-size:13px;margin-bottom:1px;">
+                <i class="fa-solid fa-chevron-down" style="margin-right:4px;font-size:10px;color:var(--ant-text-tertiary);"></i><i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>西区
+              </div>
+              <div style="margin-left:16px;">
+                <div style="padding:5px 8px;cursor:pointer;border-radius:4px;font-size:12px;margin-bottom:1px;color:var(--ant-text-secondary);" onclick="filterByRegion('西区-路口')"><i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;font-size:11px;"></i>路口-C片区</div>
+                <div style="padding:5px 8px;cursor:pointer;border-radius:4px;font-size:12px;margin-bottom:1px;color:var(--ant-text-secondary);" onclick="filterByRegion('西区-广场')"><i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;font-size:11px;"></i>广场-P片区</div>
+              </div>
             </div>
-            <div class="tree-node" onclick="filterByRegion('北区')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
-              <i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>北区 <span style="float:right;background:#faad14;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">2</span>
+            <div class="tree-node" style="margin-left:16px;">
+              <div style="padding:6px 8px;cursor:pointer;border-radius:4px;font-size:13px;margin-bottom:1px;">
+                <i class="fa-solid fa-chevron-down" style="margin-right:4px;font-size:10px;color:var(--ant-text-tertiary);"></i><i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>北区
+              </div>
+              <div style="margin-left:16px;">
+                <div style="padding:5px 8px;cursor:pointer;border-radius:4px;font-size:12px;margin-bottom:1px;color:var(--ant-text-secondary);" onclick="filterByRegion('北区-入口')"><i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;font-size:11px;"></i>入口-G片区</div>
+                <div style="padding:5px 8px;cursor:pointer;border-radius:4px;font-size:12px;margin-bottom:1px;color:var(--ant-text-secondary);" onclick="filterByRegion('北区-道路')"><i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;font-size:11px;"></i>道路-D片区</div>
+              </div>
             </div>
-            <div class="tree-node" onclick="filterByRegion('东区')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
-              <i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>东区 <span style="float:right;background:#faad14;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">2</span>
+            <div class="tree-node" style="margin-left:16px;">
+              <div style="padding:6px 8px;cursor:pointer;border-radius:4px;font-size:13px;margin-bottom:1px;">
+                <i class="fa-solid fa-chevron-right" style="margin-right:4px;font-size:10px;color:var(--ant-text-tertiary);"></i><i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>东区
+              </div>
             </div>
-            <div class="tree-node" onclick="filterByRegion('南区')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
-              <i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>南区 <span style="float:right;background:#faad14;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">2</span>
+            <div class="tree-node" style="margin-left:16px;">
+              <div style="padding:6px 8px;cursor:pointer;border-radius:4px;font-size:13px;margin-bottom:1px;">
+                <i class="fa-solid fa-chevron-right" style="margin-right:4px;font-size:10px;color:var(--ant-text-tertiary);"></i><i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>南区
+              </div>
             </div>
-            <div class="tree-node" onclick="filterByRegion('市中心')" style="padding:8px 12px;cursor:pointer;border-radius:4px;margin-left:16px;margin-bottom:2px;">
-              <i class="fa-solid fa-folder" style="margin-right:6px;color:#52c41a;"></i>市中心 <span style="float:right;background:#52c41a;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;">1</span>
+            <div class="tree-node" style="margin-left:16px;">
+              <div style="padding:6px 8px;cursor:pointer;border-radius:4px;font-size:13px;margin-bottom:1px;">
+                <i class="fa-solid fa-chevron-right" style="margin-right:4px;font-size:10px;color:var(--ant-text-tertiary);"></i><i class="fa-solid fa-folder" style="margin-right:6px;color:#faad14;"></i>市中心
+              </div>
             </div>
           </div>
         </div>

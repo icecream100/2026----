@@ -482,7 +482,7 @@
                 <div class="ant-descriptions-item-content">
                   <span class="ant-tag ant-tag-default"><i class="fa-solid fa-link" style="font-size:10px;"></i>链路异常</span>
                   <span class="ant-tag ant-tag-default"><i class="fa-solid fa-heart-pulse" style="font-size:10px;"></i>心跳超时</span>
-                  <span class="ant-tag ant-tag-default"><i class="fa-solid fa-network-wired" style="font-size:10px;"></i>端口不可达</span>
+                  <span class="ant-tag ant-tag-default"><i class="fa-solid fa-network-wired" style="font-size:10px;"></i>网络异常-延迟</span>
                 </div>
               </div>
               <div class="ant-descriptions-item">
@@ -622,33 +622,24 @@
             <div class="metric-grid metric-grid-3">
               <div class="metric-card metric-card-abnormal">
                 <div class="ant-statistic">
-                  <div class="ant-statistic-title">RTP 丢包率</div>
+                  <div class="ant-statistic-title">丢包率</div>
                   <div class="ant-statistic-content" style="color:var(--ant-error);">8.7<span class="ant-statistic-suffix">%</span></div>
                   <div class="ant-statistic-footer" style="color:var(--ant-error);"><i class="fa-solid fa-triangle-exclamation" style="font-size:10px;"></i>严重超标</div>
                 </div>
               </div>
               <div class="metric-card metric-card-abnormal">
                 <div class="ant-statistic">
-                  <div class="ant-statistic-title">视频流码率</div>
-                  <div class="ant-statistic-content" style="color:var(--ant-error);">0<span class="ant-statistic-suffix"> kbps</span></div>
-                  <div class="ant-statistic-footer" style="color:var(--ant-error);"><i class="fa-solid fa-circle-xmark" style="font-size:10px;"></i>无视频流</div>
+                  <div class="ant-statistic-title">网络延迟</div>
+                  <div class="ant-statistic-content" style="color:var(--ant-error);">320<span class="ant-statistic-suffix"> ms</span></div>
+                  <div class="ant-statistic-footer" style="color:var(--ant-error);"><i class="fa-solid fa-triangle-exclamation" style="font-size:10px;"></i>超过阈值</div>
                 </div>
               </div>
-              <div class="metric-card metric-card-abnormal">
+              <div class="metric-card metric-card-normal">
                 <div class="ant-statistic">
-                  <div class="ant-statistic-title">TCP 端口可达性</div>
-                  <div class="ant-statistic-content" style="color:var(--ant-error);">--</div>
-                  <div class="ant-statistic-footer" style="color:var(--ant-error);"><i class="fa-solid fa-circle-xmark" style="font-size:10px;"></i>不可达</div>
+                  <div class="ant-statistic-title">波动率</div>
+                  <div class="ant-statistic-content" style="color:var(--ant-success);">6.2<span class="ant-statistic-suffix">%</span></div>
+                  <div class="ant-statistic-footer" style="color:var(--ant-success);"><i class="fa-solid fa-circle-check" style="font-size:10px;"></i>正常</div>
                 </div>
-              </div>
-            </div>
-            <!-- TCP端口 -->
-            <div class="ant-card">
-              <div class="ant-card-head">
-                <div class="ant-card-head-title"><i class="fa-solid fa-plug" style="color:var(--ant-primary);"></i>TCP 端口可达性</div>
-              </div>
-              <div class="ant-card-body">
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;" id="tcpPorts"></div>
               </div>
             </div>
           </div>
@@ -670,45 +661,47 @@
                   <button class="ant-btn" style="width:100%;margin-top:12px;" disabled><i class="fa-solid fa-play"></i>点播预览</button>
                 </div>
               </div>
-              <!-- 右：画质评分+参数 -->
+              <!-- 右：5项检测结果 -->
               <div style="display:flex;flex-direction:column;gap:16px;">
                 <div class="ant-card">
                   <div class="ant-card-head">
-                    <div class="ant-card-head-title"><i class="fa-solid fa-star" style="color:var(--ant-primary);"></i>画质评分</div>
-                  </div>
-                  <div class="ant-card-body" style="display:flex;gap:16px;align-items:center;">
-                    <div style="text-align:center;padding:12px 16px;background:var(--ant-success-bg);border:1px solid #b7eb8f;border-radius:8px;">
-                      <div style="font-size:40px;font-weight:800;color:#389e0d;line-height:1;">85</div>
-                      <div style="font-size:12px;color:var(--ant-text-tertiary);margin-top:2px;">/ 100</div>
-                      <div style="font-size:12px;font-weight:600;color:#389e0d;margin-top:4px;">正常</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="ant-card">
-                  <div class="ant-card-head">
-                    <div class="ant-card-head-title"><i class="fa-solid fa-sliders" style="color:var(--ant-primary);"></i>视频参数</div>
+                    <div class="ant-card-head-title"><i class="fa-solid fa-magnifying-glass-chart" style="color:var(--ant-primary);"></i>检测结果</div>
                   </div>
                   <div class="ant-card-body">
-                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-                      <div class="metric-card metric-card-normal">
-                        <div class="ant-statistic">
-                          <div class="ant-statistic-title">分辨率</div>
-                          <div style="font-size:16px;font-weight:700;">1920×1080</div>
-                          <div style="font-size:11px;color:var(--ant-success);margin-top:2px;">1080P</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--ant-success-bg);border:1px solid #b7eb8f;border-radius:6px;">
+                        <i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>
+                        <div>
+                          <div style="font-size:13px;font-weight:600;">亮度异常</div>
+                          <div style="font-size:11px;color:var(--ant-text-tertiary);">正常</div>
                         </div>
                       </div>
-                      <div class="metric-card metric-card-normal">
-                        <div class="ant-statistic">
-                          <div class="ant-statistic-title">码率</div>
-                          <div style="font-size:16px;font-weight:700;">4096</div>
-                          <div style="font-size:11px;color:var(--ant-text-tertiary);margin-top:2px;">kbps</div>
+                      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--ant-success-bg);border:1px solid #b7eb8f;border-radius:6px;">
+                        <i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>
+                        <div>
+                          <div style="font-size:13px;font-weight:600;">冻结异常</div>
+                          <div style="font-size:11px;color:var(--ant-text-tertiary);">正常</div>
                         </div>
                       </div>
-                      <div class="metric-card metric-card-normal">
-                        <div class="ant-statistic">
-                          <div class="ant-statistic-title">帧率</div>
-                          <div style="font-size:16px;font-weight:700;">25</div>
-                          <div style="font-size:11px;color:var(--ant-text-tertiary);margin-top:2px;">fps</div>
+                      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--ant-error-bg);border:1px solid #ffccc7;border-radius:6px;">
+                        <i class="fa-solid fa-circle-xmark" style="color:#ff4d4f;"></i>
+                        <div>
+                          <div style="font-size:13px;font-weight:600;">画面遮挡</div>
+                          <div style="font-size:11px;color:#ff4d4f;">局部遮挡</div>
+                        </div>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--ant-success-bg);border:1px solid #b7eb8f;border-radius:6px;">
+                        <i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>
+                        <div>
+                          <div style="font-size:13px;font-weight:600;">画面噪点</div>
+                          <div style="font-size:11px;color:var(--ant-text-tertiary);">正常</div>
+                        </div>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--ant-success-bg);border:1px solid #b7eb8f;border-radius:6px;">
+                        <i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>
+                        <div>
+                          <div style="font-size:13px;font-weight:600;">画面雪花</div>
+                          <div style="font-size:11px;color:var(--ant-text-tertiary);">正常</div>
                         </div>
                       </div>
                     </div>
@@ -842,7 +835,8 @@ function renderTcpPorts() {
       + '<div style="font-size:18px;font-weight:700;color:var(--ant-error);">超时</div>'
       + '<div style="font-size:11px;color:var(--ant-text-tertiary);margin-top:4px;">RTT: --</div></div>';
   });
-  document.getElementById('tcpPorts').innerHTML = html;
+  var el = document.getElementById('tcpPorts');
+  if (el) { el.innerHTML = html; }
 }
 
 /* ========== 链路时序图渲染 ========== */

@@ -239,10 +239,8 @@
           {ts:'',content:'诊断结论: 设备未响应INVITE请求，疑似链路中断或设备离线'}
         ],
         desc:'SIP Server 连接超时，错误代码 408' },
-      networkResult: { status:'异常', rtpLoss:'8.7%', bitrate:'0 kbps', tcpPorts:[
-        {name:'RTSP (554)',status:'timeout'},{name:'SIP (5060)',status:'timeout'},{name:'HTTP (80)',status:'timeout'}
-      ], desc:'上行码流中断，RTP丢包严重' },
-      qualityResult: { status:'正常', score:'85', resolution:'1920×1080', fps:'25', bitrate:'4096 kbps', desc:'—' }
+      networkResult: { status:'异常', rtpLoss:'8.7%', latency:'320', jitter:'15%', desc:'丢包严重，延迟超标' },
+      qualityResult: { status:'异常', items:{brightness:'正常',freeze:'正常',occlusion:'局部遮挡',noise:'正常',snow:'正常'}, desc:'画面局部遮挡' }
     },
     '_default_normal': {
       linkResult: { status:'正常', heartbeatTimeout:'0%', playSuccess:'99.8%',
@@ -262,10 +260,8 @@
           {ts:'2026-05-20 10:30:32.103',content:'点播正常结束，会话持续 30s'}
         ],
         desc:'—' },
-      networkResult: { status:'正常', rtpLoss:'0.1%', bitrate:'4096 kbps', tcpPorts:[
-        {name:'RTSP (554)',status:'ok'},{name:'SIP (5060)',status:'ok'},{name:'HTTP (80)',status:'ok'}
-      ], desc:'—' },
-      qualityResult: { status:'正常', score:'85', resolution:'1920×1080', fps:'25', bitrate:'4096 kbps', desc:'—' }
+      networkResult: { status:'正常', rtpLoss:'0.1%', latency:'45', jitter:'8%', desc:'—' },
+      qualityResult: { status:'正常', items:{brightness:'正常',freeze:'正常',occlusion:'正常',noise:'正常',snow:'正常'}, desc:'—' }
     },
     '_default_abnormal_link': {
       linkResult: { status:'异常', heartbeatTimeout:'100%', playSuccess:'0%',
@@ -281,10 +277,8 @@
           {ts:'',content:'诊断结论: 链路不可达，设备疑似离线'}
         ],
         desc:'链路不可达，链路诊断无法执行' },
-      networkResult: { status:'异常', rtpLoss:'—', bitrate:'—', tcpPorts:[
-        {name:'RTSP (554)',status:'timeout'},{name:'SIP (5060)',status:'timeout'},{name:'HTTP (80)',status:'timeout'}
-      ], desc:'链路不可达，网络状态无法检测' },
-      qualityResult: { status:'—', score:'—', resolution:'—', fps:'—', bitrate:'—', desc:'链路不可达，无法获取画质数据' }
+      networkResult: { status:'异常', rtpLoss:'—', latency:'—', jitter:'—', desc:'链路不可达，网络状态无法检测' },
+      qualityResult: { status:'—', items:{brightness:'—',freeze:'—',occlusion:'—',noise:'—',snow:'—'}, desc:'链路不可达，无法获取画质数据' }
     }
   };
 
@@ -441,15 +435,12 @@
         // 指标卡片
         +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">'
         +'<div class="metric-mini" style="border-left:3px solid '+(parseFloat(nr.rtpLoss)>5?'var(--ant-error)':'var(--ant-success)')+';">'
-        +'<div class="metric-mini-title">RTP 丢包率</div><div class="metric-mini-val" style="color:'+(parseFloat(nr.rtpLoss)>5?'#ff4d4f':'#52c41a')+';">'+nr.rtpLoss+'</div></div>'
-        +'<div class="metric-mini" style="border-left:3px solid '+(nr.bitrate==='0 kbps'||nr.bitrate==='—'?'var(--ant-error)':'var(--ant-success)')+';">'
-        +'<div class="metric-mini-title">视频流码率</div><div class="metric-mini-val" style="color:'+(nr.bitrate==='0 kbps'||nr.bitrate==='—'?'#ff4d4f':'#52c41a')+';">'+nr.bitrate+'</div></div>'
-        +'<div class="metric-mini" style="border-left:3px solid '+(nr.tcpPorts&&nr.tcpPorts.some(function(p){return p.status!=='ok';})?'var(--ant-error)':'var(--ant-success)')+';">'
-        +'<div class="metric-mini-title">TCP 端口</div><div class="metric-mini-val" style="color:'+(nr.tcpPorts&&nr.tcpPorts.some(function(p){return p.status!=='ok';})?'#ff4d4f':'#52c41a')+';">'+(nr.tcpPorts&&nr.tcpPorts.every(function(p){return p.status==='ok';})?'全部可达':'不可达')+'</div></div>'
+        +'<div class="metric-mini-title">丢包率</div><div class="metric-mini-val" style="color:'+(parseFloat(nr.rtpLoss)>5?'#ff4d4f':'#52c41a')+';">'+nr.rtpLoss+'</div></div>'
+        +'<div class="metric-mini" style="border-left:3px solid '+(parseFloat(nr.latency)>200?'var(--ant-error)':'var(--ant-success)')+';">'
+        +'<div class="metric-mini-title">网络延迟</div><div class="metric-mini-val" style="color:'+(parseFloat(nr.latency)>200?'#ff4d4f':'#52c41a')+';">'+nr.latency+' ms</div></div>'
+        +'<div class="metric-mini" style="border-left:3px solid '+(parseFloat(nr.jitter)>10?'var(--ant-error)':'var(--ant-success)')+';">'
+        +'<div class="metric-mini-title">波动率</div><div class="metric-mini-val" style="color:'+(parseFloat(nr.jitter)>10?'#ff4d4f':'#52c41a')+';">'+nr.jitter+'</div></div>'
         +'</div>'
-        // TCP 端口详情
-        +'<div style="font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-plug" style="color:var(--ant-primary);"></i>TCP 端口可达性</div>'
-        +renderCompactTcp(nr.tcpPorts || [])
         +(nr.desc!=='—' ? '<div style="margin-top:10px;font-size:13px;color:#ff4d4f;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>'+nr.desc+'</div>' : '')
         +'</div>';
     }
@@ -457,25 +448,30 @@
     // ====== 画质类 Tab ======
     if (r.qualityResult) {
       var qr = r.qualityResult;
-      var qScore = parseInt(qr.score) || 0;
-      var qColor = qScore >= 80 ? '#389e0d' : qScore >= 60 ? '#fa8c16' : '#ff4d4f';
-      var qBg = qScore >= 80 ? 'var(--ant-success-bg)' : qScore >= 60 ? '#fff7e6' : 'var(--ant-error-bg)';
+      var items = qr.items || {};
+      var labels = {brightness:'亮度异常',freeze:'冻结异常',occlusion:'画面遮挡',noise:'画面噪点',snow:'画面雪花'};
       html += '<div class="modal-tab-panel" id="mtab-quality">'
-        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">'
-        // 左：截图
-        +'<div style="background:#f5f5f5;border:2px dashed var(--ant-border);border-radius:8px;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">'
+        // 截图
+        +'<div style="background:#f5f5f5;border:2px dashed var(--ant-border);border-radius:8px;height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;">'
         +'<i class="fa-solid fa-camera" style="font-size:28px;color:var(--ant-text-quaternary);"></i>'
         +'<div style="font-size:12px;color:var(--ant-text-tertiary);">最近巡检截图</div></div>'
-        // 右：画质评分 + 参数
-        +'<div style="display:flex;flex-direction:column;gap:10px;">'
-        +'<div style="text-align:center;padding:12px;background:'+qBg+';border:1px solid '+(qScore>=80?'#b7eb8f':'#ffa39e')+';border-radius:8px;">'
-        +'<div style="font-size:32px;font-weight:800;color:'+qColor+';line-height:1;">'+qr.score+'</div>'
-        +'<div style="font-size:11px;color:var(--ant-text-tertiary);margin-top:2px;">/ 100</div></div>'
-        +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">'
-        +'<div class="metric-mini"><div class="metric-mini-title">分辨率</div><div style="font-size:13px;font-weight:600;">'+qr.resolution+'</div></div>'
-        +'<div class="metric-mini"><div class="metric-mini-title">码率</div><div style="font-size:13px;font-weight:600;">'+qr.bitrate+'</div></div>'
-        +'<div class="metric-mini"><div class="metric-mini-title">帧率</div><div style="font-size:13px;font-weight:600;">'+qr.fps+' fps</div></div>'
-        +'</div></div></div>'
+        // 5项检测结果
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+      Object.keys(labels).forEach(function(k) {
+        var val = items[k] || '—';
+        var isNormal = val === '正常';
+        var isDash = val === '—';
+        var bgColor = isDash ? '#fafafa' : (isNormal ? '#f6ffed' : '#fff1f0');
+        var borderColor = isDash ? '#d9d9d9' : (isNormal ? '#b7eb8f' : '#ffccc7');
+        var iconColor = isDash ? '#d9d9d9' : (isNormal ? '#52c41a' : '#ff4d4f');
+        var icon = isDash ? 'fa-minus' : (isNormal ? 'fa-circle-check' : 'fa-circle-xmark');
+        var valColor = isDash ? 'var(--ant-text-quaternary)' : (isNormal ? '#52c41a' : '#ff4d4f');
+        html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:'+bgColor+';border:1px solid '+borderColor+';border-radius:6px;">'
+          +'<i class="fa-solid '+icon+'" style="color:'+iconColor+';"></i>'
+          +'<div><div style="font-size:13px;font-weight:600;">'+labels[k]+'</div>'
+          +'<div style="font-size:11px;color:'+valColor+';">'+val+'</div></div></div>';
+      });
+      html += '</div>'
         +(qr.desc!=='—' ? '<div style="margin-top:10px;font-size:13px;color:#ff4d4f;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>'+qr.desc+'</div>' : '')
         +'</div>';
     }

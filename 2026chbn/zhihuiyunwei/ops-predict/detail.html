@@ -236,72 +236,50 @@
                   <div style="font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
                     <i class="fa-solid fa-chart-line" style="color:var(--ant-primary);font-size:12px;"></i>近5次巡检变化趋势
                   </div>
-                  <!-- 丢包率趋势 -->
-                  <div style="margin-bottom:12px;">
-                    <div style="font-size:12px;color:rgba(0,0,0,0.65);margin-bottom:6px;">丢包率</div>
-                    <div style="display:flex;align-items:flex-end;gap:12px;">
-                      <div style="flex:1;display:flex;align-items:flex-end;gap:8px;height:60px;">
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-                          <div style="width:100%;background:#52c41a;border-radius:3px 3px 0 0;height:6px;"></div>
-                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">1.2%</div>
-                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">05-30</div>
-                        </div>
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-                          <div style="width:100%;background:#52c41a;border-radius:3px 3px 0 0;height:15px;"></div>
-                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">2.5%</div>
-                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-01</div>
-                        </div>
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-                          <div style="width:100%;background:#faad14;border-radius:3px 3px 0 0;height:28px;"></div>
-                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">4.1%</div>
-                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-02</div>
-                        </div>
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-                          <div style="width:100%;background:#fa8c16;border-radius:3px 3px 0 0;height:42px;"></div>
-                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">6.3%</div>
-                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-03</div>
-                        </div>
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-                          <div style="width:100%;background:#ff4d4f;border-radius:3px 3px 0 0;height:56px;"></div>
-                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">8.7%</div>
-                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-04</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div style="font-size:10px;color:#ff4d4f;margin-top:4px;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:3px;"></i>超过预警阈值（5%）</div>
+                  <!-- 3项指标变化表格 -->
+                  <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;">
+                      <thead>
+                        <tr>
+                          <th style="text-align:left;padding:8px 12px;color:rgba(0,0,0,0.45);font-weight:400;">指标</th>
+                          <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-30</th>
+                          <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">06-01</th>
+                          <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">06-02</th>
+                          <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">06-03</th>
+                          <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">06-04</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td style="padding:6px 12px;font-weight:500;">丢包率</td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">1.2%</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">2.5%</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#fffbe6;color:#faad14;font-size:12px;">4.1%</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#fff7e6;color:#fa8c16;font-size:12px;">6.3%</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#fff1f0;color:#ff4d4f;font-size:12px;">8.7%</span></td>
+                        </tr>
+                        <tr>
+                          <td style="padding:6px 12px;font-weight:500;">网络延迟</td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">32ms</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">38ms</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">41ms</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">43ms</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">45ms</span></td>
+                        </tr>
+                        <tr>
+                          <td style="padding:6px 12px;font-weight:500;">波动率</td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">8ms</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">10ms</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">9ms</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">11ms</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">12ms</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
-                  <!-- 延迟趋势 -->
-                  <div style="margin-bottom:12px;">
-                    <div style="font-size:12px;color:rgba(0,0,0,0.65);margin-bottom:6px;">延迟</div>
-                    <div style="display:flex;gap:8px;align-items:center;">
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">32ms</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">38ms</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">41ms</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">43ms</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">45ms</span>
-                      <span style="font-size:10px;color:rgba(0,0,0,0.25);margin-left:4px;">均在正常范围</span>
-                    </div>
-                  </div>
-                  <!-- 抖动趋势 -->
-                  <div>
-                    <div style="font-size:12px;color:rgba(0,0,0,0.65);margin-bottom:6px;">抖动</div>
-                    <div style="display:flex;gap:8px;align-items:center;">
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">8ms</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">10ms</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">9ms</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">11ms</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">12ms</span>
-                      <span style="font-size:10px;color:rgba(0,0,0,0.25);margin-left:4px;">均在正常范围</span>
-                    </div>
-                  </div>
+                  <div style="font-size:10px;color:#ff4d4f;margin-top:8px;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:3px;"></i>丢包率连续上升，最新巡检超过预警阈值（5%）</div>
+                </div>
+              </div>
                 </div>
               </div>
 
@@ -312,71 +290,64 @@
                   <div style="font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
                     <i class="fa-solid fa-chart-line" style="color:var(--ant-primary);font-size:12px;"></i>近5次巡检变化趋势
                   </div>
-                  <!-- 画质评分趋势 -->
-                  <div style="margin-bottom:12px;">
-                    <div style="font-size:12px;color:rgba(0,0,0,0.65);margin-bottom:6px;">画质评分</div>
-                    <div style="display:flex;align-items:flex-end;gap:12px;">
-                      <div style="flex:1;display:flex;align-items:flex-end;gap:8px;height:60px;">
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-                          <div style="width:100%;background:#52c41a;border-radius:3px 3px 0 0;height:54px;"></div>
-                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">90</div>
-                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">05-30</div>
-                        </div>
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-                          <div style="width:100%;background:#52c41a;border-radius:3px 3px 0 0;height:48px;"></div>
-                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">85</div>
-                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-01</div>
-                        </div>
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-                          <div style="width:100%;background:#faad14;border-radius:3px 3px 0 0;height:42px;"></div>
-                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">80</div>
-                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-02</div>
-                        </div>
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-                          <div style="width:100%;background:#fa8c16;border-radius:3px 3px 0 0;height:33px;"></div>
-                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">76</div>
-                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-03</div>
-                        </div>
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-                          <div style="width:100%;background:#ff4d4f;border-radius:3px 3px 0 0;height:24px;"></div>
-                          <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:4px;">72</div>
-                          <div style="font-size:10px;color:rgba(0,0,0,0.25);">06-04</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div style="font-size:10px;color:#ff4d4f;margin-top:4px;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:3px;"></i>低于预警阈值（75分）</div>
+                  <!-- 5项检测结果变化矩阵 -->
+                  <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;">
+                      <thead>
+                        <tr>
+                          <th style="text-align:left;padding:8px 12px;color:rgba(0,0,0,0.45);font-weight:400;">检测项</th>
+                          <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-30</th>
+                          <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">06-01</th>
+                          <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">06-02</th>
+                          <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">06-03</th>
+                          <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">06-04</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td style="padding:6px 12px;font-weight:500;">亮度异常</td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                        </tr>
+                        <tr>
+                          <td style="padding:6px 12px;font-weight:500;">冻结异常</td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#fff1f0;color:#ff4d4f;">✗</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#fff1f0;color:#ff4d4f;">✗</span></td>
+                        </tr>
+                        <tr>
+                          <td style="padding:6px 12px;font-weight:500;">画面遮挡</td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#fff1f0;color:#ff4d4f;">✗</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#fff1f0;color:#ff4d4f;">✗</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#fff1f0;color:#ff4d4f;">✗</span></td>
+                        </tr>
+                        <tr>
+                          <td style="padding:6px 12px;font-weight:500;">画面噪点</td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                        </tr>
+                        <tr>
+                          <td style="padding:6px 12px;font-weight:500;">画面雪花</td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#f6ffed;color:#52c41a;">✓</span></td>
+                          <td style="text-align:center;padding:6px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:4px;background:#fff1f0;color:#ff4d4f;">✗</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
-                  <!-- 清晰度趋势 -->
-                  <div style="margin-bottom:12px;">
-                    <div style="font-size:12px;color:rgba(0,0,0,0.65);margin-bottom:6px;">画面清晰度</div>
-                    <div style="display:flex;gap:8px;align-items:center;">
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">清晰</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">清晰</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#fffbe6;border:1px solid #ffe58f;color:#faad14;">一般</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#fffbe6;border:1px solid #ffe58f;color:#faad14;">一般</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#fff7e6;border:1px solid #ffd591;color:#fa8c16;">轻微模糊</span>
-                    </div>
-                  </div>
-                  <!-- SLA达标趋势 -->
-                  <div>
-                    <div style="font-size:12px;color:rgba(0,0,0,0.65);margin-bottom:6px;">SLA达标率</div>
-                    <div style="display:flex;gap:8px;align-items:center;">
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">7/7</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">7/7</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#f6ffed;border:1px solid #b7eb8f;color:#52c41a;">7/7</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#fff1f0;border:1px solid #ffccc7;color:#ff4d4f;">6/7</span>
-                      <i class="fa-solid fa-arrow-right" style="color:rgba(0,0,0,0.15);font-size:10px;"></i>
-                      <span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;background:#fff1f0;border:1px solid #ffccc7;color:#ff4d4f;">6/7</span>
-                      <span style="font-size:10px;color:#ff4d4f;margin-left:4px;">连续2天未达标</span>
-                    </div>
-                  </div>
+                  <div style="font-size:10px;color:#ff4d4f;margin-top:8px;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:3px;"></i>冻结异常连续2次异常，画面遮挡连续3次异常（最新巡检行高亮）</div>
                 </div>
               </div>
 
@@ -485,14 +456,14 @@
                   <tbody>
                     <tr>
                       <td><span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;font-weight:500;border-radius:4px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffccc7;">紧急</span></td>
-                      <td style="font-size:13px;">网络异常-端口不可达</td>
+                      <td style="font-size:13px;">网络异常-延迟</td>
                       <td style="font-size:12px;color:rgba(0,0,0,0.45);">2026-06-03 10:23:45</td>
                       <td><span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffccc7;">待处理</span></td>
                       <td><a href="../ops-alert/detail.html" style="color:var(--ant-primary);font-size:12px;">查看</a></td>
                     </tr>
                     <tr>
                       <td><span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;font-weight:500;border-radius:4px;color:#fa8c16;background:#fff7e6;border:1px solid #ffd591;">警告</span></td>
-                      <td style="font-size:13px;">网络异常-RTP丢包</td>
+                      <td style="font-size:13px;">网络异常-丢包</td>
                       <td style="font-size:12px;color:rgba(0,0,0,0.45);">2026-06-02 08:15:30</td>
                       <td><span style="display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:12px;border-radius:4px;color:#8c8c8c;background:#fafafa;border:1px solid #d9d9d9;">已关闭</span></td>
                       <td><a href="../ops-alert/detail.html" style="color:var(--ant-primary);font-size:12px;">查看</a></td>
@@ -523,7 +494,7 @@
             <div class="timeline-item">
               <div class="timeline-dot" style="background:#722ed1;border-color:#722ed1;"></div>
               <div class="timeline-content">
-                <span style="font-weight:600;">模型预警</span> — 预测模型检测到网络质量持续劣化（RTP丢包率从0.2%升至3.8%，视频码率波动幅度>40%），预判2小时后可能发生链路故障
+                <span style="font-weight:600;">模型预警</span> — 预测模型检测到网络质量持续劣化（丢包率从0.2%升至3.8%，网络延迟持续升高，波动率持续增大），预判2小时后可能发生链路故障
                 <div class="timeline-time">2026-05-22 14:00:00 · 系统</div>
               </div>
             </div>
@@ -551,7 +522,7 @@
             <div class="timeline-item">
               <div class="timeline-dot" style="background:#fff;border-color:#52c41a;"></div>
               <div class="timeline-content">
-                <span style="font-weight:600;">巡检验证结果</span> — 综合状态：<span style="color:#ff4d4f;font-weight:600;">异常</span>。网络质量：RTP丢包率4.2%（阈值1%）、视频码率1.8Mbps（正常≥2Mbps）；画面质量：轻微马赛克
+                <span style="font-weight:600;">巡检验证结果</span> — 综合状态：<span style="color:#ff4d4f;font-weight:600;">异常</span>。网络质量：丢包率4.2%（阈值5%）、网络延迟280ms（阈值200ms）、波动率12%（阈值10%）；画面质量：轻微马赛克
                 <div class="timeline-time">2026-05-22 15:12:30 · 系统</div>
               </div>
             </div>

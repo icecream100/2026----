@@ -193,11 +193,11 @@
             <span class="font-semibold text-gray-800">网络状态检测</span>
             <span class="ant-tag ant-tag-blue">网络状态检测 ›</span>
           </div>
-          <p class="text-xs mb-3" style="color:rgba(0,0,0,0.45);line-height:1.6;">检测视频流传输层质量，直接关联花屏、掉帧等用户可感知问题。包含 RTP 丢包率、视频流码率、TCP 端口可达性。</p>
+          <p class="text-xs mb-3" style="color:rgba(0,0,0,0.45);line-height:1.6;">检测视频流传输层质量，直接关联花屏、掉帧等用户可感知问题。包含丢包率、网络延迟、波动率。</p>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
-            <span style="background:#e6f4ff;color:#1677ff;padding:2px 8px;border-radius:4px;font-size:11px;border:1px solid #91caff;">RTP丢包率</span>
-            <span style="background:#e6f4ff;color:#1677ff;padding:2px 8px;border-radius:4px;font-size:11px;border:1px solid #91caff;">视频流码率</span>
-            <span style="background:#f6ffed;color:#52c41a;padding:2px 8px;border-radius:4px;font-size:11px;border:1px solid #b7eb8f;">TCP端口可达性</span>
+            <span style="background:#e6f4ff;color:#1677ff;padding:2px 8px;border-radius:4px;font-size:11px;border:1px solid #91caff;">丢包率</span>
+            <span style="background:#e6f4ff;color:#1677ff;padding:2px 8px;border-radius:4px;font-size:11px;border:1px solid #91caff;">网络延迟</span>
+            <span style="background:#f6ffed;color:#52c41a;padding:2px 8px;border-radius:4px;font-size:11px;border:1px solid #b7eb8f;">波动率</span>
           </div>
           <div class="mt-2 text-xs" style="color:rgba(0,0,0,0.45);">
             <i class="fa-solid fa-link mr-1"></i>被引用：3个任务
@@ -321,23 +321,24 @@
         <div style="display:grid;gap:8px;margin-bottom:12px;">
           <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #91caff;border-radius:6px;">
             <input type="checkbox" checked style="accent-color:#1677ff;">
-            <span style="flex:1;font-size:13px;">RTP丢包率</span>
+            <span style="flex:1;font-size:13px;">丢包率</span>
             <span style="font-size:12px;color:rgba(0,0,0,0.45);">阈值</span>
             <input class="ant-input" type="number" value="5" min="0.1" max="100" step="0.1" style="width:70px;height:28px;font-size:13px;">
             <span style="font-size:12px;color:rgba(0,0,0,0.45);">%</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #91caff;border-radius:6px;">
             <input type="checkbox" checked style="accent-color:#1677ff;">
-            <span style="flex:1;font-size:13px;">视频流实际码率</span>
+            <span style="flex:1;font-size:13px;">网络延迟</span>
             <span style="font-size:12px;color:rgba(0,0,0,0.45);">阈值</span>
-            <input class="ant-input" type="number" value="1024" min="100" max="20000" style="width:80px;height:28px;font-size:13px;">
-            <span style="font-size:12px;color:rgba(0,0,0,0.45);">kbps</span>
+            <input class="ant-input" type="number" value="200" min="10" max="5000" style="width:70px;height:28px;font-size:13px;">
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">ms</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #91caff;border-radius:6px;">
             <input type="checkbox" style="accent-color:#1677ff;">
-            <span style="flex:1;font-size:13px;">TCP端口可达性</span>
-            <span style="font-size:12px;color:rgba(0,0,0,0.45);">端口</span>
-            <input class="ant-input" type="number" value="554" min="1" max="65535" style="width:70px;height:28px;font-size:13px;">
+            <span style="flex:1;font-size:13px;">波动率</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">阈值</span>
+            <input class="ant-input" type="number" value="10" min="0.1" max="100" step="0.1" style="width:70px;height:28px;font-size:13px;">
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">%</span>
           </div>
         </div>
       </div>
@@ -419,23 +420,24 @@
         <div style="display:grid;gap:8px;">
           <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #91caff;border-radius:6px;">
             <input type="checkbox" checked style="accent-color:#1677ff;">
-            <span style="flex:1;font-size:13px;">RTP丢包率</span>
+            <span style="flex:1;font-size:13px;">丢包率</span>
             <span style="font-size:12px;color:rgba(0,0,0,0.45);">阈值</span>
             <input class="ant-input" type="number" value="5" min="0.1" max="100" step="0.1" style="width:70px;height:28px;font-size:13px;">
             <span style="font-size:12px;color:rgba(0,0,0,0.45);">%</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #91caff;border-radius:6px;">
             <input type="checkbox" checked style="accent-color:#1677ff;">
-            <span style="flex:1;font-size:13px;">视频流实际码率</span>
-            <span style="font-size:12px;color:rgba(0,0,0,0.45);">低于</span>
-            <input class="ant-input" type="number" value="1024" min="100" max="20000" style="width:80px;height:28px;font-size:13px;">
-            <span style="font-size:12px;color:rgba(0,0,0,0.45);">kbps 告警</span>
+            <span style="flex:1;font-size:13px;">网络延迟</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">阈值</span>
+            <input class="ant-input" type="number" value="200" min="10" max="5000" style="width:70px;height:28px;font-size:13px;">
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">ms</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #91caff;border-radius:6px;">
             <input type="checkbox" style="accent-color:#1677ff;">
-            <span style="flex:1;font-size:13px;">TCP端口可达性</span>
-            <span style="font-size:12px;color:rgba(0,0,0,0.45);">端口</span>
-            <input class="ant-input" type="number" value="554" min="1" max="65535" style="width:70px;height:28px;font-size:13px;">
+            <span style="flex:1;font-size:13px;">波动率</span>
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">阈值</span>
+            <input class="ant-input" type="number" value="10" min="0.1" max="100" step="0.1" style="width:70px;height:28px;font-size:13px;">
+            <span style="font-size:12px;color:rgba(0,0,0,0.45);">%</span>
           </div>
         </div>
       </div>
@@ -487,7 +489,7 @@
   var algoData = {
     '视频画质诊断': { type:'画质检测', desc:'对视频流进行实时AI画质分析，检测模糊、遮挡、噪点等问题，输出质量评分（0-100）。', refs:12 },
     '链路检测': { type:'链路检测', desc:'检测设备基础网络连通性，包含 ICMP 丢包率和往返时延(RTT)，定位链路层故障根因。', refs:8 },
-    '网络状态检测': { type:'网络状态检测', desc:'检测视频流传输层质量，直接关联花屏、掉帧等用户可感知问题。包含 RTP 丢包率、视频流码率、TCP 端口可达性。', refs:3 },
+    '网络状态检测': { type:'网络状态检测', desc:'检测视频流传输层质量，直接关联花屏、掉帧等用户可感知问题。包含丢包率、网络延迟、波动率。', refs:3 },
     '画面质量检测': { type:'画质检测', desc:'基于深度学习检测画面质量异常，支持清晰度评分、雪花/条纹检测。', refs:7 },
     '图像遮挡检测': { type:'画质检测', desc:'实时检测摄像头镜头遮挡情况，包含全遮挡/局部遮挡/镜头污染。', refs:19 }
   };

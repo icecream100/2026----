@@ -33,7 +33,7 @@
     .section-title{font-size:14px;font-weight:600;margin:20px 0 10px;display:flex;align-items:center;gap:6px;}
     .section-title::before{content:'';display:inline-block;width:3px;height:14px;background:var(--ant-primary);border-radius:2px;}
     .abnormal-table{width:100%;border-collapse:collapse;font-size:13px;}
-    .abnormal-table th,.abnormal-table td{padding:8px 12px;border:1px solid var(--ant-border-secondary);}
+    .abnormal-table th,.abnormal-table td{padding:8px 12px;border:1px solid var(--ant-border-secondary);text-align:center;}
     .abnormal-table th{background:#fafafa;font-weight:500;}
     .dim-progress{display:flex;align-items:center;gap:8px;padding:8px 0;font-size:13px;}
     .dim-progress-name{min-width:80px;font-weight:500;}
@@ -74,7 +74,7 @@
 
       <div class="flex items-center gap-3 mb-4">
         <button class="ant-btn" onclick="location.href='list.html'"><i class="fa-solid fa-arrow-left"></i> 返回列表</button>
-        <h2 style="margin:0;font-size:18px;font-weight:600;">南区-链路+网络联合巡检</h2>
+        <h2 style="margin:0;font-size:18px;font-weight:600;">南区-链路+网络+画面联合巡检</h2>
         <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:13px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffccc7;">
           <span style="width:7px;height:7px;border-radius:50%;background:#ff4d4f;"></span>存在异常
         </span>
@@ -86,9 +86,9 @@
       <div class="ant-card mb-4">
         <div class="ant-card-body" style="padding:20px 24px;">
           <div class="report-grid">
-            <div><div class="report-label">巡检任务</div><div class="report-val">南区-链路+网络联合巡检</div></div>
+            <div><div class="report-label">巡检任务</div><div class="report-val">南区-链路+网络+画面联合巡检</div></div>
             <div><div class="report-label">执行时间</div><div class="report-val">2026-05-20 10:30:00</div></div>
-            <div><div class="report-label">巡检维度</div><div><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span><span class="dim-tag" style="color:#13c2c2;background:#e6fffb;border:1px solid #87e8de;">网络</span></div></div>
+            <div><div class="report-label">巡检维度</div><div><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span><span class="dim-tag" style="color:#13c2c2;background:#e6fffb;border:1px solid #87e8de;">网络</span><span class="dim-tag" style="color:#fa8c16;background:#fff7e6;border:1px solid #ffd591;">画面</span></div></div>
             <div><div class="report-label">触发方式</div><div class="report-val">周期执行</div></div>
           </div>
         </div>
@@ -121,13 +121,22 @@
             <span class="dim-progress-count" style="color:#52c41a;">532</span>
             <span class="dim-progress-count" style="color:#ff4d4f;">4</span>
           </div>
+          <div class="dim-progress">
+            <span class="dim-progress-name">画面</span>
+            <div class="dim-progress-bar"><div class="dim-progress-fill" style="width:98.9%;background:#52c41a;"></div></div>
+            <span class="dim-progress-count" style="color:#52c41a;">530</span>
+            <span class="dim-progress-count" style="color:#ff4d4f;">6</span>
+          </div>
         </div>
       </div>
 
       <!-- 异常设备列表 -->
       <div class="ant-card mb-4">
         <div class="ant-card-body" style="padding:20px 24px;">
-          <div class="section-title" style="margin-top:0;">异常设备列表</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0;">
+            <div class="section-title" style="margin-top:0;margin-bottom:0;">异常设备列表</div>
+            <a href="detail.html" class="ant-btn-link" style="font-size:14px;"><i class="fa-solid fa-list" style="margin-right:4px;"></i>查看设备明细 →</a>
+          </div>
           <table class="abnormal-table">
             <thead><tr><th>设备名称</th><th>点位名称</th><th>异常维度</th><th>异常描述</th></tr></thead>
             <tbody>
@@ -136,15 +145,13 @@
               <tr><td>南区-广场-P012</td><td>南区中心广场12号</td><td><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span></td><td style="color:#ff4d4f;">ICMP不可达</td></tr>
               <tr><td>南区-广场-P045</td><td>南区中心广场45号</td><td><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span></td><td style="color:#ff4d4f;">链路诊断超时</td></tr>
               <tr><td>南区-入口-G003</td><td>南区公园入口3号</td><td><span class="dim-tag" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">链路</span></td><td style="color:#ff4d4f;">链路不可达</td></tr>
+              <tr><td>南区-路口-C033</td><td>南区支路路口33号</td><td><span class="dim-tag" style="color:#fa8c16;background:#fff7e6;border:1px solid #ffd591;">画面</span></td><td style="color:#ff4d4f;">画面遮挡（局部遮挡）</td></tr>
+              <tr><td>南区-广场-P028</td><td>南区中心广场28号</td><td><span class="dim-tag" style="color:#fa8c16;background:#fff7e6;border:1px solid #ffd591;">画面</span></td><td style="color:#ff4d4f;">画面雪花</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- 底部操作 -->
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0 24px;">
-        <a href="detail.html" class="ant-btn-link" style="font-size:14px;"><i class="fa-solid fa-list" style="margin-right:4px;"></i>查看设备明细 →</a>
-      </div>
     </main>
   </div>
 </div>

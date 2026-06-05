@@ -121,12 +121,6 @@
     @keyframes toastIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(30px); } }
 
-    /* Alert notification bar */
-    .alert-bar { position: fixed; top: 52px; left: 0; right: 0; height: 48px; background: #fff2f0; border-bottom: 1px solid #ffccc7; display: none; align-items: center; padding: 0 20px; z-index: 150; gap: 12px; animation: slideDown 0.3s ease; color: var(--ant-text); }
-    .alert-bar.active { display: flex; }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-100%); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeOutUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100%); } }
-
     /* Divider */
     .divider { height: 1px; background: var(--ant-border-secondary); margin: 16px 0; }
 
@@ -151,15 +145,6 @@
 
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
-
-<!-- Alert Notification Bar -->
-<div class="alert-bar" id="alertBar">
-  <i class="fa-solid fa-circle" style="color:#ff4d4f;font-size:8px;animation:pulse 1.5s infinite;"></i>
-  <span style="flex:1;font-size:13px;color:var(--ant-text);">布控告警：<strong>嫌疑人A布控</strong> 目标在 <strong>东区-入口-C003</strong> 出现，2分钟前</span>
-  <button onclick="openAlertDetail(0)" style="background:var(--ant-bg-container);border:1px solid var(--ant-border-color);color:var(--ant-text);padding:4px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--ant-primary)';this.style.color='var(--ant-primary)'" onmouseout="this.style.borderColor='var(--ant-border-color)';this.style.color='var(--ant-text)'">查看详情</button>
-  <button onclick="dismissAlertBar()" style="background:none;border:none;color:var(--ant-text-tertiary);cursor:pointer;font-size:16px;padding:4px;" onmouseover="this.style.color='var(--ant-text)'" onmouseout="this.style.color='var(--ant-text-tertiary)'"><i class="fa-solid fa-xmark"></i></button>
-  <style>@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }</style>
-</div>
 
 <!-- Top Navigation -->
 <nav class="top-nav">
@@ -843,30 +828,6 @@ function renderTimeline(currentIdx) {
 
 function closeAlertDetail() {
   document.getElementById('alertDetailModal').classList.remove('active');
-}
-
-// ==================== Alert Bar ====================
-let alertBarTimer = null;
-function showAlertBar() {
-  const bar = document.getElementById('alertBar');
-  bar.classList.add('active');
-  // Auto dismiss after 15s
-  alertBarTimer = setTimeout(() => {
-    dismissAlertBar();
-  }, 15000);
-}
-
-function dismissAlertBar() {
-  const bar = document.getElementById('alertBar');
-  bar.style.animation = 'fadeOutUp 0.3s ease forwards';
-  setTimeout(() => {
-    bar.classList.remove('active');
-    bar.style.animation = '';
-  }, 300);
-  if (alertBarTimer) {
-    clearTimeout(alertBarTimer);
-    alertBarTimer = null;
-  }
 }
 
 // ==================== Keyboard Events ====================

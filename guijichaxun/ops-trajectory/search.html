@@ -3,918 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P-001A 人员轨迹查询 - 搜索页</title>
+    <title>结合版 — 场所树 + 地图联动</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root {
-            /* Ant Design 5.x 浅色主题变量 */
-            --ant-primary: #1677ff;
-            --ant-primary-hover: #4096ff;
-            --ant-primary-active: #0958d9;
-            --ant-primary-bg: #e6f4ff;
-            --ant-primary-border: #91caff;
-
-            --ant-success: #52c41a;
-            --ant-success-bg: #f6ffed;
-            --ant-warning: #faad14;
-            --ant-warning-bg: #fffbe6;
-            --ant-error: #ff4d4f;
-            --ant-error-bg: #fff2f0;
-
-            --ant-bg-layout: #f5f5f5;
-            --ant-bg-container: #ffffff;
-            --ant-bg-elevated: #ffffff;
-            --ant-bg-spotlight: rgba(0, 0, 0, 0.85);
-
-            --ant-text: rgba(0, 0, 0, 0.88);
-            --ant-text-secondary: rgba(0, 0, 0, 0.65);
-            --ant-text-tertiary: rgba(0, 0, 0, 0.45);
-            --ant-text-quaternary: rgba(0, 0, 0, 0.25);
-
-            --ant-border: #d9d9d9;
-            --ant-border-secondary: #f0f0f0;
-
-            --ant-radius: 6px;
-            --ant-radius-lg: 8px;
-            --ant-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
-            --ant-shadow-lg: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
-            background: var(--ant-bg-layout);
-            color: var(--ant-text);
-            font-size: 14px;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* 布局 */
-        .ant-layout {
-            display: flex;
-            height: 100vh;
-        }
-
-        /* 左侧导航 - Ant Design Sider */
-        .ant-layout-sider {
-            width: 208px;
-            background: var(--ant-bg-container);
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border-right: 1px solid var(--ant-border-secondary);
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .ant-layout-sider-logo {
-            height: 56px;
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--ant-text);
-            border-bottom: 1px solid var(--ant-border-secondary);
-            gap: 8px;
-        }
-
-        .ant-layout-sider-logo svg {
-            width: 22px; height: 22px;
-            color: var(--ant-primary);
-        }
-
-        /* Ant Design Menu */
-        .ant-menu {
-            flex: 1;
-            overflow-y: auto;
-            padding: 8px 0;
-        }
-
-        .ant-menu-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            height: 40px;
-            padding: 0 16px;
-            margin: 4px 12px;
-            font-size: 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            color: var(--ant-text);
-        }
-
-        .ant-menu-item:hover {
-            background: rgba(0,0,0,0.06);
-        }
-
-        .ant-menu-item-selected {
-            background: var(--ant-primary-bg);
-            color: var(--ant-primary);
-        }
-
-        /* 主内容区 */
-        .ant-layout-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* 顶部栏 - Ant Design Header */
-        .ant-layout-header {
-            height: 56px;
-            background: var(--ant-bg-container);
-            border-bottom: 1px solid var(--ant-border-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            flex-shrink: 0;
-        }
-
-        /* Ant Design Breadcrumb */
-        .ant-breadcrumb {
-            font-size: 14px;
-            color: var(--ant-text-tertiary);
-        }
-
-        .ant-breadcrumb .ant-breadcrumb-separator {
-            margin: 0 6px;
-            color: var(--ant-text-quaternary);
-        }
-
-        .ant-breadcrumb .ant-breadcrumb-link:last-child {
-            color: var(--ant-text);
-            font-weight: 500;
-        }
-
-        .ant-breadcrumb .ant-breadcrumb-link {
-            color: var(--ant-text-tertiary);
-            transition: color 0.2s;
-        }
-
-        .ant-breadcrumb .ant-breadcrumb-link:hover {
-            color: var(--ant-primary);
-        }
-
-        .ant-header-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        /* Ant Design Icon Button */
-        .ant-btn-icon {
-            width: 32px; height: 32px;
-            border-radius: 50%;
-            background: transparent;
-            border: none;
-            color: var(--ant-text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            position: relative;
-        }
-
-        .ant-btn-icon:hover {
-            background: var(--ant-primary-bg);
-            color: var(--ant-primary);
-        }
-
-        .ant-badge {
-            position: absolute; top: -2px; right: -2px;
-            min-width: 14px; height: 14px;
-            background: var(--ant-error);
-            border-radius: 7px;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            padding: 0 4px;
-            line-height: 1;
-        }
-
-        .ant-avatar {
-            width: 28px; height: 28px;
-            border-radius: 50%;
-            background: var(--ant-primary);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: 600; color: #fff;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .ant-avatar:hover {
-            box-shadow: 0 0 0 2px var(--ant-primary-bg);
-        }
-
-        /* 内容区 */
-        .ant-layout-content-main {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 24px;
-        }
-
-        /* Ant Design Card */
-        .ant-card {
-            background: var(--ant-bg-container);
-            border-radius: var(--ant-radius-lg);
-            border: 1px solid var(--ant-border-secondary);
-            margin-bottom: 16px;
-            box-shadow: var(--ant-shadow);
-        }
-
-        .ant-card-head {
-            padding: 14px 20px;
-            border-bottom: 1px solid var(--ant-border-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .ant-card-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--ant-text);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Ant Design Tag */
-        .ant-tag {
-            font-size: 12px;
-            padding: 2px 8px;
-            background: var(--ant-primary-bg);
-            color: var(--ant-primary);
-            border-radius: var(--ant-radius);
-            font-weight: 400;
-            border: 1px solid var(--ant-primary-border);
-            line-height: 1.5;
-        }
-
-        .ant-card-body {
-            padding: 20px;
-        }
-
-        /* Ant Design Tabs */
-        .ant-tabs {
-            display: flex;
-            gap: 0;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--ant-border-secondary);
-        }
-
-        .ant-tabs-tab {
-            padding: 10px 20px;
-            border: none;
-            background: transparent;
-            color: var(--ant-text-secondary);
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 500;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -1px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .ant-tabs-tab:hover { color: var(--ant-primary); }
-
-        .ant-tabs-tab-active {
-            color: var(--ant-primary);
-            border-bottom-color: var(--ant-primary);
-        }
-
-        /* Ant Design Form */
-        .ant-form {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px 24px;
-        }
-
-        .ant-form-item {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .ant-form-item-full-width {
-            grid-column: 1 / -1;
-        }
-
-        .ant-form-item-half-width {
-            grid-column: span 2;
-        }
-
-        .ant-form-label {
-            font-size: 13px;
-            color: var(--ant-text-secondary);
-            font-weight: 500;
-        }
-
-        .ant-form-label .ant-form-item-required {
-            color: var(--ant-error);
-            margin-left: 2px;
-        }
-
-        .ant-form-label .ant-form-item-hint {
-            font-weight: 400;
-            color: var(--ant-text-tertiary);
-            font-size: 12px;
-            margin-left: 6px;
-        }
-
-        /* Ant Design Input */
-        .ant-input,
-        .ant-select {
-            height: 36px;
-            padding: 0 12px;
-            border: 1px solid var(--ant-border);
-            border-radius: var(--ant-radius);
-            font-size: 13px;
-            color: var(--ant-text);
-            outline: none;
-            transition: all 0.2s;
-            font-family: inherit;
-            background: var(--ant-bg-container);
-        }
-
-        .ant-input:focus,
-        .ant-select:focus {
-            border-color: var(--ant-primary);
-            box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
-        }
-
-        .ant-input:hover,
-        .ant-select:hover {
-            border-color: var(--ant-primary);
-        }
-
-        .ant-input::placeholder {
-            color: var(--ant-text-quaternary);
-        }
-
-        .ant-select {
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300000040' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            padding-right: 30px;
-        }
-
-        /* 时间范围 */
-        .ant-time-range {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .ant-time-range .ant-input {
-            flex: 1;
-        }
-
-        .ant-time-separator {
-            color: var(--ant-text-tertiary);
-            font-size: 13px;
-        }
-
-        /* Ant Design Tag Group (Quick Tags) */
-        .ant-tag-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .ant-tag-checkable {
-            padding: 4px 12px;
-            border: 1px solid var(--ant-border);
-            background: var(--ant-bg-container);
-            color: var(--ant-text-secondary);
-            border-radius: var(--ant-radius);
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .ant-tag-checkable:hover {
-            border-color: var(--ant-primary);
-            color: var(--ant-primary);
-        }
-
-        .ant-tag-checkable-checked {
-            background: var(--ant-primary);
-            border-color: var(--ant-primary);
-            color: #fff;
-        }
-
-        /* Ant Design Upload */
-        .ant-upload {
-            border: 1px dashed var(--ant-border);
-            border-radius: var(--ant-radius);
-            padding: 24px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: var(--ant-bg-layout);
-        }
-
-        .ant-upload:hover {
-            border-color: var(--ant-primary);
-            background: var(--ant-primary-bg);
-        }
-
-        .ant-upload-has-files {
-            border-style: solid;
-            border-color: var(--ant-border-secondary);
-            padding: 16px;
-            text-align: left;
-        }
-
-        .ant-upload-default .ant-upload-icon {
-            font-size: 28px;
-            margin-bottom: 8px;
-            color: var(--ant-text-tertiary);
-        }
-
-        .ant-upload-default .ant-upload-text {
-            font-size: 14px;
-            color: var(--ant-text);
-            margin-bottom: 4px;
-        }
-
-        .ant-upload-default .ant-upload-hint {
-            font-size: 12px;
-            color: var(--ant-text-tertiary);
-        }
-
-        .ant-upload-list {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .ant-upload-list-item {
-            position: relative;
-            width: 80px;
-            height: 80px;
-            border-radius: var(--ant-radius);
-            overflow: hidden;
-            border: 1px solid var(--ant-border-secondary);
-            background: var(--ant-bg-container);
-        }
-
-        .ant-upload-list-item img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-        }
-
-        .ant-upload-list-item .ant-upload-list-item-remove {
-            position: absolute; top: 2px; right: 2px;
-            width: 18px; height: 18px;
-            background: var(--ant-error);
-            border: none; border-radius: 50%;
-            color: #fff; font-size: 12px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.2s;
-        }
-
-        .ant-upload-list-item:hover .ant-upload-list-item-remove { opacity: 1; }
-
-        .ant-upload-list-item .ant-upload-list-item-status {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            padding: 2px 4px;
-            font-size: 10px;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .ant-upload-list-item-status-success {
-            background: var(--ant-success);
-            color: #fff;
-        }
-
-        .ant-upload-list-item-status-warning {
-            background: var(--ant-warning);
-            color: #fff;
-        }
-
-        .ant-upload-add {
-            width: 80px; height: 80px;
-            border: 1px dashed var(--ant-border);
-            border-radius: var(--ant-radius);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            color: var(--ant-text-tertiary);
-            font-size: 24px;
-            transition: all 0.2s;
-            background: var(--ant-bg-container);
-        }
-
-        .ant-upload-add:hover {
-            border-color: var(--ant-primary);
-            color: var(--ant-primary);
-            background: var(--ant-primary-bg);
-        }
-
-        .ant-upload-tip {
-            margin-top: 8px;
-            font-size: 12px;
-            display: none;
-        }
-
-        .ant-upload-tip-show { display: block; }
-        .ant-upload-tip-success { color: var(--ant-success); }
-        .ant-upload-tip-warning { color: var(--ant-warning); }
-
-        /* Ant Design Color Picker */
-        .ant-color-options {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .ant-color-block {
-            width: 28px; height: 28px;
-            border-radius: var(--ant-radius);
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .ant-color-block:hover,
-        .ant-color-block-selected {
-            border-color: var(--ant-primary);
-            transform: scale(1.1);
-            box-shadow: 0 0 0 2px var(--ant-primary-bg);
-        }
-
-        .ant-color-block[data-color="black"] { background: #1a1a1a; }
-        .ant-color-block[data-color="white"] { background: #f5f5f5; border-color: var(--ant-border); }
-        .ant-color-block[data-color="red"] { background: #ef4444; }
-        .ant-color-block[data-color="blue"] { background: #3b82f6; }
-        .ant-color-block[data-color="yellow"] { background: #eab308; }
-        .ant-color-block[data-color="green"] { background: #22c55e; }
-        .ant-color-block[data-color="gray"] { background: #6b7280; }
-
-        /* Ant Design Button */
-        .ant-btn-group {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid var(--ant-border-secondary);
-        }
-
-        .ant-btn {
-            height: 36px;
-            padding: 0 20px;
-            border-radius: var(--ant-radius);
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-family: inherit;
-            font-weight: 500;
-            border: 1px solid transparent;
-        }
-
-        .ant-btn-primary {
-            background: var(--ant-primary);
-            color: #fff;
-            border-color: var(--ant-primary);
-        }
-
-        .ant-btn-primary:hover:not(:disabled) {
-            background: var(--ant-primary-hover);
-            border-color: var(--ant-primary-hover);
-        }
-
-        .ant-btn-primary:active:not(:disabled) {
-            background: var(--ant-primary-active);
-            border-color: var(--ant-primary-active);
-        }
-
-        .ant-btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .ant-btn-default {
-            background: var(--ant-bg-container);
-            color: var(--ant-text);
-            border-color: var(--ant-border);
-        }
-
-        .ant-btn-default:hover {
-            color: var(--ant-primary);
-            border-color: var(--ant-primary);
-        }
-
-        .ant-btn-text {
-            background: transparent;
-            color: var(--ant-text-secondary);
-            border: none;
-            padding: 0 12px;
-        }
-
-        .ant-btn-text:hover {
-            color: var(--ant-primary);
-            background: var(--ant-primary-bg);
-        }
-
-        /* 历史记录 */
-        .ant-history-section {
-            margin-top: 16px;
-        }
-
-        .ant-history-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .ant-history-title {
-            font-size: 13px;
-            color: var(--ant-text-tertiary);
-            font-weight: 500;
-        }
-
-        .ant-history-clear {
-            font-size: 12px;
-            color: var(--ant-error);
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .ant-history-clear:hover {
-            color: #ff7875;
-        }
-
-        .ant-history-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .ant-history-chip {
-            padding: 6px 12px;
-            background: var(--ant-bg-container);
-            border: 1px solid var(--ant-border-secondary);
-            border-radius: var(--ant-radius);
-            font-size: 12px;
-            color: var(--ant-text-secondary);
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .ant-history-chip:hover {
-            border-color: var(--ant-primary);
-            color: var(--ant-primary);
-            background: var(--ant-primary-bg);
-        }
-
-        .ant-history-chip .ant-history-chip-type {
-            font-size: 10px;
-            padding: 1px 5px;
-            background: var(--ant-primary);
-            color: #fff;
-            border-radius: 2px;
-        }
-
-        /* Ant Design Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.15);
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 0, 0, 0.25);
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--ant-primary:#1677ff;--ant-primary-hover:#4096ff;--ant-primary-active:#0958d9;--ant-primary-bg:#e6f4ff;--ant-primary-border:#91caff;--ant-success:#52c41a;--ant-success-bg:#f6ffed;--ant-warning:#faad14;--ant-warning-bg:#fffbe6;--ant-error:#ff4d4f;--ant-error-bg:#fff2f0;--ant-bg-layout:#f5f5f5;--ant-bg-container:#ffffff;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-text-quaternary:rgba(0,0,0,0.25);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--ant-radius:6px;--ant-radius-lg:8px;--ant-shadow:0 1px 2px 0 rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02),0 2px 4px 0 rgba(0,0,0,0.02)}
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans SC",sans-serif;background:var(--ant-bg-layout);color:var(--ant-text);font-size:14px;height:100vh;overflow:hidden}
+        .ant-layout{display:flex;height:100vh}
+        .ant-layout-sider{width:208px;background:var(--ant-bg-container);flex-shrink:0;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--ant-border-secondary);box-shadow:2px 0 8px rgba(0,0,0,0.05)}
+        .ant-menu{flex:1;overflow-y:auto;padding:8px 0}
+        .ant-menu-item{display:flex;align-items:center;gap:10px;height:40px;padding:0 16px;margin:4px 12px;font-size:14px;border-radius:4px;cursor:pointer;transition:all 0.2s;text-decoration:none;color:var(--ant-text)}
+        .ant-menu-item:hover{background:rgba(0,0,0,0.06)}
+        .ant-menu-item-selected{background:var(--ant-primary-bg);color:var(--ant-primary)}
+        .ant-layout-content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+        .ant-layout-content-main{flex:1;overflow-y:auto;padding:20px 24px}
+        .ant-card{background:var(--ant-bg-container);border-radius:var(--ant-radius-lg);border:1px solid var(--ant-border-secondary);margin-bottom:16px;box-shadow:var(--ant-shadow)}
+        .ant-card-head{padding:14px 20px;border-bottom:1px solid var(--ant-border-secondary);display:flex;align-items:center;justify-content:space-between}
+        .ant-card-title{font-size:16px;font-weight:600;color:var(--ant-text);display:flex;align-items:center;gap:8px}
+        .ant-tag{font-size:12px;padding:2px 8px;background:var(--ant-primary-bg);color:var(--ant-primary);border-radius:var(--ant-radius);font-weight:400;border:1px solid var(--ant-primary-border);line-height:1.5}
+        .ant-card-body{padding:20px}
+        .ant-tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--ant-border-secondary)}
+        .ant-tabs-tab{padding:10px 20px;border:none;background:transparent;color:var(--ant-text-secondary);font-size:14px;cursor:pointer;transition:all 0.2s;font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;align-items:center;gap:6px}
+        .ant-tabs-tab:hover{color:var(--ant-primary)}
+        .ant-tabs-tab-active{color:var(--ant-primary);border-bottom-color:var(--ant-primary)}
+        .ant-form{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 24px}
+        .ant-form-item{display:flex;flex-direction:column;gap:6px}
+        .ant-form-item-full-width{grid-column:1/-1}
+        .ant-form-label{font-size:13px;color:var(--ant-text-secondary);font-weight:500}
+        .ant-form-label .ant-form-item-required{color:var(--ant-error);margin-left:2px}
+        .ant-form-label .ant-form-item-hint{font-weight:400;color:var(--ant-text-tertiary);font-size:12px;margin-left:6px}
+        .ant-input,.ant-select{height:36px;padding:0 12px;border:1px solid var(--ant-border);border-radius:var(--ant-radius);font-size:13px;color:var(--ant-text);outline:none;transition:all 0.2s;font-family:inherit;background:var(--ant-bg-container)}
+        .ant-input:focus,.ant-select:focus{border-color:var(--ant-primary);box-shadow:0 0 0 2px rgba(22,119,255,0.1)}
+        .ant-input:hover,.ant-select:hover{border-color:var(--ant-primary)}
+        .ant-input::placeholder{color:var(--ant-text-quaternary)}
+        .ant-select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300000040' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+        .ant-time-range{display:flex;align-items:center;gap:8px}
+        .ant-time-range .ant-input{flex:1}
+        .ant-time-separator{color:var(--ant-text-tertiary);font-size:13px}
+        .ant-tag-group{display:flex;gap:8px;margin-bottom:8px}
+        .ant-tag-checkable{padding:4px 12px;border:1px solid var(--ant-border);background:var(--ant-bg-container);color:var(--ant-text-secondary);border-radius:var(--ant-radius);font-size:12px;cursor:pointer;transition:all 0.2s}
+        .ant-tag-checkable:hover{border-color:var(--ant-primary);color:var(--ant-primary)}
+        .ant-tag-checkable-checked{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff}
+        .ant-upload{border:1px dashed var(--ant-border);border-radius:var(--ant-radius);padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--ant-bg-layout)}
+        .ant-upload:hover{border-color:var(--ant-primary);background:var(--ant-primary-bg)}
+        .ant-upload-has-files{border-style:solid;border-color:var(--ant-border-secondary);padding:16px;text-align:left}
+        .ant-upload-default .ant-upload-icon{font-size:28px;margin-bottom:8px;color:var(--ant-text-tertiary)}
+        .ant-upload-default .ant-upload-text{font-size:14px;color:var(--ant-text);margin-bottom:4px}
+        .ant-upload-default .ant-upload-hint{font-size:12px;color:var(--ant-text-tertiary)}
+        .ant-upload-list{display:flex;gap:12px;flex-wrap:wrap}
+        .ant-upload-list-item{position:relative;width:80px;height:80px;border-radius:var(--ant-radius);overflow:hidden;border:1px solid var(--ant-border-secondary);background:var(--ant-bg-container)}
+        .ant-upload-list-item img{width:100%;height:100%;object-fit:cover}
+        .ant-upload-list-item .remove-btn{position:absolute;top:2px;right:2px;width:18px;height:18px;background:var(--ant-error);border:none;border-radius:50%;color:#fff;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s}
+        .ant-upload-list-item:hover .remove-btn{opacity:1}
+        .ant-upload-list-item .status-bar{position:absolute;bottom:0;left:0;right:0;padding:2px 4px;font-size:10px;text-align:center;font-weight:500}
+        .status-success{background:var(--ant-success);color:#fff}
+        .status-warning{background:var(--ant-warning);color:#fff}
+        .ant-upload-add{width:80px;height:80px;border:1px dashed var(--ant-border);border-radius:var(--ant-radius);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ant-text-tertiary);font-size:24px;transition:all 0.2s;background:var(--ant-bg-container)}
+        .ant-upload-add:hover{border-color:var(--ant-primary);color:var(--ant-primary);background:var(--ant-primary-bg)}
+        .ant-upload-tip{margin-top:8px;font-size:12px;display:none}
+        .tip-show{display:block}.tip-success{color:var(--ant-success)}.tip-warning{color:var(--ant-warning)}
+        .ant-btn-group{display:flex;justify-content:center;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid var(--ant-border-secondary)}
+        .ant-btn{height:36px;padding:0 20px;border-radius:var(--ant-radius);font-size:14px;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-weight:500;border:1px solid transparent}
+        .ant-btn-primary{background:var(--ant-primary);color:#fff;border-color:var(--ant-primary)}
+        .ant-btn-primary:hover:not(:disabled){background:var(--ant-primary-hover);border-color:var(--ant-primary-hover)}
+        .ant-btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+        .ant-btn-text{background:transparent;color:var(--ant-text-secondary);border:none;padding:0 12px}
+        .ant-btn-text:hover{color:var(--ant-primary);background:var(--ant-primary-bg)}
+        ::-webkit-scrollbar{width:6px;height:6px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);border-radius:3px}
+
+        /* ===== 触发器 ===== */
+        .area-trigger{height:36px;padding:0 12px;border:1px solid var(--ant-border);border-radius:var(--ant-radius);font-size:13px;color:var(--ant-text);cursor:pointer;transition:all 0.2s;background:var(--ant-bg-container);display:flex;align-items:center;justify-content:space-between}
+        .area-trigger:hover{border-color:var(--ant-primary)}
+        .area-trigger .placeholder{color:var(--ant-text-quaternary)}
+        .area-trigger .sel-tags{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+        .area-trigger .sel-tag{background:var(--ant-primary-bg);color:var(--ant-primary);border:1px solid var(--ant-primary-border);border-radius:4px;padding:1px 6px;font-size:11px;display:flex;align-items:center;gap:3px}
+        .area-trigger .sel-tag .rm{cursor:pointer;font-size:10px;opacity:0.6}.area-trigger .sel-tag .rm:hover{opacity:1}
+        .area-trigger .arrow{color:var(--ant-text-quaternary);font-size:10px;margin-left:8px;flex-shrink:0}
+
+        /* ===== 弹窗 ===== */
+        .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;z-index:500;align-items:center;justify-content:center}
+        .modal-mask.open{display:flex}
+        .modal-box{background:var(--ant-bg-container);border-radius:var(--ant-radius-lg);box-shadow:0 12px 48px rgba(0,0,0,0.18);width:960px;max-width:95vw;height:580px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
+        .modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--ant-border-secondary);flex-shrink:0}
+        .modal-head h3{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+        .modal-close{background:none;border:none;color:var(--ant-text-tertiary);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:4px}.modal-close:hover{color:var(--ant-text);background:var(--ant-bg-layout)}
+        .modal-body{flex:1;display:flex;overflow:hidden}
+        .modal-foot{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--ant-border-secondary);flex-shrink:0}
+
+        /* 左侧面板 */
+        .modal-left{width:340px;min-width:340px;border-right:1px solid var(--ant-border-secondary);display:flex;flex-direction:column;overflow:hidden}
+        .modal-search{padding:12px;border-bottom:1px solid var(--ant-border-secondary);flex-shrink:0}
+        .modal-search input{width:100%;height:34px;border:1px solid var(--ant-border);border-radius:var(--ant-radius);padding:0 10px 0 32px;font-size:13px;outline:none}
+        .modal-search input:focus{border-color:var(--ant-primary)}
+        .modal-search{position:relative}
+        .modal-search i{position:absolute;left:22px;top:50%;transform:translateY(-50%);color:var(--ant-text-quaternary);font-size:12px}
+        .modal-tree{flex:1;overflow-y:auto;padding:4px 0}
+        .modal-tree-footer{padding:8px 12px;border-top:1px solid var(--ant-border-secondary);display:flex;justify-content:space-between;align-items:center;font-size:12px;flex-shrink:0}
+        .modal-tree-footer .actions{display:flex;gap:8px}
+        .modal-tree-footer .actions button{padding:2px 8px;font-size:12px;border:none;background:none;color:var(--ant-primary);cursor:pointer;border-radius:4px}
+        .modal-tree-footer .actions button:hover{background:var(--ant-primary-bg)}
+
+        .tree-grp{}
+        .tree-grp-hd{display:flex;align-items:center;gap:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--ant-text-secondary);user-select:none}
+        .tree-grp-hd:hover{background:var(--ant-primary-bg)}
+        .tree-grp-hd .arr{font-size:10px;color:var(--ant-text-quaternary);transition:transform 0.2s;width:14px;text-align:center}
+        .tree-grp-hd .arr.exp{transform:rotate(90deg)}
+        .tree-grp-hd .cnt{color:var(--ant-text-tertiary);font-size:11px;font-weight:400}
+        .tree-grp-body{display:none}.tree-grp-body.exp{display:block}
+        .tree-node{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 32px;cursor:pointer;font-size:13px;color:var(--ant-text);transition:background 0.15s}
+        .tree-node:hover{background:var(--ant-primary-bg)}
+        .tree-node.highlight{background:#e6f4ff}
+        .chk{width:16px;height:16px;border:1px solid var(--ant-border);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s}
+        .chk.on{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;font-size:10px}
+        .chk.half{background:var(--ant-primary);border-color:var(--ant-primary)}
+        .chk.half::after{content:'';width:8px;height:2px;background:#fff;border-radius:1px}
+        .cam-cnt{color:var(--ant-text-tertiary);font-size:11px;margin-left:auto}
+
+        /* 右侧地图 */
+        .modal-right{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;background:#0a1628}
+        .map-svg{width:100%;flex:1}
+        .bld{fill:#1a2744;stroke:#2a3f66;stroke-width:1;transition:fill 0.3s,stroke 0.3s}
+        .bld.selected{fill:#1e3a5f;stroke:var(--ant-primary);stroke-width:2}
+        .bld-lbl{fill:rgba(255,255,255,0.5);font-size:11px;text-anchor:middle;pointer-events:none;transition:fill 0.3s}
+        .bld-lbl.selected{fill:rgba(255,255,255,0.9)}
+        .cam{fill:#4a5568;stroke:none;transition:fill 0.3s}
+        .cam.on{fill:var(--ant-success)}
+        .cam-lbl{fill:rgba(255,255,255,0.3);font-size:8px;text-anchor:middle;pointer-events:none}
+        .road{stroke:#1e3050;stroke-width:2;stroke-dasharray:4 4;fill:none}
+        .map-overlay{position:absolute;bottom:12px;right:12px;background:rgba(255,255,255,0.95);border-radius:8px;padding:10px 14px;font-size:12px;box-shadow:0 2px 12px rgba(0,0,0,0.15);z-index:10}
+        .map-overlay .ov-row{display:flex;justify-content:space-between;gap:20px;margin-bottom:3px}
+        .map-overlay .ov-label{color:var(--ant-text-tertiary)}
+        .map-overlay .ov-val{font-weight:600;color:var(--ant-primary)}
+        .pulse-ring{animation:pulseAnim 1.5s infinite}
+        @keyframes pulseAnim{0%{r:5;opacity:1}100%{r:14;opacity:0}}
+
+        /* ===== 日历时间选择器 ===== */
+        .time-picker-wrap{position:relative}
+        .time-picker-trigger{height:36px;padding:0 12px;border:1px solid var(--ant-border);border-radius:var(--ant-radius);font-size:13px;color:var(--ant-text);cursor:pointer;transition:all 0.2s;background:var(--ant-bg-container);display:flex;align-items:center;gap:8px}
+        .time-picker-trigger:hover{border-color:var(--ant-primary)}
+        .time-picker-trigger i{color:var(--ant-primary);font-size:13px}
+        .time-picker-trigger .tp-text{flex:1}
+        .time-picker-trigger .tp-arrow{color:var(--ant-text-quaternary);font-size:10px}
+        .cal-popup{position:absolute;top:calc(100% + 4px);left:0;z-index:200;background:var(--ant-bg-container);border:1px solid var(--ant-border);border-radius:var(--ant-radius-lg);box-shadow:0 6px 24px rgba(0,0,0,0.12);display:none;width:480px}
+        .cal-popup.open{display:flex;flex-direction:column}
+        .cal-popup-head{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--ant-border-secondary);gap:8px;flex-shrink:0}
+        .cal-popup-head .cal-shortcuts{display:flex;gap:4px;flex-wrap:wrap}
+        .cal-shortcut{padding:3px 10px;border:1px solid var(--ant-border);border-radius:4px;font-size:12px;cursor:pointer;background:#fff;color:var(--ant-text-secondary);transition:all 0.15s}
+        .cal-shortcut:hover{border-color:var(--ant-primary);color:var(--ant-primary)}
+        .cal-shortcut.active{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff}
+        .cal-popup-body{display:flex;flex:1;overflow:hidden}
+        .cal-month{flex:1;padding:8px 12px;min-width:0}
+        .cal-month-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+        .cal-month-head .cal-title{font-size:13px;font-weight:600}
+        .cal-month-head .cal-nav{background:none;border:none;cursor:pointer;color:var(--ant-text-tertiary);padding:2px 6px;border-radius:4px;font-size:12px}
+        .cal-month-head .cal-nav:hover{color:var(--ant-primary);background:var(--ant-primary-bg)}
+        .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:0;text-align:center;margin-bottom:4px}
+        .cal-weekdays span{font-size:11px;color:var(--ant-text-quaternary);padding:4px 0}
+        .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+        .cal-day{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:12px;border-radius:50%;cursor:pointer;transition:all 0.15s;position:relative}
+        .cal-day:hover{background:var(--ant-primary-bg)}
+        .cal-day.other{color:var(--ant-text-quaternary)}
+        .cal-day.today{font-weight:700;color:var(--ant-primary)}
+        .cal-day.in-range{background:var(--ant-primary-bg);border-radius:0}
+        .cal-day.start{background:var(--ant-primary);color:#fff;border-radius:50% 0 0 50%}
+        .cal-day.end{background:var(--ant-primary);color:#fff;border-radius:0 50% 50% 0}
+        .cal-day.start.end{border-radius:50%}
+        .cal-divider{width:1px;background:var(--ant-border-secondary);flex-shrink:0}
+        .cal-popup-foot{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-top:1px solid var(--ant-border-secondary);flex-shrink:0}
+        .cal-popup-foot .cal-time{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ant-text-secondary)}
+        .cal-popup-foot .cal-time select{height:28px;padding:0 6px;border:1px solid var(--ant-border);border-radius:4px;font-size:12px;outline:none}
+        .cal-popup-foot .cal-btns{display:flex;gap:6px}
+        .cal-popup-foot .cal-btns button{padding:4px 12px;font-size:12px;border-radius:4px;cursor:pointer;border:1px solid var(--ant-border);background:#fff;color:var(--ant-text-secondary)}
+        .cal-popup-foot .cal-btns button:hover{border-color:var(--ant-primary);color:var(--ant-primary)}
+        .cal-popup-foot .cal-btns .cal-ok{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff}
+        .cal-popup-foot .cal-btns .cal-ok:hover{background:var(--ant-primary-hover)}
+        .modal-foot .foot-stat{font-size:12px;color:var(--ant-text-secondary)}
+        .modal-foot .foot-stat strong{color:var(--ant-primary);font-weight:600}
+        .modal-foot .foot-btns{display:flex;gap:8px}
     </style>
 </head>
 <body>
     <div class="ant-layout">
-        <!-- 左侧导航 -->
         <div class="ant-layout-sider">
             <div class="ant-menu">
-                <div style="padding: 12px 16px 8px; font-size: 12px; color: var(--ant-text-tertiary); font-weight: 600;">
-                    <i class="fa-solid fa-route" style="margin-right: 6px;"></i>轨迹查询
-                </div>
-                <a href="search.html" class="ant-menu-item ant-menu-item-selected">
-                    <i class="fa-solid fa-person"></i>人员轨迹查询
-                </a>
-                <a href="vehicle-search.html" class="ant-menu-item">
-                    <i class="fa-solid fa-car"></i>车辆轨迹查询
-                </a>
-                <a href="compare.html" class="ant-menu-item">
-                    <i class="fa-solid fa-users-viewfinder"></i>多目标对比
-                </a>
-
-                <div style="padding: 12px 16px 8px; font-size: 12px; color: var(--ant-text-tertiary); font-weight: 600; margin-top: 8px;">
-                    <i class="fa-solid fa-shield-halved" style="margin-right: 6px;"></i>布控管理
-                </div>
-                <a href="../ops-monitor/list.html" class="ant-menu-item">
-                    <i class="fa-solid fa-crosshairs"></i>布控任务
-                </a>
-                <a href="../ops-monitor/library.html" class="ant-menu-item">
-                    <i class="fa-solid fa-database"></i>目标库
-                </a>
-                <a href="../ops-monitor/alerts.html" class="ant-menu-item">
-                    <i class="fa-solid fa-bell"></i>布控告警
-                </a>
+                <div style="padding:12px 16px 8px;font-size:12px;color:var(--ant-text-tertiary);font-weight:600"><i class="fa-solid fa-route" style="margin-right:6px"></i>轨迹查询</div>
+                <a href="search.html" class="ant-menu-item ant-menu-item-selected"><i class="fa-solid fa-person"></i>人员轨迹查询</a>
+                <a href="vehicle-search.html" class="ant-menu-item"><i class="fa-solid fa-car"></i>车辆轨迹查询</a>
+                <a href="compare.html" class="ant-menu-item"><i class="fa-solid fa-users-viewfinder"></i>多目标对比</a>
+                <div style="padding:12px 16px 8px;font-size:12px;color:var(--ant-text-tertiary);font-weight:600;margin-top:8px"><i class="fa-solid fa-shield-halved" style="margin-right:6px"></i>布控管理</div>
+                <a href="../ops-monitor/list.html" class="ant-menu-item"><i class="fa-solid fa-crosshairs"></i>布控任务</a>
+                <a href="../ops-monitor/library.html" class="ant-menu-item"><i class="fa-solid fa-database"></i>目标库</a>
+                <a href="../ops-monitor/alerts.html" class="ant-menu-item"><i class="fa-solid fa-bell"></i>布控告警</a>
             </div>
         </div>
-
-        <!-- 主内容 -->
         <div class="ant-layout-content">
             <div class="ant-layout-content-main">
-                <!-- 搜索表单 -->
                 <div class="ant-card">
                     <div class="ant-card-head">
-                        <div class="ant-card-title">
-                            查询条件
-                            <span class="ant-tag" id="modeTag">以图搜人</span>
-                        </div>
+                        <div class="ant-card-title">查询条件 <span class="ant-tag" id="modeTag">以图搜人</span></div>
+                        <span style="font-size:12px;color:var(--ant-success);background:#f6ffed;border:1px solid #b7eb8f;border-radius:4px;padding:2px 8px">结合版 · 树+地图联动</span>
                     </div>
                     <div class="ant-card-body">
-                        <!-- 查询模式 -->
                         <div class="ant-tabs">
-                            <button class="ant-tabs-tab ant-tabs-tab-active" onclick="switchMode('image')">
-                                <i class="fa-solid fa-image"></i>以图搜人
-                            </button>
-                            <button class="ant-tabs-tab" onclick="switchMode('condition')">
-                                <i class="fa-solid fa-sliders"></i>条件检索
-                            </button>
+                            <button class="ant-tabs-tab ant-tabs-tab-active" onclick="switchMode('image')"><i class="fa-solid fa-image"></i>以图搜人</button>
+                            <button class="ant-tabs-tab" onclick="switchMode('text')"><i class="fa-solid fa-keyboard"></i>文本搜人</button>
                         </div>
 
-                        <!-- 以图搜人 -->
                         <div id="imageForm">
                             <div class="ant-form">
                                 <div class="ant-form-item">
                                     <label class="ant-form-label">时间范围 <span class="ant-form-item-required">*</span></label>
-                                    <div class="ant-tag-group">
-                                        <button class="ant-tag-checkable ant-tag-checkable-checked" onclick="setQuickTime(this, '1h')">近1小时</button>
-                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '6h')">近6小时</button>
-                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '24h')">近24小时</button>
-                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '7d')">近7天</button>
-                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '30d')">近30天</button>
+                                    <div class="time-picker-wrap">
+                                        <div class="time-picker-trigger" onclick="toggleCal(event)">
+                                            <i class="fa-regular fa-calendar"></i>
+                                            <span class="tp-text" id="tpText">近24小时（05-28 23:59 ~ 05-29 23:59）</span>
+                                            <span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                        </div>
+                                        <div class="cal-popup" id="calPopup">
+                                            <div class="cal-popup-head">
+                                                <div class="cal-shortcuts" id="calShortcuts">
+                                                    <span class="cal-shortcut" onclick="pickShortcut('today')">今天</span>
+                                                    <span class="cal-shortcut" onclick="pickShortcut('yesterday')">昨天</span>
+                                                    <span class="cal-shortcut" onclick="pickShortcut('3d')">近3天</span>
+                                                    <span class="cal-shortcut active" onclick="pickShortcut('7d')">近7天</span>
+                                                    <span class="cal-shortcut" onclick="pickShortcut('30d')">近30天</span>
+                                                </div>
+                                            </div>
+                                            <div class="cal-popup-body">
+                                                <div class="cal-month" id="calLeft"></div>
+                                                <div class="cal-divider"></div>
+                                                <div class="cal-month" id="calRight"></div>
+                                            </div>
+                                            <div class="cal-popup-foot">
+                                                <div class="cal-time">
+                                                    起始 <select id="startH"></select>:<select id="startM"></select>
+                                                    截止 <select id="endH"></select>:<select id="endM"></select>
+                                                </div>
+                                                <div class="cal-btns">
+                                                    <button onclick="closeCal()">取消</button>
+                                                    <button class="cal-ok" onclick="confirmCal()">确认</button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="ant-time-range">
-                                        <input type="datetime-local" class="ant-input" id="startTime">
-                                        <span class="ant-time-separator">至</span>
-                                        <input type="datetime-local" class="ant-input" id="endTime">
+                                </div>
+
+                                <!-- ★ 结合版核心：触发器 → 弹窗 ★ -->
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">
+                                        <i class="fa-solid fa-map-location-dot" style="color:var(--ant-primary);margin-right:4px"></i>地点范围
+                                    </label>
+                                    <div class="area-trigger" onclick="openModal()">
+                                        <div class="sel-tags" id="triggerTags"><span class="placeholder">全部区域</span></div>
+                                        <span class="arrow"><i class="fa-solid fa-chevron-down"></i></span>
                                     </div>
                                 </div>
 
                                 <div class="ant-form-item">
-                                    <label class="ant-form-label">地点范围</label>
-                                    <select class="ant-select" id="locationSelect">
-                                        <option value="">全部区域</option>
-                                        <option value="a">A栋</option>
-                                        <option value="b">B栋</option>
-                                        <option value="c">C栋</option>
-                                    </select>
-                                </div>
-
-                                <div class="ant-form-item">
-                                    <label class="ant-form-label">置信度阈值</label>
-                                    <select class="ant-select">
-                                        <option value="80">≥ 80%</option>
-                                        <option value="85">≥ 85%</option>
-                                        <option value="90" selected>≥ 90%</option>
-                                        <option value="95">≥ 95%</option>
-                                    </select>
+                                    <label class="ant-form-label">匹配严格度</label>
+                                    <select class="ant-select"><option>宽松</option><option selected>标准</option><option>严格</option></select>
                                 </div>
 
                                 <div class="ant-form-item ant-form-item-full-width">
-                                    <label class="ant-form-label">
-                                        上传人脸照片 <span class="ant-form-item-required">*</span>
-                                        <span class="ant-form-item-hint">最多3张，系统将自动选取最优人脸进行比对</span>
-                                    </label>
+                                    <label class="ant-form-label">上传人像照片 <span class="ant-form-item-required">*</span><span class="ant-form-item-hint">最多3张，全身/半身均可</span></label>
                                     <div class="ant-upload" id="uploadBox" onclick="document.getElementById('fileInput').click()">
                                         <div class="ant-upload-default" id="uploadDefault">
                                             <div class="ant-upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-                                            <div class="ant-upload-text">点击或拖拽上传人脸照片</div>
+                                            <div class="ant-upload-text">点击或拖拽上传人像照片</div>
                                             <div class="ant-upload-hint">支持 JPG、PNG 格式，最多3张，单张不超过 5MB</div>
                                         </div>
-                                        <div class="ant-upload-list" id="previewList" style="display:none;"></div>
+                                        <div class="ant-upload-list" id="previewList" style="display:none"></div>
                                     </div>
-                                    <input type="file" id="fileInput" accept="image/jpeg,image/png" multiple onchange="handleFiles(event)" style="display:none;">
+                                    <input type="file" id="fileInput" accept="image/jpeg,image/png" multiple onchange="handleFiles(event)" style="display:none">
                                     <div class="ant-upload-tip" id="uploadTip"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 条件检索 -->
-                        <div id="conditionForm" style="display:none;">
+                        <div id="textForm" style="display:none">
                             <div class="ant-form">
-                                <div class="ant-form-item">
-                                    <label class="ant-form-label">性别</label>
-                                    <select class="ant-select">
-                                        <option value="">全部</option>
-                                        <option value="male">男</option>
-                                        <option value="female">女</option>
-                                    </select>
-                                </div>
-                                <div class="ant-form-item ant-form-item-half-width">
-                                    <label class="ant-form-label">上衣颜色</label>
-                                    <div class="ant-color-options">
-                                        <div class="ant-color-block" data-color="black" onclick="selectColor(this)"></div>
-                                        <div class="ant-color-block" data-color="white" onclick="selectColor(this)"></div>
-                                        <div class="ant-color-block" data-color="red" onclick="selectColor(this)"></div>
-                                        <div class="ant-color-block" data-color="blue" onclick="selectColor(this)"></div>
-                                        <div class="ant-color-block" data-color="yellow" onclick="selectColor(this)"></div>
-                                        <div class="ant-color-block" data-color="green" onclick="selectColor(this)"></div>
-                                        <div class="ant-color-block" data-color="gray" onclick="selectColor(this)"></div>
-                                    </div>
+                                <div class="ant-form-item ant-form-item-full-width">
+                                    <label class="ant-form-label">人员特征描述 <span class="ant-form-item-required">*</span></label>
+                                    <textarea class="ant-input" id="searchText" rows="3" maxlength="200" placeholder="请描述目标人员的特征" oninput="updCC()" style="resize:vertical;min-height:80px"></textarea>
+                                    <div style="text-align:right;color:var(--ant-text-tertiary);font-size:12px;margin-top:4px"><span id="charCount">0</span>/200</div>
                                 </div>
                                 <div class="ant-form-item">
                                     <label class="ant-form-label">时间范围 <span class="ant-form-item-required">*</span></label>
-                                    <div class="ant-tag-group">
-                                        <button class="ant-tag-checkable ant-tag-checkable-checked" onclick="setQuickTime(this, '1h')">近1小时</button>
-                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '6h')">近6小时</button>
-                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '24h')">近24小时</button>
-                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '7d')">近7天</button>
-                                        <button class="ant-tag-checkable" onclick="setQuickTime(this, '30d')">近30天</button>
-                                    </div>
-                                    <div class="ant-time-range">
-                                        <input type="datetime-local" class="ant-input" id="cStartTime">
-                                        <span class="ant-time-separator">至</span>
-                                        <input type="datetime-local" class="ant-input" id="cEndTime">
+                                    <div class="time-picker-wrap">
+                                        <div class="time-picker-trigger" onclick="toggleCal(event)">
+                                            <i class="fa-regular fa-calendar"></i>
+                                            <span class="tp-text" id="tpText2">近24小时（05-28 23:59 ~ 05-29 23:59）</span>
+                                            <span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="ant-form-item">
                                     <label class="ant-form-label">地点范围</label>
-                                    <select class="ant-select">
-                                        <option value="">全部区域</option>
-                                        <option value="a">A栋</option>
-                                        <option value="b">B栋</option>
-                                        <option value="c">C栋</option>
-                                    </select>
-                                </div>
-                                <div class="ant-form-item">
-                                    <label class="ant-form-label">置信度阈值</label>
-                                    <select class="ant-select">
-                                        <option value="80">≥ 80%</option>
-                                        <option value="85">≥ 85%</option>
-                                        <option value="90" selected>≥ 90%</option>
-                                        <option value="95">≥ 95%</option>
-                                    </select>
+                                    <div class="area-trigger" onclick="openModal()"><div class="sel-tags"><span class="placeholder">全部区域</span></div><span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 操作按钮 -->
                         <div class="ant-btn-group">
-                            <button class="ant-btn ant-btn-text" onclick="resetForm()">🔄 重置</button>
-                            <button class="ant-btn ant-btn-default" onclick="saveTemplate()">💾 保存为模板</button>
-                            <button class="ant-btn ant-btn-primary" id="queryBtn" onclick="doQuery()" disabled>
-                                <i class="fa-solid fa-magnifying-glass"></i>查询
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 历史记录 -->
-                <div class="ant-history-section">
-                    <div class="ant-history-header">
-                        <span class="ant-history-title">最近查询</span>
-                        <span class="ant-history-clear" onclick="clearHistory()">清空</span>
-                    </div>
-                    <div class="ant-history-list" id="historyList">
-                        <div class="ant-history-chip" onclick="loadHistory('image')">
-                            <span class="ant-history-chip-type">以图</span>
-                            近24小时 · 全部区域 · 置信度≥90%
-                        </div>
-                        <div class="ant-history-chip" onclick="loadHistory('condition')">
-                            <span class="ant-history-chip-type">条件</span>
-                            男性 · 黑色上衣 · 近7天
-                        </div>
-                        <div class="ant-history-chip" onclick="loadHistory('image')">
-                            <span class="ant-history-chip-type">以图</span>
-                            近1小时 · 全部区域 · 置信度≥95%
+                            <button class="ant-btn ant-btn-primary" id="queryBtn" onclick="doQuery()" disabled><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+                            <button class="ant-btn ant-btn-text" onclick="resetForm()">重置</button>
                         </div>
                     </div>
                 </div>
@@ -922,175 +317,306 @@
         </div>
     </div>
 
-    <script>
-        let currentMode = 'image';
-        let files = [];
-
-        function initTime() {
-            const now = new Date('2026-05-29T23:59:00');
-            const start = new Date(now);
-            start.setHours(start.getHours() - 1);
-            const fmt = d => {
-                const p = n => n.toString().padStart(2, '0');
-                return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
-            };
-            document.getElementById('startTime').value = fmt(start);
-            document.getElementById('endTime').value = fmt(now);
-            document.getElementById('cStartTime').value = fmt(start);
-            document.getElementById('cEndTime').value = fmt(now);
-        }
-        initTime();
-
-        function switchMode(mode) {
-            currentMode = mode;
-            document.querySelectorAll('.ant-tabs-tab').forEach(b => b.classList.remove('ant-tabs-tab-active'));
-            event.target.closest('.ant-tabs-tab').classList.add('ant-tabs-tab-active');
-            document.getElementById('modeTag').textContent = mode === 'image' ? '以图搜人' : '条件检索';
-
-            if (mode === 'image') {
-                document.getElementById('imageForm').style.display = 'block';
-                document.getElementById('conditionForm').style.display = 'none';
-            } else {
-                document.getElementById('imageForm').style.display = 'none';
-                document.getElementById('conditionForm').style.display = 'block';
-            }
-            updateQueryBtn();
-        }
-
-        function handleFiles(e) {
-            const newFiles = Array.from(e.target.files);
-            const remain = 3 - files.length;
-            if (newFiles.length > remain) {
-                showTip('最多只能上传3张照片', 'warning');
-                return;
-            }
-            newFiles.forEach(file => {
-                if (file.size > 5 * 1024 * 1024) {
-                    showTip(`"${file.name}" 超过5MB限制`, 'warning');
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = ev => {
-                    files.push({ name: file.name, src: ev.target.result, ok: Math.random() > 0.3 });
-                    updatePreview();
-                    updateQueryBtn();
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function updatePreview() {
-            const box = document.getElementById('uploadBox');
-            const def = document.getElementById('uploadDefault');
-            const list = document.getElementById('previewList');
-
-            if (files.length > 0) {
-                box.classList.add('ant-upload-has-files');
-                def.style.display = 'none';
-                list.style.display = 'flex';
-
-                list.innerHTML = files.map((f, i) => `
-                    <div class="ant-upload-list-item">
-                        <img src="${f.src}" alt="${f.name}">
-                        <button class="ant-upload-list-item-remove" onclick="removeFile(${i})">×</button>
-                        <div class="ant-upload-list-item-status ant-upload-list-item-status-${f.ok ? 'success' : 'warning'}">${f.ok ? '人脸有效' : '质量较低'}</div>
+    <!-- ===== 场所选择弹窗 ===== -->
+    <div class="modal-mask" id="modalMask">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h3><i class="fa-solid fa-map-location-dot" style="color:var(--ant-primary)"></i>选择监控范围</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 左：搜索+树 -->
+                <div class="modal-left">
+                    <div class="modal-search">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" placeholder="搜索场所名称..." id="treeSearch" oninput="renderTree(this.value)">
                     </div>
-                `).join('') + (files.length < 3 ? `
-                    <div class="ant-upload-add" onclick="document.getElementById('fileInput').click()">+</div>
-                ` : '');
+                    <div class="modal-tree" id="treeBody"></div>
+                    <div class="modal-tree-footer">
+                        <span id="footStat">已选 <strong>0</strong> 个场所，覆盖 <strong>0</strong> 个摄像头</span>
+                        <div class="actions">
+                            <button onclick="selectAll()">全选</button>
+                            <button onclick="clearAll()">清空</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- 右：地图 -->
+                <div class="modal-right">
+                    <svg class="map-svg" id="mapSvg" viewBox="0 0 700 500">
+                        <defs><pattern id="g" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="#0d1b2a" stroke-width="0.5"/></pattern></defs>
+                        <rect width="700" height="500" fill="url(#g)"/>
+                        <line class="road" x1="350" y1="20" x2="350" y2="480"/>
+                        <line class="road" x1="20" y1="250" x2="680" y2="250"/>
+                        <line class="road" x1="140" y1="100" x2="560" y2="100"/>
+                        <line class="road" x1="140" y1="400" x2="560" y2="400"/>
+                        <!-- 建筑物（data-area对应场所树id） -->
+                        <rect class="bld" data-area="1,2,3,4" x="30" y="40" width="100" height="70" rx="4"/>
+                        <text class="bld-lbl" x="80" y="80">A栋</text>
+                        <rect class="bld" data-area="5,6,7" x="30" y="130" width="100" height="50" rx="4"/>
+                        <text class="bld-lbl" x="80" y="160">B栋</text>
+                        <rect class="bld" data-area="11,12,13,14" x="230" y="170" width="200" height="120" rx="4"/>
+                        <text class="bld-lbl" x="330" y="235">中央广场</text>
+                        <rect class="bld" data-area="15,16" x="230" y="320" width="120" height="50" rx="4"/>
+                        <text class="bld-lbl" x="290" y="350">食堂</text>
+                        <rect class="bld" data-area="17" x="370" y="320" width="80" height="40" rx="4"/>
+                        <text class="bld-lbl" x="410" y="345">超市</text>
+                        <rect class="bld" data-area="19,20,21" x="480" y="40" width="100" height="70" rx="4"/>
+                        <text class="bld-lbl" x="530" y="80">C栋</text>
+                        <rect class="bld" data-area="22,23,24" x="480" y="130" width="100" height="50" rx="4"/>
+                        <text class="bld-lbl" x="530" y="160">D栋</text>
+                        <rect class="bld" data-area="8" x="30" y="300" width="100" height="60" rx="4"/>
+                        <text class="bld-lbl" x="80" y="335">南区停车场</text>
+                        <rect class="bld" data-area="25" x="560" y="290" width="100" height="60" rx="4"/>
+                        <text class="bld-lbl" x="610" y="325">北区停车场</text>
+                        <!-- 摄像头点位 -->
+                        <circle class="cam" data-area="9" cx="70" cy="30" r="5"/><text class="cam-lbl" x="70" y="22">C01</text>
+                        <circle class="cam" data-area="1" cx="130" cy="60" r="5"/><text class="cam-lbl" x="130" y="52">C02</text>
+                        <circle class="cam" data-area="3" cx="20" cy="90" r="5"/><text class="cam-lbl" x="20" y="82">C03</text>
+                        <circle class="cam" data-area="5" cx="130" cy="150" r="5"/><text class="cam-lbl" x="130" y="142">C04</text>
+                        <circle class="cam" data-area="11" cx="330" cy="155" r="5"/><text class="cam-lbl" x="330" y="147">C05</text>
+                        <circle class="cam" data-area="14" cx="440" cy="155" r="5"/><text class="cam-lbl" x="440" y="147">C06</text>
+                        <circle class="cam" data-area="11" cx="330" cy="305" r="5"/><text class="cam-lbl" x="330" y="297">C07</text>
+                        <circle class="cam" data-area="12" cx="440" cy="250" r="5"/><text class="cam-lbl" x="440" y="242">C08</text>
+                        <circle class="cam" data-area="15" cx="250" cy="310" r="5"/><text class="cam-lbl" x="250" y="302">C09</text>
+                        <circle class="cam" data-area="16" cx="340" cy="370" r="5"/><text class="cam-lbl" x="340" y="362">C10</text>
+                        <circle class="cam" data-area="17" cx="380" cy="310" r="5"/><text class="cam-lbl" x="380" y="302">C11</text>
+                        <circle class="cam" data-area="19" cx="530" cy="30" r="5"/><text class="cam-lbl" x="530" y="22">C12</text>
+                        <circle class="cam" data-area="22" cx="530" cy="150" r="5"/><text class="cam-lbl" x="530" y="142">C13</text>
+                        <circle class="cam" data-area="25" cx="580" cy="280" r="5"/><text class="cam-lbl" x="580" y="272">C14</text>
+                        <circle class="cam" data-area="26" cx="600" cy="380" r="5"/><text class="cam-lbl" x="600" y="372">C15</text>
+                        <circle class="cam" data-area="29" cx="650" cy="200" r="5"/><text class="cam-lbl" x="650" y="192">C16</text>
+                        <circle class="cam" data-area="30" cx="20" cy="200" r="5"/><text class="cam-lbl" x="20" y="192">C17</text>
+                        <circle class="cam" data-area="31" cx="70" cy="450" r="5"/><text class="cam-lbl" x="70" y="442">C18</text>
+                        <circle class="cam" data-area="32" cx="600" cy="450" r="5"/><text class="cam-lbl" x="600" y="442">C19</text>
+                        <circle class="cam" data-area="33" cx="650" cy="250" r="5"/><text class="cam-lbl" x="650" y="242">C20</text>
+                        <circle class="cam" data-area="8" cx="100" cy="340" r="5"/><text class="cam-lbl" x="100" y="332">C21</text>
+                    </svg>
+                    <div class="map-overlay" id="mapOverlay">
+                        <div class="ov-row"><span class="ov-label">已选场所</span><span class="ov-val" id="ovPlaces">0 个</span></div>
+                        <div class="ov-row"><span class="ov-label">覆盖摄像头</span><span class="ov-val" id="ovCams">全部 (21个)</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <span class="foot-stat" id="modalFootStat">未选择特定场所，将搜索全部区域</span>
+                <div class="foot-btns">
+                    <button class="ant-btn ant-btn-text" onclick="closeModal()" style="height:32px;padding:0 16px;font-size:13px">取消</button>
+                    <button class="ant-btn ant-btn-primary" onclick="confirmModal()" style="height:32px;padding:0 16px;font-size:13px">确认选择</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                const allOk = files.every(f => f.ok);
-                showTip(allOk ? `已上传 ${files.length} 张照片，检测到有效人脸` : '部分照片人脸质量较低，建议重新上传清晰正面照', allOk ? 'success' : 'warning');
-            } else {
-                box.classList.remove('ant-upload-has-files');
-                def.style.display = 'block';
-                list.style.display = 'none';
-                document.getElementById('uploadTip').classList.remove('ant-upload-tip-show');
-            }
-        }
+    <script>
+    let currentMode='image',files=[],sel=new Set();
 
-        function removeFile(i) {
-            files.splice(i, 1);
-            updatePreview();
-            updateQueryBtn();
-        }
+    // ===== 日历时间选择器 =====
+    const NOW = new Date('2026-05-29T23:59:00');
+    let calStart = new Date(NOW.getTime() - 24*3600*1000);
+    let calEnd = new Date(NOW);
+    let calViewYear = 2026, calViewMonth = 4; // 0-indexed, 4=May
+    const WEEKDAYS = ['日','一','二','三','四','五','六'];
+    const MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
-        function showTip(text, type) {
-            const tip = document.getElementById('uploadTip');
-            tip.textContent = text;
-            tip.className = 'ant-upload-tip ant-upload-tip-' + type + ' ant-upload-tip-show';
-        }
+    function pad(n){return n.toString().padStart(2,'0')}
+    function fmtDate(d){return `${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`}
+    function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()}
 
-        function updateQueryBtn() {
-            document.getElementById('queryBtn').disabled = currentMode === 'image' && files.length === 0;
-        }
-
-        function setQuickTime(el, type) {
-            el.parentElement.querySelectorAll('.ant-tag-checkable').forEach(t => t.classList.remove('ant-tag-checkable-checked'));
-            el.classList.add('ant-tag-checkable-checked');
-
-            const now = new Date('2026-05-29T23:59:00');
-            const start = new Date(now);
-            switch(type) {
-                case '1h': start.setHours(start.getHours() - 1); break;
-                case '6h': start.setHours(start.getHours() - 6); break;
-                case '24h': start.setHours(start.getHours() - 24); break;
-                case '7d': start.setDate(start.getDate() - 7); break;
-                case '30d': start.setDate(start.getDate() - 30); break;
-            }
-            const fmt = d => {
-                const p = n => n.toString().padStart(2, '0');
-                return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
-            };
-
-            const parent = el.closest('.ant-form-item');
-            const inputs = parent.querySelectorAll('.ant-input');
-            inputs[0].value = fmt(start);
-            inputs[1].value = fmt(now);
-        }
-
-        document.querySelectorAll('.ant-input').forEach(input => {
-            input.addEventListener('change', function() {
-                const tags = this.closest('.ant-form-item').querySelectorAll('.ant-tag-checkable');
-                tags.forEach(t => t.classList.remove('ant-tag-checkable-checked'));
-            });
+    function initTimeSelects(){
+        [['startH',calStart.getHours()],['startM',calStart.getMinutes()],['endH',calEnd.getHours()],['endM',calEnd.getMinutes()]].forEach(([id,val])=>{
+            const sel=document.getElementById(id);sel.innerHTML='';const max=id.includes('H')?24:60;
+            for(let i=0;i<max;i++) sel.innerHTML+=`<option value="${i}" ${i===val?'selected':''}>${pad(i)}</option>`;
         });
+    }
 
-        function selectColor(block) {
-            block.parentElement.querySelectorAll('.ant-color-block').forEach(b => b.classList.remove('ant-color-block-selected'));
-            block.classList.add('ant-color-block-selected');
+    function renderCalMonth(el, year, month){
+        const first=new Date(year,month,1);const startDay=first.getDay();
+        const daysInMonth=new Date(year,month+1,0).getDate();
+        const daysInPrev=new Date(year,month,0).getDate();
+        let h=`<div class="cal-month-head"><button class="cal-nav" onclick="navCal(-1,'${el.id}')"><i class="fa-solid fa-chevron-left"></i></button><span class="cal-title">${year}年${MONTHS[month]}</span><button class="cal-nav" onclick="navCal(1,'${el.id}')"><i class="fa-solid fa-chevron-right"></i></button></div>`;
+        h+='<div class="cal-weekdays">'+WEEKDAYS.map(w=>`<span>${w}</span>`).join('')+'</div><div class="cal-days">';
+        // Previous month
+        for(let i=startDay-1;i>=0;i--) h+=`<div class="cal-day other" onclick="pickDay(${year},${month},${-i})">${daysInPrev-i}</div>`;
+        // Current month
+        const today=new Date('2026-05-29');
+        for(let d=1;d<=daysInMonth;d++){
+            const dt=new Date(year,month,d);
+            const isStart=sameDay(dt,calStart),isEnd=sameDay(dt,calEnd);
+            const inRange=dt>calStart&&dt<calEnd;
+            let cls='cal-day';
+            if(sameDay(dt,today)) cls+=' today';
+            if(isStart&&isEnd) cls+=' start end';
+            else if(isStart) cls+=' start';
+            else if(isEnd) cls+=' end';
+            else if(inRange) cls+=' in-range';
+            h+=`<div class="${cls}" onclick="pickDay(${year},${month},${d})">${d}</div>`;
         }
+        // Next month fill
+        const totalCells=startDay+daysInMonth;const rem=totalCells%7?7-totalCells%7:0;
+        for(let d=1;d<=rem;d++) h+=`<div class="cal-day other">${d}</div>`;
+        h+='</div>';
+        el.innerHTML=h;
+    }
 
-        function resetForm() {
-            files = [];
-            updatePreview();
-            document.querySelectorAll('.ant-input').forEach(i => i.value = '');
-            document.querySelectorAll('.ant-select').forEach(s => s.selectedIndex = 0);
-            document.querySelectorAll('.ant-tag-checkable').forEach((t, i) => t.classList.toggle('ant-tag-checkable-checked', i === 0));
-            document.querySelectorAll('.ant-color-block').forEach(b => b.classList.remove('ant-color-block-selected'));
-            initTime();
-            updateQueryBtn();
-        }
+    function renderCal(){
+        renderCalMonth(document.getElementById('calLeft'), calViewYear, calViewMonth);
+        const rMonth=calViewMonth+1, rYear=rMonth>11?calViewYear+1:calViewYear;
+        renderCalMonth(document.getElementById('calRight'), rYear, rMonth%12);
+    }
 
-        function saveTemplate() {
-            alert('查询条件已保存为模板');
-        }
+    function navCal(dir, elId){
+        calViewMonth+=dir;
+        if(calViewMonth>11){calViewMonth=0;calViewYear++}
+        if(calViewMonth<0){calViewMonth=11;calViewYear--}
+        renderCal();
+    }
 
-        function doQuery() {
-            window.location.href = 'result.html';
-        }
+    function pickDay(y,m,d){
+        // Reset time
+        calStart=new Date(y,m,d,0,0,0);calEnd=new Date(y,m,d,23,59,0);
+        // Update time selects
+        document.getElementById('startH').value=0;document.getElementById('startM').value=0;
+        document.getElementById('endH').value=23;document.getElementById('endM').value=59;
+        // Clear shortcut highlight
+        document.querySelectorAll('.cal-shortcut').forEach(s=>s.classList.remove('active'));
+        renderCal();
+    }
 
-        function clearHistory() {
-            document.getElementById('historyList').innerHTML = '';
+    function pickShortcut(type){
+        document.querySelectorAll('.cal-shortcut').forEach(s=>s.classList.remove('active'));
+        event.target.classList.add('active');
+        calEnd=new Date(NOW);
+        switch(type){
+            case 'today': calStart=new Date(2026,4,29,0,0,0);break;
+            case 'yesterday': calStart=new Date(2026,4,28,0,0,0);calEnd=new Date(2026,4,28,23,59,0);break;
+            case '3d': calStart=new Date(NOW.getTime()-3*86400000);break;
+            case '7d': calStart=new Date(NOW.getTime()-7*86400000);break;
+            case '30d': calStart=new Date(NOW.getTime()-30*86400000);break;
         }
+        calViewYear=calStart.getFullYear();calViewMonth=calStart.getMonth();
+        initTimeSelects();renderCal();
+    }
 
-        function loadHistory(type) {
-            if (type === 'image') {
-                document.querySelectorAll('.ant-tabs-tab')[0].click();
-            } else {
-                document.querySelectorAll('.ant-tabs-tab')[1].click();
-            }
-        }
+    function updateTpText(){
+        const sh=pad(parseInt(document.getElementById('startH').value));
+        const sm=pad(parseInt(document.getElementById('startM').value));
+        const eh=pad(parseInt(document.getElementById('endH').value));
+        const em=pad(parseInt(document.getElementById('endM').value));
+        const txt=`${pad(calStart.getMonth()+1)}-${pad(calStart.getDate())} ${sh}:${sm} ~ ${pad(calEnd.getMonth()+1)}-${pad(calEnd.getDate())} ${eh}:${em}`;
+        const el1=document.getElementById('tpText');if(el1)el1.textContent=txt;
+        const el2=document.getElementById('tpText2');if(el2)el2.textContent=txt;
+    }
+
+    function toggleCal(e){
+        e.stopPropagation();
+        const p=document.getElementById('calPopup');
+        if(p.classList.contains('open')){closeCal();return}
+        p.classList.add('open');
+        calViewYear=calStart.getFullYear();calViewMonth=calStart.getMonth();
+        initTimeSelects();renderCal();
+    }
+    function closeCal(){document.getElementById('calPopup').classList.remove('open')}
+    function confirmCal(){
+        calStart.setHours(parseInt(document.getElementById('startH').value),parseInt(document.getElementById('startM').value));
+        calEnd.setHours(parseInt(document.getElementById('endH').value),parseInt(document.getElementById('endM').value));
+        updateTpText();closeCal();
+    }
+    document.addEventListener('click',e=>{const p=document.getElementById('calPopup');if(p&&!p.contains(e.target)&&!e.target.closest('.time-picker-trigger'))closeCal()});
+    // 场所数据：id→建筑/摄像头区域映射
+    const areaData=[
+        {group:'南区',icon:'fa-building',children:[
+            {id:1,name:'A栋大厅',cam:4},{id:2,name:'A栋1层走廊',cam:3},{id:3,name:'A栋2层走廊',cam:3},{id:4,name:'A栋3层走廊',cam:2},
+            {id:5,name:'B栋大厅',cam:3},{id:6,name:'B栋1层走廊',cam:2},{id:7,name:'B栋2层走廊',cam:2},
+            {id:8,name:'南区停车场',cam:6},{id:9,name:'南区入口',cam:2},{id:10,name:'南区花园',cam:1}
+        ]},
+        {group:'中央区域',icon:'fa-landmark',children:[
+            {id:11,name:'中央广场',cam:4},{id:12,name:'中央广场东侧',cam:2},{id:13,name:'中央广场西侧',cam:2},{id:14,name:'中央通道',cam:3},
+            {id:15,name:'食堂',cam:5},{id:16,name:'食堂后厨',cam:2},{id:17,name:'超市',cam:2},{id:18,name:'医务室',cam:1}
+        ]},
+        {group:'北区',icon:'fa-building-columns',children:[
+            {id:19,name:'C栋大厅',cam:3},{id:20,name:'C栋1层',cam:2},{id:21,name:'C栋2层',cam:2},
+            {id:22,name:'D栋大厅',cam:3},{id:23,name:'D栋1层',cam:2},{id:24,name:'D栋2层',cam:2},
+            {id:25,name:'北区停车场',cam:5},{id:26,name:'北区入口',cam:2},{id:27,name:'篮球场',cam:2},{id:28,name:'北区花园',cam:1}
+        ]},
+        {group:'外围',icon:'fa-road',children:[
+            {id:29,name:'东门',cam:3},{id:30,name:'西门',cam:3},{id:31,name:'南门',cam:3},{id:32,name:'北门',cam:3},
+            {id:33,name:'东环路',cam:4},{id:34,name:'西环路',cam:4},{id:35,name:'东门停车场',cam:3},{id:36,name:'北门停车场',cam:3}
+        ]}
+    ];
+    const exp={};areaData.forEach(g=>exp[g.group]=true);
+
+    // ===== 渲染树 =====
+    function renderTree(filter){
+        const b=document.getElementById('treeBody');let h='';
+        areaData.forEach(g=>{
+            const ch=filter?g.children.filter(c=>c.name.includes(filter)):g.children;
+            if(filter&&!ch.length)return;
+            const all=ch.every(c=>sel.has(c.id)),some=ch.some(c=>sel.has(c.id)),e=exp[g.group];
+            h+=`<div class="tree-grp"><div class="tree-grp-hd" onclick="togGrp('${g.group}')"><span class="arr ${e?'exp':''}"><i class="fa-solid fa-chevron-right"></i></span><span class="chk ${all?'on':some?'half':''}" onclick="event.stopPropagation();togGrpChk('${g.group}')"></span><i class="fa-solid ${g.icon}" style="color:var(--ant-primary);font-size:12px"></i>${g.group}<span class="cnt">(${ch.length})</span></div><div class="tree-grp-body ${e?'exp':''}">`;
+            ch.forEach(c=>{const on=sel.has(c.id);h+=`<div class="tree-node ${on?'highlight':''}" onclick="togItem(${c.id})"><span class="chk ${on?'on':''}"></span>${c.name}<span class="cam-cnt">${c.cam}个摄像头</span></div>`});
+            h+='</div></div>';
+        });
+        b.innerHTML=h;updMap();updTrigger();
+    }
+
+    function togGrp(g){exp[g]=!exp[g];renderTree(document.getElementById('treeSearch').value||'')}
+    function togItem(id){sel.has(id)?sel.delete(id):sel.add(id);renderTree(document.getElementById('treeSearch').value||'')}
+    function togGrpChk(g){const grp=areaData.find(d=>d.group===g);const all=grp.children.every(c=>sel.has(c.id));grp.children.forEach(c=>all?sel.delete(c.id):sel.add(c.id));renderTree(document.getElementById('treeSearch').value||'')}
+    function selectAll(){areaData.forEach(g=>g.children.forEach(c=>sel.add(c.id)));renderTree('')}
+    function clearAll(){sel.clear();renderTree('')}
+
+    // ===== 地图联动 =====
+    function updMap(){
+        // 建筑物高亮
+        document.querySelectorAll('.bld').forEach(b=>{
+            const ids=(b.dataset.area||'').split(',').map(Number);
+            const on=ids.some(id=>sel.has(id));
+            b.classList.toggle('selected',on);
+            const lbl=b.nextElementSibling;if(lbl&&lbl.classList.contains('bld-lbl'))lbl.classList.toggle('selected',on);
+        });
+        // 摄像头高亮
+        let camCnt=0;
+        document.querySelectorAll('.cam').forEach(c=>{
+            const ids=(c.dataset.area||'').split(',').map(Number);
+            const on=ids.some(id=>sel.has(id));
+            c.classList.toggle('on',on);
+            if(on)camCnt++;
+        });
+        // 统计
+        const total=sel.size;
+        document.getElementById('ovPlaces').textContent=total?total+' 个':'0 个';
+        document.getElementById('ovCams').textContent=total?camCnt+' 个':'全部 (21个)';
+        document.getElementById('footStat').innerHTML=total?`已选 <strong>${total}</strong> 个场所，覆盖 <strong>${camCnt}</strong> 个摄像头`:'未选择特定场所，将搜索全部区域';
+    }
+
+    function updTrigger(){
+        const tags=document.getElementById('triggerTags');
+        if(!sel.size){tags.innerHTML='<span class="placeholder">全部区域</span>';return}
+        const items=[];areaData.forEach(g=>g.children.forEach(c=>{if(sel.has(c.id))items.push(c)}));
+        const show=items.slice(0,3);
+        tags.innerHTML=show.map(c=>`<span class="sel-tag">${c.name}<span class="rm" onclick="event.stopPropagation();togItem(${c.id})">×</span></span>`).join('');
+        if(items.length>3)tags.innerHTML+=`<span class="sel-tag">+${items.length-3}</span>`;
+    }
+
+    // ===== 弹窗控制 =====
+    function openModal(){document.getElementById('modalMask').classList.add('open');renderTree('')}
+    function closeModal(){document.getElementById('modalMask').classList.remove('open')}
+    function confirmModal(){closeModal();updTrigger()}
+    document.getElementById('modalMask').addEventListener('click',e=>{if(e.target===document.getElementById('modalMask'))closeModal()});
+
+    // ===== 通用 =====
+    function initTime(){calStart=new Date('2026-05-28T23:59:00');calEnd=new Date('2026-05-29T23:59:00');updateTpText()}
+    initTime();
+    function switchMode(m){currentMode=m;document.querySelectorAll('.ant-tabs-tab').forEach(b=>b.classList.remove('ant-tabs-tab-active'));event.target.closest('.ant-tabs-tab').classList.add('ant-tabs-tab-active');document.getElementById('modeTag').textContent=m==='image'?'以图搜人':'文本搜人';document.getElementById('imageForm').style.display=m==='image'?'block':'none';document.getElementById('textForm').style.display=m==='text'?'block':'none';updQB()}
+    function handleFiles(e){const nf=Array.from(e.target.files),r=3-files.length;if(nf.length>r){showTip('最多3张','warning');return}nf.forEach(f=>{if(f.size>5*1024*1024){showTip('超过5MB','warning');return}const rd=new FileReader();rd.onload=ev=>{files.push({name:f.name,src:ev.target.result,ok:Math.random()>0.3});updPV();updQB()};rd.readAsDataURL(f)})}
+    function updPV(){const box=document.getElementById('uploadBox'),def=document.getElementById('uploadDefault'),list=document.getElementById('previewList');if(files.length){box.classList.add('ant-upload-has-files');def.style.display='none';list.style.display='flex';list.innerHTML=files.map((f,i)=>`<div class="ant-upload-list-item"><img src="${f.src}"><button class="remove-btn" onclick="rmFile(${i})">×</button><div class="status-bar ${f.ok?'status-success':'status-warning'}">${f.ok?'已识别':'未检测'}</div></div>`).join('')+(files.length<3?'<div class="ant-upload-add" onclick="document.getElementById(\'fileInput\').click()">+</div>':'')}else{box.classList.remove('ant-upload-has-files');def.style.display='block';list.style.display='none'}}
+    function rmFile(i){files.splice(i,1);updPV();updQB()}
+    function showTip(t,ty){const tip=document.getElementById('uploadTip');tip.textContent=t;tip.className='ant-upload-tip tip-'+ty+' tip-show'}
+    function updQB(){if(currentMode==='image')document.getElementById('queryBtn').disabled=files.length===0;else{const t=document.getElementById('searchText').value.trim();document.getElementById('queryBtn').disabled=t.length<10}}
+    function updCC(){document.getElementById('charCount').textContent=document.getElementById('searchText').value.length;updQB()}
+    function setQT(el,t){el.parentElement.querySelectorAll('.ant-tag-checkable').forEach(b=>b.classList.remove('ant-tag-checkable-checked'));el.classList.add('ant-tag-checkable-checked')}
+    function resetForm(){files=[];updPV();sel.clear();updTrigger();initTime();updQB()}
+    function doQuery(){window.location.href='result.html'}
     </script>
 </body>
 </html>

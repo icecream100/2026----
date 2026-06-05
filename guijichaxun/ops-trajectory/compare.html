@@ -7,906 +7,606 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  /* Proto-UI 设计系统 — Ant Design 5.x 风格 */
-  :root {
-    --ant-primary: #1677ff;
-    --ant-primary-hover: #4096ff;
-    --ant-primary-active: #0958d9;
-    --ant-primary-bg: #e6f4ff;
-    --ant-success: #52c41a;
-    --ant-success-bg: #f6ffed;
-    --ant-warning: #faad14;
-    --ant-warning-bg: #fff7e6;
-    --ant-error: #ff4d4f;
-    --ant-error-bg: #fff1f0;
-    --ant-text: rgba(0,0,0,0.88);
-    --ant-text-secondary: rgba(0,0,0,0.65);
-    --ant-text-tertiary: rgba(0,0,0,0.45);
-    --ant-text-disabled: rgba(0,0,0,0.25);
-    --ant-border: #d9d9d9;
-    --ant-border-secondary: #f0f0f0;
-    --ant-bg: #f5f5f5;
-    --ant-bg-container: #fff;
-    --radius-base: 4px;
-    --radius-lg: 8px;
-    --shadow-1: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
-    --shadow-2: 0 3px 6px -4px rgba(0,0,0,0.12), 0 6px 16px 0 rgba(0,0,0,0.08), 0 9px 28px 8px rgba(0,0,0,0.05);
-    --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
-    --color1: #1677ff;
-    --color2: #ff4d4f;
-  }
+  :root{--ant-primary:#1677ff;--ant-primary-hover:#4096ff;--ant-primary-active:#0958d9;--ant-primary-bg:#e6f4ff;--ant-primary-border:#91caff;--ant-success:#52c41a;--ant-success-bg:#f6ffed;--ant-warning:#faad14;--ant-warning-bg:#fff7e6;--ant-error:#ff4d4f;--ant-error-bg:#fff1f0;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-text-disabled:rgba(0,0,0,0.25);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--ant-bg:#f5f5f5;--ant-bg-container:#fff;--radius-base:4px;--radius-lg:8px;--shadow-1:0 1px 2px 0 rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02),0 2px 4px 0 rgba(0,0,0,0.02);--shadow-2:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px 0 rgba(0,0,0,0.08),0 9px 28px 8px rgba(0,0,0,0.05);--color1:#1677ff;--color2:#ff4d4f}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:13px;background:var(--ant-bg);color:var(--ant-text);height:100vh;overflow:hidden}
+  button{cursor:pointer;border:none;outline:none;font-family:inherit;font-size:12px}
+  input,select{font-family:inherit;font-size:12px;background:var(--ant-bg-container);border:1px solid var(--ant-border);color:var(--ant-text);border-radius:var(--radius-base);padding:6px 8px;outline:none;transition:all 0.2s}
+  input:focus,select:focus{border-color:var(--ant-primary);box-shadow:0 0 0 2px rgba(22,119,255,0.1)}
+  ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--ant-border);border-radius:2px}
 
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    font-size: 13px; line-height: 22px;
-    background: var(--ant-bg); color: var(--ant-text); height: 100vh; overflow: hidden;
-  }
-  button { cursor:pointer; border:none; outline:none; font-family:inherit; font-size:12px; }
-  input,select {
-    font-family:inherit; font-size:12px;
-    background: var(--ant-bg-container);
-    border:1px solid var(--ant-border); color:var(--ant-text);
-    border-radius: var(--radius-base); padding:6px 8px; outline:none;
-    transition: all 0.2s var(--ease-in-out);
-  }
-  input:focus,select:focus { border-color: var(--ant-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
-  ::-webkit-scrollbar { width:4px; height:4px; }
-  ::-webkit-scrollbar-thumb { background: var(--ant-border); border-radius:2px; }
+  .ant-layout-header{height:64px;background:var(--ant-bg-container);border-bottom:1px solid var(--ant-border-secondary);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+  .ant-layout-sider{width:208px;background:var(--ant-bg-container);border-right:1px solid var(--ant-border-secondary);overflow-y:auto}
+  .ant-menu{padding:8px 0}
+  .ant-menu-item{display:flex;align-items:center;gap:10px;height:40px;padding:0 16px;margin:4px 12px;font-size:14px;border-radius:var(--radius-base);cursor:pointer;transition:all 0.2s}
+  .ant-menu-item:hover{background:rgba(0,0,0,0.06)}.ant-menu-item-selected{background:var(--ant-primary-bg);color:var(--ant-primary)}
 
-  /* 顶部导航栏 */
-  .ant-layout-header {
-    height: 64px; background: var(--ant-bg-container);
-    border-bottom: 1px solid var(--ant-border-secondary);
-    display: flex; align-items: center; padding: 0 24px;
-  }
+  .main{display:flex;flex:1;min-width:0;height:calc(100vh - 64px)}
+  .side-panel{width:280px;min-width:280px;background:var(--ant-bg-container);border-right:1px solid var(--ant-border-secondary);display:flex;flex-direction:column}
+  .side-panel.right{border-right:none;border-left:1px solid var(--ant-border-secondary)}
+  .panel-header{padding:12px 16px;border-bottom:1px solid var(--ant-border-secondary);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .panel-header-left{display:flex;align-items:center;gap:8px}
+  .panel-header .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .panel-header .title{font-size:14px;font-weight:600}
+  .panel-header .type-tag{font-size:11px;padding:2px 8px;border-radius:var(--radius-base);background:var(--ant-bg);color:var(--ant-text-tertiary)}
+  .panel-header .status{font-size:11px;padding:2px 8px;border-radius:var(--radius-base)}
+  .panel-header .status.done{background:var(--ant-success-bg);color:var(--ant-success)}
+  .panel-header .status.pending{background:var(--ant-bg);color:var(--ant-text-tertiary)}
 
-  /* 侧边栏 */
-  .ant-layout-sider {
-    width: 208px; background: var(--ant-bg-container);
-    border-right: 1px solid var(--ant-border-secondary);
-    overflow-y: auto;
-  }
+  .type-switch{display:flex;border-bottom:1px solid var(--ant-border-secondary);flex-shrink:0}
+  .type-switch-btn{flex:1;padding:10px;text-align:center;font-size:12px;color:var(--ant-text-tertiary);cursor:pointer;transition:all 0.2s;border-bottom:2px solid transparent}
+  .type-switch-btn.active{color:var(--ant-primary);border-bottom-color:var(--ant-primary);background:var(--ant-primary-bg)}
+  .type-switch-btn:hover:not(.active){color:var(--ant-text-secondary)}
 
-  /* 菜单 */
-  .ant-menu { padding: 8px 0; }
-  .ant-menu-item {
-    display: flex; align-items: center; gap: 10px;
-    height: 40px; padding: 0 16px; margin: 4px 12px;
-    font-size: 14px; border-radius: var(--radius-base);
-    cursor: pointer; transition: all 0.2s;
-  }
-  .ant-menu-item:hover { background: rgba(0,0,0,0.06); }
-  .ant-menu-item-selected { background: var(--ant-primary-bg); color: var(--ant-primary); }
+  .panel-scroll{flex:1;overflow-y:auto;padding:16px}
+  .ant-form-item{margin-bottom:16px}
+  .ant-form-label{display:block;font-size:12px;color:var(--ant-text-secondary);margin-bottom:6px}
+  .ant-form-label-required::before{content:'*';color:var(--ant-error);margin-right:4px}
 
-  /* 面包屑 */
-  .ant-breadcrumb {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 14px; color: var(--ant-text-tertiary); margin-bottom: 16px;
-  }
-  .ant-breadcrumb a { color: var(--ant-text-tertiary); text-decoration: none; }
-  .ant-breadcrumb a:hover { color: var(--ant-primary); }
+  .upload-zone{border:2px dashed var(--ant-border);border-radius:var(--radius-lg);padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:12px}
+  .upload-zone:hover{border-color:var(--ant-primary);background:var(--ant-primary-bg)}
+  .upload-zone .icon{font-size:24px;margin-bottom:8px;color:var(--ant-text-tertiary)}
+  .upload-zone p{font-size:11px;color:var(--ant-text-tertiary)}
 
-  /* 主布局 */
-  .main { display:flex; flex:1; min-width:0; height:calc(100vh - 64px); }
+  .ant-btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:4px 15px;font-size:12px;border:1px solid var(--ant-border);border-radius:var(--radius-base);background:var(--ant-bg-container);cursor:pointer;transition:all 0.2s}
+  .ant-btn:hover{color:var(--ant-primary-hover);border-color:var(--ant-primary-hover)}
+  .ant-btn-primary{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff}
+  .ant-btn-primary:hover{background:var(--ant-primary-hover);border-color:var(--ant-primary-hover);color:#fff}
+  .ant-btn-success{background:var(--ant-success);border-color:var(--ant-success);color:#fff}
 
-  /* 侧面板 */
-  .side-panel { width:280px; min-width:280px; background: var(--ant-bg-container); border-right:1px solid var(--ant-border-secondary); display:flex; flex-direction:column; }
-  .side-panel.right { border-right:none; border-left:1px solid var(--ant-border-secondary); }
+  /* 子Tab */
+  .sub-tabs{display:flex;gap:4px;margin-bottom:12px;border-bottom:2px solid var(--ant-border-secondary);padding-bottom:8px}
+  .sub-tab{background:none;border:none;padding:4px 12px;cursor:pointer;font-size:12px;color:var(--ant-text-tertiary);border-bottom:2px solid transparent;margin-bottom:-10px;transition:all 0.15s}
+  .sub-tab.active{color:var(--ant-text-secondary);border-bottom-color:var(--ant-primary)}
 
-  /* 面板头部 */
-  .panel-header { padding:12px 16px; border-bottom:1px solid var(--ant-border-secondary); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-  .panel-header-left { display:flex; align-items:center; gap:8px; }
-  .panel-header .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-  .panel-header .title { font-size:14px; font-weight:600; }
-  .panel-header .type-tag { font-size:11px; padding:2px 8px; border-radius: var(--radius-base); background: var(--ant-bg); color: var(--ant-text-tertiary); }
-  .panel-header .status { font-size:11px; padding:2px 8px; border-radius: var(--radius-base); }
-  .panel-header .status.done { background: var(--ant-success-bg); color: var(--ant-success); }
-  .panel-header .status.pending { background: var(--ant-bg); color: var(--ant-text-tertiary); }
+  /* 时间选择器 */
+  .time-picker-wrap{position:relative}
+  .time-picker-trigger{height:32px;padding:0 8px;border:1px solid var(--ant-border);border-radius:var(--radius-base);font-size:12px;color:var(--ant-text);cursor:pointer;transition:all 0.2s;background:var(--ant-bg-container);display:flex;align-items:center;gap:6px}
+  .time-picker-trigger:hover{border-color:var(--ant-primary)}
+  .time-picker-trigger i{color:var(--ant-primary);font-size:11px}
+  .time-picker-trigger .tp-text{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .time-picker-trigger .tp-arrow{color:var(--ant-text-quaternary);font-size:9px}
+  .cal-popup{position:absolute;top:calc(100% + 4px);left:-200px;z-index:300;background:var(--ant-bg-container);border:1px solid var(--ant-border);border-radius:var(--radius-lg);box-shadow:0 6px 24px rgba(0,0,0,0.12);display:none;width:480px}
+  .cal-popup.open{display:flex;flex-direction:column}
+  .cal-popup-head{display:flex;align-items:center;padding:8px 12px;border-bottom:1px solid var(--ant-border-secondary);gap:6px;flex-shrink:0}
+  .cal-shortcut{padding:2px 8px;border:1px solid var(--ant-border);border-radius:4px;font-size:11px;cursor:pointer;background:#fff;color:var(--ant-text-secondary);transition:all 0.15s}
+  .cal-shortcut:hover{border-color:var(--ant-primary);color:var(--ant-primary)}
+  .cal-shortcut.active{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff}
+  .cal-popup-body{display:flex;flex:1;overflow:hidden}
+  .cal-month{flex:1;padding:6px 10px;min-width:0}
+  .cal-month-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .cal-month-head .cal-title{font-size:12px;font-weight:600}
+  .cal-month-head .cal-nav{background:none;border:none;cursor:pointer;color:var(--ant-text-tertiary);padding:2px 4px;border-radius:4px;font-size:11px}
+  .cal-month-head .cal-nav:hover{color:var(--ant-primary);background:var(--ant-primary-bg)}
+  .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:3px}
+  .cal-weekdays span{font-size:10px;color:var(--ant-text-quaternary);padding:3px 0}
+  .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+  .cal-day{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:11px;border-radius:50%;cursor:pointer;transition:all 0.15s}
+  .cal-day:hover{background:var(--ant-primary-bg)}.cal-day.other{color:var(--ant-text-quaternary)}.cal-day.today{font-weight:700;color:var(--ant-primary)}
+  .cal-day.in-range{background:var(--ant-primary-bg);border-radius:0}
+  .cal-day.start{background:var(--ant-primary);color:#fff;border-radius:50% 0 0 50%}
+  .cal-day.end{background:var(--ant-primary);color:#fff;border-radius:0 50% 50% 0}
+  .cal-day.start.end{border-radius:50%}
+  .cal-divider{width:1px;background:var(--ant-border-secondary);flex-shrink:0}
+  .cal-popup-foot{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;border-top:1px solid var(--ant-border-secondary);flex-shrink:0}
+  .cal-popup-foot .cal-time{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ant-text-secondary)}
+  .cal-popup-foot .cal-time select{height:24px;padding:0 4px;border:1px solid var(--ant-border);border-radius:4px;font-size:11px;outline:none}
+  .cal-popup-foot .cal-btns{display:flex;gap:4px}
+  .cal-popup-foot .cal-btns button{padding:3px 10px;font-size:11px;border-radius:4px;cursor:pointer;border:1px solid var(--ant-border);background:#fff;color:var(--ant-text-secondary)}
+  .cal-popup-foot .cal-btns button:hover{border-color:var(--ant-primary);color:var(--ant-primary)}
+  .cal-popup-foot .cal-btns .cal-ok{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff}
 
-  /* 类型切换 */
-  .type-switch { display:flex; border-bottom:1px solid var(--ant-border-secondary); flex-shrink:0; }
-  .type-switch-btn { flex:1; padding:10px; text-align:center; font-size:12px; color: var(--ant-text-tertiary); cursor:pointer; transition:all 0.2s; border-bottom:2px solid transparent; }
-  .type-switch-btn.active { color: var(--ant-primary); border-bottom-color: var(--ant-primary); background: var(--ant-primary-bg); }
-  .type-switch-btn:hover:not(.active) { color: var(--ant-text-secondary); }
-
-  /* 面板滚动区 */
-  .panel-scroll { flex:1; overflow-y:auto; padding:16px; }
-
-  /* 表单 */
-  .ant-form-item { margin-bottom: 16px; }
-  .ant-form-label { display:block; font-size: 12px; color: var(--ant-text-secondary); margin-bottom: 6px; }
-  .ant-form-label-required::before { content: '*'; color: var(--ant-error); margin-right: 4px; }
-
-  /* 上传区域 */
-  .upload-zone { border:2px dashed var(--ant-border); border-radius: var(--radius-lg); padding:16px; text-align:center; cursor:pointer; transition:all 0.2s; margin-bottom:12px; }
-  .upload-zone:hover { border-color: var(--ant-primary); background: var(--ant-primary-bg); }
-  .upload-zone .icon { font-size:24px; margin-bottom:8px; color: var(--ant-text-tertiary); }
-  .upload-zone p { font-size:11px; color: var(--ant-text-tertiary); }
-
-  /* 颜色选择 */
-  .color-options { display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
-  .color-block { width:22px; height:22px; border-radius: var(--radius-base); cursor:pointer; border:2px solid transparent; transition:all 0.2s; }
-  .color-block:hover,.color-block.active { border-color: var(--ant-primary); transform:scale(1.1); }
-  .color-block[data-color="black"]{background:#1a1a1a} .color-block[data-color="white"]{background:#f5f5f5; border-color: var(--ant-border);}
-  .color-block[data-color="red"]{background:#ef4444} .color-block[data-color="blue"]{background:#3b82f6}
-  .color-block[data-color="yellow"]{background:#eab308} .color-block[data-color="green"]{background:#22c55e}
-  .color-block[data-color="gray"]{background:#6b7280} .color-block[data-color="silver"]{background:#c0c0c0}
-
-  /* 快捷时间 */
-  .quick-times { display:flex; gap:6px; margin-bottom:8px; }
-  .quick-time-btn { background: var(--ant-bg-container); border:1px solid var(--ant-border); color: var(--ant-text-secondary); padding:4px 10px; border-radius: var(--radius-base); font-size:11px; cursor:pointer; transition:all 0.2s; }
-  .quick-time-btn:hover,.quick-time-btn.active { border-color: var(--ant-primary); color: var(--ant-primary); background: var(--ant-primary-bg); }
-
-  /* 按钮 */
-  .ant-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    height: 32px; padding: 4px 15px; font-size: 12px;
-    border: 1px solid var(--ant-border); border-radius: var(--radius-base);
-    background: var(--ant-bg-container); cursor: pointer;
-    transition: all 0.2s var(--ease-in-out);
-  }
-  .ant-btn:hover { color: var(--ant-primary-hover); border-color: var(--ant-primary-hover); }
-  .ant-btn-primary { background: var(--ant-primary); border-color: var(--ant-primary); color: #fff; }
-  .ant-btn-primary:hover { background: var(--ant-primary-hover); border-color: var(--ant-primary-hover); color: #fff; }
-  .ant-btn-success { background: var(--ant-success); border-color: var(--ant-success); color: #fff; }
-  .ant-btn-success:hover { background: #73d13d; border-color: #73d13d; color: #fff; }
-  .ant-btn-default { background: var(--ant-bg-container); border-color: var(--ant-border); color: var(--ant-text); }
+  /* 场所触发器 */
+  .area-trigger{height:32px;padding:0 8px;border:1px solid var(--ant-border);border-radius:var(--radius-base);font-size:12px;color:var(--ant-text);cursor:pointer;transition:all 0.2s;background:var(--ant-bg-container);display:flex;align-items:center;justify-content:space-between}
+  .area-trigger:hover{border-color:var(--ant-primary)}
+  .area-trigger .placeholder{color:var(--ant-text-quaternary)}
+  .area-trigger .sel-tags{display:flex;gap:3px;flex-wrap:wrap;align-items:center}
+  .area-trigger .sel-tag{background:var(--ant-primary-bg);color:var(--ant-primary);border:1px solid var(--ant-primary-border);border-radius:3px;padding:0 4px;font-size:10px;display:flex;align-items:center;gap:2px}
+  .area-trigger .sel-tag .rm{cursor:pointer;font-size:9px;opacity:0.6}.area-trigger .sel-tag .rm:hover{opacity:1}
+  .area-trigger .arrow{color:var(--ant-text-quaternary);font-size:9px;margin-left:6px;flex-shrink:0}
 
   /* 候选列表 */
-  .candidate-section { border-top:1px solid var(--ant-border-secondary); flex:1; display:flex; flex-direction:column; min-height:0; }
-  .candidate-header { padding:10px 16px; border-bottom:1px solid var(--ant-border-secondary); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-  .candidate-header h5 { font-size:12px; color: var(--ant-text-tertiary); }
-  .candidate-header .back-btn { font-size:11px; color: var(--ant-primary); cursor:pointer; background:none; display:flex; align-items:center; gap:4px; }
-  .candidate-header .back-btn:hover { text-decoration:underline; }
-  .candidate-list { flex:1; overflow-y:auto; padding:12px; }
-  .candidate-card { display:flex; align-items:center; gap:10px; padding:12px; background: var(--ant-bg); border:1px solid var(--ant-border-secondary); border-radius: var(--radius-lg); margin-bottom:8px; cursor:pointer; transition:all 0.2s; }
-  .candidate-card:hover { border-color: var(--ant-primary); }
-  .candidate-card.selected { border-color: var(--ant-primary); background: var(--ant-primary-bg); }
-  .candidate-avatar { width:40px; height:40px; border-radius: var(--radius-lg); background: var(--ant-bg-container); display:flex; align-items:center; justify-content:center; font-size:16px; color: var(--ant-text-tertiary); flex-shrink:0; }
-  .candidate-info { flex:1; min-width:0; }
-  .candidate-name { font-size:13px; font-weight:500; margin-bottom:2px; }
-  .candidate-meta { font-size:11px; color: var(--ant-text-tertiary); display:flex; gap:8px; }
-  .candidate-sim { font-size:11px; padding:2px 6px; border-radius: var(--radius-base); font-weight:600; flex-shrink:0; }
-  .sim-high { background: var(--ant-success-bg); color: var(--ant-success); }
-  .sim-mid { background: var(--ant-warning-bg); color: #d46b08; }
-  .sim-low { background: var(--ant-error-bg); color: var(--ant-error); }
+  .candidate-section{border-top:1px solid var(--ant-border-secondary);flex:1;display:flex;flex-direction:column;min-height:0}
+  .candidate-header{padding:10px 16px;border-bottom:1px solid var(--ant-border-secondary);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .candidate-header h5{font-size:12px;color:var(--ant-text-tertiary)}
+  .candidate-header .back-btn{font-size:11px;color:var(--ant-primary);cursor:pointer;background:none;display:flex;align-items:center;gap:4px}
+  .candidate-header .back-btn:hover{text-decoration:underline}
+  .candidate-list{flex:1;overflow-y:auto;padding:12px}
+  .candidate-card{display:flex;align-items:center;gap:10px;padding:10px;background:var(--ant-bg);border:1px solid var(--ant-border-secondary);border-radius:var(--radius-lg);margin-bottom:8px;cursor:pointer;transition:all 0.2s}
+  .candidate-card:hover{border-color:var(--ant-primary)}
+  .candidate-card.selected{border-color:var(--ant-primary);background:var(--ant-primary-bg)}
+  .candidate-avatar{width:40px;height:40px;border-radius:var(--radius-lg);background:var(--ant-bg-container);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ant-text-tertiary);flex-shrink:0}
+  .candidate-info{flex:1;min-width:0}
+  .candidate-name{font-size:13px;font-weight:500;margin-bottom:2px}
+  .candidate-meta{font-size:11px;color:var(--ant-text-tertiary);display:flex;gap:6px}
+  .confirm-btn{width:100%;padding:8px;background:var(--ant-success);color:#fff;border:none;border-radius:var(--radius-base);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;margin:12px;display:none;align-items:center;justify-content:center;gap:6px;flex-shrink:0}
+  .confirm-btn:hover{box-shadow:0 4px 12px rgba(82,196,26,0.35)}
+  .confirm-btn.show{display:flex}
+  .confirm-btn:disabled{opacity:.5;cursor:not-allowed}
 
-  /* 确认按钮 */
-  .confirm-btn { width:100%; padding:8px; background: var(--ant-success); color:#fff; border:none; border-radius: var(--radius-base); font-size:12px; font-weight:500; cursor:pointer; transition:all 0.2s; margin:12px; display:none; align-items:center; justify-content:center; gap:6px; flex-shrink:0; }
-  .confirm-btn:hover { box-shadow:0 4px 12px rgba(82,196,26,0.35); }
-  .confirm-btn.show { display:flex; }
-  .confirm-btn:disabled { opacity:.5; cursor:not-allowed; }
+  /* 中心地图 */
+  .center-content{flex:1;display:flex;flex-direction:column;min-width:0}
+  .map-area{flex:1;min-height:0;position:relative;background:var(--ant-bg);overflow:hidden}
+  .map-svg{width:100%;height:100%}
+  .map-toolbar{position:absolute;top:12px;left:12px;display:flex;gap:6px;z-index:10}
+  .map-tb-btn{background:var(--ant-bg-container);border:1px solid var(--ant-border-secondary);color:var(--ant-text-secondary);padding:6px 12px;border-radius:var(--radius-base);font-size:11px;transition:all 0.2s;display:flex;align-items:center;gap:6px;box-shadow:var(--shadow-1)}
+  .map-tb-btn:hover{border-color:var(--ant-primary);color:var(--ant-primary)}
+  .map-legend{position:absolute;bottom:12px;left:12px;background:var(--ant-bg-container);border:1px solid var(--ant-border-secondary);border-radius:var(--radius-lg);padding:8px 12px;z-index:20;box-shadow:var(--shadow-1)}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;margin-bottom:4px}.legend-item:last-child{margin-bottom:0}
+  .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .legend-line{width:16px;height:2px;flex-shrink:0;border-radius:1px}
+  .empty-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:5}
+  .empty-content{text-align:center;color:var(--ant-text-tertiary)}
+  .empty-content i{font-size:32px;margin-bottom:8px;display:block;opacity:0.3}
+  .empty-content p{font-size:13px}
+  .map-tip{position:absolute;background:var(--ant-bg-container);border:1px solid var(--ant-primary);border-radius:var(--radius-lg);padding:8px 12px;font-size:11px;pointer-events:none;z-index:100;display:none;box-shadow:var(--shadow-2)}
+  .map-tip.encounter-tip{border-color:var(--ant-warning)}
+  .map-tip .tip-time{color:var(--ant-primary);font-weight:600}
+  .map-tip .tip-loc{margin-top:2px;color:var(--ant-text-secondary)}
+  .map-tip.encounter-tip .tip-time{color:var(--ant-warning)}
 
-  /* 中心内容 */
-  .center-content { flex:1; display:flex; flex-direction:column; min-width:0; }
+  /* 时空分析 */
+  .analysis-area{height:180px;border-top:1px solid var(--ant-border-secondary);background:var(--ant-bg-container);display:flex;flex-direction:column;transition:height 0.3s;flex-shrink:0}
+  .analysis-head{padding:8px 16px;border-bottom:1px solid var(--ant-border-secondary);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;cursor:pointer}
+  .analysis-head h4{font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .analysis-body{flex:1;display:flex;overflow:hidden;transition:opacity 0.3s}
+  .analysis-body.collapsed{opacity:0;pointer-events:none}
+  .timeline-wrap{width:55%;padding:8px 16px;overflow:hidden}
+  .timeline-wrap canvas{width:100%;height:100%}
+  .encounter-panel{width:45%;border-left:1px solid var(--ant-border-secondary);display:flex;flex-direction:column;overflow:hidden}
+  .encounter-list{flex:1;overflow-y:auto;padding:8px 12px}
+  .enc-item{padding:6px 0;border-bottom:1px solid var(--ant-border-secondary)}
+  .enc-item-head{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+  .enc-type{font-size:10px;padding:1px 6px;border-radius:3px;font-weight:600}
+  .enc-type.together{background:var(--ant-primary-bg);color:var(--ant-primary)}
+  .enc-type.contact{background:var(--ant-warning-bg);color:#d46b08}
+  .enc-time{font-size:11px;color:var(--ant-primary);font-weight:600}
+  .enc-loc{font-size:11px;color:var(--ant-text-tertiary)}
+  .enc-detail{font-size:10px;color:var(--ant-text-disabled)}
+  .summary-row{padding:6px 16px;border-top:1px solid var(--ant-border-secondary);display:flex;gap:24px;font-size:11px;color:var(--ant-text-tertiary);flex-shrink:0}
+  .summary-row .val{color:var(--ant-primary);font-weight:600}
 
-  /* 地图区域 */
-  .map-area { flex:1; min-height:0; position:relative; background: var(--ant-bg); overflow:hidden; }
-  .map-svg { width:100%; height:100%; }
-
-  .map-toolbar { position:absolute; top:12px; left:12px; display:flex; gap:6px; z-index:10; }
-  .map-tb-btn { background: var(--ant-bg-container); border:1px solid var(--ant-border-secondary); color: var(--ant-text-secondary); padding:6px 12px; border-radius: var(--radius-base); font-size:11px; transition:all 0.2s; display:flex; align-items:center; gap:6px; box-shadow: var(--shadow-1); }
-  .map-tb-btn:hover { border-color: var(--ant-primary); color: var(--ant-primary); }
-  .zoom-btns { display:flex; flex-direction:column; gap:2px; }
-  .zoom-btns button { width:28px; height:28px; background: var(--ant-bg-container); border:1px solid var(--ant-border-secondary); color: var(--ant-text-secondary); border-radius: var(--radius-base); font-size:14px; box-shadow: var(--shadow-1); }
-  .zoom-btns button:hover { border-color: var(--ant-primary); color: var(--ant-primary); }
-
-  .map-legend { position:absolute; bottom:12px; left:12px; background: var(--ant-bg-container); border:1px solid var(--ant-border-secondary); border-radius: var(--radius-lg); padding:8px 12px; z-index:20; box-shadow: var(--shadow-1); }
-  .legend-item { display:flex; align-items:center; gap:6px; font-size:11px; margin-bottom:4px; }
-  .legend-item:last-child { margin-bottom:0; }
-  .legend-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-  .legend-line { width:16px; height:2px; flex-shrink:0; border-radius:1px; }
-
-  .tooltip-box { position:absolute; background: var(--ant-bg-container); border:1px solid var(--ant-primary); border-radius: var(--radius-lg); padding:10px 14px; font-size:12px; z-index:200; pointer-events:none; display:none; box-shadow: var(--shadow-2); max-width:240px; }
-  .tooltip-box .tt-time { color: var(--ant-primary); font-weight:600; margin-bottom:4px; }
-  .tooltip-box .tt-loc { color: var(--ant-text-secondary); }
-  .tooltip-box.encounter-tip { border-color: var(--ant-warning); }
-  .tooltip-box.encounter-tip .tt-time { color: #d46b08; }
-
-  @keyframes encounterPulse { 0%{r:12;opacity:.8} 50%{r:22;opacity:.2} 100%{r:12;opacity:.8} }
-  @keyframes encounterGlow { 0%{r:8;opacity:1} 50%{r:14;opacity:.5} 100%{r:8;opacity:1} }
-  .encounter-pulse { animation: encounterPulse 1.5s ease-in-out infinite; }
-  .encounter-glow { animation: encounterGlow 1.5s ease-in-out infinite; }
-
-  /* 空状态 */
-  .empty-overlay { position:absolute; inset:0; background: rgba(245,245,245,0.8); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:30; }
-  .empty-overlay i { font-size:48px; color: var(--ant-text-tertiary); margin-bottom:16px; opacity:.4; }
-  .empty-overlay h3 { font-size:14px; color: var(--ant-text-secondary); margin-bottom:8px; }
-  .empty-overlay p { font-size:12px; color: var(--ant-text-tertiary); }
-
-  /* 加载状态 */
-  .loading-overlay { position:absolute; inset:0; background: rgba(255,255,255,0.9); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; }
-  .loading-overlay .spinner { width:32px; height:32px; border:3px solid var(--ant-border-secondary); border-top-color: var(--ant-primary); border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:12px; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-  .loading-overlay .loading-text { color: var(--ant-text-secondary); font-size:12px; }
-
-  /* 分析区域 */
-  .analysis-area { height:180px; min-height:180px; background: var(--ant-bg-container); border-top:1px solid var(--ant-border-secondary); display:flex; flex-direction:column; }
-  .analysis-header { height:36px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; border-bottom:1px solid var(--ant-border-secondary); flex-shrink:0; }
-  .analysis-header h4 { font-size:13px; display:flex; align-items:center; gap:6px; }
-  .analysis-header h4 i { color: var(--ant-warning); }
-  .analysis-toggle { background:transparent; color: var(--ant-text-tertiary); font-size:12px; padding:4px; cursor:pointer; transition:color 0.2s; }
-  .analysis-toggle:hover { color: var(--ant-text); }
-  .analysis-body { display:flex; flex:1; min-height:0; }
-  .analysis-body.collapsed { display:none; }
-
-  .overlap-timeline { flex:1; min-width:0; padding:10px 16px; border-right:1px solid var(--ant-border-secondary); display:flex; flex-direction:column; }
-  .overlap-timeline h5 { font-size:11px; color: var(--ant-text-tertiary); margin-bottom:8px; }
-  .tl-canvas-wrap { flex:1; min-height:40px; }
-  #overlapCanvas { width:100%; height:100%; display:block; }
-
-  .encounter-panel { width:320px; min-width:320px; display:flex; flex-direction:column; }
-  .encounter-panel-header { padding:8px 12px; border-bottom:1px solid var(--ant-border-secondary); display:flex; align-items:center; justify-content:space-between; }
-  .encounter-panel-header h5 { font-size:11px; color: var(--ant-text-tertiary); }
-  .encounter-panel-body { flex:1; overflow-y:auto; padding:8px 12px; }
-
-  .enc-item { background: var(--ant-bg); border:1px solid var(--ant-border-secondary); border-radius: var(--radius-lg); padding:10px 12px; margin-bottom:8px; cursor:pointer; transition:all 0.2s; }
-  .enc-item:hover { border-color: var(--ant-warning); }
-  .enc-item-head { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
-  .enc-type { font-size:10px; padding:2px 6px; border-radius: var(--radius-base); font-weight:600; }
-  .enc-type.together { background: var(--ant-primary-bg); color: var(--ant-primary); }
-  .enc-type.contact { background: var(--ant-warning-bg); color: #d46b08; }
-  .enc-time { font-size:12px; color: #d46b08; font-weight:600; }
-  .enc-loc { font-size:12px; color: var(--ant-text-secondary); }
-  .enc-detail { font-size:11px; color: var(--ant-text-tertiary); margin-top:4px; }
-
-  .summary-row { display:flex; gap:16px; padding:8px 16px; border-top:1px solid var(--ant-border-secondary); flex-shrink:0; }
-  .summary-item { display:flex; align-items:center; gap:6px; font-size:11px; color: var(--ant-text-tertiary); }
-  .summary-item .val { color: #d46b08; font-weight:600; font-size:13px; }
-
-  /* Toast */
-  .ant-message {
-    position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
-    z-index: 2000; display: flex; flex-direction: column; align-items: center; gap: 8px;
-  }
-  .ant-message-notice {
-    background: var(--ant-bg-container); padding: 9px 16px;
-    border-radius: var(--radius-lg); box-shadow: var(--shadow-2);
-    display: flex; align-items: center; gap: 8px; font-size: 14px;
-    animation: fadeInDown 0.3s var(--ease-in-out);
-  }
-  .ant-message-success .ant-message-icon { color: var(--ant-success); }
-  .ant-message-error .ant-message-icon { color: var(--ant-error); }
-  .ant-message-warning .ant-message-icon { color: var(--ant-warning); }
-  .ant-message-info .ant-message-icon { color: var(--ant-primary); }
-
-  @keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  /* 弹窗 */
+  .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;z-index:500;align-items:center;justify-content:center}
+  .modal-mask.open{display:flex}
+  .modal-box{background:var(--ant-bg-container);border-radius:var(--radius-lg);box-shadow:0 12px 48px rgba(0,0,0,0.18);width:960px;max-width:95vw;height:540px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--ant-border-secondary);flex-shrink:0}
+  .modal-head h3{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .modal-close{background:none;border:none;color:var(--ant-text-tertiary);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:4px}
+  .modal-close:hover{color:var(--ant-text);background:var(--ant-bg-layout)}
+  .modal-body{flex:1;display:flex;overflow:hidden}
+  .modal-foot{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-top:1px solid var(--ant-border-secondary);flex-shrink:0}
+  .modal-left{width:320px;min-width:320px;border-right:1px solid var(--ant-border-secondary);display:flex;flex-direction:column;overflow:hidden}
+  .modal-search{padding:10px;border-bottom:1px solid var(--ant-border-secondary);flex-shrink:0;position:relative}
+  .modal-search input{width:100%;height:30px;border:1px solid var(--ant-border);border-radius:var(--radius-base);padding:0 8px 0 28px;font-size:12px;outline:none}
+  .modal-search input:focus{border-color:var(--ant-primary)}
+  .modal-search i{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--ant-text-quaternary);font-size:11px}
+  .modal-tree{flex:1;overflow-y:auto;padding:2px 0}
+  .modal-tree-footer{padding:6px 12px;border-top:1px solid var(--ant-border-secondary);display:flex;justify-content:space-between;align-items:center;font-size:11px;flex-shrink:0}
+  .modal-tree-footer .actions{display:flex;gap:6px}
+  .modal-tree-footer .actions button{padding:2px 6px;font-size:11px;border:none;background:none;color:var(--ant-primary);cursor:pointer;border-radius:3px}
+  .modal-tree-footer .actions button:hover{background:var(--ant-primary-bg)}
+  .tree-grp-hd{display:flex;align-items:center;gap:5px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:500;color:var(--ant-text-secondary);user-select:none}
+  .tree-grp-hd:hover{background:var(--ant-primary-bg)}
+  .tree-grp-hd .arr{font-size:9px;color:var(--ant-text-quaternary);transition:transform 0.2s;width:12px;text-align:center}
+  .tree-grp-hd .arr.exp{transform:rotate(90deg)}
+  .tree-grp-hd .cnt{color:var(--ant-text-tertiary);font-size:10px;font-weight:400}
+  .tree-grp-body{display:none}.tree-grp-body.exp{display:block}
+  .tree-node{display:flex;align-items:center;gap:6px;padding:4px 10px 4px 28px;cursor:pointer;font-size:12px;color:var(--ant-text);transition:background 0.15s}
+  .tree-node:hover{background:var(--ant-primary-bg)}.tree-node.hl{background:#e6f4ff}
+  .chk{width:14px;height:14px;border:1px solid var(--ant-border);border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s}
+  .chk.on{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;font-size:9px}
+  .chk.half{background:var(--ant-primary);border-color:var(--ant-primary)}
+  .chk.half::after{content:'';width:6px;height:2px;background:#fff;border-radius:1px}
+  .cam-cnt{color:var(--ant-text-tertiary);font-size:10px;margin-left:auto}
+  .modal-right{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;background:#0a1628}
+  .map-sv{width:100%;flex:1}
+  .bld{fill:#1a2744;stroke:#2a3f66;stroke-width:1;transition:fill 0.3s,stroke 0.3s}
+  .bld.sel{fill:#1e3a5f;stroke:var(--ant-primary);stroke-width:2}
+  .bld-l{fill:rgba(255,255,255,0.5);font-size:10px;text-anchor:middle;pointer-events:none;transition:fill 0.3s}
+  .bld-l.sel{fill:rgba(255,255,255,0.9)}
+  .cm{fill:#4a5568;stroke:none;transition:fill 0.3s}.cm.on{fill:var(--ant-success)}
+  .cm-l{fill:rgba(255,255,255,0.3);font-size:7px;text-anchor:middle;pointer-events:none}
+  .rd{stroke:#1e3050;stroke-width:2;stroke-dasharray:4 4;fill:none}
+  .map-ov{position:absolute;bottom:10px;right:10px;background:rgba(255,255,255,0.95);border-radius:6px;padding:8px 10px;font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,0.15);z-index:10}
+  .map-ov .ov-r{display:flex;justify-content:space-between;gap:16px;margin-bottom:2px}
+  .map-ov .ov-l{color:var(--ant-text-tertiary)}.map-ov .ov-v{font-weight:600;color:var(--ant-primary)}
+  .foot-stat{font-size:11px;color:var(--ant-text-secondary)}.foot-stat strong{color:var(--ant-primary);font-weight:600}
+  .foot-btns{display:flex;gap:6px}
+  .ant-message{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+  .ant-message-notice{background:var(--ant-bg-container);border:1px solid var(--ant-border-secondary);border-radius:var(--radius-lg);padding:8px 16px;box-shadow:var(--shadow-2);display:flex;align-items:center;gap:8px;font-size:12px;animation:fadeInDown 0.3s;pointer-events:auto}
+  .ant-message-success .ant-message-icon{color:var(--ant-success)}
+  .ant-message-error .ant-message-icon{color:var(--ant-error)}
+  .ant-message-info .ant-message-icon{color:var(--ant-primary)}
+  @keyframes fadeInDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
-
-<div class="ant-message" id="messageContainer"></div>
-
-<!-- 顶部导航栏 -->
 <div class="ant-layout-header">
-  <div class="flex items-center gap-3">
-    <i class="fa-solid fa-video text-lg" style="color: var(--ant-primary);"></i>
-    <span class="font-semibold text-base">视频智能运维</span>
+  <div style="display:flex;align-items:center;gap:12px">
+    <i class="fa-solid fa-video" style="color:var(--ant-primary);font-size:18px"></i>
+    <span style="font-size:16px;font-weight:600">视频智能运维</span>
   </div>
-  <div class="flex items-center gap-4 ml-auto">
-    <button class="ant-btn ant-btn-default" onclick="exportReport()">
-      <i class="fa-solid fa-file-export"></i>导出报告
-    </button>
+  <div style="display:flex;gap:8px">
+    <button class="ant-btn ant-btn-primary" onclick="exportReport()"><i class="fa-solid fa-file-export"></i>导出报告</button>
   </div>
 </div>
 
-<!-- 布局 -->
-<div style="display:flex;height:calc(100vh - 64px);">
-  <!-- 侧边栏 -->
+<div class="main">
+  <!-- 左侧导航 -->
   <div class="ant-layout-sider">
     <div class="ant-menu">
-      <div style="padding: 12px 16px 8px; font-size: 12px; color: var(--ant-text-tertiary); font-weight: 600;">
-        <i class="fa-solid fa-route" style="margin-right: 6px;"></i>轨迹查询
-      </div>
-      <a href="search.html" class="ant-menu-item">
-        <i class="fa-solid fa-person"></i>人员轨迹查询
-      </a>
-      <a href="vehicle-search.html" class="ant-menu-item">
-        <i class="fa-solid fa-car"></i>车辆轨迹查询
-      </a>
-      <a href="compare.html" class="ant-menu-item ant-menu-item-selected">
-        <i class="fa-solid fa-users-viewfinder"></i>多目标对比
-      </a>
-
-      <div style="padding: 12px 16px 8px; font-size: 12px; color: var(--ant-text-tertiary); font-weight: 600; margin-top: 8px;">
-        <i class="fa-solid fa-shield-halved" style="margin-right: 6px;"></i>布控管理
-      </div>
-      <a href="../ops-monitor/list.html" class="ant-menu-item">
-        <i class="fa-solid fa-crosshairs"></i>布控任务
-      </a>
-      <a href="../ops-monitor/library.html" class="ant-menu-item">
-        <i class="fa-solid fa-database"></i>目标库
-      </a>
-      <a href="../ops-monitor/alerts.html" class="ant-menu-item">
-        <i class="fa-solid fa-bell"></i>布控告警
-      </a>
+      <div style="padding:12px 16px 8px;font-size:12px;color:var(--ant-text-tertiary);font-weight:600"><i class="fa-solid fa-route" style="margin-right:6px"></i>轨迹查询</div>
+      <a href="search.html" class="ant-menu-item"><i class="fa-solid fa-person"></i>人员轨迹查询</a>
+      <a href="vehicle-search.html" class="ant-menu-item"><i class="fa-solid fa-car"></i>车辆轨迹查询</a>
+      <a href="compare.html" class="ant-menu-item ant-menu-item-selected"><i class="fa-solid fa-users-viewfinder"></i>多目标对比</a>
+      <div style="padding:12px 16px 8px;font-size:12px;color:var(--ant-text-tertiary);font-weight:600;margin-top:8px"><i class="fa-solid fa-shield-halved" style="margin-right:6px"></i>布控管理</div>
+      <a href="../ops-monitor/list.html" class="ant-menu-item"><i class="fa-solid fa-crosshairs"></i>布控任务</a>
+      <a href="../ops-monitor/library.html" class="ant-menu-item"><i class="fa-solid fa-database"></i>目标库</a>
+      <a href="../ops-monitor/alerts.html" class="ant-menu-item"><i class="fa-solid fa-bell"></i>布控告警</a>
     </div>
   </div>
 
-  <!-- 内容区 -->
-  <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
-    <!-- 主内容 -->
-    <div class="main">
-    <!-- ===== 左侧面板: 目标1 ===== -->
-    <div class="side-panel" id="leftPanel">
-      <div class="panel-header">
-        <div class="panel-header-left">
-          <span class="dot" style="background:var(--color1)"></span>
-          <span class="title">目标1</span>
-          <span class="type-tag" id="leftTypeTag">人员</span>
+  <!-- ===== 左面板：目标1 ===== -->
+  <div class="side-panel" id="leftPanel">
+    <div class="panel-header">
+      <div class="panel-header-left"><span class="dot" style="background:var(--color1)"></span><span class="title">目标1</span><span class="type-tag" id="leftTypeTag">人员</span></div>
+      <span class="status pending" id="leftStatus">待查询</span>
+    </div>
+    <div class="type-switch" id="leftTypeSwitch">
+      <div class="type-switch-btn active" onclick="switchType('left','person')"><i class="fa-solid fa-person" style="margin-right:4px"></i>人员</div>
+      <div class="type-switch-btn" onclick="switchType('left','vehicle')"><i class="fa-solid fa-car" style="margin-right:4px"></i>车辆</div>
+    </div>
+    <div class="panel-scroll">
+      <!-- 人员表单 -->
+      <div id="leftPersonForm">
+        <div class="sub-tabs">
+          <button class="sub-tab active" id="leftPTabImage" onclick="switchPersonTab('left','image')"><i class="fa-solid fa-image" style="margin-right:3px"></i>以图搜人</button>
+          <button class="sub-tab" id="leftPTabText" onclick="switchPersonTab('left','text')"><i class="fa-solid fa-keyboard" style="margin-right:3px"></i>文本搜人</button>
         </div>
-        <span class="status pending" id="leftStatus">待查询</span>
-      </div>
-      <div class="type-switch" id="leftTypeSwitch">
-        <div class="type-switch-btn active" onclick="switchType('left','person')"><i class="fa-solid fa-person" style="margin-right:4px;"></i>人员</div>
-        <div class="type-switch-btn" onclick="switchType('left','vehicle')"><i class="fa-solid fa-car" style="margin-right:4px;"></i>车辆</div>
-      </div>
-
-      <div class="panel-scroll">
-        <!-- 人员表单 -->
-        <div id="leftPersonForm">
+        <div id="leftPersonImageForm">
           <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">上传照片</label>
-            <div class="upload-zone" onclick="showMessage('请上传目标人员照片','info')"><div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div><p>点击上传人脸照片</p></div>
+            <div class="upload-zone" onclick="showMessage('请上传目标人员照片','info')"><div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div><p>点击上传人像照片</p></div>
           </div>
           <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
-            <div class="quick-times">
-              <button class="quick-time-btn" onclick="setQuickTime(this)">近1h</button>
-              <button class="quick-time-btn" onclick="setQuickTime(this)">近6h</button>
-              <button class="quick-time-btn active" onclick="setQuickTime(this)">近24h</button>
-              <button class="quick-time-btn" onclick="setQuickTime(this)">近7天</button>
-            </div>
-            <div class="flex items-center gap-2">
-              <input type="datetime-local" value="2026-05-29T00:00" style="flex:1;">
-              <span style="color: var(--ant-text-tertiary); font-size: 11px;">至</span>
-              <input type="datetime-local" value="2026-05-29T23:59" style="flex:1;">
-            </div>
+            <div class="time-picker-wrap"><div class="time-picker-trigger" onclick="toggleCal(event)"><i class="fa-regular fa-calendar"></i><span class="tp-text">05-28 23:59 ~ 05-29 23:59</span><span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span></div></div>
           </div>
-          <div class="ant-form-item"><label class="ant-form-label">地点范围</label><select><option>全部区域</option><option>A栋</option><option>B栋</option><option>C栋</option></select></div>
-          <div class="ant-form-item"><label class="ant-form-label">性别</label><select><option>全部</option><option>男</option><option>女</option></select></div>
-          <div class="ant-form-item"><label class="ant-form-label">上衣颜色</label>
-            <div class="color-options">
-              <div class="color-block" data-color="black" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="white" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="red" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="blue" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="yellow" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="green" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="gray" onclick="selectColor(this)"></div>
-            </div>
+          <div class="ant-form-item"><label class="ant-form-label">地点范围</label>
+            <div class="area-trigger" onclick="openModal()"><div class="sel-tags"><span class="placeholder">全部区域</span></div><span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
           </div>
-          <button class="ant-btn ant-btn-primary" style="width:100%;" onclick="doSearch('left')"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+          <div class="ant-form-item"><label class="ant-form-label">匹配严格度</label><select><option>宽松</option><option selected>标准</option><option>严格</option></select></div>
         </div>
-
-        <!-- 车辆表单 -->
-        <div id="leftVehicleForm" style="display:none">
-          <div class="ant-form-item"><label class="ant-form-label">车牌号</label><input type="text" placeholder="如：京A12345"></div>
-          <div class="ant-form-item"><label class="ant-form-label">或上传车辆照片</label>
-            <div class="upload-zone" onclick="showMessage('请上传车辆照片','info')" style="padding:12px;"><div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div><p>点击上传</p></div>
+        <div id="leftPersonTextForm" style="display:none">
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">人员特征描述</label>
+            <textarea placeholder="请描述目标人员特征" rows="3" maxlength="200" style="width:100%;resize:vertical;border:1px solid var(--ant-border);border-radius:var(--radius-base);padding:6px;font-size:12px;outline:none"></textarea>
           </div>
           <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
-            <div class="flex items-center gap-2">
-              <input type="datetime-local" value="2026-05-29T00:00" style="flex:1;">
-              <span style="color: var(--ant-text-tertiary); font-size: 11px;">至</span>
-              <input type="datetime-local" value="2026-05-29T23:59" style="flex:1;">
-            </div>
+            <div class="time-picker-wrap"><div class="time-picker-trigger" onclick="toggleCal(event)"><i class="fa-regular fa-calendar"></i><span class="tp-text">05-28 23:59 ~ 05-29 23:59</span><span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span></div></div>
           </div>
-          <div class="ant-form-item"><label class="ant-form-label">地点范围</label><select><option>全部卡口</option><option>北门卡口</option><option>南门卡口</option></select></div>
-          <div class="ant-form-item"><label class="ant-form-label">车辆类型</label><select><option>全部</option><option>小型轿车</option><option>SUV</option></select></div>
-          <div class="ant-form-item"><label class="ant-form-label">车身颜色</label>
-            <div class="color-options">
-              <div class="color-block" data-color="black" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="white" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="silver" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="red" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="blue" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="gray" onclick="selectColor(this)"></div>
-            </div>
+          <div class="ant-form-item"><label class="ant-form-label">地点范围</label>
+            <div class="area-trigger" onclick="openModal()"><div class="sel-tags"><span class="placeholder">全部区域</span></div><span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
           </div>
-          <button class="ant-btn ant-btn-primary" style="width:100%;" onclick="doSearch('left')"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
         </div>
+        <button class="ant-btn ant-btn-primary" style="width:100%;margin-top:8px" onclick="doSearch('left')"><i class="fa-solid fa-magnifying-glass" style="margin-right:4px"></i>查询</button>
       </div>
-
-      <!-- 候选列表 -->
-      <div class="candidate-section" id="leftCandidates" style="display:none">
-        <div class="candidate-header">
-          <h5>候选目标 <span id="leftCandidateCount">0</span></h5>
-          <button class="back-btn" onclick="backToForm('left')"><i class="fa-solid fa-arrow-left"></i> 重查</button>
+      <!-- 车辆表单 -->
+      <div id="leftVehicleForm" style="display:none">
+        <div class="sub-tabs">
+          <button class="sub-tab active" id="leftVTabImage" onclick="switchVehicleTab('left','image')"><i class="fa-solid fa-image" style="margin-right:3px"></i>以图搜车</button>
+          <button class="sub-tab" id="leftVTabPlate" onclick="switchVehicleTab('left','plate')"><i class="fa-solid fa-font" style="margin-right:3px"></i>车牌查询</button>
+          <button class="sub-tab" id="leftVTabText" onclick="switchVehicleTab('left','text')"><i class="fa-solid fa-keyboard" style="margin-right:3px"></i>文字搜车</button>
         </div>
-        <div class="candidate-list" id="leftCandidateList"></div>
-        <button class="confirm-btn" id="leftConfirmBtn" onclick="confirmTarget('left')" disabled>确认选择</button>
+        <div id="leftVehicleImageForm">
+          <div class="ant-form-item"><label class="ant-form-label">车牌号</label><input type="text" placeholder="如：京A12345" style="width:100%"></div>
+          <div class="ant-form-item"><label class="ant-form-label">或上传车辆照片</label>
+            <div class="upload-zone" onclick="showMessage('请上传车辆照片','info')" style="padding:12px"><div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div><p>点击上传</p></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
+            <div class="time-picker-wrap"><div class="time-picker-trigger" onclick="toggleCal(event)"><i class="fa-regular fa-calendar"></i><span class="tp-text">05-28 23:59 ~ 05-29 23:59</span><span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span></div></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">地点范围</label>
+            <div class="area-trigger" onclick="openModal()"><div class="sel-tags"><span class="placeholder">全部卡口</span></div><span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">车辆类型</label><select><option>全部</option><option>小型轿车</option><option>SUV</option></select></div>
+        </div>
+        <div id="leftVehiclePlateForm" style="display:none">
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">车牌号</label><input type="text" placeholder="如：京A12345" style="width:100%"></div>
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
+            <div class="time-picker-wrap"><div class="time-picker-trigger" onclick="toggleCal(event)"><i class="fa-regular fa-calendar"></i><span class="tp-text">05-28 23:59 ~ 05-29 23:59</span><span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span></div></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">地点范围</label>
+            <div class="area-trigger" onclick="openModal()"><div class="sel-tags"><span class="placeholder">全部卡口</span></div><span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
+          </div>
+        </div>
+        <div id="leftVehicleTextForm" style="display:none">
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">车辆特征描述</label>
+            <textarea placeholder="请描述目标车辆特征" rows="3" maxlength="200" style="width:100%;resize:vertical;border:1px solid var(--ant-border);border-radius:var(--radius-base);padding:6px;font-size:12px;outline:none"></textarea>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
+            <div class="time-picker-wrap"><div class="time-picker-trigger" onclick="toggleCal(event)"><i class="fa-regular fa-calendar"></i><span class="tp-text">05-28 23:59 ~ 05-29 23:59</span><span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span></div></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">地点范围</label>
+            <div class="area-trigger" onclick="openModal()"><div class="sel-tags"><span class="placeholder">全部卡口</span></div><span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
+          </div>
+        </div>
+        <button class="ant-btn ant-btn-primary" style="width:100%;margin-top:8px" onclick="doSearch('left')"><i class="fa-solid fa-magnifying-glass" style="margin-right:4px"></i>查询</button>
       </div>
     </div>
+    <!-- 候选列表 -->
+    <div class="candidate-section" id="leftCandidates" style="display:none">
+      <div class="candidate-header"><h5>候选目标 · <span id="leftCandidateCount">0</span> 个</h5><button class="back-btn" onclick="backToForm('left')"><i class="fa-solid fa-arrow-left"></i>返回</button></div>
+      <div class="candidate-list" id="leftCandidateList"></div>
+      <button class="confirm-btn" id="leftConfirmBtn" onclick="confirmTarget('left')" disabled>确认选择</button>
+    </div>
+  </div>
 
-    <!-- ===== 中心: 地图 + 分析 ===== -->
-    <div class="center-content">
-      <div class="map-area" id="mapArea">
-        <div class="map-toolbar">
-          <div class="zoom-btns">
-            <button onclick="showMessage('放大','info')">+</button>
-            <button onclick="showMessage('缩小','info')">-</button>
+  <!-- ===== 中心地图 ===== -->
+  <div class="center-content">
+    <div class="map-area" id="mapArea">
+      <div class="map-toolbar"><div class="zoom-btns"><button onclick="showMessage('放大','info')">+</button><button onclick="showMessage('缩小','info')">-</button></div></div>
+      <div class="empty-overlay" id="emptyState"><div class="empty-content"><i class="fa-solid fa-map-location-dot"></i><p>左右两侧分别选择目标并查询</p></div></div>
+      <svg class="map-svg" viewBox="0 0 1100 500">
+        <defs>
+          <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="#e5e5e5" stroke-width="0.5"/></pattern>
+          <marker id="arrow1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--color1)"/></marker>
+          <marker id="arrow2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--color2)"/></marker>
+        </defs>
+        <rect width="1100" height="500" fill="url(#grid)"/>
+        <rect x="50" y="40" width="140" height="80" rx="4" fill="#fafafa" stroke="#d9d9d9"/><text x="120" y="85" fill="#999" font-size="11" text-anchor="middle">A栋</text>
+        <rect x="50" y="160" width="140" height="60" rx="4" fill="#fafafa" stroke="#d9d9d9"/><text x="120" y="195" fill="#999" font-size="11" text-anchor="middle">B栋</text>
+        <rect x="380" y="150" width="260" height="150" rx="4" fill="#fafafa" stroke="#d9d9d9"/><text x="510" y="230" fill="#999" font-size="11" text-anchor="middle">中央广场</text>
+        <rect x="730" y="40" width="140" height="80" rx="4" fill="#fafafa" stroke="#d9d9d9"/><text x="800" y="85" fill="#999" font-size="11" text-anchor="middle">C栋</text>
+        <rect x="730" y="160" width="140" height="60" rx="4" fill="#fafafa" stroke="#d9d9d9"/><text x="800" y="195" fill="#999" font-size="11" text-anchor="middle">D栋</text>
+        <rect x="400" y="360" width="160" height="70" rx="4" fill="#fafafa" stroke="#d9d9d9"/><text x="480" y="400" fill="#999" font-size="11" text-anchor="middle">食堂</text>
+        <circle cx="120" cy="30" r="5" fill="#ddd"/><text x="120" y="22" fill="#bbb" font-size="8" text-anchor="middle">C01</text>
+        <circle cx="380" cy="140" r="5" fill="#ddd"/><text x="380" y="132" fill="#bbb" font-size="8" text-anchor="middle">C02</text>
+        <circle cx="510" cy="310" r="5" fill="#ddd"/><text x="510" y="302" fill="#bbb" font-size="8" text-anchor="middle">C03</text>
+        <circle cx="640" cy="140" r="5" fill="#ddd"/><text x="640" y="132" fill="#bbb" font-size="8" text-anchor="middle">C04</text>
+        <circle cx="800" cy="30" r="5" fill="#ddd"/><text x="800" y="22" fill="#bbb" font-size="8" text-anchor="middle">C05</text>
+        <circle cx="800" cy="230" r="5" fill="#ddd"/><text x="800" y="222" fill="#bbb" font-size="8" text-anchor="middle">C06</text>
+        <circle cx="480" cy="350" r="5" fill="#ddd"/><text x="480" y="342" fill="#bbb" font-size="8" text-anchor="middle">C07</text>
+        <!-- 轨迹1 -->
+        <g id="trajectory1" style="display:none"><path d="M120,30 L380,140 L510,310 L640,140" fill="none" stroke="var(--color1)" stroke-width="3" marker-end="url(#arrow1)" stroke-linecap="round" opacity="0.8"/>
+        <circle cx="120" cy="30" r="8" fill="var(--color1)" opacity="0.3" onmouseenter="showTip(event,'09:05','A栋入口')" onmouseleave="hideTip()"/><circle cx="380" cy="140" r="8" fill="var(--color1)" opacity="0.3" onmouseenter="showTip(event,'09:12','中央广场西')" onmouseleave="hideTip()"/><circle cx="510" cy="310" r="8" fill="var(--color1)" opacity="0.3" onmouseenter="showTip(event,'09:28','中央广场南')" onmouseleave="hideTip()"/><circle cx="640" cy="140" r="8" fill="var(--color1)" opacity="0.3" onmouseenter="showTip(event,'10:45','中央广场东')" onmouseleave="hideTip()"/></g>
+        <!-- 轨迹2 -->
+        <g id="trajectory2" style="display:none"><path d="M800,30 L640,140 L510,310 L380,140 L120,30" fill="none" stroke="var(--color2)" stroke-width="3" marker-end="url(#arrow2)" stroke-linecap="round" opacity="0.8"/>
+        <circle cx="800" cy="30" r="8" fill="var(--color2)" opacity="0.3" onmouseenter="showTip(event,'09:02','C栋入口')" onmouseleave="hideTip()"/><circle cx="640" cy="140" r="8" fill="var(--color2)" opacity="0.3" onmouseenter="showTip(event,'09:10','中央广场东')" onmouseleave="hideTip()"/><circle cx="510" cy="310" r="8" fill="var(--color2)" opacity="0.3" onmouseenter="showTip(event,'09:25','中央广场南')" onmouseleave="hideTip()"/><circle cx="380" cy="140" r="8" fill="var(--color2)" opacity="0.3" onmouseenter="showTip(event,'10:50','中央广场西')" onmouseleave="hideTip()"/><circle cx="120" cy="30" r="8" fill="var(--color2)" opacity="0.3" onmouseenter="showTip(event,'11:10','A栋入口')" onmouseleave="hideTip()"/></g>
+        <!-- 接触点 -->
+        <g id="encounterLayer" style="display:none">
+          <circle cx="510" cy="310" r="18" fill="none" stroke="#faad14" stroke-width="2"><animate attributeName="r" values="10;22;10" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0;0.8" dur="2s" repeatCount="indefinite"/></circle>
+          <circle cx="510" cy="310" r="6" fill="#faad14" onmouseenter="showEncTip(event,'同行：同摄像头，间隔<5min','09:25~09:28','中央广场南')" onmouseleave="hideTip()" style="cursor:pointer"/>
+          <circle cx="380" cy="140" r="18" fill="none" stroke="#faad14" stroke-width="2"><animate attributeName="r" values="10;22;10" dur="2s" repeatCount="indefinite" begin="0.5s"/><animate attributeName="opacity" values="0.8;0;0.8" dur="2s" repeatCount="indefinite" begin="0.5s"/></circle>
+          <circle cx="380" cy="140" r="6" fill="#faad14" onmouseenter="showEncTip(event,'接触：距离<50m，间隔<2min','10:45~10:50','中央广场西')" onmouseleave="hideTip()" style="cursor:pointer"/>
+          <circle cx="120" cy="30" r="18" fill="none" stroke="#faad14" stroke-width="2"><animate attributeName="r" values="10;22;10" dur="2s" repeatCount="indefinite" begin="1s"/><animate attributeName="opacity" values="0.8;0;0.8" dur="2s" repeatCount="indefinite" begin="1s"/></circle>
+          <circle cx="120" cy="30" r="6" fill="#faad14" onmouseenter="showEncTip(event,'同行：同摄像头，间隔<5min','09:05~09:10','A栋入口')" onmouseleave="hideTip()" style="cursor:pointer"/>
+        </g>
+      </svg>
+      <div class="map-legend">
+        <div class="legend-item"><div class="legend-line" style="background:var(--color1)"></div><span>目标1轨迹</span></div>
+        <div class="legend-item legend2-wrap" id="legend2Wrap" style="display:none"><div class="legend-line" style="background:var(--color2)"></div><span>目标2轨迹</span></div>
+        <div class="legend-item legend-enc-wrap" id="legendEncWrap" style="display:none"><div class="legend-dot" style="background:#faad14"></div><span>同行/接触点</span></div>
+      </div>
+      <div class="map-tip" id="mapTip"><div class="tip-time" id="tipTime"></div><div class="tip-loc" id="tipLoc"></div></div>
+    </div>
+    <!-- 时空分析 -->
+    <div class="analysis-area" id="analysisArea">
+      <div class="analysis-head" onclick="toggleAnalysis()"><h4><i class="fa-solid fa-chart-line" style="color:var(--ant-primary)"></i>时空分析</h4><button style="background:none;border:none;cursor:pointer;color:var(--ant-text-tertiary);font-size:12px" id="analysisToggle"><i class="fa-solid fa-chevron-down"></i></button></div>
+      <div class="analysis-body" id="analysisBody">
+        <div class="timeline-wrap"><canvas id="overlapCanvas"></canvas></div>
+        <div class="encounter-panel">
+          <div style="padding:6px 12px;border-bottom:1px solid var(--ant-border-secondary);font-size:11px;color:var(--ant-text-tertiary);display:flex;justify-content:space-between"><span>同行/接触记录</span><span id="encCount">0 条</span></div>
+          <div class="encounter-list" id="encounterList"></div>
+        </div>
+      </div>
+      <div class="summary-row" id="summaryRow" style="display:none"><span>同行 <span class="val" id="sumTogether">0</span></span><span>接触 <span class="val" id="sumContact">0</span></span><span>首次 <span class="val" id="sumFirst">--</span></span><span>末次 <span class="val" id="sumLast">--</span></span></div>
+    </div>
+  </div>
+
+  <!-- ===== 右面板：目标2 ===== -->
+  <div class="side-panel right" id="rightPanel">
+    <div class="panel-header">
+      <div class="panel-header-left"><span class="dot" style="background:var(--color2)"></span><span class="title">目标2</span><span class="type-tag" id="rightTypeTag">人员</span></div>
+      <span class="status pending" id="rightStatus">待查询</span>
+    </div>
+    <div class="type-switch" id="rightTypeSwitch">
+      <div class="type-switch-btn active" onclick="switchType('right','person')"><i class="fa-solid fa-person" style="margin-right:4px"></i>人员</div>
+      <div class="type-switch-btn" onclick="switchType('right','vehicle')"><i class="fa-solid fa-car" style="margin-right:4px"></i>车辆</div>
+    </div>
+    <div class="panel-scroll">
+      <!-- 人员表单 -->
+      <div id="rightPersonForm">
+        <div class="sub-tabs">
+          <button class="sub-tab active" id="rightPTabImage" onclick="switchPersonTab('right','image')"><i class="fa-solid fa-image" style="margin-right:3px"></i>以图搜人</button>
+          <button class="sub-tab" id="rightPTabText" onclick="switchPersonTab('right','text')"><i class="fa-solid fa-keyboard" style="margin-right:3px"></i>文本搜人</button>
+        </div>
+        <div id="rightPersonImageForm">
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">上传照片</label>
+            <div class="upload-zone" onclick="showMessage('请上传目标人员照片','info')"><div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div><p>点击上传人像照片</p></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
+            <div class="time-picker-wrap"><div class="time-picker-trigger" onclick="toggleCal(event)"><i class="fa-regular fa-calendar"></i><span class="tp-text">05-28 23:59 ~ 05-29 23:59</span><span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span></div></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">地点范围</label>
+            <div class="area-trigger" onclick="openModal()"><div class="sel-tags"><span class="placeholder">全部区域</span></div><span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">匹配严格度</label><select><option>宽松</option><option selected>标准</option><option>严格</option></select></div>
+        </div>
+        <div id="rightPersonTextForm" style="display:none">
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">人员特征描述</label>
+            <textarea placeholder="请描述目标人员特征" rows="3" maxlength="200" style="width:100%;resize:vertical;border:1px solid var(--ant-border);border-radius:var(--radius-base);padding:6px;font-size:12px;outline:none"></textarea>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
+            <div class="time-picker-wrap"><div class="time-picker-trigger" onclick="toggleCal(event)"><i class="fa-regular fa-calendar"></i><span class="tp-text">05-28 23:59 ~ 05-29 23:59</span><span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span></div></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">地点范围</label>
+            <div class="area-trigger" onclick="openModal()"><div class="sel-tags"><span class="placeholder">全部区域</span></div><span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
           </div>
         </div>
+        <button class="ant-btn ant-btn-primary" style="width:100%;margin-top:8px" onclick="doSearch('right')"><i class="fa-solid fa-magnifying-glass" style="margin-right:4px"></i>查询</button>
+      </div>
+      <!-- 车辆表单 -->
+      <div id="rightVehicleForm" style="display:none">
+        <div class="sub-tabs">
+          <button class="sub-tab active" id="rightVTabImage" onclick="switchVehicleTab('right','image')"><i class="fa-solid fa-image" style="margin-right:3px"></i>以图搜车</button>
+          <button class="sub-tab" id="rightVTabPlate" onclick="switchVehicleTab('right','plate')"><i class="fa-solid fa-font" style="margin-right:3px"></i>车牌查询</button>
+          <button class="sub-tab" id="rightVTabText" onclick="switchVehicleTab('right','text')"><i class="fa-solid fa-keyboard" style="margin-right:3px"></i>文字搜车</button>
+        </div>
+        <div id="rightVehicleImageForm">
+          <div class="ant-form-item"><label class="ant-form-label">车牌号</label><input type="text" placeholder="如：京A12345" style="width:100%"></div>
+          <div class="ant-form-item"><label class="ant-form-label">或上传车辆照片</label>
+            <div class="upload-zone" onclick="showMessage('请上传车辆照片','info')" style="padding:12px"><div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div><p>点击上传</p></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
+            <div class="time-picker-wrap"><div class="time-picker-trigger" onclick="toggleCal(event)"><i class="fa-regular fa-calendar"></i><span class="tp-text">05-28 23:59 ~ 05-29 23:59</span><span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span></div></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">地点范围</label>
+            <div class="area-trigger" onclick="openModal()"><div class="sel-tags"><span class="placeholder">全部卡口</span></div><span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">车辆类型</label><select><option>全部</option><option>小型轿车</option><option>SUV</option></select></div>
+        </div>
+        <div id="rightVehiclePlateForm" style="display:none">
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">车牌号</label><input type="text" placeholder="如：京A12345" style="width:100%"></div>
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
+            <div class="time-picker-wrap"><div class="time-picker-trigger" onclick="toggleCal(event)"><i class="fa-regular fa-calendar"></i><span class="tp-text">05-28 23:59 ~ 05-29 23:59</span><span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span></div></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">地点范围</label>
+            <div class="area-trigger" onclick="openModal()"><div class="sel-tags"><span class="placeholder">全部卡口</span></div><span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
+          </div>
+        </div>
+        <div id="rightVehicleTextForm" style="display:none">
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">车辆特征描述</label>
+            <textarea placeholder="请描述目标车辆特征" rows="3" maxlength="200" style="width:100%;resize:vertical;border:1px solid var(--ant-border);border-radius:var(--radius-base);padding:6px;font-size:12px;outline:none"></textarea>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
+            <div class="time-picker-wrap"><div class="time-picker-trigger" onclick="toggleCal(event)"><i class="fa-regular fa-calendar"></i><span class="tp-text">05-28 23:59 ~ 05-29 23:59</span><span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span></div></div>
+          </div>
+          <div class="ant-form-item"><label class="ant-form-label">地点范围</label>
+            <div class="area-trigger" onclick="openModal()"><div class="sel-tags"><span class="placeholder">全部卡口</span></div><span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
+          </div>
+        </div>
+        <button class="ant-btn ant-btn-primary" style="width:100%;margin-top:8px" onclick="doSearch('right')"><i class="fa-solid fa-magnifying-glass" style="margin-right:4px"></i>查询</button>
+      </div>
+    </div>
+    <div class="candidate-section" id="rightCandidates" style="display:none">
+      <div class="candidate-header"><h5>候选目标 · <span id="rightCandidateCount">0</span> 个</h5><button class="back-btn" onclick="backToForm('right')"><i class="fa-solid fa-arrow-left"></i>返回</button></div>
+      <div class="candidate-list" id="rightCandidateList"></div>
+      <button class="confirm-btn" id="rightConfirmBtn" onclick="confirmTarget('right')" disabled>确认选择</button>
+    </div>
+  </div>
+</div>
 
-        <svg class="map-svg" id="mapSvg" viewBox="0 0 1200 700">
-          <defs>
-            <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#1677ff"/></marker>
-            <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#ff4d4f"/></marker>
-            <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          </defs>
-          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f0f0f0" stroke-width="0.5"/></pattern>
-          <rect width="1200" height="700" fill="url(#grid)"/>
-
-          <!-- 建筑物 -->
-          <rect x="80" y="100" width="160" height="120" rx="4" fill="#fafafa" stroke="#d9d9d9" stroke-width="1.5"/><text x="160" y="165" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="13">南区A栋</text>
-          <rect x="280" y="80" width="120" height="100" rx="4" fill="#fafafa" stroke="#d9d9d9" stroke-width="1.5"/><text x="340" y="135" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="13">南区B栋</text>
-          <rect x="480" y="260" width="240" height="180" rx="6" fill="#f5f5f5" stroke="#d9d9d9" stroke-width="2"/><text x="600" y="360" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="14" font-weight="600">中央广场</text>
-          <rect x="850" y="80" width="180" height="140" rx="4" fill="#fafafa" stroke="#d9d9d9" stroke-width="1.5"/><text x="940" y="155" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="13">北区C栋</text>
-          <rect x="1060" y="120" width="100" height="100" rx="4" fill="#fafafa" stroke="#d9d9d9" stroke-width="1.5"/><text x="1110" y="175" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="13">北区D栋</text>
-          <rect x="720" y="270" width="100" height="60" rx="4" fill="#fafafa" stroke="#d9d9d9" stroke-width="1"/><text x="770" y="305" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="11">中央走廊</text>
-          <rect x="40" y="380" width="140" height="160" rx="4" fill="#fafafa" stroke="#d9d9d9" stroke-width="1.5"/><text x="110" y="465" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="13">西区E栋</text>
-          <rect x="900" y="480" width="220" height="140" rx="4" fill="#fafafa" stroke="#d9d9d9" stroke-width="1" stroke-dasharray="4"/><text x="1010" y="555" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="13">停车场</text>
-
-          <!-- 道路 -->
-          <line x1="240" y1="160" x2="480" y2="300" stroke="#d9d9d9" stroke-width="2" stroke-dasharray="8,4"/>
-          <line x1="400" y1="130" x2="520" y2="280" stroke="#d9d9d9" stroke-width="2" stroke-dasharray="8,4"/>
-          <line x1="720" y1="340" x2="850" y2="160" stroke="#d9d9d9" stroke-width="2" stroke-dasharray="8,4"/>
-          <line x1="720" y1="380" x2="900" y2="500" stroke="#d9d9d9" stroke-width="2" stroke-dasharray="8,4"/>
-          <line x1="180" y1="220" x2="180" y2="380" stroke="#d9d9d9" stroke-width="2" stroke-dasharray="8,4"/>
-          <line x1="480" y1="350" x2="40" y2="440" stroke="#d9d9d9" stroke-width="2" stroke-dasharray="8,4"/>
-
-          <!-- 摄像头 -->
-          <g>
-            <g transform="translate(160,90)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C01</text></g>
-            <g transform="translate(280,110)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C03</text></g>
-            <g transform="translate(380,200)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C04</text></g>
-            <g transform="translate(520,300)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C05</text></g>
-            <g transform="translate(600,310)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C06</text></g>
-            <g transform="translate(700,300)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C07</text></g>
-            <g transform="translate(770,290)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C18</text></g>
-            <g transform="translate(800,200)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C09</text></g>
-            <g transform="translate(900,120)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C10</text></g>
-            <g transform="translate(980,80)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C11</text></g>
-            <g transform="translate(1100,140)"><circle r="5" fill="#d9d9d9" stroke="#bfbfbf" stroke-width="1.5"/><text y="-9" text-anchor="middle" fill="rgba(0,0,0,0.45)" font-size="8">C12</text></g>
-          </g>
-
-          <!-- 轨迹1 (蓝色) -->
-          <g id="trajectory1" style="display:none">
-            <path d="M160,90 L280,110 L380,200 L520,300 L600,310 L700,300 L800,200 L900,120" stroke="#1677ff" stroke-width="2.5" fill="none" marker-end="url(#arrowBlue)" filter="url(#glow)" opacity="0.9"/>
-            <g style="cursor:pointer" onmouseenter="showTip(evt,'09:12:35','目标1 | 南区入口')" onmouseleave="hideTip()"><circle cx="160" cy="90" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="160" y="74" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-1</text></g>
-            <g style="cursor:pointer" onmouseenter="showTip(evt,'09:28:12','目标1 | 南区B栋西')" onmouseleave="hideTip()"><circle cx="280" cy="110" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="280" y="94" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-2</text></g>
-            <g style="cursor:pointer" onmouseenter="showTip(evt,'09:45:08','目标1 | 南区通道')" onmouseleave="hideTip()"><circle cx="380" cy="200" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="380" y="184" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-3</text></g>
-            <g style="cursor:pointer" onmouseenter="showTip(evt,'10:02:41','目标1 | 中央广场南')" onmouseleave="hideTip()"><circle cx="520" cy="300" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="520" y="284" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-4</text></g>
-            <g style="cursor:pointer" onmouseenter="showTip(evt,'10:05:22','目标1 | 中央广场中心')" onmouseleave="hideTip()"><circle cx="600" cy="310" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="600" y="338" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-5</text></g>
-            <g style="cursor:pointer" onmouseenter="showTip(evt,'10:28:55','目标1 | 中央广场东')" onmouseleave="hideTip()"><circle cx="700" cy="300" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="700" y="284" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-6</text></g>
-            <g style="cursor:pointer" onmouseenter="showTip(evt,'10:50:13','目标1 | 北区通道')" onmouseleave="hideTip()"><circle cx="800" cy="200" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="800" y="184" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-7</text></g>
-            <g style="cursor:pointer" onmouseenter="showTip(evt,'11:27:44','目标1 | 北区C栋南')" onmouseleave="hideTip()"><circle cx="900" cy="120" r="6" fill="#1677ff" stroke="#fff" stroke-width="2"/><text x="900" y="104" text-anchor="middle" fill="#1677ff" font-size="8" font-weight="700">T1-8</text></g>
-          </g>
-
-          <!-- 轨迹2 (红色) -->
-          <g id="trajectory2" style="display:none">
-            <path d="M520,300 L600,310 L770,290 L900,120 L980,80 L1100,140" stroke="#ff4d4f" stroke-width="2.5" fill="none" marker-end="url(#arrowRed)" filter="url(#glow)" opacity="0.9"/>
-            <g style="cursor:pointer" onmouseenter="showTip(evt,'09:05:18','目标2 | 中央广场南')" onmouseleave="hideTip()"><circle cx="520" cy="300" r="6" fill="#ff4d4f" stroke="#fff" stroke-width="2"/><text x="520" y="324" text-anchor="middle" fill="#ff4d4f" font-size="8" font-weight="700">T2-1</text></g>
-            <g style="cursor:pointer" onmouseenter="showTip(evt,'09:28:09','目标2 | 中央广场中心')" onmouseleave="hideTip()"><circle cx="600" cy="310" r="6" fill="#ff4d4f" stroke="#fff" stroke-width="2"/><text x="622" y="326" text-anchor="middle" fill="#ff4d4f" font-size="8" font-weight="700">T2-2</text></g>
-            <g style="cursor:pointer" onmouseenter="showTip(evt,'09:52:33','目标2 | 中央走廊')" onmouseleave="hideTip()"><circle cx="770" cy="290" r="6" fill="#ff4d4f" stroke="#fff" stroke-width="2"/><text x="770" y="274" text-anchor="middle" fill="#ff4d4f" font-size="8" font-weight="700">T2-3</text></g>
-            <g style="cursor:pointer" onmouseenter="showTip(evt,'10:45:21','目标2 | 北区C栋南')" onmouseleave="hideTip()"><circle cx="900" cy="120" r="6" fill="#ff4d4f" stroke="#fff" stroke-width="2"/><text x="900" y="138" text-anchor="middle" fill="#ff4d4f" font-size="8" font-weight="700">T2-4</text></g>
-            <g style="cursor:pointer" onmouseenter="showTip(evt,'11:05:47','目标2 | 北区C栋东')" onmouseleave="hideTip()"><circle cx="980" cy="80" r="6" fill="#ff4d4f" stroke="#fff" stroke-width="2"/><text x="980" y="66" text-anchor="middle" fill="#ff4d4f" font-size="8" font-weight="700">T2-5</text></g>
-            <g style="cursor:pointer" onmouseenter="showTip(evt,'11:32:15','目标2 | 北区D栋')" onmouseleave="hideTip()"><circle cx="1100" cy="140" r="6" fill="#ff4d4f" stroke="#fff" stroke-width="2"/><text x="1100" y="158" text-anchor="middle" fill="#ff4d4f" font-size="8" font-weight="700">T2-6</text></g>
-          </g>
-
-          <!-- 接触点 -->
-          <g id="encounterLayer" style="display:none">
-            <g style="cursor:pointer" onmouseenter="showEncTip(evt,'目标1 与 目标2 同行','09:05:18','中央广场南')" onmouseleave="hideTip()">
-              <circle cx="520" cy="300" r="12" fill="#faad14" opacity="0.3" class="encounter-pulse"/><circle cx="520" cy="300" r="8" fill="#faad14" opacity="0.8" class="encounter-glow"/><circle cx="520" cy="300" r="4" fill="#fff" opacity="1"/>
-            </g>
-            <g style="cursor:pointer" onmouseenter="showEncTip(evt,'目标1 与 目标2 接触','09:28:09','中央广场中心')" onmouseleave="hideTip()">
-              <circle cx="600" cy="310" r="12" fill="#faad14" opacity="0.3" class="encounter-pulse"/><circle cx="600" cy="310" r="8" fill="#faad14" opacity="0.8" class="encounter-glow"/><circle cx="600" cy="310" r="4" fill="#fff" opacity="1"/>
-            </g>
-            <g style="cursor:pointer" onmouseenter="showEncTip(evt,'目标1 与 目标2 同行','10:45:21','北区大门')" onmouseleave="hideTip()">
-              <circle cx="900" cy="120" r="12" fill="#faad14" opacity="0.3" class="encounter-pulse"/><circle cx="900" cy="120" r="8" fill="#faad14" opacity="0.8" class="encounter-glow"/><circle cx="900" cy="120" r="4" fill="#fff" opacity="1"/>
-            </g>
-          </g>
+<!-- 场所选择弹窗 -->
+<div class="modal-mask" id="modalMask">
+  <div class="modal-box">
+    <div class="modal-head"><h3><i class="fa-solid fa-map-location-dot" style="color:var(--ant-primary)"></i>选择监控范围</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="modal-left">
+        <div class="modal-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="搜索场所..." id="treeSearch" oninput="renderTree(this.value)"></div>
+        <div class="modal-tree" id="treeBody"></div>
+        <div class="modal-tree-footer">
+          <span id="footStat">已选 <strong>0</strong> 个场所</span>
+          <div class="actions"><button onclick="selectAll()">全选</button><button onclick="clearAll()">清空</button></div>
+        </div>
+      </div>
+      <div class="modal-right">
+        <svg class="map-sv" viewBox="0 0 700 500">
+          <defs><pattern id="mg" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="#0d1b2a" stroke-width="0.5"/></pattern></defs>
+          <rect width="700" height="500" fill="url(#mg)"/>
+          <line class="rd" x1="350" y1="20" x2="350" y2="480"/><line class="rd" x1="20" y1="250" x2="680" y2="250"/>
+          <rect class="bld" data-area="1,2,3" x="30" y="40" width="100" height="70" rx="4"/><text class="bld-l" x="80" y="80">A栋</text>
+          <rect class="bld" data-area="4,5" x="30" y="130" width="100" height="50" rx="4"/><text class="bld-l" x="80" y="160">B栋</text>
+          <rect class="bld" data-area="6,7,8" x="230" y="170" width="200" height="120" rx="4"/><text class="bld-l" x="330" y="235">中央广场</text>
+          <rect class="bld" data-area="9,10" x="480" y="40" width="100" height="70" rx="4"/><text class="bld-l" x="530" y="80">C栋</text>
+          <rect class="bld" data-area="11,12" x="480" y="130" width="100" height="50" rx="4"/><text class="bld-l" x="530" y="160">D栋</text>
+          <circle class="cm" data-area="1" cx="70" cy="30" r="5"/><text class="cm-l" x="70" y="22">C01</text>
+          <circle class="cm" data-area="6" cx="330" cy="155" r="5"/><text class="cm-l" x="330" y="147">C02</text>
+          <circle class="cm" data-area="7" cx="330" cy="305" r="5"/><text class="cm-l" x="330" y="297">C03</text>
+          <circle class="cm" data-area="9" cx="530" cy="30" r="5"/><text class="cm-l" x="530" y="22">C04</text>
+          <circle class="cm" data-area="11" cx="530" cy="150" r="5"/><text class="cm-l" x="530" y="142">C05</text>
         </svg>
-
-        <!-- 图例 -->
-        <div class="map-legend">
-          <div class="legend-item"><span class="legend-line" style="background:#1677ff"></span><span>目标1 轨迹</span></div>
-          <div class="legend-item" id="legend2Wrap" style="display:none"><span class="legend-line" style="background:#ff4d4f"></span><span>目标2 轨迹</span></div>
-          <div class="legend-item" id="legendEncWrap" style="display:none"><span class="legend-dot" style="background:#faad14"></span><span>同行/接触点</span></div>
-        </div>
-
-        <div class="tooltip-box" id="mapTip"><div class="tt-time" id="tipTime"></div><div class="tt-loc" id="tipLoc"></div></div>
-
-        <div class="empty-overlay" id="emptyState">
-          <i class="fa-solid fa-users-viewfinder"></i>
-          <h3>左右两侧分别选择目标并查询</h3>
-          <p>系统将自动检测同行/接触关系</p>
-        </div>
-
-        <div class="loading-overlay" id="loadingOverlay" style="display:none">
-          <div class="spinner"></div>
-          <div class="loading-text" id="loadingText">正在检索中...</div>
-        </div>
-      </div>
-
-      <!-- 分析区域 -->
-      <div class="analysis-area" id="analysisArea">
-        <div class="analysis-header">
-          <h4><i class="fa-solid fa-chart-line"></i> 时空分析</h4>
-          <button class="analysis-toggle" onclick="toggleAnalysis()"><i class="fa-solid fa-chevron-down"></i></button>
-        </div>
-        <div class="analysis-body" id="analysisBody">
-          <div class="overlap-timeline"><h5>时空重叠时间轴</h5><div class="tl-canvas-wrap"><canvas id="overlapCanvas"></canvas></div></div>
-          <div class="encounter-panel">
-            <div class="encounter-panel-header"><h5>同行/接触记录</h5><span style="font-size:11px;color: var(--ant-text-tertiary);" id="encCount">0 条</span></div>
-            <div class="encounter-panel-body" id="encounterList"><div style="text-align:center;padding:20px;color: var(--ant-text-tertiary);font-size:12px;">暂无记录</div></div>
-          </div>
-        </div>
-        <div class="summary-row" id="summaryRow" style="display:none">
-          <div class="summary-item">同行 <span class="val" id="sumTogether">0</span></div>
-          <div class="summary-item">接触 <span class="val" id="sumContact">0</span></div>
-          <div class="summary-item">首次 <span class="val" id="sumFirst">-</span></div>
-          <div class="summary-item">末次 <span class="val" id="sumLast">-</span></div>
+        <div class="map-ov">
+          <div class="ov-r"><span class="ov-l">已选</span><span class="ov-v" id="ovPlaces">0 个</span></div>
+          <div class="ov-r"><span class="ov-l">摄像头</span><span class="ov-v" id="ovCams">全部</span></div>
         </div>
       </div>
     </div>
-
-    <!-- ===== 右侧面板: 目标2 ===== -->
-    <div class="side-panel right" id="rightPanel">
-      <div class="panel-header">
-        <div class="panel-header-left">
-          <span class="dot" style="background:var(--color2)"></span>
-          <span class="title">目标2</span>
-          <span class="type-tag" id="rightTypeTag">人员</span>
-        </div>
-        <span class="status pending" id="rightStatus">待查询</span>
-      </div>
-      <div class="type-switch" id="rightTypeSwitch">
-        <div class="type-switch-btn active" onclick="switchType('right','person')"><i class="fa-solid fa-person" style="margin-right:4px;"></i>人员</div>
-        <div class="type-switch-btn" onclick="switchType('right','vehicle')"><i class="fa-solid fa-car" style="margin-right:4px;"></i>车辆</div>
-      </div>
-
-      <div class="panel-scroll">
-        <!-- 人员表单 -->
-        <div id="rightPersonForm">
-          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">上传照片</label>
-            <div class="upload-zone" onclick="showMessage('请上传目标人员照片','info')"><div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div><p>点击上传人脸照片</p></div>
-          </div>
-          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
-            <div class="quick-times">
-              <button class="quick-time-btn" onclick="setQuickTime(this)">近1h</button>
-              <button class="quick-time-btn" onclick="setQuickTime(this)">近6h</button>
-              <button class="quick-time-btn active" onclick="setQuickTime(this)">近24h</button>
-              <button class="quick-time-btn" onclick="setQuickTime(this)">近7天</button>
-            </div>
-            <div class="flex items-center gap-2">
-              <input type="datetime-local" value="2026-05-29T00:00" style="flex:1;">
-              <span style="color: var(--ant-text-tertiary); font-size: 11px;">至</span>
-              <input type="datetime-local" value="2026-05-29T23:59" style="flex:1;">
-            </div>
-          </div>
-          <div class="ant-form-item"><label class="ant-form-label">地点范围</label><select><option>全部区域</option><option>A栋</option><option>B栋</option><option>C栋</option></select></div>
-          <div class="ant-form-item"><label class="ant-form-label">性别</label><select><option>全部</option><option>男</option><option>女</option></select></div>
-          <div class="ant-form-item"><label class="ant-form-label">上衣颜色</label>
-            <div class="color-options">
-              <div class="color-block" data-color="black" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="white" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="red" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="blue" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="yellow" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="green" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="gray" onclick="selectColor(this)"></div>
-            </div>
-          </div>
-          <button class="ant-btn ant-btn-primary" style="width:100%;" onclick="doSearch('right')"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
-        </div>
-
-        <!-- 车辆表单 -->
-        <div id="rightVehicleForm" style="display:none">
-          <div class="ant-form-item"><label class="ant-form-label">车牌号</label><input type="text" placeholder="如：京A12345"></div>
-          <div class="ant-form-item"><label class="ant-form-label">或上传车辆照片</label>
-            <div class="upload-zone" onclick="showMessage('请上传车辆照片','info')" style="padding:12px;"><div class="icon"><i class="fa-solid fa-cloud-arrow-up"></i></div><p>点击上传</p></div>
-          </div>
-          <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">时间范围</label>
-            <div class="flex items-center gap-2">
-              <input type="datetime-local" value="2026-05-29T00:00" style="flex:1;">
-              <span style="color: var(--ant-text-tertiary); font-size: 11px;">至</span>
-              <input type="datetime-local" value="2026-05-29T23:59" style="flex:1;">
-            </div>
-          </div>
-          <div class="ant-form-item"><label class="ant-form-label">地点范围</label><select><option>全部卡口</option><option>北门卡口</option><option>南门卡口</option></select></div>
-          <div class="ant-form-item"><label class="ant-form-label">车辆类型</label><select><option>全部</option><option>小型轿车</option><option>SUV</option></select></div>
-          <div class="ant-form-item"><label class="ant-form-label">车身颜色</label>
-            <div class="color-options">
-              <div class="color-block" data-color="black" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="white" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="silver" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="red" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="blue" onclick="selectColor(this)"></div>
-              <div class="color-block" data-color="gray" onclick="selectColor(this)"></div>
-            </div>
-          </div>
-          <button class="ant-btn ant-btn-primary" style="width:100%;" onclick="doSearch('right')"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
-        </div>
-      </div>
-
-      <!-- 候选列表 -->
-      <div class="candidate-section" id="rightCandidates" style="display:none">
-        <div class="candidate-header">
-          <h5>候选目标 <span id="rightCandidateCount">0</span></h5>
-          <button class="back-btn" onclick="backToForm('right')"><i class="fa-solid fa-arrow-left"></i> 重查</button>
-        </div>
-        <div class="candidate-list" id="rightCandidateList"></div>
-        <button class="confirm-btn" id="rightConfirmBtn" onclick="confirmTarget('right')" disabled>确认选择</button>
-      </div>
+    <div class="modal-foot">
+      <span class="foot-stat" id="modalFootStat">未选择特定场所</span>
+      <div class="foot-btns"><button class="ant-btn" onclick="closeModal()" style="height:28px;font-size:11px">取消</button><button class="ant-btn ant-btn-primary" onclick="confirmModal()" style="height:28px;font-size:11px">确认选择</button></div>
     </div>
   </div>
 </div>
 
 <script>
-const encounters = [
-  {type:'together',time:'09:05:18',loc:'中央广场南',desc:'同摄像头出现，间隔<5分钟'},
-  {type:'contact',time:'09:28:09',loc:'中央广场中心',desc:'距离<50米，间隔<2分钟'},
-  {type:'together',time:'10:45:21',loc:'北区C栋南',desc:'同摄像头出现，间隔<5分钟'}
-];
+const encounters=[{type:'together',time:'09:05:18',loc:'中央广场南',desc:'同摄像头出现，间隔<5分钟'},{type:'contact',time:'09:28:09',loc:'中央广场中心',desc:'距离<50米，间隔<2分钟'},{type:'together',time:'10:45:21',loc:'北区C栋南',desc:'同摄像头出现，间隔<5分钟'}];
+const personCandidates=[{id:'p1',name:'P-00231',meta:'出现12次 · 09:00~15:30 · 6个摄像头'},{id:'p2',name:'P-00187',meta:'出现8次 · 10:05~14:22 · 4个摄像头'},{id:'p3',name:'P-00342',meta:'出现5次 · 11:30~13:45 · 3个摄像头'},{id:'p4',name:'P-00156',meta:'出现3次 · 09:50~11:15 · 2个摄像头'}];
+const vehicleCandidates=[{id:'v1',name:'京A·12345',meta:'通行15次 · 08:02~18:35 · 白色SUV·丰田'},{id:'v2',name:'京B·67890',meta:'通行9次 · 09:15~17:42 · 黑色轿车·大众'},{id:'v3',name:'京C·11111',meta:'通行4次 · 10:30~15:20 · 银色SUV·宝马'}];
+const state={left:{type:'person',status:'pending',selectedCandidate:null},right:{type:'person',status:'pending',selectedCandidate:null}};
+let analysisExpanded=true;
 
-const personCandidates = [
-  {id:'p1',name:'张三',gender:'男',color:'黑色上衣',appearances:12,sim:95},
-  {id:'p2',name:'李四',gender:'男',color:'蓝色上衣',appearances:8,sim:88},
-  {id:'p3',name:'王五',gender:'女',color:'红色上衣',appearances:5,sim:76},
-  {id:'p4',name:'赵六',gender:'男',color:'白色上衣',appearances:3,sim:68},
-];
-const vehicleCandidates = [
-  {id:'v1',name:'京A·12345',type:'白色SUV',brand:'丰田',appearances:15,sim:98},
-  {id:'v2',name:'京B·67890',type:'黑色轿车',brand:'大众',appearances:9,sim:91},
-  {id:'v3',name:'京C·11111',type:'银色SUV',brand:'宝马',appearances:4,sim:72},
-];
+// ===== 日历时间选择器 =====
+const NOW=new Date('2026-05-29T23:59:00');
+let calStart=new Date(NOW.getTime()-24*3600*1000),calEnd=new Date(NOW);
+let calViewYear=2026,calViewMonth=4;
+const WEEKDAYS=['日','一','二','三','四','五','六'],MONTHS=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+function pad(n){return n.toString().padStart(2,'0')}
+function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()}
+function initTimeSelects(){[['startH',calStart.getHours()],['startM',calStart.getMinutes()],['endH',calEnd.getHours()],['endM',calEnd.getMinutes()]].forEach(([id,val])=>{const s=document.getElementById(id);if(!s)return;s.innerHTML='';const mx=id.includes('H')?24:60;for(let i=0;i<mx;i++)s.innerHTML+=`<option value="${i}" ${i===val?'selected':''}>${pad(i)}</option>`})}
+function renderCalMonth(el,year,month){const first=new Date(year,month,1),sd=first.getDay(),dim=new Date(year,month+1,0).getDate(),dip=new Date(year,month,0).getDate();let h=`<div class="cal-month-head"><button class="cal-nav" onclick="navCal(-1)"><i class="fa-solid fa-chevron-left"></i></button><span class="cal-title">${year}年${MONTHS[month]}</span><button class="cal-nav" onclick="navCal(1)"><i class="fa-solid fa-chevron-right"></i></button></div>`;h+='<div class="cal-weekdays">'+WEEKDAYS.map(w=>`<span>${w}</span>`).join('')+'</div><div class="cal-days">';for(let i=sd-1;i>=0;i--)h+=`<div class="cal-day other">${dip-i}</div>`;const today=new Date('2026-05-29');for(let d=1;d<=dim;d++){const dt=new Date(year,month,d),isS=sameDay(dt,calStart),isE=sameDay(dt,calEnd),inR=dt>calStart&&dt<calEnd;let cls='cal-day';if(sameDay(dt,today))cls+=' today';if(isS&&isE)cls+=' start end';else if(isS)cls+=' start';else if(isE)cls+=' end';else if(inR)cls+=' in-range';h+=`<div class="${cls}" onclick="pickDay(${year},${month},${d})">${d}</div>`}const tot=sd+dim,rem=tot%7?7-tot%7:0;for(let d=1;d<=rem;d++)h+=`<div class="cal-day other">${d}</div>`;h+='</div>';el.innerHTML=h}
+function renderCal(){renderCalMonth(document.getElementById('calLeft'),calViewYear,calViewMonth);const rm=calViewMonth+1,ry=rm>11?calViewYear+1:calViewYear;renderCalMonth(document.getElementById('calRight'),ry,rm%12)}
+function navCal(dir){calViewMonth+=dir;if(calViewMonth>11){calViewMonth=0;calViewYear++}if(calViewMonth<0){calViewMonth=11;calViewYear--}renderCal()}
+function pickDay(y,m,d){calStart=new Date(y,m,d,0,0,0);calEnd=new Date(y,m,d,23,59,0);document.getElementById('startH').value=0;document.getElementById('startM').value=0;document.getElementById('endH').value=23;document.getElementById('endM').value=59;document.querySelectorAll('.cal-shortcut').forEach(s=>s.classList.remove('active'));renderCal()}
+function pickShortcut(type){document.querySelectorAll('.cal-shortcut').forEach(s=>s.classList.remove('active'));event.target.classList.add('active');calEnd=new Date(NOW);switch(type){case 'today':calStart=new Date(2026,4,29,0,0,0);break;case 'yesterday':calStart=new Date(2026,4,28,0,0,0);calEnd=new Date(2026,4,28,23,59,0);break;case '3d':calStart=new Date(NOW.getTime()-3*86400000);break;case '7d':calStart=new Date(NOW.getTime()-7*86400000);break;case '30d':calStart=new Date(NOW.getTime()-30*86400000);break}calViewYear=calStart.getFullYear();calViewMonth=calStart.getMonth();initTimeSelects();renderCal()}
+function toggleCal(e){e.stopPropagation();const p=document.getElementById('calPopup');if(!p)return;if(p.classList.contains('open')){closeCal();return}p.classList.add('open');calViewYear=calStart.getFullYear();calViewMonth=calStart.getMonth();initTimeSelects();renderCal()}
+function closeCal(){const p=document.getElementById('calPopup');if(p)p.classList.remove('open')}
+function confirmCal(){calStart.setHours(parseInt(document.getElementById('startH').value),parseInt(document.getElementById('startM').value));calEnd.setHours(parseInt(document.getElementById('endH').value),parseInt(document.getElementById('endM').value));document.querySelectorAll('.tp-text').forEach(el=>el.textContent=`${pad(calStart.getMonth()+1)}-${pad(calStart.getDate())} ${pad(calStart.getHours())}:${pad(calStart.getMinutes())} ~ ${pad(calEnd.getMonth()+1)}-${pad(calEnd.getDate())} ${pad(calEnd.getHours())}:${pad(calEnd.getMinutes())}`);closeCal()}
 
-const state = {
-  left: { type:'person', status:'pending', selectedCandidate:null },
-  right: { type:'person', status:'pending', selectedCandidate:null }
-};
+// ===== 场所数据与弹窗 =====
+const areaData=[{group:'南区',icon:'fa-building',children:[{id:1,name:'A栋大厅',cam:4},{id:2,name:'A栋1层',cam:3},{id:3,name:'A栋2层',cam:3},{id:4,name:'B栋大厅',cam:3},{id:5,name:'B栋1层',cam:2}]},{group:'中央区域',icon:'fa-landmark',children:[{id:6,name:'中央广场',cam:4},{id:7,name:'中央广场东侧',cam:2},{id:8,name:'中央广场西侧',cam:2},{id:9,name:'食堂',cam:5}]},{group:'北区',icon:'fa-building-columns',children:[{id:10,name:'C栋大厅',cam:3},{id:11,name:'C栋1层',cam:2},{id:12,name:'D栋大厅',cam:3}]},{group:'外围',icon:'fa-road',children:[{id:13,name:'东门',cam:3},{id:14,name:'西门',cam:3}]}];
+const exp={};areaData.forEach(g=>exp[g.group]=true);let sel=new Set();
+function renderTree(filter){const b=document.getElementById('treeBody');if(!b)return;let h='';areaData.forEach(g=>{const ch=filter?g.children.filter(c=>c.name.includes(filter)):g.children;if(filter&&!ch.length)return;const all=ch.every(c=>sel.has(c.id)),some=ch.some(c=>sel.has(c.id)),e=exp[g.group];h+=`<div><div class="tree-grp-hd" onclick="togGrp('${g.group}')"><span class="arr ${e?'exp':''}"><i class="fa-solid fa-chevron-right"></i></span><span class="chk ${all?'on':some?'half':''}" onclick="event.stopPropagation();togGrpChk('${g.group}')"></span><i class="fa-solid ${g.icon}" style="color:var(--ant-primary);font-size:10px"></i>${g.group}<span class="cnt">(${ch.length})</span></div><div class="tree-grp-body ${e?'exp':''}">`;ch.forEach(c=>{const on=sel.has(c.id);h+=`<div class="tree-node ${on?'hl':''}" onclick="togItem(${c.id})"><span class="chk ${on?'on':''}"></span>${c.name}<span class="cam-cnt">${c.cam}个</span></div>`});h+='</div></div>'});b.innerHTML=h;updMap()}
+function togGrp(g){exp[g]=!exp[g];renderTree(document.getElementById('treeSearch').value||'')}
+function togItem(id){sel.has(id)?sel.delete(id):sel.add(id);renderTree(document.getElementById('treeSearch').value||'')}
+function togGrpChk(g){const grp=areaData.find(d=>d.group===g);const all=grp.children.every(c=>sel.has(c.id));grp.children.forEach(c=>all?sel.delete(c.id):sel.add(c.id));renderTree(document.getElementById('treeSearch').value||'')}
+function selectAll(){areaData.forEach(g=>g.children.forEach(c=>sel.add(c.id)));renderTree('')}
+function clearAll(){sel.clear();renderTree('')}
+function updMap(){let cc=0;document.querySelectorAll('.bld').forEach(b=>{const ids=(b.dataset.area||'').split(',').map(Number);const on=ids.some(id=>sel.has(id));b.classList.toggle('sel',on);const l=b.nextElementSibling;if(l&&l.classList.contains('bld-l'))l.classList.toggle('sel',on)});document.querySelectorAll('.cm').forEach(c=>{const ids=(c.dataset.area||'').split(',').map(Number);const on=ids.some(id=>sel.has(id));c.classList.toggle('on',on);if(on)cc++});document.getElementById('ovPlaces').textContent=sel.size?sel.size+' 个':'0 个';document.getElementById('ovCams').textContent=sel.size?cc+' 个':'全部';document.getElementById('footStat').innerHTML=sel.size?`已选 <strong>${sel.size}</strong> 个场所`:'未选择特定场所'}
+function openModal(){document.getElementById('modalMask').classList.add('open');renderTree('')}
+function closeModal(){document.getElementById('modalMask').classList.remove('open')}
+function confirmModal(){closeModal()}
+document.getElementById('modalMask').addEventListener('click',e=>{if(e.target===document.getElementById('modalMask'))closeModal()});
 
-let analysisExpanded = true;
+// ===== 日历弹窗注入 =====
+(function(){const p=document.createElement('div');p.className='cal-popup';p.id='calPopup';p.innerHTML=`<div class="cal-popup-head"><div style="display:flex;gap:4px;flex-wrap:wrap"><span class="cal-shortcut" onclick="pickShortcut('today')">今天</span><span class="cal-shortcut" onclick="pickShortcut('yesterday')">昨天</span><span class="cal-shortcut" onclick="pickShortcut('3d')">近3天</span><span class="cal-shortcut active" onclick="pickShortcut('7d')">近7天</span><span class="cal-shortcut" onclick="pickShortcut('30d')">近30天</span></div></div><div class="cal-popup-body"><div class="cal-month" id="calLeft"></div><div class="cal-divider"></div><div class="cal-month" id="calRight"></div></div><div class="cal-popup-foot"><div class="cal-time">起始 <select id="startH"></select>:<select id="startM"></select> 截止 <select id="endH"></select>:<select id="endM"></select></div><div class="cal-btns"><button onclick="closeCal()">取消</button><button class="cal-ok" onclick="confirmCal()">确认</button></div></div>`;document.body.appendChild(p);document.addEventListener('click',e=>{const pp=document.getElementById('calPopup');if(pp&&!pp.contains(e.target)&&!e.target.closest('.time-picker-trigger'))closeCal()})})();
 
-function showMessage(text, type = 'success') {
-  let container = document.getElementById('messageContainer');
-  if (!container) {
-    container = document.createElement('div');
-    container.className = 'ant-message';
-    container.id = 'messageContainer';
-    document.body.appendChild(container);
-  }
-  const icons = {
-    success: 'fa-circle-check',
-    error: 'fa-circle-xmark',
-    warning: 'fa-triangle-exclamation',
-    info: 'fa-circle-info'
-  };
-  const notice = document.createElement('div');
-  notice.className = `ant-message-notice ant-message-${type}`;
-  notice.innerHTML = `<i class="fa-solid ${icons[type] || icons.success} ant-message-icon"></i><span>${text}</span>`;
-  container.appendChild(notice);
-  setTimeout(() => notice.remove(), 3000);
-}
+// ===== 交互函数 =====
+function showMessage(text,type='success'){let c=document.getElementById('messageContainer');if(!c){c=document.createElement('div');c.className='ant-message';c.id='messageContainer';document.body.appendChild(c)}const icons={success:'fa-circle-check',error:'fa-circle-xmark',info:'fa-circle-info'};const n=document.createElement('div');n.className=`ant-message-notice ant-message-${type}`;n.innerHTML=`<i class="fa-solid ${icons[type]||icons.success} ant-message-icon"></i><span>${text}</span>`;c.appendChild(n);setTimeout(()=>n.remove(),3000)}
 
-// 类型切换
-function switchType(side, type) {
-  state[side].type = type;
-  state[side].selectedCandidate = null;
+function switchType(side,type){state[side].type=type;state[side].selectedCandidate=null;const sw=document.getElementById(side+'TypeSwitch');sw.querySelectorAll('.type-switch-btn').forEach((b,i)=>{b.classList.toggle('active',(i===0&&type==='person')||(i===1&&type==='vehicle'))});document.getElementById(side+'TypeTag').textContent=type==='person'?'人员':'车辆';document.getElementById(side+'PersonForm').style.display=type==='person'?'':'none';document.getElementById(side+'VehicleForm').style.display=type==='vehicle'?'':'none';document.getElementById(side+'Candidates').style.display='none';document.querySelector('#'+side+'Panel .panel-scroll').style.display=''}
 
-  // 更新标签UI
-  const switchEl = document.getElementById(side+'TypeSwitch');
-  switchEl.querySelectorAll('.type-switch-btn').forEach((b,i) => {
-    b.classList.toggle('active', (i===0&&type==='person')||(i===1&&type==='vehicle'));
-  });
+function switchPersonTab(side,mode){const img=document.getElementById(side+'PersonImageForm'),txt=document.getElementById(side+'PersonTextForm'),it=document.getElementById(side+'PTabImage'),tt=document.getElementById(side+'PTabText');if(mode==='image'){img.style.display='';txt.style.display='none';it.classList.add('active');tt.classList.remove('active')}else{img.style.display='none';txt.style.display='';it.classList.remove('active');tt.classList.add('active')}}
 
-  // 更新类型标签
-  document.getElementById(side+'TypeTag').textContent = type==='person'?'人员':'车辆';
+function switchVehicleTab(side,mode){const img=document.getElementById(side+'VehicleImageForm'),plat=document.getElementById(side+'VehiclePlateForm'),txt=document.getElementById(side+'VehicleTextForm');img.style.display=mode==='image'?'':'none';plat.style.display=mode==='plate'?'':'none';txt.style.display=mode==='text'?'':'none';['Image','Plate','Text'].forEach((m,i)=>{document.getElementById(side+'VTab'+m).classList.toggle('active',['image','plate','text'][i]===mode)})}
 
-  // 切换表单
-  document.getElementById(side+'PersonForm').style.display = type==='person'?'':'none';
-  document.getElementById(side+'VehicleForm').style.display = type==='vehicle'?'':'none';
+function doSearch(side){const type=state[side].type;const candidates=type==='person'?personCandidates:vehicleCandidates;document.querySelector('#'+side+'Panel .panel-scroll').style.display='none';const section=document.getElementById(side+'Candidates');section.style.display='flex';document.getElementById(side+'CandidateCount').textContent=candidates.length;state[side].selectedCandidate=null;const list=document.getElementById(side+'CandidateList');list.innerHTML=candidates.map(c=>`<div class="candidate-card" data-id="${c.id}" onclick="pickCandidate('${side}','${c.id}')"><div class="candidate-avatar"><i class="fa-solid ${type==='person'?'fa-user':'fa-car'}"></i></div><div class="candidate-info"><div class="candidate-name">${c.name}</div><div class="candidate-meta">${c.meta}</div></div></div>`).join('');document.getElementById(side+'ConfirmBtn').classList.remove('show');document.getElementById(side+'ConfirmBtn').disabled=true}
 
-  // 隐藏候选列表，显示表单滚动区
-  document.getElementById(side+'Candidates').style.display = 'none';
-  document.querySelector('#'+side+'Panel .panel-scroll').style.display = '';
-}
+function pickCandidate(side,id){state[side].selectedCandidate=id;document.getElementById(side+'Candidates').querySelectorAll('.candidate-card').forEach(c=>{c.classList.toggle('selected',c.dataset.id===id)});const btn=document.getElementById(side+'ConfirmBtn');btn.classList.add('show');btn.disabled=false}
 
-function setQuickTime(btn) {
-  btn.parentElement.querySelectorAll('.quick-time-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-}
+function backToForm(side){state[side].selectedCandidate=null;document.getElementById(side+'Candidates').style.display='none';document.querySelector('#'+side+'Panel .panel-scroll').style.display=''}
 
-function selectColor(block) {
-  block.parentElement.querySelectorAll('.color-block').forEach(b=>b.classList.remove('active'));
-  block.classList.add('active');
-}
+function confirmTarget(side){if(!state[side].selectedCandidate)return;const type=state[side].type;const candidates=type==='person'?personCandidates:vehicleCandidates;const selected=candidates.find(c=>c.id===state[side].selectedCandidate);showMessage((side==='left'?'目标1':'目标2')+'：已选择「'+selected.name+'」','success');state[side].status='done';document.getElementById(side+'Status').textContent='已查询';document.getElementById(side+'Status').className='status done';document.getElementById('trajectory'+(side==='left'?1:2)).style.display='';updateEmptyState();checkEncounters()}
 
-// 搜索 → 显示候选
-function doSearch(side) {
-  const type = state[side].type;
-  const candidates = type==='person' ? personCandidates : vehicleCandidates;
+function updateEmptyState(){document.getElementById('emptyState').style.display=(state.left.status==='done'||state.right.status==='done')?'none':'flex'}
+function checkEncounters(){const both=state.left.status==='done'&&state.right.status==='done';document.getElementById('encounterLayer').style.display=both?'':'none';document.getElementById('legend2Wrap').style.display=both?'':'none';document.getElementById('legendEncWrap').style.display=both?'':'none';document.getElementById('summaryRow').style.display=both?'':'none';if(both){renderEncounterList();setTimeout(drawOverlapTimeline,100)}}
+function renderEncounterList(){const list=document.getElementById('encounterList');document.getElementById('encCount').textContent=encounters.length+' 条';document.getElementById('sumTogether').textContent=encounters.filter(e=>e.type==='together').length;document.getElementById('sumContact').textContent=encounters.filter(e=>e.type==='contact').length;document.getElementById('sumFirst').textContent=encounters[0].time;document.getElementById('sumLast').textContent=encounters[encounters.length-1].time;list.innerHTML=encounters.map(e=>{const tl=e.type==='together'?'同行':'接触';const tc=e.type==='together'?'together':'contact';return`<div class="enc-item"><div class="enc-item-head"><span class="enc-type ${tc}">${tl}</span><span class="enc-time">${e.time}</span><span class="enc-loc">${e.loc}</span></div><div class="enc-detail">目标1 与 目标2 — ${e.desc}</div></div>`}).join('')}
+function drawOverlapTimeline(){const canvas=document.getElementById('overlapCanvas');if(!canvas)return;const wrap=canvas.parentElement;canvas.width=wrap.offsetWidth;canvas.height=wrap.offsetHeight;const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);const startMin=540,endMin=720,range=endMin-startMin;ctx.fillStyle='rgba(0,0,0,0.45)';ctx.font='9px sans-serif';for(let m=startMin;m<=endMin;m+=30){const x=20+((m-startMin)/range)*(W-40);ctx.fillText(String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'),x-12,H-2);ctx.strokeStyle='#f0f0f0';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(x,8);ctx.lineTo(x,H-12);ctx.stroke()}[{color:'#1677ff',y:16},{color:'#ff4d4f',y:36}].forEach((t,i)=>{ctx.fillStyle=t.color+'15';ctx.fillRect(20,t.y-4,W-40,12);ctx.fillStyle=t.color;ctx.font='9px sans-serif';ctx.fillText('目标'+(i+1),2,t.y+5)});encounters.forEach(e=>{const parts=e.time.split(':');const mins=parseInt(parts[0])*60+parseInt(parts[1]);const x=20+((mins-startMin)/range)*(W-40);ctx.fillStyle='#faad14';ctx.beginPath();ctx.moveTo(x,8);ctx.lineTo(x-3,4);ctx.lineTo(x+3,4);ctx.closePath();ctx.fill()})}
 
-  // 隐藏表单，显示候选
-  document.querySelector('#'+side+'Panel .panel-scroll').style.display = 'none';
-  const section = document.getElementById(side+'Candidates');
-  section.style.display = 'flex';
-
-  document.getElementById(side+'CandidateCount').textContent = candidates.length;
-  state[side].selectedCandidate = null;
-
-  const list = document.getElementById(side+'CandidateList');
-  if (type==='person') {
-    list.innerHTML = candidates.map(c => {
-      const simClass = c.sim>=85?'sim-high':c.sim>=70?'sim-mid':'sim-low';
-      return `<div class="candidate-card" data-id="${c.id}" onclick="pickCandidate('${side}','${c.id}')">
-        <div class="candidate-avatar"><i class="fa-solid fa-user"></i></div>
-        <div class="candidate-info"><div class="candidate-name">${c.name}</div><div class="candidate-meta"><span>${c.gender}</span><span>${c.color}</span><span>${c.appearances}次</span></div></div>
-        <span class="candidate-sim ${simClass}">${c.sim}%</span>
-      </div>`;
-    }).join('');
-  } else {
-    list.innerHTML = candidates.map(c => {
-      const simClass = c.sim>=85?'sim-high':c.sim>=70?'sim-mid':'sim-low';
-      return `<div class="candidate-card" data-id="${c.id}" onclick="pickCandidate('${side}','${c.id}')">
-        <div class="candidate-avatar"><i class="fa-solid fa-car"></i></div>
-        <div class="candidate-info"><div class="candidate-name">${c.name}</div><div class="candidate-meta"><span>${c.type}</span><span>${c.brand}</span><span>${c.appearances}次</span></div></div>
-        <span class="candidate-sim ${simClass}">${c.sim}%</span>
-      </div>`;
-    }).join('');
-  }
-
-  document.getElementById(side+'ConfirmBtn').classList.remove('show');
-  document.getElementById(side+'ConfirmBtn').disabled = true;
-}
-
-function pickCandidate(side, id) {
-  state[side].selectedCandidate = id;
-  const section = document.getElementById(side+'Candidates');
-  section.querySelectorAll('.candidate-card').forEach(c => {
-    c.classList.toggle('selected', c.dataset.id===id);
-  });
-  const btn = document.getElementById(side+'ConfirmBtn');
-  btn.classList.add('show');
-  btn.disabled = false;
-}
-
-function backToForm(side) {
-  state[side].selectedCandidate = null;
-  document.getElementById(side+'Candidates').style.display = 'none';
-  document.querySelector('#'+side+'Panel .panel-scroll').style.display = '';
-}
-
-// 确认 → 执行轨迹查询
-function confirmTarget(side) {
-  if (!state[side].selectedCandidate) return;
-
-  const type = state[side].type;
-  const candidates = type==='person' ? personCandidates : vehicleCandidates;
-  const selected = candidates.find(c=>c.id===state[side].selectedCandidate);
-
-  showMessage((side==='left'?'目标1':'目标2')+'：已选择「'+selected.name+'」','success');
-
-  // 更新状态
-  state[side].status = 'done';
-  document.getElementById(side+'Status').textContent = '已查询';
-  document.getElementById(side+'Status').className = 'status done';
-
-  // 显示轨迹
-  document.getElementById('trajectory'+(side==='left'?1:2)).style.display = '';
-
-  // 更新空状态和接触点
-  updateEmptyState();
-  checkEncounters();
-}
-
-function updateEmptyState() {
-  const anyDone = state.left.status==='done' || state.right.status==='done';
-  document.getElementById('emptyState').style.display = anyDone ? 'none' : 'flex';
-}
-
-function checkEncounters() {
-  const bothDone = state.left.status==='done' && state.right.status==='done';
-  document.getElementById('encounterLayer').style.display = bothDone ? '' : 'none';
-  document.getElementById('legend2Wrap').style.display = bothDone ? '' : 'none';
-  document.getElementById('legendEncWrap').style.display = bothDone ? '' : 'none';
-  document.getElementById('summaryRow').style.display = bothDone ? '' : 'none';
-
-  if (bothDone) {
-    renderEncounterList();
-    drawOverlapTimeline();
-  }
-}
-
-function renderEncounterList() {
-  const list = document.getElementById('encounterList');
-  document.getElementById('encCount').textContent = encounters.length+' 条';
-  document.getElementById('sumTogether').textContent = encounters.filter(e=>e.type==='together').length;
-  document.getElementById('sumContact').textContent = encounters.filter(e=>e.type==='contact').length;
-  document.getElementById('sumFirst').textContent = encounters[0].time;
-  document.getElementById('sumLast').textContent = encounters[encounters.length-1].time;
-
-  list.innerHTML = encounters.map(e => {
-    const tl = e.type==='together'?'同行':'接触';
-    const tc = e.type==='together'?'together':'contact';
-    return `<div class="enc-item"><div class="enc-item-head"><span class="enc-type ${tc}">${tl}</span><span class="enc-time">${e.time}</span><span class="enc-loc">${e.loc}</span></div><div class="enc-detail">目标1 与 目标2 — ${e.desc}</div></div>`;
-  }).join('');
-}
-
-function drawOverlapTimeline() {
-  const canvas = document.getElementById('overlapCanvas');
-  const wrap = canvas.parentElement;
-  canvas.width = wrap.offsetWidth;
-  canvas.height = wrap.offsetHeight;
-  const ctx = canvas.getContext('2d');
-  const W=canvas.width, H=canvas.height;
-  ctx.clearRect(0,0,W,H);
-
-  const startMin=540, endMin=720, range=endMin-startMin;
-  ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.font='9px sans-serif';
-  for(let m=startMin;m<=endMin;m+=30){
-    const x=20+((m-startMin)/range)*(W-40);
-    ctx.fillText(String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'),x-12,H-2);
-    ctx.strokeStyle='#f0f0f0'; ctx.lineWidth=.5; ctx.beginPath(); ctx.moveTo(x,8); ctx.lineTo(x,H-12); ctx.stroke();
-  }
-
-  [{color:'#1677ff',y:16},{color:'#ff4d4f',y:36}].forEach((t,i)=>{
-    ctx.fillStyle=t.color+'15'; ctx.fillRect(20,t.y-4,W-40,12);
-    ctx.fillStyle=t.color; ctx.font='9px sans-serif'; ctx.fillText('目标'+(i+1),2,t.y+5);
-  });
-
-  encounters.forEach(e=>{
-    const parts=e.time.split(':');
-    const mins=parseInt(parts[0])*60+parseInt(parts[1]);
-    const x=20+((mins-startMin)/range)*(W-40);
-    ctx.fillStyle='#faad14';
-    ctx.beginPath(); ctx.moveTo(x,8); ctx.lineTo(x-3,4); ctx.lineTo(x+3,4); ctx.closePath(); ctx.fill();
-  });
-}
-
-function showTip(evt,time,loc) {
-  const tip=document.getElementById('mapTip');
-  tip.classList.remove('encounter-tip');
-  document.getElementById('tipTime').textContent=time;
-  document.getElementById('tipLoc').textContent=loc;
-  positionTip(evt,tip);
-}
-function showEncTip(evt,desc,time,loc) {
-  const tip=document.getElementById('mapTip');
-  tip.classList.add('encounter-tip');
-  document.getElementById('tipTime').textContent=desc;
-  document.getElementById('tipLoc').textContent=loc+' | '+time;
-  positionTip(evt,tip);
-}
-function positionTip(evt,tip) {
-  const rect=document.getElementById('mapArea').getBoundingClientRect();
-  let left=evt.clientX-rect.left+12, top=evt.clientY-rect.top-8;
-  if(left+220>rect.width) left=left-240;
-  if(top+50>rect.height) top=top-50;
-  tip.style.left=left+'px'; tip.style.top=top+'px'; tip.style.display='block';
-}
-function hideTip() { document.getElementById('mapTip').style.display='none'; }
-
-function toggleAnalysis() {
-  analysisExpanded = !analysisExpanded;
-  document.getElementById('analysisBody').classList.toggle('collapsed',!analysisExpanded);
-  document.getElementById('analysisArea').style.height = analysisExpanded?'180px':'36px';
-  if(analysisExpanded) setTimeout(drawOverlapTimeline,100);
-}
-
-function exportReport() {
-  showMessage('正在生成对比报告...','info');
-  setTimeout(()=>showMessage('报告已生成','success'),2000);
-}
-
-window.addEventListener('DOMContentLoaded',()=>{
-  updateEmptyState();
-  window.addEventListener('resize',()=>{ if(analysisExpanded) drawOverlapTimeline(); });
-});
+function showTip(evt,time,loc){const tip=document.getElementById('mapTip');tip.classList.remove('encounter-tip');document.getElementById('tipTime').textContent=time;document.getElementById('tipLoc').textContent=loc;positionTip(evt,tip)}
+function showEncTip(evt,desc,time,loc){const tip=document.getElementById('mapTip');tip.classList.add('encounter-tip');document.getElementById('tipTime').textContent=desc;document.getElementById('tipLoc').textContent=loc+' | '+time;positionTip(evt,tip)}
+function positionTip(evt,tip){const rect=document.getElementById('mapArea').getBoundingClientRect();let left=evt.clientX-rect.left+12,top=evt.clientY-rect.top-8;if(left+220>rect.width)left=left-240;if(top+50>rect.height)top=top-50;tip.style.left=left+'px';tip.style.top=top+'px';tip.style.display='block'}
+function hideTip(){document.getElementById('mapTip').style.display='none'}
+function toggleAnalysis(){analysisExpanded=!analysisExpanded;document.getElementById('analysisBody').classList.toggle('collapsed',!analysisExpanded);document.getElementById('analysisArea').style.height=analysisExpanded?'180px':'36px';document.getElementById('analysisToggle').innerHTML=analysisExpanded?'<i class="fa-solid fa-chevron-down"></i>':'<i class="fa-solid fa-chevron-up"></i>';if(analysisExpanded)setTimeout(drawOverlapTimeline,100)}
+function exportReport(){showMessage('正在生成对比报告...','info');setTimeout(()=>showMessage('报告已生成','success'),2000)}
 </script>
 </body>
 </html>

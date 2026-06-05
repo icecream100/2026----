@@ -76,7 +76,7 @@
         <select class="ant-select"><option>本月（2026-05）</option><option>上月</option><option>近30天</option><option>近90天</option><option>自定义</option></select>
       </div>
 
-      <!-- KPI 卡片：点位在线率 / 画面可用率 / 链路可用率 / 网络可用率 / MTBF / MTTR -->
+      <!-- KPI 卡片：点位在线率 / 画面正常率 / 链路可用率 / 网络可用率 / MTBF / MTTR -->
       <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-bottom:24px;">
         <div class="kpi-card c-blue">
           <div class="kpi-label"><i class="fa-solid fa-wifi" style="margin-right:4px;"></i>点位在线率</div>
@@ -86,7 +86,7 @@
           <div class="progress-bar"><div class="progress-fill" style="width:97.1%;background:#1677ff;"></div></div>
         </div>
         <div class="kpi-card c-green">
-          <div class="kpi-label"><i class="fa-solid fa-eye" style="margin-right:4px;"></i>画面可用率</div>
+          <div class="kpi-label"><i class="fa-solid fa-eye" style="margin-right:4px;"></i>画面正常率</div>
           <div class="kpi-value" style="color:#52c41a;">96.3%</div>
           <div class="kpi-trend" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i> +1.2% 较上月</div>
           <div class="kpi-sub">画面正常 2,339 / 已巡检 2,430</div>
@@ -131,7 +131,7 @@
             <div style="display:flex;gap:0;">
               <div class="trend-tab active" data-trend="all" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-radius:4px 0 0 4px;background:var(--ant-primary);color:#fff;">全网可用率</div>
               <div class="trend-tab" data-trend="link" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-left:0;border-radius:0;">链路可用率</div>
-              <div class="trend-tab" data-trend="video" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-left:0;border-radius:0;">画面可用率</div>
+              <div class="trend-tab" data-trend="video" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-left:0;border-radius:0;">画面正常率</div>
               <div class="trend-tab" data-trend="network" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-left:0;border-radius:0 4px 4px 0;">网络可用率</div>
             </div>
             <div style="display:flex;gap:0;">
@@ -234,7 +234,7 @@
                 <th>点位总数</th>
                 <th>在线数</th>
                 <th>在线率</th>
-                <th>画面可用率</th>
+                <th>画面正常率</th>
                 <th>链路可用率</th>
                 <th>网络可用率</th>
                 <th>MTBF(h)</th>
