@@ -271,6 +271,11 @@
     from { opacity: 0; transform: translateY(-16px); }
     to { opacity: 1; transform: translateY(0); }
   }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.6; transform:scale(1.1); }
+  }
+  }
 </style>
 </head>
 <body>
@@ -329,8 +334,33 @@
         </div>
       </div>
 
+      <!-- 查询进度态 -->
+      <div class="query-loading-state" id="loadingState" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px;">
+        <div style="text-align:center;">
+          <div style="width:64px;height:64px;margin:0 auto 20px;border-radius:50%;background:var(--ant-primary-bg);display:flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-magnifying-glass" style="color:var(--ant-primary);font-size:24px;animation:pulse 1.5s infinite;"></i>
+          </div>
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;color:var(--ant-text);" id="loadingTitle">特征提取中...</h3>
+          <p style="font-size:13px;color:var(--ant-text-secondary);margin-bottom:24px;" id="loadingDesc">正在分析上传的人像照片，提取ReID特征向量</p>
+          <div style="width:320px;margin:0 auto;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ant-text-tertiary);margin-bottom:6px;">
+              <span id="loadingStep">步骤 1/3</span>
+              <span id="loadingPercent">15%</span>
+            </div>
+            <div style="height:6px;background:var(--ant-border-secondary);border-radius:3px;overflow:hidden;">
+              <div id="loadingBar" style="height:100%;background:var(--ant-primary);border-radius:3px;width:15%;transition:width 0.5s ease;"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:24px;justify-content:center;margin-top:20px;">
+            <span id="step1Tag" style="font-size:12px;color:var(--ant-primary);font-weight:600;"><i class="fa-solid fa-circle-dot" style="margin-right:4px;"></i>特征提取中</span>
+            <span id="step2Tag" style="font-size:12px;color:var(--ant-text-tertiary);"><i class="fa-regular fa-circle" style="margin-right:4px;"></i>检索匹配中</span>
+            <span id="step3Tag" style="font-size:12px;color:var(--ant-text-tertiary);"><i class="fa-regular fa-circle" style="margin-right:4px;"></i>结果排序中</span>
+          </div>
+        </div>
+      </div>
+
       <!-- 人工确认状态 -->
-      <div class="confirm-state active" id="confirmState">
+      <div class="confirm-state" id="confirmState" style="display:none;">
         <!-- 顶部：查询条件摘要 -->
         <div class="confirm-top">
           <div class="confirm-top-img">
@@ -341,14 +371,14 @@
             <div class="query-params">
               <span><i class="fa-regular fa-clock" style="margin-right:3px;"></i>近24小时</span>
               <span><i class="fa-solid fa-location-dot" style="margin-right:3px;"></i>全部区域</span>
-              <span><i class="fa-solid fa-sliders" style="margin-right:3px;"></i>标准匹配</span>
+              <span><i class="fa-solid fa-sliders" style="margin-right:3px;"></i>阈值 75%</span>
               <span style="color:var(--ant-primary);"><i class="fa-solid fa-magnifying-glass" style="margin-right:3px;"></i>共 10 个候选</span>
             </div>
           </div>
         </div>
 
         <!-- 网格候选列表 -->
-        <div class="confirm-grid-title"><i class="fa-solid fa-images" style="color:var(--ant-primary);"></i>候选人员 — 按出现次数排序</div>
+        <div class="confirm-grid-title"><i class="fa-solid fa-images" style="color:var(--ant-primary);"></i>候选人员 — 按第一次出现时间排序</div>
         <div class="confirm-grid" id="confirmList">
           <!-- 候选1 -->
           <div class="confirm-card" data-idx="0">
@@ -358,9 +388,7 @@
             </div>
             <div class="confirm-card-body">
               <h4><i class="fa-solid fa-user" style="color:var(--ant-primary);"></i>P-00231</h4>
-              <div class="meta-row"><i class="fa-solid fa-crosshairs"></i>出现 <strong>8 次</strong></div>
-              <div class="meta-row"><i class="fa-regular fa-clock"></i>09:12 ~ 15:30</div>
-              <div class="meta-row"><i class="fa-solid fa-video"></i>6 个摄像头 · 6h18m</div>
+              <div class="meta-row"><i class="fa-regular fa-clock"></i>第一次出现 09:12</div>
               <div class="confirm-card-actions">
                 <button class="btn-confirm" onclick="confirmTarget(0)">确认目标</button>
               </div>
@@ -385,9 +413,7 @@
             </div>
             <div class="confirm-card-body">
               <h4><i class="fa-solid fa-user" style="color:var(--ant-success);"></i>P-00187</h4>
-              <div class="meta-row"><i class="fa-solid fa-crosshairs"></i>出现 <strong>6 次</strong></div>
-              <div class="meta-row"><i class="fa-regular fa-clock"></i>10:05 ~ 14:22</div>
-              <div class="meta-row"><i class="fa-solid fa-video"></i>4 个摄像头 · 4h17m</div>
+              <div class="meta-row"><i class="fa-regular fa-clock"></i>第一次出现 10:05</div>
               <div class="confirm-card-actions">
                 <button class="btn-confirm" onclick="confirmTarget(1)">确认目标</button>
               </div>
@@ -402,9 +428,7 @@
             </div>
             <div class="confirm-card-body">
               <h4><i class="fa-solid fa-user" style="color:var(--ant-warning);"></i>P-00342</h4>
-              <div class="meta-row"><i class="fa-solid fa-crosshairs"></i>出现 <strong>4 次</strong></div>
-              <div class="meta-row"><i class="fa-regular fa-clock"></i>11:30 ~ 13:45</div>
-              <div class="meta-row"><i class="fa-solid fa-video"></i>3 个摄像头 · 2h15m</div>
+              <div class="meta-row"><i class="fa-regular fa-clock"></i>第一次出现 11:30</div>
               <div class="confirm-card-actions">
                 <button class="btn-confirm" onclick="confirmTarget(2)">确认目标</button>
               </div>
@@ -419,9 +443,7 @@
             </div>
             <div class="confirm-card-body">
               <h4><i class="fa-solid fa-user" style="color:var(--ant-error);"></i>P-00415</h4>
-              <div class="meta-row"><i class="fa-solid fa-crosshairs"></i>出现 <strong>3 次</strong></div>
-              <div class="meta-row"><i class="fa-regular fa-clock"></i>09:50 ~ 11:15</div>
-              <div class="meta-row"><i class="fa-solid fa-video"></i>2 个摄像头 · 1h25m</div>
+              <div class="meta-row"><i class="fa-regular fa-clock"></i>第一次出现 09:50</div>
               <div class="confirm-card-actions">
                 <button class="btn-confirm" onclick="confirmTarget(3)">确认目标</button>
               </div>
@@ -436,9 +458,7 @@
             </div>
             <div class="confirm-card-body">
               <h4><i class="fa-solid fa-user" style="color:var(--ant-text-secondary);"></i>P-00098</h4>
-              <div class="meta-row"><i class="fa-solid fa-crosshairs"></i>出现 <strong>2 次</strong></div>
-              <div class="meta-row"><i class="fa-regular fa-clock"></i>14:10 ~ 14:45</div>
-              <div class="meta-row"><i class="fa-solid fa-video"></i>2 个摄像头 · 0h35m</div>
+              <div class="meta-row"><i class="fa-regular fa-clock"></i>第一次出现 14:10</div>
               <div class="confirm-card-actions">
                 <button class="btn-confirm" onclick="confirmTarget(4)">确认目标</button>
               </div>
@@ -453,9 +473,7 @@
             </div>
             <div class="confirm-card-body">
               <h4><i class="fa-solid fa-user" style="color:var(--ant-text-tertiary);"></i>P-00267</h4>
-              <div class="meta-row"><i class="fa-solid fa-crosshairs"></i>出现 <strong>2 次</strong></div>
-              <div class="meta-row"><i class="fa-regular fa-clock"></i>10:30 ~ 10:55</div>
-              <div class="meta-row"><i class="fa-solid fa-video"></i>1 个摄像头 · 0h25m</div>
+              <div class="meta-row"><i class="fa-regular fa-clock"></i>第一次出现 10:30</div>
               <div class="confirm-card-actions">
                 <button class="btn-confirm" onclick="confirmTarget(5)">确认目标</button>
               </div>
@@ -470,9 +488,7 @@
             </div>
             <div class="confirm-card-body">
               <h4>P-00503</h4>
-              <div class="meta-row">出现 <strong>2 次</strong></div>
-              <div class="meta-row">13:20 ~ 13:50</div>
-              <div class="meta-row">1 个摄像头 · 0h30m</div>
+              <div class="meta-row">第一次出现 13:20</div>
               <div class="confirm-card-actions">
                 <button class="btn-confirm" onclick="confirmTarget(6)">确认目标</button>
               </div>
@@ -487,9 +503,7 @@
             </div>
             <div class="confirm-card-body">
               <h4>P-00134</h4>
-              <div class="meta-row">出现 <strong>1 次</strong></div>
-              <div class="meta-row">09:05 ~ 09:05</div>
-              <div class="meta-row">1 个摄像头 · 0h00m</div>
+              <div class="meta-row">第一次出现 09:05</div>
               <div class="confirm-card-actions">
                 <button class="btn-confirm" onclick="confirmTarget(7)">确认目标</button>
               </div>
@@ -504,9 +518,7 @@
             </div>
             <div class="confirm-card-body">
               <h4>P-00478</h4>
-              <div class="meta-row">出现 <strong>1 次</strong></div>
-              <div class="meta-row">15:12 ~ 15:12</div>
-              <div class="meta-row">1 个摄像头 · 0h00m</div>
+              <div class="meta-row">第一次出现 15:12</div>
               <div class="confirm-card-actions">
                 <button class="btn-confirm" onclick="confirmTarget(8)">确认目标</button>
               </div>
@@ -521,9 +533,7 @@
             </div>
             <div class="confirm-card-body">
               <h4>P-00319</h4>
-              <div class="meta-row">出现 <strong>1 次</strong></div>
-              <div class="meta-row">16:40 ~ 16:40</div>
-              <div class="meta-row">1 个摄像头 · 0h00m</div>
+              <div class="meta-row">第一次出现 16:40</div>
               <div class="confirm-card-actions">
                 <button class="btn-confirm" onclick="confirmTarget(9)">确认目标</button>
               </div>
@@ -858,6 +868,49 @@
     let playTimer = null;
     let playProgress = 0;
     let currentDetailIdx = 0;
+
+    // 查询进度条动画
+    (function runLoading(){
+      const bar=document.getElementById('loadingBar');
+      const pct=document.getElementById('loadingPercent');
+      const step=document.getElementById('loadingStep');
+      const title=document.getElementById('loadingTitle');
+      const desc=document.getElementById('loadingDesc');
+      const s1=document.getElementById('step1Tag');
+      const s2=document.getElementById('step2Tag');
+      const s3=document.getElementById('step3Tag');
+      const stages=[
+        {pct:33,step:'步骤 1/3',title:'特征提取中...',desc:'正在分析上传的人像照片，提取ReID特征向量',s1c:'var(--ant-success)',s2c:'var(--ant-primary)',s3c:'var(--ant-text-tertiary)'},
+        {pct:70,step:'步骤 2/3',title:'检索匹配中...',desc:'正在将特征向量与数据库中的抓拍记录进行比对',s1c:'var(--ant-success)',s2c:'var(--ant-success)',s3c:'var(--ant-primary)'},
+        {pct:100,step:'步骤 3/3',title:'结果排序中...',desc:'正在对匹配结果进行排序和聚合',s1c:'var(--ant-success)',s2c:'var(--ant-success)',s3c:'var(--ant-primary)'}
+      ];
+      let i=0;
+      function nextStage(){
+        if(i>=stages.length){
+          setTimeout(()=>{
+            document.getElementById('loadingState').style.display='none';
+            document.getElementById('confirmState').style.display='';
+            document.getElementById('confirmState').classList.add('active');
+          },400);
+          return;
+        }
+        const s=stages[i];
+        bar.style.width=s.pct+'%';
+        pct.textContent=s.pct+'%';
+        step.textContent=s.step;
+        title.textContent=s.title;
+        desc.textContent=s.desc;
+        s1.innerHTML=(i>=1?'<i class="fa-solid fa-circle-check" style="margin-right:4px;color:'+s.s1c+'"></i>':'<i class="fa-solid fa-circle-dot" style="margin-right:4px;"></i>')+'特征提取'+(i>=1?'':'中');
+        s1.style.color=s.s1c;
+        s2.innerHTML=(i>=2?'<i class="fa-solid fa-circle-check" style="margin-right:4px;color:'+s.s2c+'"></i>':'<i class="fa-regular fa-circle" style="margin-right:4px;"></i>')+'检索匹配'+(i===1?'中':'');
+        s2.style.color=s.s2c;
+        s3.innerHTML=(i>=2?'<i class="fa-solid fa-circle-dot" style="margin-right:4px;"></i>':'<i class="fa-regular fa-circle" style="margin-right:4px;"></i>')+'结果排序'+(i===2?'中':'');
+        s3.style.color=s.s3c;
+        i++;
+        setTimeout(nextStage,1200);
+      }
+      setTimeout(nextStage,600);
+    })();
 
     // 人工确认 - 确认目标
     function confirmTarget(idx) {

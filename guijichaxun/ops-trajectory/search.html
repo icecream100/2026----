@@ -263,8 +263,12 @@
                                 </div>
 
                                 <div class="ant-form-item">
-                                    <label class="ant-form-label">匹配严格度</label>
-                                    <select class="ant-select"><option>宽松</option><option selected>标准</option><option>严格</option></select>
+                                    <label class="ant-form-label">相似度阈值</label>
+                                    <div style="display:flex;align-items:center;gap:12px;">
+                                        <input type="range" id="personThreshold" min="60" max="99" value="75" style="flex:1;accent-color:#1677ff;" oninput="document.getElementById('personThresholdVal').textContent=this.value+'%'">
+                                        <span id="personThresholdVal" style="font-size:14px;font-weight:600;color:#1677ff;min-width:36px;">75%</span>
+                                    </div>
+                                    <div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(0,0,0,0.45);margin-top:4px;"><span>宽松（60%）</span><span>精准（99%）</span></div>
                                 </div>
 
                                 <div class="ant-form-item ant-form-item-full-width">
@@ -303,6 +307,14 @@
                                 <div class="ant-form-item">
                                     <label class="ant-form-label">地点范围</label>
                                     <div class="area-trigger" onclick="openModal()"><div class="sel-tags"><span class="placeholder">全部区域</span></div><span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
+                                </div>
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">相似度阈值</label>
+                                    <div style="display:flex;align-items:center;gap:12px;">
+                                        <input type="range" id="textThreshold" min="60" max="99" value="75" style="flex:1;accent-color:#1677ff;" oninput="document.getElementById('textThresholdVal').textContent=this.value+'%'">
+                                        <span id="textThresholdVal" style="font-size:14px;font-weight:600;color:#1677ff;min-width:36px;">75%</span>
+                                    </div>
+                                    <div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(0,0,0,0.45);margin-top:4px;"><span>宽松（60%）</span><span>精准（99%）</span></div>
                                 </div>
                             </div>
                         </div>

@@ -274,7 +274,7 @@
           <div class="ant-form-item"><label class="ant-form-label">地点范围</label>
             <div class="area-trigger" onclick="openModal()"><div class="sel-tags"><span class="placeholder">全部区域</span></div><span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
           </div>
-          <div class="ant-form-item"><label class="ant-form-label">匹配严格度</label><select><option>宽松</option><option selected>标准</option><option>严格</option></select></div>
+          <div class="ant-form-item"><label class="ant-form-label">相似度阈值</label><div style="display:flex;align-items:center;gap:12px;"><input type="range" min="60" max="99" value="75" style="flex:1;accent-color:#1677ff;" oninput="this.nextElementSibling.textContent=this.value+'%'"><span style="font-size:14px;font-weight:600;color:#1677ff;min-width:36px;">75%</span></div><div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(0,0,0,0.45);margin-top:2px;"><span>宽松</span><span>精准</span></div></div>
         </div>
         <div id="leftPersonTextForm" style="display:none">
           <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">人员特征描述</label>
@@ -429,7 +429,7 @@
           <div class="ant-form-item"><label class="ant-form-label">地点范围</label>
             <div class="area-trigger" onclick="openModal()"><div class="sel-tags"><span class="placeholder">全部区域</span></div><span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
           </div>
-          <div class="ant-form-item"><label class="ant-form-label">匹配严格度</label><select><option>宽松</option><option selected>标准</option><option>严格</option></select></div>
+          <div class="ant-form-item"><label class="ant-form-label">相似度阈值</label><div style="display:flex;align-items:center;gap:12px;"><input type="range" min="60" max="99" value="75" style="flex:1;accent-color:#1677ff;" oninput="this.nextElementSibling.textContent=this.value+'%'"><span style="font-size:14px;font-weight:600;color:#1677ff;min-width:36px;">75%</span></div><div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(0,0,0,0.45);margin-top:2px;"><span>宽松</span><span>精准</span></div></div>
         </div>
         <div id="rightPersonTextForm" style="display:none">
           <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">人员特征描述</label>
@@ -539,8 +539,8 @@
 
 <script>
 const encounters=[{type:'together',time:'09:05:18',loc:'中央广场南',desc:'同摄像头出现，间隔<5分钟'},{type:'contact',time:'09:28:09',loc:'中央广场中心',desc:'距离<50米，间隔<2分钟'},{type:'together',time:'10:45:21',loc:'北区C栋南',desc:'同摄像头出现，间隔<5分钟'}];
-const personCandidates=[{id:'p1',name:'P-00231',meta:'出现12次 · 09:00~15:30 · 6个摄像头'},{id:'p2',name:'P-00187',meta:'出现8次 · 10:05~14:22 · 4个摄像头'},{id:'p3',name:'P-00342',meta:'出现5次 · 11:30~13:45 · 3个摄像头'},{id:'p4',name:'P-00156',meta:'出现3次 · 09:50~11:15 · 2个摄像头'}];
-const vehicleCandidates=[{id:'v1',name:'京A·12345',meta:'通行15次 · 08:02~18:35 · 白色SUV·丰田'},{id:'v2',name:'京B·67890',meta:'通行9次 · 09:15~17:42 · 黑色轿车·大众'},{id:'v3',name:'京C·11111',meta:'通行4次 · 10:30~15:20 · 银色SUV·宝马'}];
+const personCandidates=[{id:'p1',name:'P-00231',meta:'第一次出现 09:00'},{id:'p2',name:'P-00187',meta:'第一次出现 10:05'},{id:'p3',name:'P-00342',meta:'第一次出现 11:30'},{id:'p4',name:'P-00156',meta:'第一次出现 09:50'}];
+const vehicleCandidates=[{id:'v1',name:'京A·12345',meta:'白色SUV·丰田 · 第一次出现 08:02'},{id:'v2',name:'京B·67890',meta:'黑色轿车·大众 · 第一次出现 09:15'},{id:'v3',name:'京C·11111',meta:'银色SUV·宝马 · 第一次出现 10:30'}];
 const state={left:{type:'person',status:'pending',selectedCandidate:null},right:{type:'person',status:'pending',selectedCandidate:null}};
 let analysisExpanded=true;
 

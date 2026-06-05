@@ -116,6 +116,7 @@
   .ant-message-item{background:var(--ant-bg-container);border:1px solid var(--ant-border-secondary);border-radius:var(--radius-lg);padding:8px 16px;box-shadow:var(--shadow-2);display:flex;align-items:center;gap:8px;font-size:13px;animation:fadeInDown 0.3s;pointer-events:auto}
   .ant-message-success .ant-message-icon{color:var(--ant-success)}.ant-message-error .ant-message-icon{color:var(--ant-error)}.ant-message-info .ant-message-icon{color:var(--ant-primary)}
   @keyframes fadeInDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(1.1)}}
 </style>
 </head>
 <body>
@@ -155,8 +156,33 @@
         </div>
       </div>
 
+      <!-- 查询进度态 -->
+      <div class="query-loading-state" id="loadingState" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px;">
+        <div style="text-align:center;">
+          <div style="width:64px;height:64px;margin:0 auto 20px;border-radius:50%;background:var(--ant-primary-bg);display:flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-magnifying-glass" style="color:var(--ant-primary);font-size:24px;animation:pulse 1.5s infinite;"></i>
+          </div>
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;color:var(--ant-text);" id="loadingTitle">车牌识别中...</h3>
+          <p style="font-size:13px;color:var(--ant-text-secondary);margin-bottom:24px;" id="loadingDesc">正在识别上传图片中的车牌信息</p>
+          <div style="width:320px;margin:0 auto;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ant-text-tertiary);margin-bottom:6px;">
+              <span id="loadingStep">步骤 1/3</span>
+              <span id="loadingPercent">15%</span>
+            </div>
+            <div style="height:6px;background:var(--ant-border-secondary);border-radius:3px;overflow:hidden;">
+              <div id="loadingBar" style="height:100%;background:var(--ant-primary);border-radius:3px;width:15%;transition:width 0.5s ease;"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:24px;justify-content:center;margin-top:20px;">
+            <span id="step1Tag" style="font-size:12px;color:var(--ant-primary);font-weight:600;"><i class="fa-solid fa-circle-dot" style="margin-right:4px;"></i>车牌识别中</span>
+            <span id="step2Tag" style="font-size:12px;color:var(--ant-text-tertiary);"><i class="fa-regular fa-circle" style="margin-right:4px;"></i>检索匹配中</span>
+            <span id="step3Tag" style="font-size:12px;color:var(--ant-text-tertiary);"><i class="fa-regular fa-circle" style="margin-right:4px;"></i>结果排序中</span>
+          </div>
+        </div>
+      </div>
+
       <!-- 人工确认状态 -->
-      <div class="confirm-state active" id="confirmState">
+      <div class="confirm-state" id="confirmState" style="display:none;">
         <div class="confirm-top">
           <div style="width:64px;height:64px;border-radius:8px;overflow:hidden;border:2px solid var(--ant-primary);background:var(--ant-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0">
             <i class="fa-solid fa-car" style="color:var(--ant-primary);font-size:24px"></i>
@@ -170,7 +196,7 @@
             </div>
           </div>
         </div>
-        <div class="confirm-grid-title"><i class="fa-solid fa-images" style="color:var(--ant-primary)"></i>候选车辆 — 按通行次数排序</div>
+        <div class="confirm-grid-title"><i class="fa-solid fa-images" style="color:var(--ant-primary)"></i>候选车辆 — 按第一次出现时间排序</div>
         <div class="confirm-grid" id="confirmList">
           <!-- 候选1 -->
           <div class="confirm-card" data-idx="0">
@@ -178,8 +204,7 @@
             <div class="confirm-card-body">
               <h4>京A·12345</h4>
               <div class="meta-row">白色 SUV · 丰田</div>
-              <div class="meta-row">通行 <strong>15 次</strong> · 08:02~18:35</div>
-              <div class="meta-row">4 个卡口</div>
+              <div class="meta-row">第一次出现 08:02</div>
               <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(0)">确认目标</button></div>
             </div>
           </div>
@@ -189,8 +214,7 @@
             <div class="confirm-card-body">
               <h4>京B·67890</h4>
               <div class="meta-row">黑色 轿车 · 宝马</div>
-              <div class="meta-row">通行 <strong>8 次</strong> · 09:15~17:42</div>
-              <div class="meta-row">3 个卡口</div>
+              <div class="meta-row">第一次出现 09:15</div>
               <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(1)">确认目标</button></div>
             </div>
           </div>
@@ -200,8 +224,7 @@
             <div class="confirm-card-body">
               <h4>京C·34567</h4>
               <div class="meta-row">银色 SUV · 大众</div>
-              <div class="meta-row">通行 <strong>5 次</strong> · 10:30~15:20</div>
-              <div class="meta-row">2 个卡口</div>
+              <div class="meta-row">第一次出现 10:30</div>
               <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(2)">确认目标</button></div>
             </div>
           </div>
@@ -211,8 +234,7 @@
             <div class="confirm-card-body">
               <h4>京D·90123</h4>
               <div class="meta-row">白色 轿车 · 本田</div>
-              <div class="meta-row">通行 <strong>3 次</strong> · 11:00~14:50</div>
-              <div class="meta-row">2 个卡口</div>
+              <div class="meta-row">第一次出现 11:00</div>
               <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(3)">确认目标</button></div>
             </div>
           </div>
@@ -222,8 +244,7 @@
             <div class="confirm-card-body">
               <h4>京E·56789</h4>
               <div class="meta-row">灰色 面包车 · 五菱</div>
-              <div class="meta-row">通行 <strong>2 次</strong> · 07:45~08:10</div>
-              <div class="meta-row">1 个卡口</div>
+              <div class="meta-row">第一次出现 07:45</div>
               <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(4)">确认目标</button></div>
             </div>
           </div>
@@ -233,8 +254,7 @@
             <div class="confirm-card-body">
               <h4>京F·11111</h4>
               <div class="meta-row">红色 轿车 · 马自达</div>
-              <div class="meta-row">通行 <strong>2 次</strong> · 13:20~13:45</div>
-              <div class="meta-row">1 个卡口</div>
+              <div class="meta-row">第一次出现 13:20</div>
               <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(5)">确认目标</button></div>
             </div>
           </div>
@@ -244,8 +264,7 @@
             <div class="confirm-card-body">
               <h4>无牌车辆-001</h4>
               <div class="meta-row">红色 轿车 · 大众</div>
-              <div class="meta-row">通行 <strong>1 次</strong> · 14:20</div>
-              <div class="meta-row">1 个卡口</div>
+              <div class="meta-row">第一次出现 14:20</div>
               <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(6)">确认目标</button></div>
             </div>
           </div>
@@ -255,8 +274,7 @@
             <div class="confirm-card-body">
               <h4>京G·22222</h4>
               <div class="meta-row">黑色 SUV · 奥迪</div>
-              <div class="meta-row">通行 <strong>1 次</strong> · 16:05</div>
-              <div class="meta-row">1 个卡口</div>
+              <div class="meta-row">第一次出现 16:05</div>
               <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(7)">确认目标</button></div>
             </div>
           </div>
@@ -395,11 +413,69 @@
     ];
     let currentView='card',isPlaying=false,playSpeed=1,playTimer=null,playProgress=0;
 
+    // 查询进度条动画
+    (function runLoading(){
+      const bar=document.getElementById('loadingBar');
+      const pct=document.getElementById('loadingPercent');
+      const step=document.getElementById('loadingStep');
+      const title=document.getElementById('loadingTitle');
+      const desc=document.getElementById('loadingDesc');
+      const s1=document.getElementById('step1Tag');
+      const s2=document.getElementById('step2Tag');
+      const s3=document.getElementById('step3Tag');
+      const stages=[
+        {pct:33,step:'步骤 1/3',title:'车牌识别中...',desc:'正在识别上传图片中的车牌和车辆特征',s1c:'var(--ant-success)',s2c:'var(--ant-primary)',s3c:'var(--ant-text-tertiary)'},
+        {pct:70,step:'步骤 2/3',title:'检索匹配中...',desc:'正在将车牌和车辆特征与卡口记录进行比对',s1c:'var(--ant-success)',s2c:'var(--ant-success)',s3c:'var(--ant-primary)'},
+        {pct:100,step:'步骤 3/3',title:'结果排序中...',desc:'正在对匹配结果进行排序和聚合',s1c:'var(--ant-success)',s2c:'var(--ant-success)',s3c:'var(--ant-primary)'}
+      ];
+      let i=0;
+      function nextStage(){
+        if(i>=stages.length){
+          setTimeout(()=>{
+            document.getElementById('loadingState').style.display='none';
+            document.getElementById('confirmState').style.display='';
+            document.getElementById('confirmState').classList.add('active');
+          },400);
+          return;
+        }
+        const s=stages[i];
+        bar.style.width=s.pct+'%';
+        pct.textContent=s.pct+'%';
+        step.textContent=s.step;
+        title.textContent=s.title;
+        desc.textContent=s.desc;
+        s1.innerHTML=(i>=1?'<i class="fa-solid fa-circle-check" style="margin-right:4px;color:'+s.s1c+'"></i>':'<i class="fa-solid fa-circle-dot" style="margin-right:4px;"></i>')+'车牌识别'+(i>=1?'':'中');
+        s1.style.color=s.s1c;
+        s2.innerHTML=(i>=2?'<i class="fa-solid fa-circle-check" style="margin-right:4px;color:'+s.s2c+'"></i>':'<i class="fa-regular fa-circle" style="margin-right:4px;"></i>')+'检索匹配'+(i===1?'中':'');
+        s2.style.color=s.s2c;
+        s3.innerHTML=(i>=2?'<i class="fa-solid fa-circle-dot" style="margin-right:4px;"></i>':'<i class="fa-regular fa-circle" style="margin-right:4px;"></i>')+'结果排序'+(i===2?'中':'');
+        s3.style.color=s.s3c;
+        i++;
+        setTimeout(nextStage,1200);
+      }
+      setTimeout(nextStage,600);
+    })();
+
     // 人工确认
     function confirmTarget(idx){
       const cards=document.querySelectorAll('.confirm-card');
       cards.forEach((c,i)=>{if(i===idx){c.classList.add('confirmed');const a=c.querySelector('.confirm-card-actions');if(a)a.innerHTML='<div style="color:var(--ant-success);font-weight:600;font-size:14px;text-align:center;padding:10px"><i class="fa-solid fa-circle-check" style="margin-right:4px"></i>已确认</div>'}else{c.classList.add('skipped')}});
       setTimeout(()=>switchToResult(),500);
+    }
+
+    // 车牌查询跳过人工确认，直接展示轨迹
+    const urlParams=new URLSearchParams(window.location.search);
+    if(urlParams.get('mode')==='plate'){
+      document.getElementById('loadingState').style.display='none';
+      document.getElementById('confirmState').style.display='none';
+      document.getElementById('resultState').classList.add('active');
+      document.getElementById('titleText').textContent='车辆轨迹查询结果';
+      document.getElementById('btnBack').style.display='none';
+      document.getElementById('btnMonitor').style.display='';
+      document.getElementById('btnExport').style.display='';
+      document.querySelector('.query-mode').innerHTML='<span style="background:var(--ant-primary);color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;margin-right:6px">车牌查询</span>京A·12345 精确匹配结果';
+      setTimeout(()=>{const p=document.querySelector('.trajectory-path');if(p)p.style.strokeDashoffset='0'},300);
+      renderCaptures();
     }
 
     function switchToResult(){
