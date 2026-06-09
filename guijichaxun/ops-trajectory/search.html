@@ -272,16 +272,16 @@
                                 </div>
 
                                 <div class="ant-form-item ant-form-item-full-width">
-                                    <label class="ant-form-label">上传人像照片 <span class="ant-form-item-required">*</span><span class="ant-form-item-hint">最多3张，全身/半身均可</span></label>
+                                    <label class="ant-form-label">上传人像照片 <span class="ant-form-item-required">*</span><span class="ant-form-item-hint">限1张，全身/半身均可</span></label>
                                     <div class="ant-upload" id="uploadBox" onclick="document.getElementById('fileInput').click()">
                                         <div class="ant-upload-default" id="uploadDefault">
                                             <div class="ant-upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
                                             <div class="ant-upload-text">点击或拖拽上传人像照片</div>
-                                            <div class="ant-upload-hint">支持 JPG、PNG 格式，最多3张，单张不超过 5MB</div>
+                                            <div class="ant-upload-hint">支持 JPG、PNG 格式，限1张，不超过 5MB</div>
                                         </div>
                                         <div class="ant-upload-list" id="previewList" style="display:none"></div>
                                     </div>
-                                    <input type="file" id="fileInput" accept="image/jpeg,image/png" multiple onchange="handleFiles(event)" style="display:none">
+                                    <input type="file" id="fileInput" accept="image/jpeg,image/png" onchange="handleFiles(event)" style="display:none">
                                     <div class="ant-upload-tip" id="uploadTip"></div>
                                 </div>
                             </div>
@@ -620,8 +620,8 @@
     function initTime(){calStart=new Date('2026-05-28T23:59:00');calEnd=new Date('2026-05-29T23:59:00');updateTpText()}
     initTime();
     function switchMode(m){currentMode=m;document.querySelectorAll('.ant-tabs-tab').forEach(b=>b.classList.remove('ant-tabs-tab-active'));event.target.closest('.ant-tabs-tab').classList.add('ant-tabs-tab-active');document.getElementById('modeTag').textContent=m==='image'?'以图搜人':'文本搜人';document.getElementById('imageForm').style.display=m==='image'?'block':'none';document.getElementById('textForm').style.display=m==='text'?'block':'none';updQB()}
-    function handleFiles(e){const nf=Array.from(e.target.files),r=3-files.length;if(nf.length>r){showTip('最多3张','warning');return}nf.forEach(f=>{if(f.size>5*1024*1024){showTip('超过5MB','warning');return}const rd=new FileReader();rd.onload=ev=>{files.push({name:f.name,src:ev.target.result,ok:Math.random()>0.3});updPV();updQB()};rd.readAsDataURL(f)})}
-    function updPV(){const box=document.getElementById('uploadBox'),def=document.getElementById('uploadDefault'),list=document.getElementById('previewList');if(files.length){box.classList.add('ant-upload-has-files');def.style.display='none';list.style.display='flex';list.innerHTML=files.map((f,i)=>`<div class="ant-upload-list-item"><img src="${f.src}"><button class="remove-btn" onclick="rmFile(${i})">×</button><div class="status-bar ${f.ok?'status-success':'status-warning'}">${f.ok?'已识别':'未检测'}</div></div>`).join('')+(files.length<3?'<div class="ant-upload-add" onclick="document.getElementById(\'fileInput\').click()">+</div>':'')}else{box.classList.remove('ant-upload-has-files');def.style.display='block';list.style.display='none'}}
+    function handleFiles(e){const nf=Array.from(e.target.files),r=1-files.length;if(nf.length>r){showTip('仅支持上传1张图片','warning');return}nf.forEach(f=>{if(f.size>5*1024*1024){showTip('超过5MB','warning');return}const rd=new FileReader();rd.onload=ev=>{files.push({name:f.name,src:ev.target.result,ok:Math.random()>0.3});updPV();updQB()};rd.readAsDataURL(f)})}
+    function updPV(){const box=document.getElementById('uploadBox'),def=document.getElementById('uploadDefault'),list=document.getElementById('previewList');if(files.length){box.classList.add('ant-upload-has-files');def.style.display='none';list.style.display='flex';list.innerHTML=files.map((f,i)=>`<div class="ant-upload-list-item"><img src="${f.src}"><button class="remove-btn" onclick="rmFile(${i})">×</button><div class="status-bar ${f.ok?'status-success':'status-warning'}">${f.ok?'已识别':'未检测'}</div></div>`).join('')}else{box.classList.remove('ant-upload-has-files');def.style.display='block';list.style.display='none'}}
     function rmFile(i){files.splice(i,1);updPV();updQB()}
     function showTip(t,ty){const tip=document.getElementById('uploadTip');tip.textContent=t;tip.className='ant-upload-tip tip-'+ty+' tip-show'}
     function updQB(){if(currentMode==='image')document.getElementById('queryBtn').disabled=files.length===0;else{const t=document.getElementById('searchText').value.trim();document.getElementById('queryBtn').disabled=t.length<10}}

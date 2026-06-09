@@ -125,12 +125,20 @@
     .divider { height: 1px; background: var(--ant-border-secondary); margin: 16px 0; }
 
     /* Timeline */
-    .timeline { display: flex; gap: 0; align-items: center; position: relative; }
-    .timeline::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: var(--ant-border-secondary); z-index: 0; }
-    .timeline-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; z-index: 1; }
-    .timeline-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--ant-border-color); background: var(--ant-bg-container); }
-    .timeline-dot.active { background: var(--ant-primary); border-color: var(--ant-primary); box-shadow: 0 0 8px rgba(22,119,255,0.3); }
-    .timeline-label { font-size: 11px; color: var(--ant-text-tertiary); margin-top: 6px; text-align: center; white-space: nowrap; }
+    .timeline { position: relative; padding-left: 20px; }
+    .timeline::before { content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: #f0f0f0; border-radius: 1px; }
+    .timeline-item { position: relative; padding-bottom: 16px; display: flex; align-items: flex-start; gap: 14px; }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-dot { position: absolute; left: -20px; top: 4px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid #d9d9d9; background: #fff; z-index: 1; box-sizing: border-box; }
+    .timeline-dot.active { border-color: #1677ff; background: #1677ff; box-shadow: 0 0 0 4px rgba(22,119,255,0.12); }
+    .timeline-dot.resolved { border-color: #52c41a; background: #52c41a; }
+    .timeline-dot.ignored { border-color: #faad14; background: #faad14; }
+    .timeline-time { font-size: 12px; color: rgba(0,0,0,0.45); white-space: nowrap; min-width: 140px; padding-top: 1px; }
+    .timeline-body { flex: 1; background: #fafafa; border: 1px solid #f0f0f0; border-radius: 6px; padding: 8px 12px; }
+    .timeline-body.active-body { background: #e6f4ff; border-color: #91caff; }
+    .timeline-loc { font-size: 13px; font-weight: 500; color: rgba(0,0,0,0.88); margin-bottom: 2px; }
+    .timeline-meta { font-size: 12px; color: rgba(0,0,0,0.45); display: flex; gap: 12px; align-items: center; }
+    .timeline-sim { font-weight: 600; color: #1677ff; }
 
     /* Similarity colors */
     .sim-low { color: var(--ant-danger); }
@@ -349,7 +357,6 @@
               <th>抓拍缩略图</th>
               <th>抓拍时间</th>
               <th>点位名称</th>
-              <th>摄像头编码</th>
               <th>匹配信息</th>
               <th>处理状态</th>
               <th>操作</th>
@@ -401,27 +408,50 @@
             <span style="color:var(--ant-text-tertiary);">告警编号</span><span id="detailAlertId" style="font-family:monospace;">-</span>
             <span style="color:var(--ant-text-tertiary);">抓拍时间</span><span id="detailCaptureTime">-</span>
             <span style="color:var(--ant-text-tertiary);">点位名称</span><span id="detailLocation">-</span>
-            <span style="color:var(--ant-text-tertiary);">摄像头编码</span><span id="detailCamCode" style="font-family:monospace;">-</span>
             <span style="color:var(--ant-text-tertiary);" id="detailSimilarityRow"><span class="sim-label">相似度</span></span>
             <span id="detailSimilarity">-</span>
             <span style="color:var(--ant-text-tertiary);">状态</span><span id="detailStatus">-</span>
           </div>
           <div class="divider" style="margin:10px 0;"></div>
-          <div style="font-size:11px;color:var(--ant-text-tertiary);margin-bottom:6px;" id="detailAttrTitle">人体属性</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;" id="detailAttributes">
-            <span class="ant-tag ant-tag-blue">男性</span>
-            <span class="ant-tag ant-tag-cyan">上衣：深色夹克</span>
-            <span class="ant-tag ant-tag-purple">下装：黑色长裤</span>
+          <div style="font-size:11px;color:var(--ant-text-tertiary);margin-bottom:6px;display:none;" id="detailAttrTitle">人体属性</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;display:none;" id="detailAttributes">
           </div>
         </div>
       </div>
 
       <!-- Action Buttons -->
       <div style="display:flex;gap:8px;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--ant-border-secondary);border-bottom:1px solid var(--ant-border-secondary);margin-bottom:16px;">
-        <button class="ant-btn ant-btn-primary" onclick="showToast('info','正在跳转实时轨迹...')"><i class="fa-solid fa-route"></i>查看实时轨迹</button>
-        <button class="ant-btn" onclick="showToast('info','正在加载录像...')"><i class="fa-solid fa-play-circle"></i>查看录像</button>
+        <button class="ant-btn" id="btnVideo"><i class="fa-solid fa-play-circle"></i>查看录像</button>
         <button class="ant-btn ant-btn-success" id="btnProcess" onclick="toggleProcessForm()"><i class="fa-solid fa-check-circle"></i>标记已处理</button>
         <button class="ant-btn" id="btnIgnore" onclick="toggleIgnoreForm()"><i class="fa-solid fa-eye-slash"></i>忽略</button>
+      </div>
+
+      <!-- Video Preview Panel -->
+      <div id="videoPanel" style="display:none;background:#fafafa;border:1px solid #d9d9d9;border-radius:8px;padding:16px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="font-size:14px;font-weight:600;color:rgba(0,0,0,0.88);">
+            <i class="fa-solid fa-video" style="color:#1677ff;margin-right:6px;"></i>录像预览
+          </div>
+          <span style="font-size:12px;color:rgba(0,0,0,0.45);">事件前后各15秒（共30秒）</span>
+        </div>
+        <div style="background:#000;border-radius:8px;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+          <div style="text-align:center;color:rgba(255,255,255,0.6);">
+            <i class="fa-solid fa-play-circle" style="font-size:48px;margin-bottom:12px;display:block;cursor:pointer;"></i>
+            <div style="font-size:14px;">点击播放录像</div>
+          </div>
+          <div style="position:absolute;top:12px;left:12px;background:rgba(0,0,0,0.6);color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;" id="videoLocation">-</div>
+          <div style="position:absolute;top:12px;right:12px;background:rgba(245,34,45,0.85);color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;">
+            <i class="fa-solid fa-circle" style="font-size:8px;margin-right:4px;"></i>事件时间点
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:12px;">
+          <button style="width:36px;height:36px;border-radius:50%;border:1px solid #d9d9d9;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="var i=this.querySelector('i');if(i.classList.contains('fa-play')){i.classList.remove('fa-play');i.classList.add('fa-pause')}else{i.classList.remove('fa-pause');i.classList.add('fa-play')}"><i class="fa-solid fa-play"></i></button>
+          <div style="flex:1;height:6px;background:#f0f0f0;border-radius:3px;position:relative;">
+            <div style="height:100%;background:#1677ff;border-radius:3px;width:45%;"></div>
+            <div style="position:absolute;top:50%;left:45%;width:3px;height:14px;background:#ff4d4f;transform:translate(-50%,-50%);border-radius:1px;" title="事件时间点"></div>
+          </div>
+          <span style="font-size:12px;color:rgba(0,0,0,0.45);white-space:nowrap;">-15s / +15s</span>
+        </div>
       </div>
 
       <!-- Mark Processed Form -->
@@ -493,8 +523,8 @@
 
       <!-- Recent 5 alerts timeline -->
       <div>
-        <div style="font-size:12px;color:var(--ant-text-tertiary);margin-bottom:10px;">最近5条告警时间线</div>
-        <div class="timeline" id="detailTimeline" style="padding:0 20px;">
+        <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:12px;"><i class="fa-solid fa-clock-rotate-left" style="margin-right:4px;"></i>最近告警时间线</div>
+        <div class="timeline" id="detailTimeline">
           <!-- Populated by JS -->
         </div>
       </div>
@@ -648,7 +678,7 @@ function renderTable(data) {
     const typeTag = item.type === '车辆' ? '<span class="ant-tag ant-tag-green">车辆</span>' : '<span class="ant-tag ant-tag-blue">人员</span>';
     const thumbIcon = item.type === '车辆' ? 'fa-car' : 'fa-user';
     const matchDisplay = item.similarity === 100 ? '<span style="font-weight:700;font-size:14px;color:var(--ant-success);">' + item.matchInfo + '</span>' :
-      '<span style="font-weight:700;font-size:14px;" class="' + simClass + '">' + item.matchInfo + '</span>';
+      '<span style="font-weight:700;font-size:14px;">' + item.matchInfo + '</span>';
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td style="font-family:monospace;font-size:12px;">${item.id}</td>
@@ -661,14 +691,13 @@ function renderTable(data) {
       </td>
       <td style="white-space:nowrap;font-size:12px;">${item.time}</td>
       <td>${item.location}</td>
-      <td style="font-family:monospace;font-size:12px;">${item.camCode}</td>
       <td>${matchDisplay}</td>
       <td><span class="ant-tag ${statusTag}">${item.status}</span></td>
       <td>
         <div style="display:flex;gap:4px;flex-wrap:nowrap;">
-          <button class="ant-btn ant-btn-sm" onclick="openAlertDetail(${idx})" title="查看详情"><i class="fa-solid fa-eye"></i>详情</button>
-          ${item.status === '待处理' ? `<button class="ant-btn ant-btn-sm ant-btn-success-outline" onclick="openAlertDetail(${idx},'process')" title="标记处理"><i class="fa-solid fa-check"></i></button>` : ''}
-          ${item.status === '待处理' ? `<button class="ant-btn ant-btn-sm" onclick="openAlertDetail(${idx},'ignore')" title="忽略"><i class="fa-solid fa-eye-slash"></i></button>` : ''}
+          ${item.status === '待处理'
+            ? `<button class="ant-btn ant-btn-sm ant-btn-primary" onclick="openAlertDetail(${idx},'process')" title="处理"><i class="fa-solid fa-check"></i>处理</button>`
+            : `<button class="ant-btn ant-btn-sm" onclick="openAlertDetail(${idx})" title="查看详情"><i class="fa-solid fa-eye"></i>查看详情</button>`}
         </div>
       </td>
     `;
@@ -746,8 +775,8 @@ function openAlertDetail(idx, action) {
   document.getElementById('detailAlertId').textContent = item.id;
   document.getElementById('detailCaptureTime').textContent = item.time;
   document.getElementById('detailLocation').textContent = item.location;
-  document.getElementById('detailCamCode').textContent = item.camCode;
-  document.getElementById('detailTimeAgo').textContent = getTimeAgo(item.time);
+  document.getElementById('detailTimeAgo').textContent = item.time;
+  document.getElementById('videoLocation').innerHTML = '<i class="fa-solid fa-location-dot" style="margin-right:4px;"></i>' + item.location;
 
   // Update image icon based on type
   const imageIcon = document.getElementById('detailImageIcon');
@@ -762,11 +791,8 @@ function openAlertDetail(idx, action) {
     // Show label as "匹配方式"
     document.querySelector('#detailSimilarityRow .sim-label').textContent = '匹配方式';
   } else {
-    const simClass = getSimilarityClass(item.similarity);
-    const simLabel = item.similarity >= 85 ? '高相似' : item.similarity >= 70 ? '中相似' : '低相似';
-    const simTagClass = getSimilarityTag(item.similarity);
     document.getElementById('detailSimilarity').innerHTML =
-      `<span style="font-size:18px;font-weight:700;" class="${simClass}">${item.similarity}%</span> <span class="ant-tag ${simTagClass}" style="margin-left:6px;font-size:11px;">${simLabel}</span>`;
+      `<span style="font-size:18px;font-weight:700;">${item.similarity}%</span>`;
     document.querySelector('#detailSimilarityRow .sim-label').textContent = '相似度';
   }
 
@@ -779,6 +805,8 @@ function openAlertDetail(idx, action) {
   const attrTitle = document.getElementById('detailAttrTitle');
   if (item.type === '车辆') {
     attrTitle.textContent = '车辆属性';
+    attrTitle.style.display = '';
+    attrsContainer.style.display = '';
     const attrColors = ['ant-tag-blue', 'ant-tag-cyan', 'ant-tag-purple', 'ant-tag-green', 'ant-tag-orange'];
     attrsContainer.innerHTML = item.attrs.map((a, i) => `<span class="ant-tag ${attrColors[i % 5]}">${a}</span>`).join('');
     // Show license plate close-up area
@@ -788,9 +816,9 @@ function openAlertDetail(idx, action) {
     const plateNum = plateAttr ? plateAttr.replace('车牌：', '') : item.taskName;
     document.getElementById('detailPlateText').textContent = plateNum;
   } else {
-    attrTitle.textContent = '人体属性';
-    const attrColors = ['ant-tag-blue', 'ant-tag-cyan', 'ant-tag-purple'];
-    attrsContainer.innerHTML = item.attrs.map((a, i) => `<span class="ant-tag ${attrColors[i % 3]}">${a}</span>`).join('');
+    // 本期人员告警不展示人体属性
+    attrTitle.style.display = 'none';
+    attrsContainer.style.display = 'none';
     document.getElementById('detailPlateArea').style.display = 'none';
   }
 
@@ -810,16 +838,25 @@ function openAlertDetail(idx, action) {
 function renderTimeline(currentIdx) {
   const timeline = document.getElementById('detailTimeline');
   timeline.innerHTML = '';
-  for (let i = 0; i < alerts.length; i++) {
+  const maxItems = Math.min(alerts.length, 5);
+  for (let i = 0; i < maxItems; i++) {
     const a = alerts[i];
     const isActive = i === currentIdx;
+    const dotClass = isActive ? 'active' : (a.status === '已处理' ? 'resolved' : (a.status === '已忽略' ? 'ignored' : ''));
+    const statusTag = a.status === '待处理' ? '<span style="color:#ff4d4f;font-size:11px;background:#fff2f0;padding:1px 6px;border-radius:3px;">待处理</span>'
+      : a.status === '已处理' ? '<span style="color:#52c41a;font-size:11px;background:#f6ffed;padding:1px 6px;border-radius:3px;">已处理</span>'
+      : '<span style="color:#faad14;font-size:11px;background:#fffbe6;padding:1px 6px;border-radius:3px;">已忽略</span>';
     const div = document.createElement('div');
     div.className = 'timeline-item';
     div.innerHTML = `
-      <div class="timeline-dot${isActive ? ' active' : ''}"></div>
-      <div class="timeline-label">
-        <div${isActive ? ' style="color:var(--ant-primary);font-weight:600;"' : ''}>${getTimeAgo(a.time)}</div>
-        <div>${a.camCode}</div>
+      <div class="timeline-dot ${dotClass}"></div>
+      <div class="timeline-time">${a.time.substring(5)}</div>
+      <div class="timeline-body${isActive ? ' active-body' : ''}">
+        <div class="timeline-loc">${a.location}</div>
+        <div class="timeline-meta">
+          <span class="timeline-sim">${a.matchInfo}</span>
+          ${statusTag}
+        </div>
       </div>
     `;
     timeline.appendChild(div);
@@ -842,6 +879,12 @@ document.getElementById('alertDetailModal').addEventListener('click', function(e
   if (e.target === this) {
     closeAlertDetail();
   }
+});
+
+// Video button toggle
+document.getElementById('btnVideo').addEventListener('click', function() {
+  var panel = document.getElementById('videoPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
 });
 
 // ==================== Init ====================

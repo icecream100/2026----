@@ -111,34 +111,34 @@
   // 设备级别数据
   var deviceData = {
     '小寨片区': [
-      {name:'长安路-球机-01',code:'GB28181-10101',ip:'10.10.1.101',type:'球机',link:'正常',rate:'99.2%',uptime:'712h',faults:1,faultDesc:'—',mtbf:712},
-      {name:'长安路-球机-02',code:'GB28181-10102',ip:'10.10.1.102',type:'球机',link:'异常',rate:'98.5%',uptime:'706h',faults:2,faultDesc:'链路中断',mtbf:353},
-      {name:'小寨西路-枪机-01',code:'GB28181-10201',ip:'10.10.1.201',type:'枪机',link:'正常',rate:'99.8%',uptime:'718h',faults:0,faultDesc:'—',mtbf:'—'},
-      {name:'小寨西路-枪机-02',code:'GB28181-10202',ip:'10.10.1.202',type:'枪机',link:'异常',rate:'97.1%',uptime:'698h',faults:3,faultDesc:'链路超时',mtbf:233},
-      {name:'兴善寺街-半球-01',code:'GB28181-10301',ip:'10.10.1.301',type:'半球',link:'正常',rate:'96.2%',uptime:'692h',faults:2,faultDesc:'画质劣化',mtbf:346},
-      {name:'长安路-球机-03',code:'GB28181-10103',ip:'10.10.1.103',type:'球机',link:'正常',rate:'99.5%',uptime:'716h',faults:1,faultDesc:'—',mtbf:716}
+      {name:'长安路-球机-01',type:'球机',linkRate:'99.2%',videoRate:'99.5%',netRate:'99.8%',mtbf:712,mttr:8},
+      {name:'长安路-球机-02',type:'球机',linkRate:'98.5%',videoRate:'99.0%',netRate:'98.2%',mtbf:353,mttr:22},
+      {name:'小寨西路-枪机-01',type:'枪机',linkRate:'99.8%',videoRate:'99.6%',netRate:'99.9%',mtbf:'—',mttr:'—'},
+      {name:'小寨西路-枪机-02',type:'枪机',linkRate:'97.1%',videoRate:'98.5%',netRate:'96.8%',mtbf:233,mttr:35},
+      {name:'兴善寺街-半球-01',type:'半球',linkRate:'98.8%',videoRate:'96.2%',netRate:'99.0%',mtbf:346,mttr:18},
+      {name:'长安路-球机-03',type:'球机',linkRate:'99.5%',videoRate:'99.8%',netRate:'99.6%',mtbf:716,mttr:5}
     ],
     '大雁塔片区': [
-      {name:'慈恩路-球机-01',code:'GB28181-20101',ip:'10.10.2.101',type:'球机',link:'正常',rate:'99.6%',uptime:'716h',faults:1,faultDesc:'—',mtbf:716},
-      {name:'慈恩路-球机-02',code:'GB28181-20102',ip:'10.10.2.102',type:'球机',link:'正常',rate:'98.8%',uptime:'710h',faults:2,faultDesc:'链路时延高',mtbf:355},
-      {name:'雁塔路-枪机-01',code:'GB28181-20201',ip:'10.10.2.201',type:'枪机',link:'正常',rate:'99.2%',uptime:'714h',faults:1,faultDesc:'—',mtbf:714},
-      {name:'雁塔广场-球机-01',code:'GB28181-20103',ip:'10.10.2.103',type:'球机',link:'正常',rate:'99.8%',uptime:'718h',faults:0,faultDesc:'—',mtbf:'—'},
-      {name:'曲江大道-枪机-01',code:'GB28181-20202',ip:'10.10.2.202',type:'枪机',link:'异常',rate:'97.5%',uptime:'700h',faults:2,faultDesc:'链路超时',mtbf:350}
+      {name:'慈恩路-球机-01',type:'球机',linkRate:'99.6%',videoRate:'99.4%',netRate:'99.8%',mtbf:716,mttr:6},
+      {name:'慈恩路-球机-02',type:'球机',linkRate:'98.8%',videoRate:'99.2%',netRate:'98.5%',mtbf:355,mttr:20},
+      {name:'雁塔路-枪机-01',type:'枪机',linkRate:'99.2%',videoRate:'99.5%',netRate:'99.3%',mtbf:714,mttr:7},
+      {name:'雁塔广场-球机-01',type:'球机',linkRate:'99.8%',videoRate:'99.9%',netRate:'99.7%',mtbf:'—',mttr:'—'},
+      {name:'曲江大道-枪机-01',type:'枪机',linkRate:'97.5%',videoRate:'98.8%',netRate:'97.2%',mtbf:350,mttr:25}
     ],
     '曲江片区': [
-      {name:'曲江池-球机-01',code:'GB28181-30101',ip:'10.10.3.101',type:'球机',link:'正常',rate:'98.2%',uptime:'706h',faults:2,faultDesc:'画质轻微异常',mtbf:353},
-      {name:'曲江池-球机-02',code:'GB28181-30102',ip:'10.10.3.102',type:'球机',link:'异常',rate:'96.5%',uptime:'694h',faults:3,faultDesc:'链路中断',mtbf:231},
-      {name:'大唐不夜城-枪机-01',code:'GB28181-30201',ip:'10.10.3.201',type:'枪机',link:'正常',rate:'99.1%',uptime:'712h',faults:1,faultDesc:'—',mtbf:712},
-      {name:'大唐不夜城-球机-01',code:'GB28181-30103',ip:'10.10.3.103',type:'球机',link:'异常',rate:'95.8%',uptime:'688h',faults:3,faultDesc:'链路丢包',mtbf:229},
-      {name:'芙蓉园-半球-01',code:'GB28181-30301',ip:'10.10.3.301',type:'半球',link:'正常',rate:'97.2%',uptime:'698h',faults:2,faultDesc:'画质劣化',mtbf:349},
-      {name:'曲江大道-无人机-01',code:'GB28181-30401',ip:'10.10.3.401',type:'无人机',link:'异常',rate:'92.5%',uptime:'665h',faults:4,faultDesc:'链路中断',mtbf:166}
+      {name:'曲江池-球机-01',type:'球机',linkRate:'99.0%',videoRate:'98.2%',netRate:'99.3%',mtbf:353,mttr:15},
+      {name:'曲江池-球机-02',type:'球机',linkRate:'96.5%',videoRate:'97.8%',netRate:'95.2%',mtbf:231,mttr:42},
+      {name:'大唐不夜城-枪机-01',type:'枪机',linkRate:'99.1%',videoRate:'99.4%',netRate:'99.5%',mtbf:712,mttr:9},
+      {name:'大唐不夜城-球机-01',type:'球机',linkRate:'95.8%',videoRate:'97.2%',netRate:'94.5%',mtbf:229,mttr:48},
+      {name:'芙蓉园-半球-01',type:'半球',linkRate:'98.5%',videoRate:'97.2%',netRate:'98.8%',mtbf:349,mttr:16},
+      {name:'曲江大道-无人机-01',type:'无人机',linkRate:'92.5%',videoRate:'95.0%',netRate:'91.8%',mtbf:166,mttr:55}
     ],
     '高新片区': [
-      {name:'科技路-球机-01',code:'GB28181-40101',ip:'10.10.4.101',type:'球机',link:'正常',rate:'98.8%',uptime:'710h',faults:2,faultDesc:'画质轻微异常',mtbf:355},
-      {name:'科技路-枪机-01',code:'GB28181-40201',ip:'10.10.4.201',type:'枪机',link:'正常',rate:'97.2%',uptime:'698h',faults:2,faultDesc:'链路超时',mtbf:349},
-      {name:'高新路-球机-01',code:'GB28181-40102',ip:'10.10.4.102',type:'球机',link:'异常',rate:'96.1%',uptime:'690h',faults:3,faultDesc:'链路时延高',mtbf:230},
-      {name:'高新路-枪机-01',code:'GB28181-40202',ip:'10.10.4.202',type:'枪机',link:'正常',rate:'99.5%',uptime:'716h',faults:1,faultDesc:'—',mtbf:716},
-      {name:'软件园-半球-01',code:'GB28181-40301',ip:'10.10.4.301',type:'半球',link:'异常',rate:'94.8%',uptime:'682h',faults:3,faultDesc:'画质劣化+链路丢包',mtbf:227}
+      {name:'科技路-球机-01',type:'球机',linkRate:'99.2%',videoRate:'98.8%',netRate:'99.5%',mtbf:355,mttr:14},
+      {name:'科技路-枪机-01',type:'枪机',linkRate:'98.8%',videoRate:'97.2%',netRate:'98.5%',mtbf:349,mttr:19},
+      {name:'高新路-球机-01',type:'球机',linkRate:'96.1%',videoRate:'97.5%',netRate:'95.8%',mtbf:230,mttr:38},
+      {name:'高新路-枪机-01',type:'枪机',linkRate:'99.5%',videoRate:'99.3%',netRate:'99.6%',mtbf:716,mttr:4},
+      {name:'软件园-半球-01',type:'半球',linkRate:'94.8%',videoRate:'96.0%',netRate:'93.5%',mtbf:227,mttr:45}
     ]
   };
 
@@ -171,32 +171,27 @@
       title.innerHTML = '<span>' + sub + ' - 设备明细</span>'
         + '<span style="font-size:13px;font-weight:400;color:var(--ant-text-tertiary);">设备级别的可用性指标</span>';
       thead.innerHTML = '<tr>'
-        + '<th>设备名称</th><th>平台编码</th><th>设备IP</th><th>设备类型</th>'
-        + '<th>链路状态</th><th>可用率</th><th>故障类型</th><th>在线时长</th><th>故障次数</th><th>MTBF(h)</th><th>操作</th>'
+        + '<th rowspan="2" style="vertical-align:bottom;">设备名称</th><th rowspan="2" style="vertical-align:bottom;">设备类型</th>'
+        + '<th colspan="3" style="text-align:center;border-bottom:2px solid var(--ant-border-secondary);">可用率（≥99%为达标）</th>'
+        + '<th rowspan="2" style="vertical-align:bottom;">MTBF(h)</th><th rowspan="2" style="vertical-align:bottom;">MTTR(min)</th>'
+        + '</tr><tr>'
+        + '<th style="color:#722ed1;">链路</th><th style="color:#52c41a;">画面</th><th style="color:#1677ff;">网络</th>'
         + '</tr>';
 
       var devices = deviceData[sub] || [];
       var html = '';
-      var totalFaults = 0;
       for (var i = 0; i < devices.length; i++) {
         var d = devices[i];
-        totalFaults += d.faults;
-        var rateVal = parseFloat(d.rate);
-        var rateColor = rateVal < 97 ? ' class="fail"' : '';
-        var mtbfStyle = d.mtbf === '—' ? '' : (d.mtbf < 250 ? 'color:#ff4d4f;font-weight:600;' : d.mtbf < 350 ? 'color:#fa8c16;' : '');
-        var linkColor = d.link === '正常' ? 'color:#52c41a;' : 'color:#ff4d4f;font-weight:600;';
-        var faultDescStyle = d.faultDesc === '—' ? 'color:var(--ant-text-tertiary);' : 'color:#ff4d4f;';
+        function rateStyle(v){ var n=parseFloat(v); return n<97?'color:#ff4d4f;font-weight:600;':n<99?'color:#fa8c16;':''; }
+        function mtbfStyle(v){ if(v==='—') return ''; return v<250?'color:#ff4d4f;font-weight:600;':v<350?'color:#fa8c16;':''; }
+        function mttrStyle(v){ if(v==='—') return ''; return v>50?'color:#ff4d4f;font-weight:600;':v>30?'color:#fa8c16;':''; }
         html += '<tr><td><strong>' + d.name + '</strong></td>'
-          + '<td style="font-family:monospace;font-size:12px;">' + d.code + '</td>'
-          + '<td style="font-family:monospace;">' + d.ip + '</td>'
           + '<td>' + d.type + '</td>'
-          + '<td style="' + linkColor + '">' + d.link + '</td>'
-          + '<td' + rateColor + '>' + d.rate + '</td>'
-          + '<td style="' + faultDescStyle + '">' + d.faultDesc + '</td>'
-          + '<td>' + d.uptime + '</td>'
-          + '<td' + (d.faults > 2 ? ' style="color:#ff4d4f;font-weight:600;"' : d.faults > 1 ? ' style="color:#fa8c16;"' : '') + '>' + d.faults + '</td>'
-          + '<td style="' + mtbfStyle + '">' + d.mtbf + '</td>'
-          + '<td><a href="../ops-alert/list.html" class="ant-btn-link"><i class="fa-solid fa-bell" style="margin-right:3px;"></i>告警记录</a></td></tr>';
+          + '<td style="' + rateStyle(d.linkRate) + '">' + d.linkRate + '</td>'
+          + '<td style="' + rateStyle(d.videoRate) + '">' + d.videoRate + '</td>'
+          + '<td style="' + rateStyle(d.netRate) + '">' + d.netRate + '</td>'
+          + '<td style="' + mtbfStyle(d.mtbf) + '">' + d.mtbf + '</td>'
+          + '<td style="' + mttrStyle(d.mttr) + '">' + d.mttr + '</td></tr>';
       }
       tbody.innerHTML = html;
       return;

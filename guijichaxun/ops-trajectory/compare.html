@@ -255,7 +255,7 @@
     </div>
     <div class="type-switch" id="leftTypeSwitch">
       <div class="type-switch-btn active" onclick="switchType('left','person')"><i class="fa-solid fa-person" style="margin-right:4px"></i>人员</div>
-      <div class="type-switch-btn" onclick="switchType('left','vehicle')"><i class="fa-solid fa-car" style="margin-right:4px"></i>车辆</div>
+      <div class="type-switch-btn" onclick="switchType('left','vehicle')" style="opacity:0.4;cursor:not-allowed;" title="本期仅支持人员对比"><i class="fa-solid fa-car" style="margin-right:4px"></i>车辆</div>
     </div>
     <div class="panel-scroll">
       <!-- 人员表单 -->
@@ -374,17 +374,17 @@
         <!-- 接触点 -->
         <g id="encounterLayer" style="display:none">
           <circle cx="510" cy="310" r="18" fill="none" stroke="#faad14" stroke-width="2"><animate attributeName="r" values="10;22;10" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0;0.8" dur="2s" repeatCount="indefinite"/></circle>
-          <circle cx="510" cy="310" r="6" fill="#faad14" onmouseenter="showEncTip(event,'同行：同摄像头，间隔<5min','09:25~09:28','中央广场南')" onmouseleave="hideTip()" style="cursor:pointer"/>
+          <circle cx="510" cy="310" r="6" fill="#faad14" onmouseenter="showEncTip(event,'接触：5分钟内轨迹重叠','09:25~09:28','中央广场南')" onmouseleave="hideTip()" style="cursor:pointer"/>
           <circle cx="380" cy="140" r="18" fill="none" stroke="#faad14" stroke-width="2"><animate attributeName="r" values="10;22;10" dur="2s" repeatCount="indefinite" begin="0.5s"/><animate attributeName="opacity" values="0.8;0;0.8" dur="2s" repeatCount="indefinite" begin="0.5s"/></circle>
-          <circle cx="380" cy="140" r="6" fill="#faad14" onmouseenter="showEncTip(event,'接触：距离<50m，间隔<2min','10:45~10:50','中央广场西')" onmouseleave="hideTip()" style="cursor:pointer"/>
+          <circle cx="380" cy="140" r="6" fill="#faad14" onmouseenter="showEncTip(event,'接触：5分钟内轨迹重叠','10:45~10:50','中央广场西')" onmouseleave="hideTip()" style="cursor:pointer"/>
           <circle cx="120" cy="30" r="18" fill="none" stroke="#faad14" stroke-width="2"><animate attributeName="r" values="10;22;10" dur="2s" repeatCount="indefinite" begin="1s"/><animate attributeName="opacity" values="0.8;0;0.8" dur="2s" repeatCount="indefinite" begin="1s"/></circle>
-          <circle cx="120" cy="30" r="6" fill="#faad14" onmouseenter="showEncTip(event,'同行：同摄像头，间隔<5min','09:05~09:10','A栋入口')" onmouseleave="hideTip()" style="cursor:pointer"/>
+          <circle cx="120" cy="30" r="6" fill="#faad14" onmouseenter="showEncTip(event,'接触：5分钟内轨迹重叠','09:05~09:10','A栋入口')" onmouseleave="hideTip()" style="cursor:pointer"/>
         </g>
       </svg>
       <div class="map-legend">
         <div class="legend-item"><div class="legend-line" style="background:var(--color1)"></div><span>目标1轨迹</span></div>
         <div class="legend-item legend2-wrap" id="legend2Wrap" style="display:none"><div class="legend-line" style="background:var(--color2)"></div><span>目标2轨迹</span></div>
-        <div class="legend-item legend-enc-wrap" id="legendEncWrap" style="display:none"><div class="legend-dot" style="background:#faad14"></div><span>同行/接触点</span></div>
+        <div class="legend-item legend-enc-wrap" id="legendEncWrap" style="display:none"><div class="legend-dot" style="background:#faad14"></div><span>接触点</span></div>
       </div>
       <div class="map-tip" id="mapTip"><div class="tip-time" id="tipTime"></div><div class="tip-loc" id="tipLoc"></div></div>
     </div>
@@ -394,11 +394,11 @@
       <div class="analysis-body" id="analysisBody">
         <div class="timeline-wrap"><canvas id="overlapCanvas"></canvas></div>
         <div class="encounter-panel">
-          <div style="padding:6px 12px;border-bottom:1px solid var(--ant-border-secondary);font-size:11px;color:var(--ant-text-tertiary);display:flex;justify-content:space-between"><span>同行/接触记录</span><span id="encCount">0 条</span></div>
+          <div style="padding:6px 12px;border-bottom:1px solid var(--ant-border-secondary);font-size:11px;color:var(--ant-text-tertiary);display:flex;justify-content:space-between"><span>接触记录</span><span id="encCount">0 条</span></div>
           <div class="encounter-list" id="encounterList"></div>
         </div>
       </div>
-      <div class="summary-row" id="summaryRow" style="display:none"><span>同行 <span class="val" id="sumTogether">0</span></span><span>接触 <span class="val" id="sumContact">0</span></span><span>首次 <span class="val" id="sumFirst">--</span></span><span>末次 <span class="val" id="sumLast">--</span></span></div>
+      <div class="summary-row" id="summaryRow" style="display:none"><span>接触 <span class="val" id="sumContact">0</span></span><span>首次 <span class="val" id="sumFirst">--</span></span><span>末次 <span class="val" id="sumLast">--</span></span></div>
     </div>
   </div>
 
@@ -410,7 +410,7 @@
     </div>
     <div class="type-switch" id="rightTypeSwitch">
       <div class="type-switch-btn active" onclick="switchType('right','person')"><i class="fa-solid fa-person" style="margin-right:4px"></i>人员</div>
-      <div class="type-switch-btn" onclick="switchType('right','vehicle')"><i class="fa-solid fa-car" style="margin-right:4px"></i>车辆</div>
+      <div class="type-switch-btn" onclick="switchType('right','vehicle')" style="opacity:0.4;cursor:not-allowed;" title="本期仅支持人员对比"><i class="fa-solid fa-car" style="margin-right:4px"></i>车辆</div>
     </div>
     <div class="panel-scroll">
       <!-- 人员表单 -->
@@ -538,7 +538,7 @@
 </div>
 
 <script>
-const encounters=[{type:'together',time:'09:05:18',loc:'中央广场南',desc:'同摄像头出现，间隔<5分钟'},{type:'contact',time:'09:28:09',loc:'中央广场中心',desc:'距离<50米，间隔<2分钟'},{type:'together',time:'10:45:21',loc:'北区C栋南',desc:'同摄像头出现，间隔<5分钟'}];
+const encounters=[{type:'contact',time:'09:05:18',loc:'中央广场南',desc:'5分钟内轨迹重叠'},{type:'contact',time:'09:28:09',loc:'中央广场中心',desc:'5分钟内轨迹重叠'},{type:'contact',time:'10:45:21',loc:'北区C栋南',desc:'5分钟内轨迹重叠'}];
 const personCandidates=[{id:'p1',name:'P-00231',meta:'第一次出现 09:00'},{id:'p2',name:'P-00187',meta:'第一次出现 10:05'},{id:'p3',name:'P-00342',meta:'第一次出现 11:30'},{id:'p4',name:'P-00156',meta:'第一次出现 09:50'}];
 const vehicleCandidates=[{id:'v1',name:'京A·12345',meta:'白色SUV·丰田 · 第一次出现 08:02'},{id:'v2',name:'京B·67890',meta:'黑色轿车·大众 · 第一次出现 09:15'},{id:'v3',name:'京C·11111',meta:'银色SUV·宝马 · 第一次出现 10:30'}];
 const state={left:{type:'person',status:'pending',selectedCandidate:null},right:{type:'person',status:'pending',selectedCandidate:null}};
@@ -598,7 +598,7 @@ function confirmTarget(side){if(!state[side].selectedCandidate)return;const type
 
 function updateEmptyState(){document.getElementById('emptyState').style.display=(state.left.status==='done'||state.right.status==='done')?'none':'flex'}
 function checkEncounters(){const both=state.left.status==='done'&&state.right.status==='done';document.getElementById('encounterLayer').style.display=both?'':'none';document.getElementById('legend2Wrap').style.display=both?'':'none';document.getElementById('legendEncWrap').style.display=both?'':'none';document.getElementById('summaryRow').style.display=both?'':'none';if(both){renderEncounterList();setTimeout(drawOverlapTimeline,100)}}
-function renderEncounterList(){const list=document.getElementById('encounterList');document.getElementById('encCount').textContent=encounters.length+' 条';document.getElementById('sumTogether').textContent=encounters.filter(e=>e.type==='together').length;document.getElementById('sumContact').textContent=encounters.filter(e=>e.type==='contact').length;document.getElementById('sumFirst').textContent=encounters[0].time;document.getElementById('sumLast').textContent=encounters[encounters.length-1].time;list.innerHTML=encounters.map(e=>{const tl=e.type==='together'?'同行':'接触';const tc=e.type==='together'?'together':'contact';return`<div class="enc-item"><div class="enc-item-head"><span class="enc-type ${tc}">${tl}</span><span class="enc-time">${e.time}</span><span class="enc-loc">${e.loc}</span></div><div class="enc-detail">目标1 与 目标2 — ${e.desc}</div></div>`}).join('')}
+function renderEncounterList(){const list=document.getElementById('encounterList');document.getElementById('encCount').textContent=encounters.length+' 条';document.getElementById('sumContact').textContent=encounters.length;document.getElementById('sumFirst').textContent=encounters[0].time;document.getElementById('sumLast').textContent=encounters[encounters.length-1].time;list.innerHTML=encounters.map(e=>{return`<div class="enc-item"><div class="enc-item-head"><span class="enc-type contact">接触</span><span class="enc-time">${e.time}</span><span class="enc-loc">${e.loc}</span></div><div class="enc-detail">目标1 与 目标2 — ${e.desc}</div></div>`}).join('')}
 function drawOverlapTimeline(){const canvas=document.getElementById('overlapCanvas');if(!canvas)return;const wrap=canvas.parentElement;canvas.width=wrap.offsetWidth;canvas.height=wrap.offsetHeight;const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);const startMin=540,endMin=720,range=endMin-startMin;ctx.fillStyle='rgba(0,0,0,0.45)';ctx.font='9px sans-serif';for(let m=startMin;m<=endMin;m+=30){const x=20+((m-startMin)/range)*(W-40);ctx.fillText(String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'),x-12,H-2);ctx.strokeStyle='#f0f0f0';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(x,8);ctx.lineTo(x,H-12);ctx.stroke()}[{color:'#1677ff',y:16},{color:'#ff4d4f',y:36}].forEach((t,i)=>{ctx.fillStyle=t.color+'15';ctx.fillRect(20,t.y-4,W-40,12);ctx.fillStyle=t.color;ctx.font='9px sans-serif';ctx.fillText('目标'+(i+1),2,t.y+5)});encounters.forEach(e=>{const parts=e.time.split(':');const mins=parseInt(parts[0])*60+parseInt(parts[1]);const x=20+((mins-startMin)/range)*(W-40);ctx.fillStyle='#faad14';ctx.beginPath();ctx.moveTo(x,8);ctx.lineTo(x-3,4);ctx.lineTo(x+3,4);ctx.closePath();ctx.fill()})}
 
 function showTip(evt,time,loc){const tip=document.getElementById('mapTip');tip.classList.remove('encounter-tip');document.getElementById('tipTime').textContent=time;document.getElementById('tipLoc').textContent=loc;positionTip(evt,tip)}
