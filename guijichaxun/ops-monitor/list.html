@@ -905,7 +905,7 @@ function renderTaskTable() {
     const pauseBtn = t.status === '进行中' ? `<button class="ant-btn ant-btn-sm" onclick="pauseTask(${start + idx})" title="暂停"><i class="fa-solid fa-pause"></i></button>` :
                      t.status === '已暂停' ? `<button class="ant-btn ant-btn-sm" onclick="resumeTask(${start + idx})" title="恢复"><i class="fa-solid fa-play"></i></button>` :
                      `<button class="ant-btn ant-btn-sm" disabled style="opacity:0.3;" title="已过期"><i class="fa-solid fa-pause"></i></button>`;
-    const alertLink = t.alerts > 0 ? `<a href="javascript:void(0)" style="color:var(--ant-primary);font-weight:600;" onclick="openAlertDetail(0)">${t.alerts}</a>` : `<span style="color:var(--ant-text-tertiary);">${t.alerts}</span>`;
+    const alertCount = t.alerts > 0 ? `<span style="color:var(--ant-text);font-weight:600;">${t.alerts}</span>` : `<span style="color:var(--ant-text-tertiary);">${t.alerts}</span>`;
     const thumbBg = t.hasTarget ? 'background:#f5f5f5;' : 'background:#fafafa;';
 
     tbody.innerHTML += `<tr>
@@ -918,7 +918,7 @@ function renderTaskTable() {
       <td><span style="color:var(--ant-text-secondary);">${t.matchMode}</span></td>
       <td><span style="color:var(--ant-text-secondary);">${t.duration}</span></td>
       <td><span style="${remainingStyle}">${t.remaining}</span></td>
-      <td>${alertLink}</td>
+      <td>${alertCount}</td>
       <td><span style="color:var(--ant-text-tertiary);font-size:12px;">${t.createTime}</span></td>
       <td>
         <div style="display:flex;gap:4px;">
