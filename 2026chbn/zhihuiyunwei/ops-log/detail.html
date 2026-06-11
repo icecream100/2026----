@@ -74,8 +74,21 @@
     /* 链路拓扑 */
     .topo-row{display:flex;align-items:center;justify-content:center;gap:0;padding:16px 0;}
     .topo-node{width:120px;text-align:center;padding:10px 8px;border-radius:8px;border:2px solid;font-size:13px;font-weight:600;}
-    .topo-line{width:40px;height:3px;margin:0 -2px;}
-    .topo-line-dashed{border-top:3px dashed;}
+    .topo-link{width:56px;height:22px;margin:0 -2px;display:flex;align-items:center;cursor:pointer;border-radius:999px;padding:8px 0;transition:box-shadow .2s;}
+    .topo-link-line{width:100%;height:3px;position:relative;}
+    .topo-link-line::after{content:'';position:absolute;right:-1px;top:50%;transform:translateY(-50%);border-top:5px solid transparent;border-bottom:5px solid transparent;}
+    .topo-link-normal .topo-link-line{background:#52c41a;}
+    .topo-link-normal .topo-link-line::after{border-left:7px solid #52c41a;}
+    .topo-link-error .topo-link-line{background:repeating-linear-gradient(90deg,#ff4d4f 0,#ff4d4f 8px,transparent 8px,transparent 14px);}
+    .topo-link-error .topo-link-line::after{border-left:7px solid #ff4d4f;}
+    .topo-link-pending .topo-link-line{background:repeating-linear-gradient(90deg,#8c8c8c 0,#8c8c8c 6px,transparent 6px,transparent 12px);}
+    .topo-link-pending .topo-link-line::after{border-left:7px solid #8c8c8c;}
+    .topo-link:hover,.topo-link.active{box-shadow:0 0 0 3px var(--ant-primary-bg);}
+    .topo-link.active{outline:2px solid var(--ant-primary);}
+    .link-hint{display:flex;gap:16px;align-items:center;justify-content:center;margin-top:4px;font-size:11px;color:var(--ant-text-tertiary);}
+    .link-hint span{display:inline-flex;align-items:center;gap:5px;}
+    .link-hint i{width:18px;border-top:2px solid;}
+    .segment-desc{font-size:11px;color:var(--ant-text-tertiary);line-height:1.5;}
   </style>
 </head>
 <body>
@@ -154,8 +167,8 @@
                 <th>点位名称</th>
                 <th>平台编码</th>
                 <th>综合状态</th>
-                <th>链路</th>
                 <th>网络</th>
+                <th>链路</th>
                 <th>画面</th>
                 <th>故障类型</th>
                 <th>操作</th>
@@ -222,7 +235,19 @@
   // 本次巡检各设备检测明细（模拟，展示维度：链路诊断+网络+画质）
   var deviceResults = {
     '南区-路口-C017': {
-      linkResult: { status:'异常', heartbeatTimeout:'18.5%', playSuccess:'0%',
+      linkResult: { status:'异常', heartbeatTimeout:'18.5%', playSuccess:'0%', activeSegment:1,
+        chain:[
+          {from:'本平台',to:'下级平台A',status:'normal',network:'正常',loss:'0.3%',latency:'58',jitter:'6%',link:'连通',cost:'42ms',reason:'—'},
+          {from:'下级平台A',to:'下下级平台B',status:'error',network:'异常',loss:'8.7%',latency:'320',jitter:'15%',link:'超时',cost:'2508ms',reason:'下级平台响应超时'},
+          {from:'下下级平台B',to:'南区-路口-C017',status:'pending',network:'未检测',loss:'—',latency:'—',jitter:'—',link:'未检测',cost:'—',reason:'上游链路异常，未继续检测'}
+        ],
+        logs:[
+          {ts:'2026-05-20 10:30:01.234',content:'本平台发起多级链路诊断，目标设备: 34020000001320000001'},
+          {ts:'2026-05-20 10:30:01.298',content:'本平台 -> 下级平台A 链路正常，响应 42ms'},
+          {ts:'2026-05-20 10:30:01.456',content:'下级平台A -> 下下级平台B 发送诊断请求'},
+          {ts:'2026-05-20 10:30:03.964',content:'下下级平台B 响应超时，等待 2508ms 无响应 (408 Request Timeout)'},
+          {ts:'',content:'诊断结论: 多级平台链路异常，异常段为 下级平台A -> 下下级平台B'}
+        ],
         steps:[
           {name:'收到点播请求',status:'normal',time:'2026-05-20 10:30:01.234',label:'成功'},
           {name:'未查到可用媒体流',status:'normal',time:'2026-05-20 10:30:01.298',label:'未命中缓存'},
@@ -231,19 +256,30 @@
           {name:'收到RTP流',status:'pending',time:'--',label:'未执行'},
           {name:'点播结束',status:'pending',time:'--',label:'未执行'}
         ],
-        logs:[
-          {ts:'2026-05-20 10:30:01.234',content:'收到点播请求 sip:34020000001320000001'},
-          {ts:'2026-05-20 10:30:01.298',content:'未查到可用的媒体流，设备编码: 34020000001320000001'},
-          {ts:'2026-05-20 10:30:01.456',content:'发送邀请 INVITE sip:34020000001320000001@10.55.216.94:5080'},
-          {ts:'2026-05-20 10:30:03.964',content:'邀请指令响应超时，等待 2508ms 无响应 (408 Request Timeout)'},
-          {ts:'',content:'诊断结论: 设备未响应INVITE请求，疑似链路中断或设备离线'}
+        desc:'全链路异常，异常段：下级平台A → 下下级平台B' },
+      networkResult: { status:'异常', activeSegment:1,
+        chain:[
+          {from:'本平台',to:'下级平台A',status:'normal',network:'正常',loss:'0.3%',latency:'58',jitter:'6%',link:'连通',cost:'42ms',reason:'—'},
+          {from:'下级平台A',to:'下下级平台B',status:'error',network:'异常',loss:'8.7%',latency:'320',jitter:'15%',link:'超时',cost:'2508ms',reason:'丢包严重，网络延迟超标'},
+          {from:'下下级平台B',to:'南区-路口-C017',status:'pending',network:'未检测',loss:'—',latency:'—',jitter:'—',link:'未检测',cost:'—',reason:'上游异常，未检测'}
         ],
-        desc:'SIP Server 连接超时，错误代码 408' },
-      networkResult: { status:'异常', rtpLoss:'8.7%', latency:'320', jitter:'15%', desc:'丢包严重，延迟超标' },
+        rtpLoss:'8.7%', latency:'320', jitter:'15%', desc:'全链路网络异常，最差段：下级平台A → 下下级平台B' },
       qualityResult: { status:'异常', items:{brightness:'正常',freeze:'正常',occlusion:'局部遮挡',noise:'正常',snow:'正常'}, desc:'画面局部遮挡' }
     },
     '_default_normal': {
-      linkResult: { status:'正常', heartbeatTimeout:'0%', playSuccess:'99.8%',
+      linkResult: { status:'正常', heartbeatTimeout:'0%', playSuccess:'99.8%', activeSegment:2,
+        chain:[
+          {from:'本平台',to:'下级平台A',status:'normal',network:'正常',loss:'0.1%',latency:'35',jitter:'4%',link:'连通',cost:'30ms',reason:'—'},
+          {from:'下级平台A',to:'下下级平台B',status:'normal',network:'正常',loss:'0.2%',latency:'48',jitter:'5%',link:'连通',cost:'41ms',reason:'—'},
+          {from:'下下级平台B',to:'最终设备',status:'normal',network:'正常',loss:'0.1%',latency:'45',jitter:'8%',link:'连通',cost:'39ms',reason:'—'}
+        ],
+        logs:[
+          {ts:'2026-05-20 10:30:01.234',content:'本平台发起多级链路诊断'},
+          {ts:'2026-05-20 10:30:01.298',content:'本平台 -> 下级平台A 链路正常'},
+          {ts:'2026-05-20 10:30:01.456',content:'下级平台A -> 下下级平台B 链路正常'},
+          {ts:'2026-05-20 10:30:01.712',content:'下下级平台B -> 最终设备 链路正常'},
+          {ts:'',content:'诊断结论: 全链路正常'}
+        ],
         steps:[
           {name:'收到点播请求',status:'normal',time:'2026-05-20 10:30:01.234',label:'成功'},
           {name:'查到可用媒体流',status:'normal',time:'2026-05-20 10:30:01.298',label:'命中缓存'},
@@ -252,32 +288,42 @@
           {name:'收到RTP流',status:'normal',time:'2026-05-20 10:30:02.103',label:'正常'},
           {name:'点播结束',status:'normal',time:'2026-05-20 10:30:32.103',label:'正常结束'}
         ],
-        logs:[
-          {ts:'2026-05-20 10:30:01.234',content:'收到点播请求 sip:34020000001320000001'},
-          {ts:'2026-05-20 10:30:01.298',content:'查到可用媒体流，直接复用'},
-          {ts:'2026-05-20 10:30:01.456',content:'发送 INVITE'},
-          {ts:'2026-05-20 10:30:01.712',content:'收到 200 OK 响应'},
-          {ts:'2026-05-20 10:30:32.103',content:'点播正常结束，会话持续 30s'}
-        ],
         desc:'—' },
-      networkResult: { status:'正常', rtpLoss:'0.1%', latency:'45', jitter:'8%', desc:'—' },
+      networkResult: { status:'正常', activeSegment:2,
+        chain:[
+          {from:'本平台',to:'下级平台A',status:'normal',network:'正常',loss:'0.1%',latency:'35',jitter:'4%',link:'连通',cost:'30ms',reason:'—'},
+          {from:'下级平台A',to:'下下级平台B',status:'normal',network:'正常',loss:'0.2%',latency:'48',jitter:'5%',link:'连通',cost:'41ms',reason:'—'},
+          {from:'下下级平台B',to:'最终设备',status:'normal',network:'正常',loss:'0.1%',latency:'45',jitter:'8%',link:'连通',cost:'39ms',reason:'—'}
+        ],
+        rtpLoss:'0.1%', latency:'45', jitter:'8%', desc:'—' },
       qualityResult: { status:'正常', items:{brightness:'正常',freeze:'正常',occlusion:'正常',noise:'正常',snow:'正常'}, desc:'—' }
     },
     '_default_abnormal_link': {
-      linkResult: { status:'异常', heartbeatTimeout:'100%', playSuccess:'0%',
+      linkResult: { status:'异常', heartbeatTimeout:'100%', playSuccess:'0%', activeSegment:1,
+        chain:[
+          {from:'本平台',to:'下级平台A',status:'normal',network:'正常',loss:'0.2%',latency:'60',jitter:'5%',link:'连通',cost:'45ms',reason:'—'},
+          {from:'下级平台A',to:'下下级平台B',status:'error',network:'异常',loss:'—',latency:'—',jitter:'—',link:'不可达',cost:'超时',reason:'级联链路断开'},
+          {from:'下下级平台B',to:'最终设备',status:'pending',network:'未检测',loss:'—',latency:'—',jitter:'—',link:'未检测',cost:'—',reason:'链路不完整'}
+        ],
+        logs:[
+          {ts:'2026-05-20 10:30:01.234',content:'本平台发起多级链路诊断'},
+          {ts:'2026-05-20 10:30:01.456',content:'下级平台A -> 下下级平台B 级联链路不可达'},
+          {ts:'',content:'诊断结论: 链路不完整，异常段为 下级平台A -> 下下级平台B'}
+        ],
         steps:[
           {name:'收到点播请求',status:'normal',time:'2026-05-20 10:30:01.234',label:'成功'},
           {name:'发送邀请指令',status:'error',time:'2026-05-20 10:30:01.456',label:'超时'},
           {name:'收到RTP流',status:'pending',time:'--',label:'未执行'},
           {name:'点播结束',status:'pending',time:'--',label:'未执行'}
         ],
-        logs:[
-          {ts:'2026-05-20 10:30:01.234',content:'收到点播请求'},
-          {ts:'2026-05-20 10:30:01.456',content:'INVITE 超时，设备不可达'},
-          {ts:'',content:'诊断结论: 链路不可达，设备疑似离线'}
+        desc:'链路不完整，链路诊断无法继续执行' },
+      networkResult: { status:'异常', activeSegment:1,
+        chain:[
+          {from:'本平台',to:'下级平台A',status:'normal',network:'正常',loss:'0.2%',latency:'60',jitter:'5%',link:'连通',cost:'45ms',reason:'—'},
+          {from:'下级平台A',to:'下下级平台B',status:'error',network:'异常',loss:'—',latency:'—',jitter:'—',link:'不可达',cost:'超时',reason:'级联链路断开'},
+          {from:'下下级平台B',to:'最终设备',status:'pending',network:'未检测',loss:'—',latency:'—',jitter:'—',link:'未检测',cost:'—',reason:'链路不完整'}
         ],
-        desc:'链路不可达，链路诊断无法执行' },
-      networkResult: { status:'异常', rtpLoss:'—', latency:'—', jitter:'—', desc:'链路不可达，网络状态无法检测' },
+        rtpLoss:'—', latency:'—', jitter:'—', desc:'链路不完整，网络状态无法检测' },
       qualityResult: { status:'—', items:{brightness:'—',freeze:'—',occlusion:'—',noise:'—',snow:'—'}, desc:'链路不可达，无法获取画质数据' }
     }
   };
@@ -303,8 +349,8 @@
         +'<td><strong>'+d.name+'</strong></td>'
         +'<td style="font-size:13px;color:var(--ant-text-secondary);">'+d.code+'</td>'
         +'<td><span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:12px;color:'+sc.c+';background:'+sc.bg+';border:1px solid '+sc.b+';"><span style="width:5px;height:5px;border-radius:50%;background:'+sc.c+';"></span>'+d.status+'</span></td>'
-        +'<td>'+sigH+'</td>'
         +'<td>'+netH+'</td>'
+        +'<td>'+sigH+'</td>'
         +'<td>'+quaH+'</td>'
         +'<td>'+faultH+'</td>'
         +'<td><button class="ant-btn-link" onclick="openResultModal(\''+d.name+'\',\''+d.code+'\',\''+d.status+'\')"><i class="fa-solid fa-microscope" style="margin-right:3px;"></i>查看结果</button></td>';
@@ -326,7 +372,127 @@
     document.querySelectorAll('.modal-tab-panel').forEach(function(p){ p.classList.toggle('active', p.id === 'mtab-' + key); });
   }
 
+  function getDefaultSegmentIndex(chain) {
+    var errorIndex = chain.findIndex(function(seg){ return seg.status === 'error'; });
+    return errorIndex >= 0 ? errorIndex : chain.length - 1;
+  }
+
+  function renderChainOverview(chain, mode) {
+    var html = '<div class="chain-topology"><div class="topo-row">';
+    chain.forEach(function(seg, i) {
+      var firstNode = i === 0 ? seg.from : null;
+      if (firstNode) html += renderTopoNode(firstNode, seg.status === 'error' ? 'normal' : seg.status);
+      html += renderTopoLine(seg, i, chain.activeIndex || 0, mode) + renderTopoNode(seg.to, seg.status);
+    });
+    html += '</div><div class="link-hint">'
+      +'<span><i style="border-color:#52c41a;"></i>正常</span>'
+      +'<span><i style="border-color:#ff4d4f;border-style:dashed;"></i>异常</span>'
+      +'<span><i style="border-color:#8c8c8c;border-style:dashed;"></i>未检测</span>'
+      +'<span><i style="border-color:var(--ant-primary);"></i>蓝色描边为选中线段</span>'
+      +'</div></div>';
+    return html;
+  }
+
+  function renderTopoNode(name, status) {
+    var color = status === 'normal' ? '#52c41a' : status === 'error' ? '#ff4d4f' : '#8c8c8c';
+    var bg = status === 'normal' ? '#f6ffed' : status === 'error' ? '#fff1f0' : '#fafafa';
+    var border = status === 'normal' ? '#b7eb8f' : status === 'error' ? '#ffa39e' : '#d9d9d9';
+    return '<div class="topo-node" style="background:'+bg+';border-color:'+border+';color:'+color+';">'+name+'</div>';
+  }
+
+  function renderTopoLine(seg, index, activeIndex, mode) {
+    var cls = seg.status === 'pending' ? 'pending' : seg.status === 'error' ? 'error' : 'normal';
+    var active = index === activeIndex ? ' active' : '';
+    return '<div class="topo-link topo-link-'+cls+active+'" data-seg="'+index+'" title="'+seg.from+' → '+seg.to+'" onclick="selectSegment(this,\''+mode+'\')"><div class="topo-link-line"></div></div>';
+  }
+
+  function renderNetworkSegmentDetail(chain) {
+    var idx = chain.activeIndex || 0;
+    var seg = chain[idx];
+    if (!seg) return '';
+    return '<div class="segment-detail" id="networkSegmentDetail">'
+      +'<div style="font-weight:600;margin-bottom:8px;">当前链路段：'+seg.from+' → '+seg.to+'</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">'
+      +'<div class="metric-mini"><div class="metric-mini-title">丢包率</div><div class="metric-mini-val">'+seg.loss+'</div></div>'
+      +'<div class="metric-mini"><div class="metric-mini-title">网络延迟</div><div class="metric-mini-val">'+seg.latency+' ms</div></div>'
+      +'<div class="metric-mini"><div class="metric-mini-title">波动率</div><div class="metric-mini-val">'+seg.jitter+'</div></div>'
+      +'</div><div style="font-size:13px;color:var(--ant-text-secondary);margin-top:8px;">异常说明：'+seg.reason+'</div></div>';
+  }
+
+  function renderSelectedLinkSections(result) {
+    var chain = result.chain;
+    var idx = chain.activeIndex || 0;
+    var seg = chain[idx];
+    return '<div style="font-size:13px;font-weight:600;margin:12px 0 6px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-stethoscope" style="color:var(--ant-primary);"></i>原链路时序图：'+seg.from+' → '+seg.to+'</div>'
+      +renderCompactSeq(getSegmentSteps(seg))
+      +'<div style="font-size:13px;font-weight:600;margin:12px 0 6px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-file-code" style="color:var(--ant-primary);"></i>原始日志</div>'
+      +renderCompactLog(getSegmentLogs(seg));
+  }
+
+  function selectSegment(el, mode) {
+    var panel = el.closest('.modal-tab-panel');
+    var chain = window.currentResult[mode === 'network' ? 'networkResult' : 'linkResult'].chain;
+    chain.activeIndex = parseInt(el.dataset.seg, 10);
+    var topology = panel.querySelector('.chain-topology');
+    if (topology) {
+      topology.outerHTML = renderChainOverview(chain, mode);
+    }
+    if (mode === 'network') {
+      var detail = panel.querySelector('#networkSegmentDetail');
+      if (detail) detail.outerHTML = renderNetworkSegmentDetail(chain);
+      return;
+    }
+    var linkSections = panel.querySelector('#linkSelectedSections');
+    if (linkSections) linkSections.innerHTML = renderSelectedLinkSections(window.currentResult.linkResult);
+  }
+
   /* ====== 渲染链路时序图（紧凑版） ====== */
+  function getSegmentSteps(seg) {
+    if (seg.status === 'normal') {
+      return [
+        {name:'发起检测',status:'normal',time:'10:30:01.234',label:'成功'},
+        {name:'发送探测请求',status:'normal',time:'10:30:01.298',label:'已发送'},
+        {name:'收到响应',status:'normal',time:'10:30:01.340',label:seg.cost},
+        {name:'链路确认',status:'normal',time:'10:30:01.360',label:'连通'}
+      ];
+    }
+    if (seg.status === 'pending') {
+      return [
+        {name:'等待上游恢复',status:'pending',time:'--',label:'未执行'},
+        {name:'发送探测请求',status:'pending',time:'--',label:'未执行'},
+        {name:'收到响应',status:'pending',time:'--',label:'未执行'}
+      ];
+    }
+    return [
+      {name:'发起检测',status:'normal',time:'10:30:01.456',label:'成功'},
+      {name:'发送探测请求',status:'normal',time:'10:30:01.498',label:'已发送'},
+      {name:'等待响应',status:'error',time:'10:30:03.964',label:seg.link},
+      {name:'链路确认',status:'pending',time:'--',label:'未执行'}
+    ];
+  }
+
+  function getSegmentLogs(seg) {
+    if (seg.status === 'normal') {
+      return [
+        {ts:'2026-05-20 10:30:01.234',content:seg.from+' -> '+seg.to+' 发起链路检测'},
+        {ts:'2026-05-20 10:30:01.340',content:seg.to+' 返回响应，耗时 '+seg.cost},
+        {ts:'',content:'诊断结论: 当前线段链路正常'}
+      ];
+    }
+    if (seg.status === 'pending') {
+      return [
+        {ts:'',content:'当前线段未检测: '+seg.reason},
+        {ts:'',content:'诊断结论: 上游异常，暂未执行该段链路检测'}
+      ];
+    }
+    return [
+      {ts:'2026-05-20 10:30:01.456',content:seg.from+' -> '+seg.to+' 发送诊断请求'},
+      {ts:'2026-05-20 10:30:03.964',content:seg.to+' 响应超时，等待 '+seg.cost+' 无响应'},
+      {ts:'',content:'失败原因: '+seg.reason},
+      {ts:'',content:'诊断结论: 当前线段异常'}
+    ];
+  }
+
   function renderCompactSeq(steps) {
     var html = '<div class="seq-compact">';
     steps.forEach(function(step, i) {
@@ -385,6 +551,7 @@
 
   function openResultModal(name, code, status) {
     var r = getResultForDevice({name:name,code:code,status:status});
+    window.currentResult = r;
     var sc = status==='正常' ? {c:'#52c41a',bg:'#f6ffed',b:'#b7eb8f'} : {c:'#ff4d4f',bg:'#fff1f0',b:'#ffa39e'};
 
     document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-microscope" style="color:var(--ant-primary);margin-right:8px;"></i>'+name+' — 本次巡检结果';
@@ -398,32 +565,20 @@
       +'</div>'
       // Tab 导航
       +'<div class="modal-tabs">'
-      +'<div class="modal-tab active" data-mtab="link" onclick="switchModalTab(\'link\')"><i class="fa-solid fa-link" style="font-size:11px;"></i>链路诊断</div>'
-      +'<div class="modal-tab" data-mtab="network" onclick="switchModalTab(\'network\')"><i class="fa-solid fa-network-wired" style="font-size:11px;"></i>网络状态</div>'
+      +'<div class="modal-tab active" data-mtab="network" onclick="switchModalTab(\'network\')"><i class="fa-solid fa-network-wired" style="font-size:11px;"></i>网络状态</div>'
+      +'<div class="modal-tab" data-mtab="link" onclick="switchModalTab(\'link\')"><i class="fa-solid fa-link" style="font-size:11px;"></i>链路诊断</div>'
       +'<div class="modal-tab" data-mtab="quality" onclick="switchModalTab(\'quality\')"><i class="fa-solid fa-image" style="font-size:11px;"></i>画质类</div>'
       +'</div>';
 
     // ====== 链路诊断 Tab ======
     if (r.linkResult) {
       var lr = r.linkResult;
-      var hbColor = parseFloat(lr.heartbeatTimeout) > 10 ? '#ff4d4f' : '#52c41a';
-      var psColor = parseFloat(lr.playSuccess) < 90 ? '#ff4d4f' : '#52c41a';
-      html += '<div class="modal-tab-panel active" id="mtab-link">'
-        // 指标卡片
-        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">'
-        +'<div class="metric-mini" style="border-left:3px solid '+(parseFloat(lr.heartbeatTimeout)>10?'var(--ant-error)':'var(--ant-success)')+';">'
-        +'<div class="metric-mini-title">心跳超时率</div><div class="metric-mini-val" style="color:'+hbColor+';">'+lr.heartbeatTimeout+'</div>'
-        +'<div class="metric-mini-hint" style="color:'+hbColor+';">'+(parseFloat(lr.heartbeatTimeout)>10?'⚠ 超标':'正常')+'</div></div>'
-        +'<div class="metric-mini" style="border-left:3px solid '+(parseFloat(lr.playSuccess)<90?'var(--ant-error)':'var(--ant-success)')+';">'
-        +'<div class="metric-mini-title">点播成功率</div><div class="metric-mini-val" style="color:'+psColor+';">'+lr.playSuccess+'</div>'
-        +'<div class="metric-mini-hint" style="color:'+psColor+';">'+(parseFloat(lr.playSuccess)<90?'⚠ 异常':'正常')+'</div></div>'
-        +'</div>'
-        // 诊断报告（时序图）
-        +'<div style="font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-stethoscope" style="color:var(--ant-primary);"></i>诊断报告</div>'
-        +renderCompactSeq(lr.steps)
-        // 原始日志
-        +'<div style="font-size:13px;font-weight:600;margin:12px 0 6px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-file-code" style="color:var(--ant-primary);"></i>原始日志</div>'
-        +renderCompactLog(lr.logs)
+      lr.chain.activeIndex = getDefaultSegmentIndex(lr.chain);
+      html += '<div class="modal-tab-panel" id="mtab-link">'
+        +'<div style="font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-diagram-project" style="color:var(--ant-primary);"></i>全链路拓扑</div>'
+        +'<div style="font-size:12px;color:var(--ant-text-secondary);margin-bottom:8px;">本平台 → 下级平台 → 下下级平台 → 最终设备；点击任一链路段查看该段诊断详情。</div>'
+        +renderChainOverview(lr.chain, 'link')
+        +'<div id="linkSelectedSections">'+renderSelectedLinkSections(lr)+'</div>'
         +(lr.desc!=='—' ? '<div style="margin-top:10px;font-size:13px;color:#ff4d4f;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>'+lr.desc+'</div>' : '')
         +'</div>';
     }
@@ -431,16 +586,12 @@
     // ====== 网络状态 Tab ======
     if (r.networkResult) {
       var nr = r.networkResult;
-      html += '<div class="modal-tab-panel" id="mtab-network">'
-        // 指标卡片
-        +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">'
-        +'<div class="metric-mini" style="border-left:3px solid '+(parseFloat(nr.rtpLoss)>5?'var(--ant-error)':'var(--ant-success)')+';">'
-        +'<div class="metric-mini-title">丢包率</div><div class="metric-mini-val" style="color:'+(parseFloat(nr.rtpLoss)>5?'#ff4d4f':'#52c41a')+';">'+nr.rtpLoss+'</div></div>'
-        +'<div class="metric-mini" style="border-left:3px solid '+(parseFloat(nr.latency)>200?'var(--ant-error)':'var(--ant-success)')+';">'
-        +'<div class="metric-mini-title">网络延迟</div><div class="metric-mini-val" style="color:'+(parseFloat(nr.latency)>200?'#ff4d4f':'#52c41a')+';">'+nr.latency+' ms</div></div>'
-        +'<div class="metric-mini" style="border-left:3px solid '+(parseFloat(nr.jitter)>10?'var(--ant-error)':'var(--ant-success)')+';">'
-        +'<div class="metric-mini-title">波动率</div><div class="metric-mini-val" style="color:'+(parseFloat(nr.jitter)>10?'#ff4d4f':'#52c41a')+';">'+nr.jitter+'</div></div>'
-        +'</div>'
+      nr.chain.activeIndex = nr.activeSegment || getDefaultSegmentIndex(nr.chain);
+      html += '<div class="modal-tab-panel active" id="mtab-network">'
+        +'<div style="font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-network-wired" style="color:var(--ant-primary);"></i>全链路网络质量总览</div>'
+        +'<div style="font-size:12px;color:var(--ant-text-secondary);margin-bottom:8px;">优先判断平台级网络质量，再下钻链路连通性；点击任一链路段查看该段网络指标。</div>'
+        +renderChainOverview(nr.chain, 'network')
+        +renderNetworkSegmentDetail(nr.chain)
         +(nr.desc!=='—' ? '<div style="margin-top:10px;font-size:13px;color:#ff4d4f;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>'+nr.desc+'</div>' : '')
         +'</div>';
     }

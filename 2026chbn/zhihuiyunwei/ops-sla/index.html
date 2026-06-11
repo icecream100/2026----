@@ -76,7 +76,7 @@
         <select class="ant-select"><option>本月（2026-05）</option><option>上月</option><option>近30天</option><option>近90天</option><option>自定义</option></select>
       </div>
 
-      <!-- KPI 卡片：点位在线率 / 画面正常率 / 链路可用率 / 网络可用率 / MTBF / MTTR -->
+      <!-- KPI 卡片：点位在线率 / 网络可用率 / 链路可用率 / 画面正常率 / MTBF / MTTR -->
       <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-bottom:24px;">
         <div class="kpi-card c-blue">
           <div class="kpi-label"><i class="fa-solid fa-wifi" style="margin-right:4px;"></i>点位在线率</div>
@@ -85,12 +85,13 @@
           <div class="kpi-sub">在线 2,438 / 总计 2,512</div>
           <div class="progress-bar"><div class="progress-fill" style="width:97.1%;background:#1677ff;"></div></div>
         </div>
-        <div class="kpi-card c-green">
-          <div class="kpi-label"><i class="fa-solid fa-eye" style="margin-right:4px;"></i>画面正常率</div>
-          <div class="kpi-value" style="color:#52c41a;">96.3%</div>
-          <div class="kpi-trend" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i> +1.2% 较上月</div>
-          <div class="kpi-sub">画面正常 2,339 / 已巡检 2,430</div>
-          <div class="progress-bar"><div class="progress-fill" style="width:96.3%;background:#52c41a;"></div></div>
+        <div class="kpi-card" style="position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#eb2f96;"></div>
+          <div class="kpi-label"><i class="fa-solid fa-server" style="margin-right:4px;"></i>网络可用率</div>
+          <div class="kpi-value" style="color:#eb2f96;">97.8%</div>
+          <div class="kpi-trend" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i> +0.6% 较上月</div>
+          <div class="kpi-sub">网络正常 2,457 / 已巡检 2,512</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:97.8%;background:#eb2f96;"></div></div>
         </div>
         <div class="kpi-card c-purple">
           <div class="kpi-label"><i class="fa-solid fa-network-wired" style="margin-right:4px;"></i>链路可用率</div>
@@ -99,13 +100,12 @@
           <div class="kpi-sub">链路正常 2,396 / 已巡检 2,432</div>
           <div class="progress-bar"><div class="progress-fill" style="width:98.5%;background:#722ed1;"></div></div>
         </div>
-        <div class="kpi-card" style="position:relative;overflow:hidden;">
-          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#eb2f96;"></div>
-          <div class="kpi-label"><i class="fa-solid fa-server" style="margin-right:4px;"></i>网络可用率</div>
-          <div class="kpi-value" style="color:#eb2f96;">97.8%</div>
-          <div class="kpi-trend" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i> +0.6% 较上月</div>
-          <div class="kpi-sub">网络正常 2,457 / 已巡检 2,512</div>
-          <div class="progress-bar"><div class="progress-fill" style="width:97.8%;background:#eb2f96;"></div></div>
+        <div class="kpi-card c-green">
+          <div class="kpi-label"><i class="fa-solid fa-eye" style="margin-right:4px;"></i>画面正常率</div>
+          <div class="kpi-value" style="color:#52c41a;">96.3%</div>
+          <div class="kpi-trend" style="color:#52c41a;"><i class="fa-solid fa-arrow-up"></i> +1.2% 较上月</div>
+          <div class="kpi-sub">画面正常 2,339 / 已巡检 2,430</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:96.3%;background:#52c41a;"></div></div>
         </div>
         <div class="kpi-card c-cyan">
           <div class="kpi-label"><i class="fa-solid fa-shield-halved" style="margin-right:4px;"></i>平均无故障时长(MTBF)</div>
@@ -130,9 +130,9 @@
           <div style="display:flex;gap:16px;align-items:center;">
             <div style="display:flex;gap:0;">
               <div class="trend-tab active" data-trend="online" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-radius:4px 0 0 4px;background:var(--ant-primary);color:#fff;">在线率</div>
-              <div class="trend-tab" data-trend="video" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-left:0;border-radius:0;">画面正常率</div>
+              <div class="trend-tab" data-trend="network" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-left:0;border-radius:0;">网络可用率</div>
               <div class="trend-tab" data-trend="link" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-left:0;border-radius:0;">链路可用率</div>
-              <div class="trend-tab" data-trend="network" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-left:0;border-radius:0 4px 4px 0;">网络可用率</div>
+              <div class="trend-tab" data-trend="video" onclick="switchTrendTab(this)" style="padding:6px 16px;cursor:pointer;font-size:13px;border:1px solid var(--ant-border);border-left:0;border-radius:0 4px 4px 0;">画面正常率</div>
             </div>
             <div style="display:flex;gap:0;">
               <button class="ant-btn ant-btn-sm" style="border-radius:4px 0 0 4px;background:var(--ant-primary);color:#fff;border-color:var(--ant-primary);">按日</button>
@@ -210,9 +210,9 @@
                 <th rowspan="2" style="vertical-align:bottom;">操作</th>
               </tr>
               <tr>
+                <th style="color:#1677ff;">网络</th>
                 <th style="color:#722ed1;">链路</th>
                 <th style="color:#52c41a;">画面</th>
-                <th style="color:#1677ff;">网络</th>
               </tr>
             </thead>
             <tbody id="slaTableBody"></tbody>
@@ -234,9 +234,9 @@
                 <th>点位总数</th>
                 <th>在线数</th>
                 <th>在线率</th>
-                <th>画面正常率</th>
-                <th>链路可用率</th>
                 <th>网络可用率</th>
+                <th>链路可用率</th>
+                <th>画面正常率</th>
                 <th>MTBF(h)</th>
                 <th>MTTR(min)</th>
               </tr>
@@ -246,45 +246,45 @@
                 <td><i class="fa-solid fa-circle" style="color:#1677ff;font-size:8px;margin-right:6px;"></i>球机</td>
                 <td>1,280</td><td>1,248</td>
                 <td><span style="color:#52c41a;">97.5%</span></td>
-                <td><span style="color:#52c41a;">96.8%</span></td>
-                <td><span style="color:#52c41a;">98.9%</span></td>
                 <td><span style="color:#52c41a;">98.2%</span></td>
+                <td><span style="color:#52c41a;">98.9%</span></td>
+                <td><span style="color:#52c41a;">96.8%</span></td>
                 <td>68</td><td>42</td>
               </tr>
               <tr>
                 <td><i class="fa-solid fa-circle" style="color:#52c41a;font-size:8px;margin-right:6px;"></i>枪机</td>
                 <td>860</td><td>842</td>
                 <td><span style="color:#52c41a;">97.9%</span></td>
-                <td><span style="color:#52c41a;">96.1%</span></td>
-                <td><span style="color:#52c41a;">98.3%</span></td>
                 <td><span style="color:#52c41a;">97.6%</span></td>
+                <td><span style="color:#52c41a;">98.3%</span></td>
+                <td><span style="color:#52c41a;">96.1%</span></td>
                 <td>75</td><td>35</td>
               </tr>
               <tr>
                 <td><i class="fa-solid fa-circle" style="color:#722ed1;font-size:8px;margin-right:6px;"></i>半球</td>
                 <td>248</td><td>236</td>
                 <td><span style="color:#52c41a;">95.2%</span></td>
-                <td style="color:#fa8c16;font-weight:600;">93.5%</td>
-                <td><span style="color:#52c41a;">97.2%</span></td>
                 <td style="color:#fa8c16;font-weight:600;">94.8%</td>
+                <td><span style="color:#52c41a;">97.2%</span></td>
+                <td style="color:#fa8c16;font-weight:600;">93.5%</td>
                 <td style="color:#fa8c16;">48</td><td style="color:#fa8c16;">52</td>
               </tr>
               <tr>
                 <td><i class="fa-solid fa-circle" style="color:#fa8c16;font-size:8px;margin-right:6px;"></i>无人机</td>
                 <td>84</td><td>78</td>
                 <td><span style="color:#52c41a;">92.9%</span></td>
-                <td style="color:#ff4d4f;font-weight:600;">91.2%</td>
-                <td><span style="color:#52c41a;">95.8%</span></td>
                 <td style="color:#fa8c16;">93.5%</td>
+                <td><span style="color:#52c41a;">95.8%</span></td>
+                <td style="color:#ff4d4f;font-weight:600;">91.2%</td>
                 <td style="color:#ff4d4f;">32</td><td style="color:#ff4d4f;">65</td>
               </tr>
               <tr>
                 <td><i class="fa-solid fa-circle" style="color:#13c2c2;font-size:8px;margin-right:6px;"></i>车载</td>
                 <td>40</td><td>34</td>
                 <td style="color:#fa8c16;font-weight:600;">85.0%</td>
-                <td style="color:#ff4d4f;font-weight:600;">88.2%</td>
-                <td style="color:#fa8c16;font-weight:600;">92.1%</td>
                 <td style="color:#ff4d4f;font-weight:600;">89.5%</td>
+                <td style="color:#fa8c16;font-weight:600;">92.1%</td>
+                <td style="color:#ff4d4f;font-weight:600;">88.2%</td>
                 <td style="color:#ff4d4f;">24</td><td style="color:#ff4d4f;">78</td>
               </tr>
             </tbody>
@@ -315,15 +315,15 @@
       var videoC = parseFloat(r.video) < 99 ? ' class="fail"' : '';
       var networkC = parseFloat(r.network) < 99 ? ' class="fail"' : '';
       return '<tr><td><strong>'+r.name+'</strong></td><td>'+r.total+'</td><td>'+r.online+'</td>'
+        +'<td'+networkC+'>'+r.network+'</td>'
         +'<td'+linkC+'>'+r.link+'</td>'
         +'<td'+videoC+'>'+r.video+'</td>'
-        +'<td'+networkC+'>'+r.network+'</td>'
         +'<td style="'+mtbfColor+'">'+r.mtbf+'</td>'
         +'<td style="'+mttrColor+'">'+r.mttr+'</td>'
         +'<td><a class="ant-btn ant-btn-sm"'+btnStyle+' href="detail.html?region='+encodeURIComponent(r.name)+'">查看详情</a></td></tr>';
     }).join('');
     html += '<tr style="background:#fafafa;font-weight:600;"><td>合计</td><td>2,512</td><td>2,438</td>'
-      +'<td style="color:#fa8c16;">98.5%</td><td style="color:#fa8c16;">96.3%</td><td style="color:#fa8c16;">97.8%</td>'
+      +'<td style="color:#fa8c16;">97.8%</td><td style="color:#fa8c16;">98.5%</td><td style="color:#fa8c16;">96.3%</td>'
       +'<td>72</td><td>38</td><td>—</td></tr>';
     tb.innerHTML = html;
   })();

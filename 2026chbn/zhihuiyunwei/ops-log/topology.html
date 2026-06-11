@@ -38,8 +38,10 @@
     .topo-node-label{font-size:14px;font-weight:600;color:var(--ant-text);}
     .topo-node-status{font-size:12px;padding:2px 10px;border-radius:12px;font-weight:500;}
     .topo-node-badge{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
-    .topo-connector{display:flex;align-items:center;position:relative;min-width:80px;height:3px;}
-    .topo-connector-line{flex:1;height:100%;position:relative;}
+    .topo-connector{display:flex;align-items:center;position:relative;min-width:80px;height:22px;cursor:pointer;border-radius:999px;padding:8px 0;transition:box-shadow 0.2s;}
+    .topo-connector:hover,.topo-connector.active{box-shadow:0 0 0 3px var(--ant-primary-bg);}
+    .topo-connector.active{outline:2px solid var(--ant-primary);}
+    .topo-connector-line{flex:1;height:3px;position:relative;}
     .topo-connector-arrow{width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;position:absolute;right:-2px;top:50%;transform:translateY(-50%);}
     /* Diagnostic panel */
     .diag-panel{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:320px;background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.15);z-index:200;display:none;border:1px solid var(--ant-border-secondary);overflow:hidden;}
@@ -128,7 +130,7 @@
         <div class="ant-card">
           <div class="ant-card-head">
             <span><i class="fa-solid fa-diagram-project" style="color:var(--ant-primary);margin-right:8px;"></i>链路拓扑图</span>
-            <span style="font-size:13px;font-weight:400;color:var(--ant-text-tertiary);">点击异常节点查看详情</span>
+            <span style="font-size:13px;font-weight:400;color:var(--ant-text-tertiary);">点击异常链路段查看详情</span>
           </div>
           <div class="ant-card-body" style="position:relative;">
             <!-- Overlay for closing diagnostic panel -->
@@ -139,9 +141,9 @@
               <!-- Node 1: 终端 (摄像头) -->
               <div class="topo-node" style="z-index:2;">
                 <div class="topo-node-icon" style="background:#f6ffed;border:2px solid #b7eb8f;color:#52c41a;">
-                  <i class="fa-solid fa-video"></i>
+                  <i class="fa-solid fa-building"></i>
                 </div>
-                <div class="topo-node-label">终端</div>
+                <div class="topo-node-label">本平台</div>
                 <div class="topo-node-status" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">正常</div>
               </div>
 
@@ -157,7 +159,7 @@
                 <div class="topo-node-icon" style="background:#f6ffed;border:2px solid #b7eb8f;color:#52c41a;">
                   <i class="fa-solid fa-server"></i>
                 </div>
-                <div class="topo-node-label">接入网关</div>
+                <div class="topo-node-label">下级平台A</div>
                 <div class="topo-node-status" style="color:#52c41a;background:#f6ffed;border:1px solid #b7eb8f;">正常</div>
               </div>
 
@@ -173,19 +175,19 @@
                 <div class="topo-node-icon" style="background:#fffbe6;border:2px solid #ffe58f;color:#faad14;">
                   <i class="fa-solid fa-network-wired"></i>
                 </div>
-                <div class="topo-node-label">SIP Server</div>
+                <div class="topo-node-label">下下级平台B</div>
                 <div class="topo-node-status" style="color:#faad14;background:#fffbe6;border:1px solid #ffe58f;">超时</div>
               </div>
 
               <!-- Connector 3: red dashed -->
-              <div class="topo-connector">
+              <div class="topo-connector active" onclick="showDiagPanel(this)">
                 <div class="topo-connector-line" style="background:repeating-linear-gradient(90deg,#ff4d4f 0,#ff4d4f 8px,transparent 8px,transparent 14px);height:3px;">
                   <div class="topo-connector-arrow" style="border-left:8px solid #ff4d4f;"></div>
                 </div>
               </div>
 
               <!-- Node 4: 上级平台 (ERROR) -->
-              <div class="topo-node" id="errorNode" onclick="showDiagPanel()" style="z-index:2;">
+              <div class="topo-node" id="errorNode" style="z-index:2;">
                 <div class="topo-node-icon" id="errorNodeIcon" style="background:#fff1f0;border:2px solid #ffa39e;color:#ff4d4f;">
                   <i class="fa-solid fa-building"></i>
                   <!-- Error badge -->
@@ -193,7 +195,7 @@
                     <i class="fa-solid fa-xmark"></i>
                   </div>
                 </div>
-                <div class="topo-node-label">上级平台</div>
+                <div class="topo-node-label">最终设备</div>
                 <div class="topo-node-status" style="color:#ff4d4f;background:#fff1f0;border:1px solid #ffa39e;">异常</div>
               </div>
             </div>
@@ -208,8 +210,8 @@
               </div>
               <div class="diag-panel-body">
                 <div class="diag-row">
-                  <div class="diag-label">节点名称</div>
-                  <div class="diag-value">上级平台</div>
+                  <div class="diag-label">链路段</div>
+                  <div class="diag-value">下下级平台B → 最终设备</div>
                 </div>
                 <div class="diag-row">
                   <div class="diag-label">错误码</div>
@@ -217,11 +219,11 @@
                 </div>
                 <div class="diag-row">
                   <div class="diag-label">错误描述</div>
-                  <div class="diag-value">上级平台响应超时</div>
+                  <div class="diag-value">下下级平台B到最终设备响应超时</div>
                 </div>
                 <div class="diag-row">
                   <div class="diag-label">建议措施</div>
-                  <div class="diag-value" style="font-weight:400;line-height:1.6;">检查上级平台网络连通性，确认SIP服务是否正常运行</div>
+                  <div class="diag-value" style="font-weight:400;line-height:1.6;">检查下下级平台到最终设备的级联链路、网络连通性和设备在线状态</div>
                 </div>
               </div>
             </div>
@@ -312,7 +314,9 @@
 </div>
 
 <script>
-function showDiagPanel(){
+function showDiagPanel(el){
+  document.querySelectorAll('.topo-connector').forEach(function(item){ item.classList.remove('active'); });
+  if (el) el.classList.add('active');
   document.getElementById('diagPanel').classList.add('show');
   document.getElementById('panelOverlay').classList.add('show');
 }

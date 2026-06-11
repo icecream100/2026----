@@ -201,7 +201,7 @@
               <!-- 筛选 -->
               <div class="flex gap-3 flex-wrap pb-4">
                 <input class="ant-input" id="searchInput" style="width:240px;" placeholder="搜索设备名称">
-                <select class="ant-select"><option>全部报警类型</option><option>链路异常</option><option>画面异常</option><option>丢包致花屏</option><option>无线信号弱</option><option>网络异常-丢包</option><option>网络异常-延迟</option><option>网络异常-波动</option></select>
+                <select class="ant-select"><option>全部报警类型</option><option>网络异常-丢包</option><option>网络异常-延迟</option><option>网络异常-波动</option><option>链路异常</option><option>画面异常</option><option>丢包致花屏</option><option>无线信号弱</option></select>
                 <select class="ant-select"><option>全部状态</option><option>待处理</option><option>已关闭</option></select>
                 <select class="ant-select"><option>全部负责人</option><option>张工程师</option><option>李工程师</option><option>王工程师</option><option>赵工程师</option></select>
                 <button class="ant-btn" onclick="doSearch()"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
@@ -455,7 +455,7 @@ renderTable = function(filter='all'){
     const isUrgent = a.level==='紧急';
     const actions = a.status==='pending'
       ? `<div class="action-wrap"><button class="ant-btn ant-btn-sm" style="border-color:#1677ff;color:#1677ff;" onclick="location.href='detail.html?id=${a.id}'">处理</button></div>`
-      : `—`;
+      : `<div class="action-wrap"><button class="ant-btn ant-btn-sm" onclick="location.href='view.html?id=${a.id}'">查看详情</button></div>`;
     return `<tr style="${isUrgent?'background:#fff1f0;':''}">
       <td><input type="checkbox" class="alert-checkbox" value="${a.id}" onchange="updateBatchBtn()" style="accent-color:#1677ff;"></td>
       <td style="font-size:13px;font-weight:500;">${a.id}</td>

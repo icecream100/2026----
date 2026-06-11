@@ -203,15 +203,29 @@
     .topo-name { font-size: 12px; font-weight: 600; color: var(--ant-text); text-align: center; }
     .topo-status { font-size: 11px; font-weight: 500; }
     .topo-link {
-      flex: 1; max-width: 80px; min-width: 40px; height: 2px;
+      flex: 1; max-width: 84px; min-width: 44px; height: 22px;
       position: relative; margin: 0 4px; align-self: center;
-      margin-bottom: 30px;
+      margin-bottom: 30px; display: flex; align-items: center;
+      cursor: pointer; border-radius: 999px; padding: 8px 0;
+      transition: box-shadow 0.2s;
     }
-    .topo-link-line { width: 100%; height: 100%; }
-    .topo-link-label {
-      position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
-      font-size: 10px; white-space: nowrap;
+    .topo-link-line { width: 100%; height: 3px; position: relative; }
+    .topo-link-line::after {
+      content: ''; position: absolute; right: -1px; top: 50%; transform: translateY(-50%);
+      border-top: 5px solid transparent; border-bottom: 5px solid transparent;
     }
+    .topo-link-normal .topo-link-line { background: var(--ant-success); }
+    .topo-link-normal .topo-link-line::after { border-left: 7px solid var(--ant-success); }
+    .topo-link-error .topo-link-line { background: repeating-linear-gradient(90deg,var(--ant-error) 0,var(--ant-error) 8px,transparent 8px,transparent 14px); }
+    .topo-link-error .topo-link-line::after { border-left: 7px solid var(--ant-error); }
+    .topo-link-pending .topo-link-line { background: repeating-linear-gradient(90deg,#8c8c8c 0,#8c8c8c 6px,transparent 6px,transparent 12px); }
+    .topo-link-pending .topo-link-line::after { border-left: 7px solid #8c8c8c; }
+    .topo-link:hover, .topo-link.active { box-shadow: 0 0 0 3px var(--ant-primary-bg); }
+    .topo-link.active { outline: 2px solid var(--ant-primary); }
+    .link-hint { display: flex; gap: 16px; align-items: center; justify-content: center; margin-top: 4px; font-size: 11px; color: var(--ant-text-tertiary); }
+    .link-hint span { display: inline-flex; align-items: center; gap: 5px; }
+    .link-hint i { width: 18px; border-top: 2px solid; }
+    .segment-detail { margin-top: 12px; padding: 14px; border: 1px solid var(--ant-border-secondary); border-radius: var(--ant-radius-lg); background: #fafafa; }
 
     /* ========== Link History ========== */
     .link-history { display: flex; gap: 3px; }
@@ -464,8 +478,8 @@
               ALT-20260414-001
             </div>
             <div style="display:flex;align-items:center;gap:8px;">
-              <span style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;color:var(--ant-error);">
-                <span style="width:7px;height:7px;border-radius:50%;background:var(--ant-error);display:inline-block;"></span>
+              <span id="alertStatusBadge" style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;color:var(--ant-error);">
+                <span id="alertStatusDot" style="width:7px;height:7px;border-radius:50%;background:var(--ant-error);display:inline-block;"></span>
                 待处理
               </span>
               <button class="ant-btn" id="btnMore"><i class="fa-solid fa-ellipsis"></i></button>
@@ -528,7 +542,7 @@
       </div>
 
       <!-- Layer 2: 处理模块（设备信息与诊断区之间） -->
-      <div style="margin:16px 24px 0;background:#fff;border-radius:8px;border:1px solid var(--ant-border-secondary);padding:16px;margin-bottom:8px;">
+      <div id="processFormSection" style="margin:16px 24px 0;background:#fff;border-radius:8px;border:1px solid var(--ant-border-secondary);padding:16px;margin-bottom:8px;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
           <i class="fa-solid fa-clipboard-check" style="color:var(--ant-primary);"></i>
           <span style="font-size:15px;font-weight:600;">告警处理</span>
@@ -564,17 +578,18 @@
         </div>
       </div>
 
+
       <!-- Layer 3: 诊断区 Tabs -->
       <div style="margin-top:24px;border-radius:8px;border:1px solid var(--ant-border-secondary);overflow:hidden;">
       <div class="ant-tabs" style="margin-top:0;background:#fff;">
         <div class="ant-tabs-nav" id="tabsNav" style="background:#fff;border-bottom:1px solid var(--ant-border-secondary);">
-          <div class="ant-tabs-tab active" data-tab="signaling" onclick="switchTab('signaling')">
-            <i class="fa-solid fa-link" style="font-size:12px;"></i>
-            链路诊断 <span class="tab-dot tab-dot-error"></span>
-          </div>
-          <div class="ant-tabs-tab" data-tab="network" onclick="switchTab('network')">
+          <div class="ant-tabs-tab active" data-tab="network" onclick="switchTab('network')">
             <i class="fa-solid fa-network-wired" style="font-size:12px;"></i>
             网络状态 <span class="tab-dot tab-dot-error"></span>
+          </div>
+          <div class="ant-tabs-tab" data-tab="signaling" onclick="switchTab('signaling')">
+            <i class="fa-solid fa-link" style="font-size:12px;"></i>
+            链路诊断 <span class="tab-dot tab-dot-error"></span>
           </div>
           <div class="ant-tabs-tab" data-tab="quality" onclick="switchTab('quality')">
             <i class="fa-solid fa-image" style="font-size:12px;"></i>
@@ -585,17 +600,22 @@
         <div class="ant-tabs-content" style="padding:16px;">
 
           <!-- ===== 链路诊断 Tab ===== -->
-          <div class="tab-panel active" id="panel-signaling">
+          <div class="tab-panel" id="panel-signaling">
             <!-- 诊断报告（链路时序图） -->
             <div class="ant-card" style="margin-bottom:16px;">
               <div class="ant-card-head">
                 <div class="ant-card-head-title">
-                  <i class="fa-solid fa-stethoscope" style="color:var(--ant-primary);"></i>诊断报告
-                  <span class="ant-tag ant-tag-error" style="margin-left:8px;font-size:11px;height:20px;">链路异常</span>
+                  <i class="fa-solid fa-diagram-project" style="color:var(--ant-primary);"></i>全链路拓扑
+                  <span class="ant-tag ant-tag-error" style="margin-left:8px;font-size:11px;height:20px;">异常段已高亮</span>
                 </div>
               </div>
               <div class="ant-card-body">
-                <div class="seq-diagram" id="seqDiagram"></div>
+                <div style="font-size:12px;color:var(--ant-text-secondary);margin-bottom:8px;">本平台 → 下级平台 → 下下级平台 → 最终设备，点击节点之间的线段查看该段诊断过程。</div>
+                <div id="linkChainOverview"></div>
+                <div id="linkSelectedSections">
+                  <div style="font-size:13px;font-weight:600;margin:16px 0 8px;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-stethoscope" style="color:var(--ant-primary);"></i><span id="seqTitle">原链路时序图</span></div>
+                  <div class="seq-diagram" id="seqDiagram"></div>
+                </div>
                 <div style="display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--ant-text-tertiary);">
                   <span><span style="display:inline-block;width:10px;height:10px;background:var(--ant-primary);border-radius:50%;vertical-align:middle;margin-right:4px;"></span>正常</span>
                   <span><span style="display:inline-block;width:10px;height:10px;background:var(--ant-error);border-radius:50%;vertical-align:middle;margin-right:4px;"></span>异常</span>
@@ -618,28 +638,15 @@
           </div>
 
           <!-- ===== 网络状态 Tab ===== -->
-          <div class="tab-panel" id="panel-network">
-            <div class="metric-grid metric-grid-3">
-              <div class="metric-card metric-card-abnormal">
-                <div class="ant-statistic">
-                  <div class="ant-statistic-title">丢包率</div>
-                  <div class="ant-statistic-content" style="color:var(--ant-error);">8.7<span class="ant-statistic-suffix">%</span></div>
-                  <div class="ant-statistic-footer" style="color:var(--ant-error);"><i class="fa-solid fa-triangle-exclamation" style="font-size:10px;"></i>严重超标</div>
-                </div>
+          <div class="tab-panel active" id="panel-network">
+            <div class="ant-card">
+              <div class="ant-card-head">
+                <div class="ant-card-head-title"><i class="fa-solid fa-network-wired" style="color:var(--ant-primary);"></i>全链路网络质量总览</div>
               </div>
-              <div class="metric-card metric-card-abnormal">
-                <div class="ant-statistic">
-                  <div class="ant-statistic-title">网络延迟</div>
-                  <div class="ant-statistic-content" style="color:var(--ant-error);">320<span class="ant-statistic-suffix"> ms</span></div>
-                  <div class="ant-statistic-footer" style="color:var(--ant-error);"><i class="fa-solid fa-triangle-exclamation" style="font-size:10px;"></i>超过阈值</div>
-                </div>
-              </div>
-              <div class="metric-card metric-card-normal">
-                <div class="ant-statistic">
-                  <div class="ant-statistic-title">波动率</div>
-                  <div class="ant-statistic-content" style="color:var(--ant-success);">6.2<span class="ant-statistic-suffix">%</span></div>
-                  <div class="ant-statistic-footer" style="color:var(--ant-success);"><i class="fa-solid fa-circle-check" style="font-size:10px;"></i>正常</div>
-                </div>
+              <div class="ant-card-body">
+                <div style="font-size:12px;color:var(--ant-text-secondary);margin-bottom:8px;">优先判断平台级网络质量，再下钻链路连通性；点击任一链路段查看该段网络指标。</div>
+                <div id="networkChainOverview"></div>
+                <div id="networkSegmentDetail"></div>
               </div>
             </div>
           </div>
@@ -748,21 +755,6 @@
                 </div>
               </div>
             </div>
-            <div class="ant-timeline-pending">— 等待工程师处置 —</div>
-
-            <!-- 处理结果与意见 -->
-            <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--ant-border-secondary);">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                <div>
-                  <div style="font-size:13px;color:var(--ant-text-secondary);margin-bottom:4px;">处理结果</div>
-                  <div style="font-size:14px;"><span class="ant-tag ant-tag-closed">待处理</span></div>
-                </div>
-                <div>
-                  <div style="font-size:13px;color:var(--ant-text-secondary);margin-bottom:4px;">处理意见</div>
-                  <div style="font-size:14px;color:var(--ant-text-tertiary);">—</div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -803,6 +795,13 @@
 <div class="toast" id="toast"></div>
 
 <script>
+/* ========== 多层级链路数据 ========== */
+var chainSegments = [
+  {from:'本平台', to:'下级平台A', status:'normal', loss:'0.3%', latency:'58', jitter:'6%', link:'连通', cost:'42ms', reason:'—'},
+  {from:'下级平台A', to:'下下级平台B', status:'error', loss:'8.7%', latency:'320', jitter:'15%', link:'超时', cost:'2508ms', reason:'下级平台响应超时'},
+  {from:'下下级平台B', to:'CAM-001', status:'pending', loss:'—', latency:'—', jitter:'—', link:'未检测', cost:'—', reason:'上游链路异常，未继续检测'}
+];
+
 /* ========== Tab 切换 ========== */
 function switchTab(key) {
   document.querySelectorAll('.ant-tabs-tab').forEach(function(t) {
@@ -819,6 +818,75 @@ function showToast(type, msg) {
   el.className = 'toast toast-' + type + ' show';
   el.innerHTML = '<i class="fa-solid fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i>' + msg;
   setTimeout(function() { el.classList.remove('show'); }, 2000);
+}
+
+/* ========== 多层级链路渲染 ========== */
+function getDefaultSegmentIndex() {
+  var errorIndex = chainSegments.findIndex(function(seg){ return seg.status === 'error'; });
+  return errorIndex >= 0 ? errorIndex : chainSegments.length - 1;
+}
+
+var selectedChainIndex = getDefaultSegmentIndex();
+
+function renderChain(mode) {
+  var target = document.getElementById(mode === 'network' ? 'networkChainOverview' : 'linkChainOverview');
+  if (!target) return;
+  var html = '<div class="topo-row">';
+  chainSegments.forEach(function(seg, i) {
+    if (i === 0) html += renderChainNode(seg.from, 'normal');
+    html += renderChainLine(seg, i, mode) + renderChainNode(seg.to, seg.status);
+  });
+  html += '</div><div class="link-hint">'
+    + '<span><i style="border-color:var(--ant-success);"></i>正常</span>'
+    + '<span><i style="border-color:var(--ant-error);border-style:dashed;"></i>异常</span>'
+    + '<span><i style="border-color:#8c8c8c;border-style:dashed;"></i>未检测</span>'
+    + '<span><i style="border-color:var(--ant-primary);"></i>蓝色描边为选中线段</span>'
+    + '</div>';
+  target.innerHTML = html;
+  if (mode === 'network') renderNetworkSegmentDetail(selectedChainIndex);
+  if (mode === 'link') renderSelectedLinkSections(selectedChainIndex);
+}
+
+function renderChainNode(name, status) {
+  var color = status === 'normal' ? 'var(--ant-success)' : status === 'error' ? 'var(--ant-error)' : 'var(--ant-text-tertiary)';
+  var bg = status === 'normal' ? 'var(--ant-success-bg)' : status === 'error' ? 'var(--ant-error-bg)' : '#fafafa';
+  var border = status === 'normal' ? '#b7eb8f' : status === 'error' ? '#ffa39e' : '#d9d9d9';
+  var icon = name.indexOf('平台') >= 0 ? 'fa-building' : 'fa-video';
+  var label = status === 'normal' ? '正常' : status === 'error' ? '异常' : '未检测';
+  return '<div class="topo-node"><div class="topo-circle" style="color:'+color+';background:'+bg+';border-color:'+border+';"><i class="fa-solid '+icon+'"></i></div><div class="topo-name">'+name+'</div><div class="topo-status" style="color:'+color+';">'+label+'</div></div>';
+}
+
+function renderChainLine(seg, index, mode) {
+  var cls = seg.status === 'pending' ? 'pending' : seg.status === 'error' ? 'error' : 'normal';
+  var active = index === selectedChainIndex ? ' active' : '';
+  return '<div class="topo-link topo-link-'+cls+active+'" data-seg="'+index+'" title="'+seg.from+' → '+seg.to+'" onclick="selectChainSegment(this,\''+mode+'\')"><div class="topo-link-line"></div></div>';
+}
+
+function selectChainSegment(el, mode) {
+  selectedChainIndex = parseInt(el.dataset.seg, 10);
+  renderChain(mode);
+}
+
+function renderNetworkSegmentDetail(index) {
+  var seg = chainSegments[index];
+  var target = document.getElementById('networkSegmentDetail');
+  if (!target || !seg) return;
+  target.innerHTML = '<div class="segment-detail">'
+    + '<div style="font-weight:600;margin-bottom:10px;">当前链路段：'+seg.from+' → '+seg.to+'</div>'
+    + '<div class="metric-grid metric-grid-3" style="margin-bottom:0;">'
+    + '<div class="metric-card '+(seg.status === 'error' ? 'metric-card-abnormal' : 'metric-card-normal')+'"><div class="ant-statistic"><div class="ant-statistic-title">丢包率</div><div class="ant-statistic-content">'+seg.loss+'</div></div></div>'
+    + '<div class="metric-card '+(seg.status === 'error' ? 'metric-card-abnormal' : 'metric-card-normal')+'"><div class="ant-statistic"><div class="ant-statistic-title">网络延迟</div><div class="ant-statistic-content">'+seg.latency+'<span class="ant-statistic-suffix"> ms</span></div></div></div>'
+    + '<div class="metric-card '+(seg.status === 'error' ? 'metric-card-abnormal' : 'metric-card-normal')+'"><div class="ant-statistic"><div class="ant-statistic-title">波动率</div><div class="ant-statistic-content">'+seg.jitter+'</div></div></div>'
+    + '</div><div style="font-size:13px;color:var(--ant-text-secondary);margin-top:10px;">异常说明：'+seg.reason+'</div></div>';
+}
+
+function renderSelectedLinkSections(index) {
+  var seg = chainSegments[index];
+  if (!seg) return;
+  var title = document.getElementById('seqTitle');
+  if (title) title.textContent = '原链路时序图：' + seg.from + ' → ' + seg.to;
+  renderSeqDiagram(index);
+  renderLogViewer(index);
 }
 
 /* ========== TCP 端口渲染 ========== */
@@ -840,17 +908,33 @@ function renderTcpPorts() {
 }
 
 /* ========== 链路时序图渲染 ========== */
-function renderSeqDiagram() {
-  var steps = [
-    { name: '收到点播请求', icon: 'fa-play', status: 'normal', time: '2026-06-02 16:32:43.748', label: '成功' },
-    { name: '未查到可用媒体流', icon: 'fa-magnifying-glass', status: 'normal', time: '2026-06-02 16:32:43.812', label: '未命中缓存' },
-    { name: '发送邀请指令', icon: 'fa-paper-plane', status: 'normal', time: '2026-06-02 16:32:44.013', label: 'INVITE' },
-    { name: '邀请指令响应', icon: 'fa-reply', status: 'error', time: '2026-06-02 16:32:46.521', label: '超时无响应' },
-    { name: '收到RTP流', icon: 'fa-film', status: 'pending', time: '--', label: '未执行' },
-    { name: 'RTP注册', icon: 'fa-registered', status: 'pending', time: '--', label: '未执行' },
-    { name: '注册流响应', icon: 'fa-check-double', status: 'pending', time: '--', label: '未执行' },
-    { name: '点播结束', icon: 'fa-stop', status: 'pending', time: '--', label: '未执行' }
+function getSegmentSteps(seg) {
+  if (seg.status === 'normal') {
+    return [
+      { name: '发起检测', icon: 'fa-play', status: 'normal', time: '2026-06-02 16:32:43.748', label: '成功' },
+      { name: '发送探测请求', icon: 'fa-paper-plane', status: 'normal', time: '2026-06-02 16:32:43.812', label: '已发送' },
+      { name: '收到响应', icon: 'fa-reply', status: 'normal', time: '2026-06-02 16:32:43.854', label: seg.cost },
+      { name: '链路确认', icon: 'fa-check', status: 'normal', time: '2026-06-02 16:32:43.880', label: '连通' }
+    ];
+  }
+  if (seg.status === 'pending') {
+    return [
+      { name: '等待上游恢复', icon: 'fa-clock', status: 'pending', time: '--', label: '未执行' },
+      { name: '发送探测请求', icon: 'fa-paper-plane', status: 'pending', time: '--', label: '未执行' },
+      { name: '收到响应', icon: 'fa-reply', status: 'pending', time: '--', label: '未执行' }
+    ];
+  }
+  return [
+    { name: '发起检测', icon: 'fa-play', status: 'normal', time: '2026-06-02 16:32:44.013', label: '成功' },
+    { name: '发送探测请求', icon: 'fa-paper-plane', status: 'normal', time: '2026-06-02 16:32:44.080', label: '已发送' },
+    { name: '等待响应', icon: 'fa-reply', status: 'error', time: '2026-06-02 16:32:46.521', label: seg.link },
+    { name: '链路确认', icon: 'fa-stop', status: 'pending', time: '--', label: '未执行' }
   ];
+}
+
+function renderSeqDiagram(index) {
+  var seg = chainSegments[index == null ? selectedChainIndex : index];
+  var steps = getSegmentSteps(seg);
   var html = '<div class="seq-flow">';
   steps.forEach(function(step, i) {
     var statusCls = 'seq-node-' + step.status;
@@ -879,22 +963,31 @@ function renderSeqDiagram() {
 }
 
 /* ========== 原始日志渲染 ========== */
-function renderLogViewer() {
-  var logs = [
-    { ts: '2026-06-02 16:32:43.748', content: '<span class="log-method">收到点播请求</span> <span class="log-url">sip:34020000001320000001@3402000000</span>' },
-    { ts: '2026-06-02 16:32:43.812', content: '<span class="log-warn">未查到可用的媒体流</span>，设备编码: 34020000001320000001' },
-    { ts: '2026-06-02 16:32:44.013', content: '<span class="log-method">发送邀请Invite;</span> <span class="log-url">INVITE sip:34020000001320000001@10.55.216.94:5080 SIP/2.0</span>' },
-    { ts: '', content: '<span class="log-header">Via:</span> SIP/2.0/UDP 10.55.216.88:5060;branch=z9hG4bK3f00a1b2' },
-    { ts: '', content: '<span class="log-header">From:</span> &lt;sip:34020000002000000001@10.55.216.88&gt;;tag=abc123' },
-    { ts: '', content: '<span class="log-header">To:</span> &lt;sip:34020000001320000001@10.55.216.94&gt;' },
-    { ts: '', content: '<span class="log-header">Call-ID:</span> 3f00a1b2-c8d9-4e7f-a6b5@10.55.216.88' },
-    { ts: '', content: '<span class="log-header">CSeq:</span> 1 INVITE' },
-    { ts: '', content: '<span class="log-header">Content-Type:</span> application/sdp' },
-    { ts: '', content: '<span class="log-header">Content-Length:</span> 0' },
-    { ts: '2026-06-02 16:32:46.521', content: '<span class="log-error">邀请指令响应超时</span>，等待 2508ms 无响应' },
-    { ts: '', content: '<span class="log-error">错误码:</span> 408 Request Timeout' },
-    { ts: '', content: '<span class="log-error">诊断结论:</span> 设备未响应INVITE请求，疑似链路中断或设备离线' }
+function getSegmentLogs(seg) {
+  if (seg.status === 'normal') {
+    return [
+      { ts: '2026-06-02 16:32:43.748', content: '<span class="log-method">'+seg.from+' → '+seg.to+'</span> 发起链路检测' },
+      { ts: '2026-06-02 16:32:43.854', content: '<span class="log-method">'+seg.to+'</span> 返回响应，耗时 '+seg.cost },
+      { ts: '', content: '<span class="log-method">诊断结论:</span> 当前线段链路正常' }
+    ];
+  }
+  if (seg.status === 'pending') {
+    return [
+      { ts: '', content: '<span class="log-warn">当前线段未检测:</span> '+seg.reason },
+      { ts: '', content: '<span class="log-warn">诊断结论:</span> 上游异常，暂未执行该段链路检测' }
+    ];
+  }
+  return [
+    { ts: '2026-06-02 16:32:44.013', content: '<span class="log-method">'+seg.from+' → '+seg.to+'</span> 发送诊断请求' },
+    { ts: '2026-06-02 16:32:46.521', content: '<span class="log-error">'+seg.to+' 响应超时</span>，等待 '+seg.cost+' 无响应' },
+    { ts: '', content: '<span class="log-error">失败原因:</span> '+seg.reason },
+    { ts: '', content: '<span class="log-error">诊断结论:</span> 当前线段异常' }
   ];
+}
+
+function renderLogViewer(index) {
+  var seg = chainSegments[index == null ? selectedChainIndex : index];
+  var logs = getSegmentLogs(seg);
   var html = '';
   logs.forEach(function(log) {
     var tsHtml = log.ts ? '<span class="log-ts">[' + log.ts + ']</span> ' : '                        ';
@@ -993,9 +1086,8 @@ document.getElementById('closeModal').addEventListener('click', function(e) {
 });
 
 /* ========== 初始化 ========== */
-renderTcpPorts();
-renderSeqDiagram();
-renderLogViewer();
+renderChain('network');
+renderChain('link');
 
 /* ========== 处理结果联动 ========== */
 var selectedProcessResult = '';

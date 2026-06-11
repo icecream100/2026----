@@ -146,14 +146,14 @@
   var tasks = [
     { id:'TASK-2026041001', name:'市区摄像头-全量画质巡检', dims:['画面'], enabled:true, method:'周期执行', methodDetail:'按日 02:00', points:1248, updatedAt:'2026-05-20 14:30', updatedBy:'张工程师', legacy:false },
     { id:'TASK-2026041002', name:'南区-链路诊断巡检', dims:['链路'], enabled:true, method:'周期执行', methodDetail:'按周 周三 02:00', points:320, updatedAt:'2026-05-19 10:15', updatedBy:'李工程师', legacy:false },
-    { id:'TASK-2026041003', name:'北区-三维全检', dims:['画面','链路','网络'], enabled:true, method:'周期执行', methodDetail:'按月 1日 02:00', points:180, updatedAt:'2026-05-21 09:00', updatedBy:'王工程师', legacy:false },
+    { id:'TASK-2026041003', name:'北区-三维全检', dims:['网络','链路','画面'], enabled:true, method:'周期执行', methodDetail:'按月 1日 02:00', points:180, updatedAt:'2026-05-21 09:00', updatedBy:'王工程师', legacy:false },
     { id:'TASK-2026041004', name:'东区路口摄像头巡检', dims:['画面','链路'], enabled:false, method:'定时执行', methodDetail:'2026-06-01 02:00', points:96, updatedAt:'2026-05-18 16:45', updatedBy:'张工程师', legacy:false },
     { id:'TASK-2026041005', name:'西区链路诊断专项检测', dims:['链路'], enabled:true, method:'周期执行', methodDetail:'按日 03:00', points:56, updatedAt:'2026-05-22 08:20', updatedBy:'赵工程师', legacy:false },
     { id:'TASK-2026040901', name:'昨日-全市链路诊断巡检', dims:['链路'], enabled:true, method:'周期执行', methodDetail:'按周 周一 02:00', points:2100, updatedAt:'2026-05-17 11:30', updatedBy:'李工程师', legacy:false },
     { id:'TASK-2026040801', name:'检测任务-20260408', dims:['画面'], enabled:false, method:'定时执行', methodDetail:'2026-04-08 08:00', points:560, updatedAt:'2026-04-08 08:00', updatedBy:'张工程师', legacy:true }
   ];
 
-  var dimColorMap = { '链路':'ant-tag-blue', '画面':'ant-tag-orange', '网络':'ant-tag-cyan' };
+  var dimColorMap = { '网络':'ant-tag-cyan', '链路':'ant-tag-blue', '画面':'ant-tag-orange' };
 
   var tb = document.getElementById('taskTable');
   tasks.forEach(function(t) {

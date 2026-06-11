@@ -175,7 +175,7 @@
         + '<th colspan="3" style="text-align:center;border-bottom:2px solid var(--ant-border-secondary);">可用率（≥99%为达标）</th>'
         + '<th rowspan="2" style="vertical-align:bottom;">MTBF(h)</th><th rowspan="2" style="vertical-align:bottom;">MTTR(min)</th>'
         + '</tr><tr>'
-        + '<th style="color:#722ed1;">链路</th><th style="color:#52c41a;">画面</th><th style="color:#1677ff;">网络</th>'
+        + '<th style="color:#1677ff;">网络</th><th style="color:#722ed1;">链路</th><th style="color:#52c41a;">画面</th>'
         + '</tr>';
 
       var devices = deviceData[sub] || [];
@@ -187,9 +187,9 @@
         function mttrStyle(v){ if(v==='—') return ''; return v>50?'color:#ff4d4f;font-weight:600;':v>30?'color:#fa8c16;':''; }
         html += '<tr><td><strong>' + d.name + '</strong></td>'
           + '<td>' + d.type + '</td>'
+          + '<td style="' + rateStyle(d.netRate) + '">' + d.netRate + '</td>'
           + '<td style="' + rateStyle(d.linkRate) + '">' + d.linkRate + '</td>'
           + '<td style="' + rateStyle(d.videoRate) + '">' + d.videoRate + '</td>'
-          + '<td style="' + rateStyle(d.netRate) + '">' + d.netRate + '</td>'
           + '<td style="' + mtbfStyle(d.mtbf) + '">' + d.mtbf + '</td>'
           + '<td style="' + mttrStyle(d.mttr) + '">' + d.mttr + '</td></tr>';
       }
@@ -210,9 +210,9 @@
       + '<th rowspan="2" style="vertical-align:bottom;">MTTR(min)</th>'
       + '<th rowspan="2" style="vertical-align:bottom;">操作</th>'
       + '</tr><tr>'
+      + '<th style="color:#1677ff;">网络</th>'
       + '<th style="color:#722ed1;">链路</th>'
       + '<th style="color:#52c41a;">画面</th>'
-      + '<th style="color:#1677ff;">网络</th>'
       + '</tr>';
 
     var areas = subAreaData[region] || subAreaData['雁塔区'];
@@ -227,13 +227,13 @@
       var btnStyle = r.fail ? ' style="border-color:#faad14;color:#faad14;"' : '';
       var mtbfColor = r.mtbf < 250 ? 'color:#ff4d4f;' : r.mtbf < 350 ? 'color:#fa8c16;' : '';
       var mttrColor = r.mttr > 50 ? 'color:#ff4d4f;' : r.mttr > 40 ? 'color:#fa8c16;' : '';
+      var signalC = parseFloat(r.signal) < 99 ? ' class="fail"' : '';
       var linkC = parseFloat(r.link) < 99 ? ' class="fail"' : '';
       var videoC = parseFloat(r.video) < 99 ? ' class="fail"' : '';
-      var signalC = parseFloat(r.signal) < 99 ? ' class="fail"' : '';
       html += '<tr><td><strong>' + r.name + '</strong></td><td>' + r.total + '</td><td>' + r.online + '</td>'
+        + '<td' + signalC + '>' + r.signal + '</td>'
         + '<td' + linkC + '>' + r.link + '</td>'
         + '<td' + videoC + '>' + r.video + '</td>'
-        + '<td' + signalC + '>' + r.signal + '</td>'
         + '<td style="' + mtbfColor + '">' + r.mtbf + '</td>'
         + '<td style="' + mttrColor + '">' + r.mttr + '</td>'
         + '<td><a class="ant-btn ant-btn-sm" href="detail.html?region=' + encodeURIComponent(region) + '&sub=' + encodeURIComponent(r.name) + '"' + btnStyle + '>查看详情</a></td></tr>';

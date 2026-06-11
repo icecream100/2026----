@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>预警详情 - 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--ant-primary:#1677ff;--ant-success:#52c41a;--ant-warning:#faad14;--ant-error:#ff4d4f;--ant-text:rgba(0,0,0,0.88);--ant-text-secondary:rgba(0,0,0,0.65);--ant-text-tertiary:rgba(0,0,0,0.45);--ant-border:#d9d9d9;--ant-border-secondary:#f0f0f0;--shadow-1:0 1px 2px rgba(0,0,0,0.03),0 1px 6px -1px rgba(0,0,0,0.02);--shadow-2:0 3px 6px -4px rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08);--predict-purple:#722ed1;}
+    *{box-sizing:border-box;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;color:var(--ant-text);background:#f0f2f5;margin:0;}
+    .layout{display:flex;min-height:100vh;flex-direction:column;}
+    .header{height:56px;background:#001529;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100;}
+    .content-wrap{display:flex;flex:1;}.sider{width:220px;background:#001529;min-height:calc(100vh - 56px);flex-shrink:0;}.main{flex:1;padding:20px 24px;overflow:auto;}
+    .menu-group-title{padding:12px 16px 4px;font-size:11px;color:rgba(255,255,255,0.35);}
+    .menu-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-size:14px;}
+    .menu-item:hover{color:#fff;background:rgba(255,255,255,0.08);}.menu-item.active{color:#fff;background:var(--ant-primary);}.menu-item i{width:16px;text-align:center;}
+    .ant-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 15px;font-size:14px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;color:var(--ant-text);cursor:pointer;transition:all 0.2s;}
+    .ant-btn:hover{color:var(--ant-primary);border-color:var(--ant-primary);}
+    .ant-card{background:#fff;border-radius:8px;box-shadow:var(--shadow-1);}
+    .ant-card-head{display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:15px;font-weight:600;}
+    .ant-card-body{padding:24px;}
+    .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--ant-text-tertiary);font-size:14px;margin-bottom:16px;}
+    .breadcrumb a{color:var(--ant-text-tertiary);text-decoration:none;}.breadcrumb a:hover{color:var(--ant-primary);}
+    .ant-tag{display:inline-flex;align-items:center;height:22px;padding:0 7px;font-size:12px;border-radius:4px;border:1px solid;}
+    .prob-glow{animation:probPulse 2s infinite;}@keyframes probPulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
+    .timeline{position:relative;padding-left:24px;}
+    .timeline::before{content:'';position:absolute;left:7px;top:8px;bottom:0;width:2px;background:var(--ant-border-secondary);}
+    .timeline-item{position:relative;margin-bottom:20px;}
+    .timeline-dot{position:absolute;left:-20px;top:4px;width:14px;height:14px;border-radius:50%;border:2px solid;}
+    .timeline-content{font-size:13px;}
+    .timeline-time{color:rgba(0,0,0,0.45);font-size:12px;margin-top:3px;}
+    .trend-tab{padding:10px 20px;cursor:pointer;font-size:14px;color:rgba(0,0,0,0.65);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;}
+    .trend-tab.active{color:var(--ant-primary);border-bottom-color:var(--ant-primary);font-weight:600;}
+    .trend-tab:hover{color:var(--ant-primary);}
+    .trend-panel{display:none;}.trend-panel.active{display:block;}
+    .status-verified{background:#f6ffed;color:#52c41a;border-color:#b7eb8f;}
+    .status-false{background:#fff2f0;color:#ff4d4f;border-color:#ffccc7;}
+    .status-expired{background:#f5f5f5;color:rgba(0,0,0,0.45);border-color:#d9d9d9;}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="flex items-center gap-3">
+      <div style="background:#1677ff;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-video text-white text-sm"></i></div>
+      <span class="text-white font-semibold text-base">视频智能运维管理平台</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="flex items-center gap-4">
+      <span style="color:rgba(255,255,255,0.65);font-size:13px;cursor:pointer;"><i class="fa-regular fa-bell mr-1"></i>3</span>
+      <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+        <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+        <span style="font-size:13px;">张工程师</span>
+      </div>
+    </div>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <div class="menu-item" onclick="location.href='../ops-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>检测算法</div>
+      <div class="menu-item" onclick="location.href='../ops-inspection/list.html'"><i class="fa-solid fa-clipboard-list"></i>巡检任务</div>
+      <div class="menu-item" onclick="location.href='../ops-log/list.html'"><i class="fa-solid fa-file-lines"></i>巡检日志</div>
+      <div class="menu-item" onclick="location.href='../ops-sla/index.html'"><i class="fa-solid fa-chart-line"></i>可用性报告</div>
+      <div class="menu-item active"><i class="fa-solid fa-brain"></i>故障预警</div>
+      <div class="menu-item" onclick="location.href='../ops-alert/list.html'"><i class="fa-solid fa-triangle-exclamation"></i>设备告警</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span>
+        <a href="list.html">故障预警</a><span>/</span>
+        <span style="color:var(--ant-text);">预警详情</span>
+      </div>
+
+      <!-- 事件信息头 -->
+      <div id="alertHeader" style="background:linear-gradient(135deg,#f9f0ff,#fff);border:1px solid #d3adf7;padding:16px 24px;border-radius:8px;margin-bottom:16px;box-shadow:var(--shadow-1);">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+          <span style="background:linear-gradient(135deg,#722ed1,#9254de);color:#fff;padding:3px 12px;border-radius:4px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:4px;"><i class="fa-solid fa-brain" style="font-size:11px;"></i>故障预警</span>
+          <span id="levelTag" style="background:#ff4d4f;color:#fff;padding:2px 10px;border-radius:4px;font-size:13px;font-weight:600;">高危</span>
+          <span id="predictId" style="font-weight:600;font-size:15px;">PRD-20260522-005</span>
+          <span id="typeTag" style="background:#e6f4ff;color:#1677ff;padding:2px 10px;border-radius:4px;font-size:12px;border:1px solid #91caff;">网络劣化</span>
+          <div style="flex:1;"></div>
+          <span id="statusBadge" style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;color:#52c41a;">
+            <span style="width:7px;height:7px;border-radius:50%;background:#52c41a;display:inline-block;"></span>已验证
+          </span>
+        </div>
+        <div style="background:rgba(114,46,209,0.04);border-radius:8px;padding:10px 16px;display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:6px 24px;font-size:13px;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="color:rgba(0,0,0,0.45);flex-shrink:0;">设备</span>
+            <b id="deviceName" style="color:var(--ant-text);">西区-CAM-0201</b>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="color:rgba(0,0,0,0.45);flex-shrink:0;">下级平台</span>
+            <b id="platformName" style="color:var(--ant-text);">西区公安分局平台</b>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="color:rgba(0,0,0,0.45);flex-shrink:0;">预测时间</span>
+            <b id="predictTime" style="color:var(--ant-text);">2026-05-22 14:00:00</b>
+          </div>
+        </div>
+      </div>
+
+      <!-- 处理结果（只读） -->
+      <div style="margin-bottom:16px;background:#fff;border-radius:8px;border:1px solid var(--ant-border-secondary);padding:16px 20px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+          <i class="fa-solid fa-clipboard-check" style="color:var(--ant-success);"></i>
+          <span style="font-size:15px;font-weight:600;">处理结果</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 24px;">
+          <div>
+            <div style="font-size:12px;color:var(--ant-text-tertiary);margin-bottom:4px;">处理结果</div>
+            <div id="resultTag"></div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--ant-text-tertiary);margin-bottom:4px;">处理人</div>
+            <div id="resultHandler" style="font-size:14px;color:var(--ant-primary);font-weight:500;"></div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--ant-text-tertiary);margin-bottom:4px;">处理时间</div>
+            <div id="resultTime" style="font-size:14px;"></div>
+          </div>
+          <div style="grid-column:1/-1;">
+            <div style="font-size:12px;color:var(--ant-text-tertiary);margin-bottom:4px;">处理意见</div>
+            <div id="resultRemark" style="font-size:14px;color:var(--ant-text-secondary);"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 预测分析 -->
+      <div class="ant-card" style="margin-bottom:16px;">
+        <div class="ant-card-head">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-brain" style="color:var(--predict-purple);"></i>
+            <span>预测分析</span>
+          </div>
+          <span style="font-size:12px;color:rgba(0,0,0,0.45);font-weight:400;">模型版本 v2.3.1</span>
+        </div>
+        <div class="ant-card-body">
+          <div style="display:flex;gap:24px;align-items:center;">
+            <div style="text-align:center;flex-shrink:0;">
+              <div style="position:relative;width:110px;height:110px;">
+                <svg viewBox="0 0 120 120" style="width:110px;height:110px;transform:rotate(-90deg);">
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#f0f0f0" stroke-width="10"/>
+                  <circle id="probCircle" cx="60" cy="60" r="50" fill="none" stroke="#faad14" stroke-width="10"
+                    stroke-dasharray="254 314.16" stroke-linecap="round" class="prob-glow"/>
+                </svg>
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                  <div id="probValue" style="font-size:30px;font-weight:800;color:#faad14;line-height:1;">81</div>
+                  <div style="font-size:11px;color:rgba(0,0,0,0.45);margin-top:2px;">故障概率%</div>
+                </div>
+              </div>
+            </div>
+            <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div style="background:#fafafa;border-radius:6px;padding:12px;">
+                <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:4px;">预估故障时间</div>
+                <div id="estTime" style="font-size:14px;font-weight:600;">约5h后 (05-22 21:00)</div>
+              </div>
+              <div style="background:#fafafa;border-radius:6px;padding:12px;">
+                <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:4px;">提前预警时间</div>
+                <div id="leadTime" style="font-size:14px;font-weight:600;color:var(--ant-success);">4.6h</div>
+              </div>
+              <div style="background:#fafafa;border-radius:6px;padding:12px;">
+                <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:4px;">预测类型</div>
+                <div id="predictType" style="font-size:14px;font-weight:600;">网络劣化</div>
+              </div>
+              <div style="background:#fafafa;border-radius:6px;padding:12px;">
+                <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:4px;">所在区域</div>
+                <div id="regionName" style="font-size:14px;font-weight:600;">西区</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 趋势诊断 -->
+      <div class="ant-card" style="margin-bottom:16px;">
+        <div class="ant-card-head">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-chart-line" style="color:var(--ant-primary);"></i>
+            <span>趋势诊断 & 关联告警</span>
+          </div>
+        </div>
+        <div style="display:flex;border-bottom:2px solid var(--ant-border-secondary);padding:0 24px;">
+          <div class="trend-tab active" id="tabNetwork" onclick="switchTrendTab('network')"><i class="fa-solid fa-network-wired mr-1"></i>网络质量</div>
+          <div class="trend-tab" id="tabVideo" onclick="switchTrendTab('video')"><i class="fa-solid fa-film mr-1"></i>画面质量</div>
+          <div class="trend-tab" id="tabSignal" onclick="switchTrendTab('signal')"><i class="fa-solid fa-tower-broadcast mr-1"></i>链路状态</div>
+          <div class="trend-tab" id="tabAlert" onclick="switchTrendTab('alert')"><i class="fa-solid fa-bell mr-1"></i>关联告警</div>
+        </div>
+        <div class="ant-card-body" style="padding:0;">
+          <!-- 网络质量 -->
+          <div class="trend-panel active" id="panel-network" style="padding:24px;">
+            <div style="background:#fafafa;border-radius:8px;padding:16px;border:1px solid var(--ant-border-secondary);">
+              <div style="font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+                <i class="fa-solid fa-chart-line" style="color:var(--ant-primary);font-size:12px;"></i>近5次巡检变化趋势
+              </div>
+              <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;">
+                  <thead><tr>
+                    <th style="text-align:left;padding:8px 12px;color:rgba(0,0,0,0.45);font-weight:400;">指标</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-18</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-19</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-20</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-21</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-22</th>
+                  </tr></thead>
+                  <tbody>
+                    <tr>
+                      <td style="padding:6px 12px;font-weight:500;">丢包率</td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">0.8%</span></td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">1.2%</span></td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">2.1%</span></td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#fffbe6;color:#faad14;font-size:12px;">3.5%</span></td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#fff7e6;color:#fa8c16;font-size:12px;">4.8%</span></td>
+                    </tr>
+                    <tr>
+                      <td style="padding:6px 12px;font-weight:500;">网络延迟</td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">28ms</span></td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">35ms</span></td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">40ms</span></td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">42ms</span></td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">45ms</span></td>
+                    </tr>
+                    <tr>
+                      <td style="padding:6px 12px;font-weight:500;">波动率</td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">6ms</span></td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">7ms</span></td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">8ms</span></td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">9ms</span></td>
+                      <td style="text-align:center;padding:6px;"><span style="padding:3px 8px;border-radius:4px;background:#f6ffed;color:#52c41a;font-size:12px;">10ms</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="font-size:10px;color:#fa8c16;margin-top:8px;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:3px;"></i>丢包率持续上升，逼近预警阈值（5%）</div>
+            </div>
+          </div>
+          <!-- 画面质量 -->
+          <div class="trend-panel" id="panel-video" style="padding:24px;">
+            <div style="background:#fafafa;border-radius:8px;padding:16px;border:1px solid var(--ant-border-secondary);">
+              <div style="font-size:13px;font-weight:600;margin-bottom:12px;">近5次巡检 — 5项画面异常检测</div>
+              <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;">
+                  <thead><tr>
+                    <th style="text-align:left;padding:8px 12px;color:rgba(0,0,0,0.45);font-weight:400;">检测项</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-18</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-19</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-20</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-21</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-22</th>
+                  </tr></thead>
+                  <tbody>
+                    <tr><td style="padding:6px 12px;font-weight:500;">亮度异常</td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td></tr>
+                    <tr><td style="padding:6px 12px;font-weight:500;">冻结异常</td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td></tr>
+                    <tr><td style="padding:6px 12px;font-weight:500;">画面遮挡</td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td></tr>
+                    <tr><td style="padding:6px 12px;font-weight:500;">画面噪点</td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td></tr>
+                    <tr><td style="padding:6px 12px;font-weight:500;">画面雪花</td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">正常</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- 链路状态 -->
+          <div class="trend-panel" id="panel-signal" style="padding:24px;">
+            <div style="background:#fafafa;border-radius:8px;padding:16px;border:1px solid var(--ant-border-secondary);">
+              <div style="font-size:13px;font-weight:600;margin-bottom:12px;">近5次巡检 — 链路状态</div>
+              <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;">
+                  <thead><tr>
+                    <th style="text-align:left;padding:8px 12px;color:rgba(0,0,0,0.45);font-weight:400;">指标</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-18</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-19</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-20</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-21</th>
+                    <th style="text-align:center;padding:8px 10px;color:rgba(0,0,0,0.45);font-weight:400;">05-22</th>
+                  </tr></thead>
+                  <tbody>
+                    <tr><td style="padding:6px 12px;font-weight:500;">心跳超时率</td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">0.1%</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">0.2%</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">0.1%</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">0.3%</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">0.2%</span></td></tr>
+                    <tr><td style="padding:6px 12px;font-weight:500;">点播成功率</td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">99.9%</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">99.8%</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">99.9%</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">99.7%</span></td><td style="text-align:center;padding:6px;"><span style="color:#52c41a;">99.8%</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- 关联告警 -->
+          <div class="trend-panel" id="panel-alert" style="padding:24px;">
+            <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:12px;">以下告警与当前预警关联同一设备，按时间倒序展示。</div>
+            <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;">
+              <thead><tr style="background:#fafafa;">
+                <th style="text-align:left;padding:8px 12px;font-weight:600;">级别</th>
+                <th style="text-align:left;padding:8px 12px;font-weight:600;">报警类型</th>
+                <th style="text-align:left;padding:8px 12px;font-weight:600;">触发时间</th>
+                <th style="text-align:left;padding:8px 12px;font-weight:600;">状态</th>
+                <th style="text-align:left;padding:8px 12px;font-weight:600;">操作</th>
+              </tr></thead>
+              <tbody>
+                <tr>
+                  <td style="padding:8px 12px;"><span style="padding:2px 8px;border-radius:4px;font-size:11px;color:#ff4d4f;background:#fff1f0;border:1px solid #ffccc7;font-weight:600;">紧急</span></td>
+                  <td style="padding:8px 12px;">网络异常-丢包</td>
+                  <td style="padding:8px 12px;color:rgba(0,0,0,0.45);">2026-05-28 09:15:33</td>
+                  <td style="padding:8px 12px;"><span style="padding:2px 8px;border-radius:4px;font-size:11px;color:#8c8c8c;background:#fafafa;border:1px solid #d9d9d9;">已关闭</span></td>
+                  <td style="padding:8px 12px;"><a href="../ops-alert/view.html" style="color:var(--ant-primary);font-size:12px;">查看</a></td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px;"><span style="padding:2px 8px;border-radius:4px;font-size:11px;color:#fa8c16;background:#fff7e6;border:1px solid #ffd591;font-weight:600;">警告</span></td>
+                  <td style="padding:8px 12px;">丢包致花屏</td>
+                  <td style="padding:8px 12px;color:rgba(0,0,0,0.45);">2026-05-30 14:07:22</td>
+                  <td style="padding:8px 12px;"><span style="padding:2px 8px;border-radius:4px;font-size:11px;color:#8c8c8c;background:#fafafa;border:1px solid #d9d9d9;">已关闭</span></td>
+                  <td style="padding:8px 12px;"><a href="../ops-alert/view.html" style="color:var(--ant-primary);font-size:12px;">查看</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 处置记录 -->
+      <div class="ant-card" style="margin-bottom:16px;">
+        <div class="ant-card-head">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left" style="color:var(--ant-primary);"></i>
+            <span>处置记录</span>
+          </div>
+        </div>
+        <div class="ant-card-body">
+          <div class="timeline" id="timelineContent">
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:#722ed1;border-color:#722ed1;"></div>
+              <div class="timeline-content">
+                <span style="font-weight:600;">模型预警</span> — 预测模型检测到网络质量持续劣化，预判可能发生故障
+                <div class="timeline-time">2026-05-22 14:00:00 · 系统</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:#fff;border-color:#1677ff;"></div>
+              <div class="timeline-content">
+                <span style="font-weight:600;">通知发送</span> — 站内信已通知 张工程师
+                <div class="timeline-time">2026-05-22 14:00:05 · 系统</div>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:#fff;border-color:#52c41a;"></div>
+              <div class="timeline-content">
+                <span style="font-weight:600;">已验证</span> — 巡检验证结果异常，预警状态自动更新为「已验证」，来源标记：巡检验证（BR-E2-015）
+                <div class="timeline-time">2026-05-22 16:30:00 · 系统</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+/* ===== Tab 切换 ===== */
+function switchTrendTab(name) {
+  document.querySelectorAll('.trend-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.trend-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+/* ===== 数据模拟（不同状态展示不同结果） ===== */
+var statusData = {
+  'PRD-20260522-005': {
+    level: '高危', levelColor: '#ff4d4f', type: '网络劣化',
+    device: '西区-CAM-0201', platform: '西区公安分局平台', time: '2026-05-22 14:00:00',
+    status: 'verified', statusLabel: '已验证', statusColor: '#52c41a',
+    prob: 81, estTime: '约5h后 (05-22 21:00)', lead: '4.6h', region: '西区',
+    result: '已验证', resultColor: '#52c41a', resultBg: '#f6ffed', resultBorder: '#b7eb8f',
+    handler: '系统自动', resultTime: '2026-05-22 16:30',
+    remark: '巡检验证结果异常：丢包率5.2%（超阈值5%），网络延迟195ms，波动率11%。预警状态自动更新为「已验证」。'
+  },
+  'PRD-20260522-007': {
+    level: '中危', levelColor: '#faad14', type: '网络劣化',
+    device: '东区-CAM-0320', platform: '东区城管局平台', time: '2026-05-22 14:00:00',
+    status: 'verified', statusLabel: '已验证', statusColor: '#52c41a',
+    prob: 62, estTime: '约18h后 (05-23 10:00)', lead: '16.2h', region: '东区',
+    result: '已验证', resultColor: '#52c41a', resultBg: '#f6ffed', resultBorder: '#b7eb8f',
+    handler: '系统自动', resultTime: '2026-05-22 20:15',
+    remark: '巡检验证结果异常：丢包率3.8%、网络延迟180ms。预警状态自动更新为「已验证」。'
+  },
+  'PRD-20260522-008': {
+    level: '中危', levelColor: '#faad14', type: '画面劣化',
+    device: '南区-CAM-0088', platform: '南区公安分局平台', time: '2026-05-22 14:00:00',
+    status: 'false', statusLabel: '误报', statusColor: '#ff4d4f',
+    prob: 58, estTime: '约24h后 (05-23 16:00)', lead: '22.4h', region: '南区',
+    result: '误报', resultColor: '#ff4d4f', resultBg: '#fff2f0', resultBorder: '#ffccc7',
+    handler: '张工程师', resultTime: '2026-05-22 15:20',
+    remark: '现场确认画面正常，模型误判。数据已作为模型优化反馈提交。'
+  },
+  'PRD-20260522-010': {
+    level: '低危', levelColor: '#1677ff', type: '网络劣化',
+    device: '市中心-CAM-0011', platform: '市中心指挥中心平台', time: '2026-05-22 14:00:00',
+    status: 'verified', statusLabel: '已验证', statusColor: '#52c41a',
+    prob: 35, estTime: '约48h后 (05-24 16:00)', lead: '45.1h', region: '市中心',
+    result: '已验证', resultColor: '#52c41a', resultBg: '#f6ffed', resultBorder: '#b7eb8f',
+    handler: '系统自动', resultTime: '2026-05-23 08:00',
+    remark: '巡检验证结果异常：丢包率2.8%、网络延迟65ms。预警状态自动更新为「已验证」。'
+  },
+  'PRD-20260521-018': {
+    level: '中危', levelColor: '#faad14', type: '画面劣化',
+    device: '市中心-CAM-0025', platform: '市中心指挥中心平台', time: '2026-05-21 14:00:00',
+    status: 'expired', statusLabel: '已过期', statusColor: 'rgba(0,0,0,0.45)',
+    prob: 55, estTime: '已过期 (05-22 02:00)', lead: '已过期', region: '市中心',
+    result: '已过期', resultColor: 'rgba(0,0,0,0.45)', resultBg: '#f5f5f5', resultBorder: '#d9d9d9',
+    handler: '系统自动', resultTime: '2026-05-22 02:00',
+    remark: '窗口期内未处理，系统自动标记为「已过期」。'
+  }
+};
+
+/* ===== 根据URL参数渲染 ===== */
+var params = new URLSearchParams(window.location.search);
+var id = params.get('id') || 'PRD-20260522-005';
+var d = statusData[id] || statusData['PRD-20260522-005'];
+
+// 头部
+document.getElementById('predictId').textContent = id;
+document.getElementById('levelTag').textContent = d.level;
+document.getElementById('levelTag').style.background = d.levelColor;
+document.getElementById('typeTag').textContent = d.type;
+document.getElementById('statusBadge').innerHTML = '<span style="width:7px;height:7px;border-radius:50%;background:'+d.statusColor+';display:inline-block;"></span>' + d.statusLabel;
+document.getElementById('statusBadge').style.color = d.statusColor;
+document.getElementById('deviceName').textContent = d.device;
+document.getElementById('platformName').textContent = d.platform;
+document.getElementById('predictTime').textContent = d.time;
+
+// 处理结果
+var resultTagHtml = '<span style="display:inline-flex;align-items:center;height:22px;padding:0 7px;font-size:12px;border-radius:4px;border:1px solid '+d.resultBorder+';color:'+d.resultColor+';background:'+d.resultBg+';">'+d.result+'</span>';
+document.getElementById('resultTag').innerHTML = resultTagHtml;
+document.getElementById('resultHandler').textContent = d.handler;
+document.getElementById('resultTime').textContent = d.resultTime;
+document.getElementById('resultRemark').textContent = d.remark;
+
+// 预测分析
+var probVal = d.prob;
+var probColor = probVal >= 80 ? '#ff4d4f' : probVal >= 60 ? '#faad14' : '#52c41a';
+var dashLen = probVal / 100 * 314.16;
+document.getElementById('probCircle').setAttribute('stroke', probColor);
+document.getElementById('probCircle').setAttribute('stroke-dasharray', dashLen + ' 314.16');
+document.getElementById('probValue').textContent = probVal;
+document.getElementById('probValue').style.color = probColor;
+document.getElementById('estTime').textContent = d.estTime;
+document.getElementById('leadTime').textContent = d.lead;
+document.getElementById('predictType').textContent = d.type;
+document.getElementById('regionName').textContent = d.region;
+
+// 处置记录（根据状态调整最后一条）
+var timeline = document.getElementById('timelineContent');
+if (d.status === 'false') {
+  timeline.innerHTML = '<div class="timeline-item"><div class="timeline-dot" style="background:#722ed1;border-color:#722ed1;"></div><div class="timeline-content"><span style="font-weight:600;">模型预警</span> — 预测模型检测到画面质量持续劣化，预判可能发生画面故障<div class="timeline-time">' + d.time + ' · 系统</div></div></div>'
+    + '<div class="timeline-item"><div class="timeline-dot" style="background:#fff;border-color:#1677ff;"></div><div class="timeline-content"><span style="font-weight:600;">通知发送</span> — 站内信已通知 值班工程师<div class="timeline-time">' + d.time.replace(':00:00', ':00:05') + ' · 系统</div></div></div>'
+    + '<div class="timeline-item"><div class="timeline-dot" style="background:#fff;border-color:#ff4d4f;"></div><div class="timeline-content"><span style="font-weight:600;">标记误报</span> — ' + d.handler + '确认为误报<div class="timeline-time">' + d.resultTime + ' · ' + d.handler + '</div></div></div>';
+} else if (d.status === 'expired') {
+  timeline.innerHTML = '<div class="timeline-item"><div class="timeline-dot" style="background:#722ed1;border-color:#722ed1;"></div><div class="timeline-content"><span style="font-weight:600;">模型预警</span> — 预测模型检测到画面质量持续劣化，预判可能发生画面故障<div class="timeline-time">' + d.time + ' · 系统</div></div></div>'
+    + '<div class="timeline-item"><div class="timeline-dot" style="background:#fff;border-color:#1677ff;"></div><div class="timeline-content"><span style="font-weight:600;">通知发送</span> — 站内信已通知 值班工程师<div class="timeline-time">' + d.time.replace(':00:00', ':00:05') + ' · 系统</div></div></div>'
+    + '<div class="timeline-item"><div class="timeline-dot" style="background:#fff;border-color:rgba(0,0,0,0.25);"></div><div class="timeline-content"><span style="font-weight:600;">自动过期</span> — 窗口期内未处理，系统自动标记为「已过期」<div class="timeline-time">' + d.resultTime + ' · 系统</div></div></div>';
+} else {
+  // verified - keep default timeline
+}
+</script>
+</body>
+</html>

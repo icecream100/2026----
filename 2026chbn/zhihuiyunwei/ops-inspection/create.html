@@ -215,7 +215,33 @@
           </div>
 
           <div class="grid grid-cols-2 gap-4 mb-6">
-            <!-- 维度1：画质检测 -->
+            <!-- 维度1：网络状态检测 -->
+            <div class="dim-card selected" id="dim-network" onclick="toggleDim('network')">
+              <div class="flex items-center mb-3">
+                <div class="dim-check"><i class="fa-solid fa-check" style="font-size:11px;"></i></div>
+                <div style="width:36px;height:36px;background:#e6f4ff;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-right:10px;"><i class="fa-solid fa-tower-broadcast" style="color:#1677ff;"></i></div>
+                <div>
+                  <div class="font-semibold">网络状态检测</div>
+                  <div style="font-size:12px;color:rgba(0,0,0,0.45);">丢包率/网络延迟/波动率</div>
+                </div>
+              </div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.65);line-height:1.6;">检测丢包率、网络延迟、波动率等指标，优先评估多层级平台链路的网络健康状态。</div>
+            </div>
+
+            <!-- 维度2：链路诊断 -->
+            <div class="dim-card selected" id="dim-link" onclick="toggleDim('link')">
+              <div class="flex items-center mb-3">
+                <div class="dim-check"><i class="fa-solid fa-check" style="font-size:11px;"></i></div>
+                <div style="width:36px;height:36px;background:#f6ffed;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-right:10px;"><i class="fa-solid fa-link" style="color:#52c41a;"></i></div>
+                <div>
+                  <div class="font-semibold">链路诊断</div>
+                  <div style="font-size:12px;color:rgba(0,0,0,0.45);">平台级联链路诊断</div>
+                </div>
+              </div>
+              <div style="font-size:12px;color:rgba(0,0,0,0.65);line-height:1.6;">检测本平台、下级平台、下下级平台到最终设备的连通状态，定位级联链路故障根因。</div>
+            </div>
+
+            <!-- 维度3：画质检测 -->
             <div class="dim-card selected" id="dim-quality" onclick="toggleDim('quality')">
               <div class="flex items-center mb-3">
                 <div class="dim-check"><i class="fa-solid fa-check" style="font-size:11px;"></i></div>
@@ -226,32 +252,6 @@
                 </div>
               </div>
               <div style="font-size:12px;color:rgba(0,0,0,0.65);line-height:1.6;">检测亮度异常、冻结异常、画面遮挡、画面噪点、画面雪花，直接输出每项检测结果。</div>
-            </div>
-
-            <!-- 维度2：链路诊断 -->
-            <div class="dim-card selected" id="dim-link" onclick="toggleDim('link')">
-              <div class="flex items-center mb-3">
-                <div class="dim-check"><i class="fa-solid fa-check" style="font-size:11px;"></i></div>
-                <div style="width:36px;height:36px;background:#f6ffed;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-right:10px;"><i class="fa-solid fa-link" style="color:#52c41a;"></i></div>
-                <div>
-                  <div class="font-semibold">链路诊断</div>
-                  <div style="font-size:12px;color:rgba(0,0,0,0.45);">GB28181/SIP + 链路检测</div>
-                </div>
-              </div>
-              <div style="font-size:12px;color:rgba(0,0,0,0.65);line-height:1.6;">检测设备连通性、心跳超时率、点播成功率等链路指标，定位链路层故障根因，生成诊断时序图和原始日志。</div>
-            </div>
-
-            <!-- 维度3：网络状态检测 -->
-            <div class="dim-card" id="dim-network" onclick="toggleDim('network')">
-              <div class="flex items-center mb-3">
-                <div class="dim-check"></div>
-                <div style="width:36px;height:36px;background:#e6f4ff;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-right:10px;"><i class="fa-solid fa-tower-broadcast" style="color:#1677ff;"></i></div>
-                <div>
-                  <div class="font-semibold">网络状态检测</div>
-                  <div style="font-size:12px;color:rgba(0,0,0,0.45);">丢包率/网络延迟/波动率</div>
-                </div>
-              </div>
-              <div style="font-size:12px;color:rgba(0,0,0,0.65);line-height:1.6;">检测丢包率、网络延迟、波动率等指标，评估端到端网络健康状态。</div>
             </div>
           </div>
 
