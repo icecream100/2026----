@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元数据分类 - 物联中枢 V2.2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">智慧校园一体化公共服务平台-物联中枢</span>
+    <div class="spacer"></div>
+    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">超</div>
+      <span style="font-size:13px;">超级管理员</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">本次迭代功能</div>
+      <div class="menu-item" onclick="location.href='admin-product-list.html'"><i class="fa-solid fa-microchip"></i>产品 / 数据实例</div>
+      <div class="menu-item active"><i class="fa-solid fa-folder-tree"></i>元数据分类</div>
+      <div class="menu-item" onclick="location.href='admin-dict-list.html'"><i class="fa-solid fa-table-list"></i>元数据管理</div>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span>物模型知识库</span><span>/</span><span class="current">元数据分类</span>
+      </div>
+      <div class="page-title">元数据分类</div>
+      <div class="page-desc mb-4">维护属性的分类字典，供属性定义时归类选择。系统预置常用分类，可增删改。</div>
+
+      <div class="flex justify-end mb-4">
+        <button class="ant-btn ant-btn-primary" onclick="openFormModal()"><i class="fa-solid fa-plus"></i> 新增</button>
+      </div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding:0">
+          <table class="ant-table">
+            <thead>
+              <tr>
+                <th width="60">序号</th>
+                <th width="180">分类编码</th>
+                <th>分类名称</th>
+                <th width="100">排序</th>
+                <th width="100">状态</th>
+                <th width="240">操作</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 新增/编辑分类弹窗 -->
+<div class="ant-modal-mask" id="formModal">
+  <div class="ant-modal" style="width:520px">
+    <div class="ant-modal-header">
+      <span id="formModalTitle">新增分类</span>
+      <span class="ant-modal-close" onclick="closeFormModal()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body">
+      <div class="ant-form-item">
+        <label class="ant-form-label ant-form-label-required">分类编码</label>
+        <input id="formCode" class="ant-input" maxlength="50" placeholder="大写字母与下划线，如 STATUS">
+        <div id="formCodeError" class="text-error text-sm mt-2 hidden"></div>
+        <div id="formCodeTip" class="text-tertiary text-sm mt-2 hidden">编码创建后不可修改</div>
+      </div>
+      <div class="ant-form-item">
+        <label class="ant-form-label ant-form-label-required">分类名称</label>
+        <input id="formName" class="ant-input" maxlength="100" placeholder="请输入分类名称">
+        <div id="formNameError" class="text-error text-sm mt-2 hidden"></div>
+      </div>
+      <div class="ant-form-item">
+        <label class="ant-form-label ant-form-label-required">排序</label>
+        <input id="formSort" class="ant-input" type="number" min="1" placeholder="正整数，数值越小越靠前">
+        <div id="formSortError" class="text-error text-sm mt-2 hidden"></div>
+      </div>
+      <div class="ant-form-item" style="margin-bottom:0">
+        <label class="ant-form-label">状态</label>
+        <div class="flex gap-4">
+          <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="formStatus" value="启用" checked> 启用</label>
+          <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="formStatus" value="停用"> 停用</label>
+        </div>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeFormModal()">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="submitForm()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 确认弹窗 -->
+<div class="ant-modal-mask" id="confirmModal">
+  <div class="ant-modal" style="width:420px">
+    <div class="ant-modal-header">
+      <span><i class="fa-solid fa-circle-exclamation" style="color:var(--ant-warning);margin-right:8px"></i>提示</span>
+      <span class="ant-modal-close" onclick="closeConfirmModal()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body"><p id="confirmText" style="margin:0"></p></div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeConfirmModal()">取消</button>
+      <button class="ant-btn ant-btn-primary" id="confirmBtn" onclick="confirmAction()">确定</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showToast(msg,d){d=d||2000;var w=document.querySelector('.toast-wrap');if(!w){w=document.createElement('div');w.className='toast-wrap';document.body.appendChild(w)}var e=document.createElement('div');e.className='toast-msg';e.innerHTML='<i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>'+msg;w.appendChild(e);requestAnimationFrame(function(){e.classList.add('show')});setTimeout(function(){e.classList.remove('show');setTimeout(function(){e.remove()},300)},d)}
+
+let tableData=[
+  {id:1,code:'BASE',name:'设备基本信息',sort:1,status:'启用',refCount:5},
+  {id:2,code:'STATUS',name:'状态信息',sort:2,status:'启用',refCount:3},
+  {id:3,code:'LOCATION',name:'位置信息',sort:3,status:'启用',refCount:1},
+  {id:4,code:'ALARM',name:'告警信息',sort:4,status:'停用',refCount:0}
+];
+
+function renderTable(){
+  const body=document.getElementById('tableBody');
+  const rows=[...tableData].sort((a,b)=>a.sort-b.sort);
+  body.innerHTML=rows.map((item,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td><span class="ant-tag ant-tag-gray">${item.code}</span></td>
+      <td>${item.name}</td>
+      <td>${item.sort}</td>
+      <td><span class="ant-tag ${item.status==='启用'?'ant-tag-green':'ant-tag-red'}">${item.status}</span></td>
+      <td>
+        <div class="action-wrap">
+          <button class="ant-btn ant-btn-text ant-btn-sm" onclick="openFormModal(${item.id})">编辑</button>
+          <button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleStatus(${item.id})">${item.status==='启用'?'停用':'启用'}</button>
+          <button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="handleDelete(${item.id})">删除</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+let editingId=null;
+function openFormModal(id){
+  editingId=id||null;
+  document.getElementById('formModalTitle').textContent=id?'编辑分类':'新增分类';
+  ['formCodeError','formNameError','formSortError'].forEach(k=>document.getElementById(k).classList.add('hidden'));
+  const codeInput=document.getElementById('formCode');
+  if(id){
+    const item=tableData.find(d=>d.id===id);
+    codeInput.value=item.code;codeInput.disabled=true;codeInput.style.background='#f5f5f5';
+    document.getElementById('formName').value=item.name;
+    document.getElementById('formSort').value=item.sort;
+    document.querySelector(`input[name=formStatus][value="${item.status}"]`).checked=true;
+    document.getElementById('formCodeTip').classList.remove('hidden');
+  }else{
+    codeInput.value='';codeInput.disabled=false;codeInput.style.background='';
+    document.getElementById('formName').value='';
+    document.getElementById('formSort').value=Math.max(0,...tableData.map(d=>d.sort))+1;
+    document.querySelector('input[name=formStatus][value="启用"]').checked=true;
+    document.getElementById('formCodeTip').classList.add('hidden');
+  }
+  document.getElementById('formModal').classList.add('active');
+}
+function closeFormModal(){document.getElementById('formModal').classList.remove('active')}
+
+function submitForm(){
+  const code=document.getElementById('formCode').value.trim();
+  const name=document.getElementById('formName').value.trim();
+  const sort=document.getElementById('formSort').value.trim();
+  let ok=true;
+  const setErr=(k,m)=>{const el=document.getElementById(k);if(m){el.textContent=m;el.classList.remove('hidden');ok=false}else el.classList.add('hidden')};
+  if(!editingId){
+    if(!code)setErr('formCodeError','分类编码不能为空');
+    else if(!/^[A-Z_]{2,50}$/.test(code))setErr('formCodeError','仅支持大写字母和下划线');
+    else if(tableData.some(d=>d.code===code))setErr('formCodeError',`编码'${code}'已存在`);
+    else setErr('formCodeError','');
+  }
+  if(!name)setErr('formNameError','分类名称不能为空');
+  else if(tableData.some(d=>d.name===name&&d.id!==editingId))setErr('formNameError',`名称'${name}'已存在`);
+  else setErr('formNameError','');
+  if(!sort||parseInt(sort)<1)setErr('formSortError','排序必须为正整数');else setErr('formSortError','');
+  if(!ok)return;
+  const status=document.querySelector('input[name=formStatus]:checked').value;
+  if(editingId){const item=tableData.find(d=>d.id===editingId);item.name=name;item.sort=parseInt(sort);item.status=status;showToast('修改成功')}
+  else{tableData.push({id:Date.now(),code,name,sort:parseInt(sort),status,refCount:0});showToast('新增成功')}
+  closeFormModal();renderTable();
+}
+
+function toggleStatus(id){
+  const item=tableData.find(d=>d.id===id);
+  if(item.status==='启用'){
+    openConfirmModal('停用后该分类下的字段在属性编辑时不可选择，已引用不受影响，确定停用？','确定',()=>{item.status='停用';renderTable();showToast('操作成功')});
+  }else{item.status='启用';renderTable();showToast('操作成功')}
+}
+function handleDelete(id){
+  const item=tableData.find(d=>d.id===id);
+  if(item.refCount>0){openConfirmModal(`该分类已被 ${item.refCount} 个属性引用，无法删除，请先调整或停用。`,null,null);return}
+  openConfirmModal(`确定删除分类"${item.name}"？`,'确定删除',()=>{tableData=tableData.filter(d=>d.id!==id);renderTable();showToast('删除成功')});
+}
+
+let confirmCb=null;
+function openConfirmModal(text,btnText,cb){document.getElementById('confirmText').textContent=text;confirmCb=cb;const btn=document.getElementById('confirmBtn');if(btnText){btn.style.display='';btn.textContent=btnText}else{btn.style.display='none'}document.getElementById('confirmModal').classList.add('active')}
+function closeConfirmModal(){document.getElementById('confirmModal').classList.remove('active')}
+function confirmAction(){if(confirmCb)confirmCb();closeConfirmModal()}
+
+document.getElementById('formModal').addEventListener('click',function(e){if(e.target===this)closeFormModal()});
+document.getElementById('confirmModal').addEventListener('click',function(e){if(e.target===this)closeConfirmModal()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeFormModal();closeConfirmModal()}});
+renderTable();
+</script>
+</body>
+</html>

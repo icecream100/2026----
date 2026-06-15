@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元数据管理 - 物联中枢 V2.2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>
+    .dict-layout{display:flex;gap:16px;height:calc(100vh - 56px - 40px - 100px);min-height:480px}
+    .dict-left{width:220px;flex-shrink:0}
+    .dict-right{flex:1;min-width:0}
+    .dict-panel{background:#fff;border-radius:8px;border:1px solid var(--ant-border-secondary);display:flex;flex-direction:column;height:100%;overflow:hidden}
+    .dict-panel-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--ant-border-secondary);font-size:14px;font-weight:600;flex-shrink:0}
+    .dict-panel-body{flex:1;overflow-y:auto;padding:0}
+    .cat-node{display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;transition:all .15s;font-size:13px;border-left:3px solid transparent}
+    .cat-node:hover{background:#f0f5ff}
+    .cat-node.active{background:#e6f4ff;border-left-color:#1677ff;font-weight:600;color:#1677ff}
+    .cat-node .count{font-size:11px;color:var(--ant-text-tertiary);background:#f5f5f5;padding:0 6px;border-radius:8px;margin-left:auto}
+    .cat-node.active .count{background:#bae0ff;color:#1677ff}
+    .drawer-mask{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;display:none}
+    .drawer-mask.active{display:block}
+    .drawer{position:fixed;top:0;right:0;width:680px;height:100vh;background:#fff;box-shadow:var(--shadow-2);z-index:1001;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s var(--ease-in-out)}
+    .drawer.active{transform:translateX(0)}
+    .drawer-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:16px;font-weight:600}
+    .drawer-body{flex:1;overflow-y:auto;padding:24px}
+    .timeline-dot{width:10px;height:10px;border-radius:50%;background:var(--ant-primary);display:inline-block;margin-right:10px;position:relative;top:3px}
+    .timeline-item{padding:16px 0;border-bottom:1px solid var(--ant-border-secondary)}.timeline-item:last-child{border-bottom:none}
+    .diff-line{padding:6px 12px;border-radius:4px;font-size:13px;margin:3px 0}
+    .diff-old{background:#fff1f0;color:#a8071a}.diff-new{background:#f6ffed;color:#237804}
+    .kv-table-mini input{width:100%;height:28px;border:1px solid var(--ant-border);border-radius:4px;padding:0 8px;font-size:13px}
+    .kv-table-mini input:focus{border-color:var(--ant-primary);outline:none}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">智慧校园一体化公共服务平台-物联中枢</span>
+    <div class="spacer"></div>
+    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">超</div>
+      <span style="font-size:13px;">超级管理员</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">本次迭代功能</div>
+      <div class="menu-item" onclick="location.href='admin-product-list.html'"><i class="fa-solid fa-microchip"></i>产品 / 数据实例</div>
+      <div class="menu-item" onclick="location.href='admin-metadata-list.html'"><i class="fa-solid fa-folder-tree"></i>元数据分类</div>
+      <div class="menu-item active"><i class="fa-solid fa-table-list"></i>元数据管理</div>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span>物模型知识库</span><span>/</span><span class="current">元数据管理</span>
+      </div>
+      <div class="page-title">元数据管理</div>
+      <div class="page-desc mb-4">管理设备信息页面的字段定义。左侧选分类 → 右侧查看/管理字段（控件类型、是否必填、数据来源等），字段定义驱动页面动态渲染。</div>
+
+      <div class="dict-layout">
+        <!-- 左栏：分类 -->
+        <div class="dict-left">
+          <div class="dict-panel">
+            <div class="dict-panel-head">字段分类</div>
+            <div class="dict-panel-body" id="catTree"></div>
+          </div>
+        </div>
+
+        <!-- 右栏：字段列表 -->
+        <div class="dict-right">
+          <div class="dict-panel">
+            <div class="dict-panel-head">
+              <span id="fieldTitle">字段列表</span>
+              <button class="ant-btn ant-btn-primary ant-btn-sm" onclick="openFieldModal()" id="addFieldBtn" style="display:none"><i class="fa-solid fa-plus mr-1"></i>新增字段</button>
+            </div>
+            <!-- 查询栏 -->
+            <div id="searchBar" style="padding:10px 16px;border-bottom:1px solid var(--ant-border-secondary);display:none">
+              <div class="flex items-center gap-3 flex-wrap">
+                <input id="searchKeyword" class="ant-input" style="width:160px" placeholder="字段标识或名称">
+                <select id="searchWidget" class="ant-select" style="width:120px">
+                  <option value="">全部控件</option>
+                  <option value="文本输入">文本输入</option>
+                  <option value="文本域">文本域</option>
+                  <option value="下拉单选">下拉单选</option>
+                  <option value="下拉多选">下拉多选</option>
+                  <option value="日期选择">日期选择</option>
+                  <option value="时间选择">时间选择</option>
+                </select>
+                <button class="ant-btn ant-btn-primary ant-btn-sm" onclick="renderFieldTable()"><i class="fa-solid fa-search mr-1"></i>查询</button>
+                <button class="ant-btn ant-btn-sm" onclick="resetSearch()"><i class="fa-solid fa-rotate-right mr-1"></i>重置</button>
+              </div>
+            </div>
+            <div class="dict-panel-body" style="padding:0">
+              <table class="ant-table" id="fieldTable" style="display:none">
+                <thead>
+                  <tr>
+                    <th width="45">序号</th>
+                    <th width="110">字段标识</th>
+                    <th width="100">字段名称</th>
+                    <th width="90">控件类型</th>
+                    <th width="80">数据类型</th>
+                    <th width="55">必填</th>
+                    <th width="100">数据来源</th>
+                    <th width="55">排序</th>
+                    <th width="60">状态</th>
+                    <th width="55">版本</th>
+                    <th width="150">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="fieldBody"></tbody>
+              </table>
+              <div id="fieldEmpty" class="ant-empty" style="padding:60px 0">
+                <div class="ant-empty-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                <div class="ant-empty-text">请先在左侧选择一个分类</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 字段定义编辑弹窗 -->
+<div class="ant-modal-mask" id="fieldModal">
+  <div class="ant-modal" style="width:640px;max-height:88vh">
+    <div class="ant-modal-header">
+      <span id="fieldModalTitle">新增字段</span>
+      <span class="ant-modal-close" onclick="closeFieldModal()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body">
+      <div class="flex gap-4">
+        <div class="flex-1">
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">字段标识</label>
+            <input id="fIden" class="ant-input" maxlength="50" placeholder="英文，如 devName">
+            <div id="fIdenErr" class="text-error text-sm mt-2 hidden"></div>
+          </div>
+        </div>
+        <div class="flex-1">
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">字段名称</label>
+            <input id="fName" class="ant-input" maxlength="50" placeholder="中文，如 设备名称">
+            <div id="fNameErr" class="text-error text-sm mt-2 hidden"></div>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <div class="flex-1">
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">所属分类</label>
+            <select id="fCategory" class="ant-select w-full"></select>
+          </div>
+        </div>
+        <div class="flex-1">
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">控件类型</label>
+            <select id="fWidget" class="ant-select w-full" onchange="onWidgetOrSourceChange()">
+              <option value="文本输入">文本输入</option>
+              <option value="文本域">文本域</option>
+              <option value="下拉单选">下拉单选</option>
+              <option value="下拉多选">下拉多选</option>
+              <option value="日期选择">日期选择</option>
+              <option value="时间选择">时间选择</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <div class="flex-1">
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">数据类型</label>
+            <select id="fDataType" class="ant-select w-full">
+              <option value="STRING">STRING</option>
+              <option value="INT">INT</option>
+              <option value="FLOAT">FLOAT</option>
+              <option value="DATE">DATE</option>
+              <option value="DATETIME">DATETIME</option>
+              <option value="BOOL">BOOL</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex-1">
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">数据来源</label>
+            <select id="fSource" class="ant-select w-full" onchange="onWidgetOrSourceChange()">
+              <option value="无">无（手动输入）</option>
+              <option value="自定义代码集">自定义代码集</option>
+              <option value="产品表">产品表</option>
+              <option value="组织树">组织树</option>
+              <option value="用户表">用户表</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- 值域：仅"数据来源=自定义代码集"时显示 -->
+      <div id="vrSection" class="ant-form-item hidden">
+        <label class="ant-form-label ant-form-label-required">值域/代码集 <span class="text-xs text-tertiary">（数据来源=自定义代码集时必填）</span></label>
+        <table class="ant-table kv-table-mini" style="font-size:13px"><thead><tr><th width="120">键（code）</th><th>值（label）</th><th width="40"></th></tr></thead><tbody id="kvBody"></tbody></table>
+        <button class="ant-btn ant-btn-text ant-btn-sm mt-2" onclick="addKvRow()"><i class="fa-solid fa-plus mr-1"></i>添加一行</button>
+        <div id="kvErr" class="text-error text-sm mt-2 hidden"></div>
+      </div>
+      <div class="flex gap-4">
+        <div class="flex-1">
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">是否必填</label>
+            <div class="flex gap-4 mt-1">
+              <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="fReq" value="否" checked> 否</label>
+              <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="fReq" value="是"> 是</label>
+            </div>
+          </div>
+        </div>
+        <div class="flex-1">
+          <div class="ant-form-item">
+            <label class="ant-form-label">默认值</label>
+            <input id="fDefault" class="ant-input" maxlength="100" placeholder="选填">
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <div class="flex-1">
+          <div class="ant-form-item" style="margin-bottom:0">
+            <label class="ant-form-label ant-form-label-required">排序</label>
+            <input id="fSort" class="ant-input" type="number" min="1" placeholder="数值越小越靠前">
+          </div>
+        </div>
+        <div class="flex-1">
+          <div class="ant-form-item" style="margin-bottom:0">
+            <label class="ant-form-label ant-form-label-required">状态</label>
+            <div class="flex gap-4 mt-1">
+              <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="fStatus" value="启用" checked> 启用</label>
+              <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="fStatus" value="停用"> 停用</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeFieldModal()">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="submitField()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 确认弹窗 -->
+<div class="ant-modal-mask" id="confirmModal">
+  <div class="ant-modal" style="width:420px">
+    <div class="ant-modal-header">
+      <span><i class="fa-solid fa-circle-exclamation" style="color:var(--ant-warning);margin-right:8px"></i>提示</span>
+      <span class="ant-modal-close" onclick="closeConfirmModal()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body"><p id="confirmText" style="margin:0"></p></div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeConfirmModal()">取消</button>
+      <button class="ant-btn ant-btn-dangerous" id="confirmBtn" onclick="confirmAction()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 版本历史抽屉 -->
+<div class="drawer-mask" id="historyMask" onclick="closeHistory()"></div>
+<div class="drawer" id="historyDrawer">
+  <div class="drawer-header">
+    <span id="historyTitle">版本历史</span>
+    <span class="ant-modal-close" onclick="closeHistory()"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="drawer-body" id="historyBody"></div>
+</div>
+
+<script>
+function showToast(msg,d){d=d||2000;var w=document.querySelector('.toast-wrap');if(!w){w=document.createElement('div');w.className='toast-wrap';document.body.appendChild(w)}var e=document.createElement('div');e.className='toast-msg';e.innerHTML='<i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>'+msg;w.appendChild(e);requestAnimationFrame(function(){e.classList.add('show')});setTimeout(function(){e.classList.remove('show');setTimeout(function(){e.remove()},300)},d)}
+
+// ============ 数据源 ============
+var categories = [
+  {code:'BASE', name:'设备基本信息', status:'启用'},
+  {code:'STATUS', name:'状态信息', status:'启用'},
+  {code:'LOCATION', name:'位置信息', status:'启用'},
+  {code:'LIFECYCLE', name:'设备生命周期', status:'启用'}
+];
+
+// 字段定义（含完整属性：控件类型、必填、数据来源、排序、状态、版本、历史）
+var fieldData = {
+  'BASE': [
+    {iden:'devName',name:'设备名称',widget:'文本输入',dataType:'STRING',required:'是',source:'无',def:'',sort:1,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:00',user:'admin',changes:{}}]},
+    {iden:'devId',name:'设备ID',widget:'文本输入',dataType:'STRING',required:'是',source:'无',def:'',sort:2,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:02',user:'admin',changes:{}}]},
+    {iden:'product',name:'所属产品',widget:'下拉单选',dataType:'STRING',required:'是',source:'产品表',def:'',sort:3,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:05',user:'admin',changes:{}}]},
+    {iden:'org',name:'所属组织',widget:'下拉单选',dataType:'STRING',required:'是',source:'组织树',def:'',sort:4,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:08',user:'admin',changes:{}}]},
+    {iden:'vendor',name:'设备厂家',widget:'文本输入',dataType:'STRING',required:'否',source:'无',def:'',sort:5,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:10',user:'admin',changes:{}}]},
+    {iden:'model',name:'设备型号',widget:'文本输入',dataType:'STRING',required:'否',source:'无',def:'',sort:6,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:12',user:'admin',changes:{}}]},
+    {iden:'remark',name:'说明',widget:'文本域',dataType:'STRING',required:'否',source:'无',def:'',sort:7,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:15',user:'admin',changes:{}}]},
+    {iden:'deviceType',name:'设备类型',widget:'下拉单选',dataType:'STRING',required:'否',source:'自定义代码集',def:'',sort:8,status:'启用',vr:{'1':'直连设备','2':'网关设备','3':'网关子设备'},version:2,
+     history:[
+       {ver:2,type:'修改',time:'2026-06-10 10:00',user:'admin',changes:{valueRange:{old:'1-直连,2-网关',new:'1-直连设备,2-网关设备,3-网关子设备'}}},
+       {ver:1,type:'新增',time:'2026-06-01 09:18',user:'admin',changes:{}}
+     ]}
+  ],
+  'STATUS': [
+    {iden:'onlineStatus',name:'在线状态',widget:'下拉单选',dataType:'STRING',required:'是',source:'自定义代码集',def:'',sort:1,status:'启用',vr:{'0':'离线','1':'在线'},version:3,
+     history:[
+       {ver:3,type:'修改',time:'2026-06-13 14:30',user:'admin',changes:{valueRange:{old:'0-离线',new:'0-离线,1-在线'}}},
+       {ver:2,type:'修改',time:'2026-06-10 09:15',user:'admin',changes:{name:{old:'状态',new:'在线状态'}}},
+       {ver:1,type:'新增',time:'2026-06-01 09:20',user:'admin',changes:{}}
+     ]},
+    {iden:'signalStrength',name:'信号强度',widget:'文本输入',dataType:'INT',required:'否',source:'无',def:'',sort:2,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:22',user:'admin',changes:{}}]},
+    {iden:'workMode',name:'工作模式',widget:'下拉单选',dataType:'STRING',required:'否',source:'自定义代码集',def:'',sort:3,status:'启用',vr:{'0':'自动','1':'手动','2':'定时'},version:2,
+     history:[
+       {ver:2,type:'修改',time:'2026-06-12 15:00',user:'admin',changes:{valueRange:{old:'0-自动,1-手动',new:'0-自动,1-手动,2-定时'}}},
+       {ver:1,type:'新增',time:'2026-06-01 09:25',user:'admin',changes:{}}
+     ]}
+  ],
+  'LOCATION': [
+    {iden:'installLocation',name:'安装位置',widget:'文本输入',dataType:'STRING',required:'否',source:'无',def:'',sort:1,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:35',user:'admin',changes:{}}]},
+    {iden:'longitude',name:'经度',widget:'文本输入',dataType:'FLOAT',required:'否',source:'无',def:'',sort:2,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:38',user:'admin',changes:{}}]},
+    {iden:'latitude',name:'纬度',widget:'文本输入',dataType:'FLOAT',required:'否',source:'无',def:'',sort:3,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:40',user:'admin',changes:{}}]}
+  ],
+  'LIFECYCLE': [
+    {iden:'svcDate',name:'服役时间',widget:'日期选择',dataType:'DATE',required:'否',source:'无',def:'',sort:1,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:45',user:'admin',changes:{}}]},
+    {iden:'retDate',name:'退役时间',widget:'日期选择',dataType:'DATE',required:'否',source:'无',def:'',sort:2,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:48',user:'admin',changes:{}}]},
+    {iden:'retAlertTime',name:'退役提醒时间',widget:'日期选择',dataType:'DATE',required:'否',source:'无',def:'',sort:3,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:50',user:'admin',changes:{}}]},
+    {iden:'alertPerson',name:'提醒人员',widget:'下拉多选',dataType:'STRING',required:'否',source:'用户表',def:'',sort:4,status:'启用',vr:null,version:1,
+     history:[{ver:1,type:'新增',time:'2026-06-01 09:52',user:'admin',changes:{}}]}
+  ]
+};
+
+var selectedCat = null;
+var editingIden = null;
+
+// ============ 分类树 ============
+function renderCatTree() {
+  var el = document.getElementById('catTree');
+  el.innerHTML = categories.map(function(c){
+    var count = (fieldData[c.code]||[]).length;
+    var active = selectedCat === c.code ? ' active' : '';
+    var dis = c.status === '停用';
+    return '<div class="cat-node'+active+'" onclick="selectCat(\''+c.code+'\')" style="'+(dis?'opacity:0.5':'')+'">'
+      +'<i class="fa-solid fa-folder" style="font-size:13px;color:'+(dis?'#d9d9d9':'#faad14')+'"></i>'
+      +'<span>'+c.name+'</span>'
+      +'<span class="count">'+count+'</span></div>';
+  }).join('');
+}
+
+function selectCat(code) {
+  selectedCat = code;
+  renderCatTree();
+  document.getElementById('addFieldBtn').style.display = '';
+  document.getElementById('searchBar').style.display = '';
+  renderFieldTable();
+}
+
+// ============ 字段表格 ============
+function fmtVr(vr){ if(!vr)return '<span style="color:var(--ant-text-disabled)">-</span>'; return Object.entries(vr).map(function(p){return p[0]+'-'+p[1]}).join(', '); }
+
+function renderFieldTable() {
+  var title = document.getElementById('fieldTitle');
+  var body = document.getElementById('fieldBody');
+  var empty = document.getElementById('fieldEmpty');
+  var table = document.getElementById('fieldTable');
+  if (!selectedCat) { table.style.display='none'; empty.style.display=''; return; }
+  var cat = categories.find(function(c){return c.code===selectedCat});
+  var kw = (document.getElementById('searchKeyword').value||'').trim().toLowerCase();
+  var wt = document.getElementById('searchWidget').value;
+  var fields = (fieldData[selectedCat]||[]).slice().sort(function(a,b){return a.sort-b.sort});
+  if (kw) fields = fields.filter(function(f){return f.iden.toLowerCase().indexOf(kw)>=0||f.name.toLowerCase().indexOf(kw)>=0});
+  if (wt) fields = fields.filter(function(f){return f.widget===wt});
+  title.textContent = cat.name + '（' + fields.length + ' 个字段）';
+  table.style.display=''; empty.style.display='none';
+  if (!fields.length) { body.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:30px;color:var(--ant-text-tertiary)">未查询到符合条件的字段</td></tr>'; return; }
+  body.innerHTML = fields.map(function(f, i){
+    var isCustom = f.source === '自定义代码集';
+    return '<tr>'
+      +'<td>'+(i+1)+'</td>'
+      +'<td><code style="background:#f5f5f5;padding:1px 5px;border-radius:3px;font-size:12px">'+f.iden+'</code></td>'
+      +'<td>'+f.name+'</td>'
+      +'<td>'+f.widget+'</td>'
+      +'<td><span class="ant-tag ant-tag-gray">'+f.dataType+'</span></td>'
+      +'<td>'+(f.required==='是'?'<span class="ant-tag ant-tag-blue">是</span>':'-')+'</td>'
+      +'<td>'+(f.source==='无'?'<span style="color:var(--ant-text-tertiary)">无</span>':'<span class="ant-tag ant-tag-purple">'+f.source+'</span>')+'</td>'
+      +'<td>'+f.sort+'</td>'
+      +'<td><span class="ant-tag '+(f.status==='启用'?'ant-tag-green':'ant-tag-red')+'">'+f.status+'</span></td>'
+      +'<td><span style="font-weight:600;color:var(--ant-primary)">v'+f.version+'</span></td>'
+      +'<td><div class="action-wrap">'
+      +'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="openFieldModal(\''+f.iden+'\')">编辑</button>'
+      +'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="openHistory(\''+f.iden+'\')"><i class="fa-regular fa-clock"></i> 历史</button>'
+      +'<button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="handleDelete(\''+f.iden+'\')">删除</button>'
+      +'</div></td></tr>';
+  }).join('');
+}
+
+function resetSearch(){ document.getElementById('searchKeyword').value=''; document.getElementById('searchWidget').value=''; renderFieldTable(); showToast('筛选已重置'); }
+
+// ============ 字段编辑弹窗 ============
+function openFieldModal(iden) {
+  editingIden = iden || null;
+  document.getElementById('fieldModalTitle').textContent = iden ? '编辑字段' : '新增字段';
+  ['fIdenErr','fNameErr','kvErr'].forEach(function(k){document.getElementById(k).classList.add('hidden')});
+  var sel = document.getElementById('fCategory');
+  sel.innerHTML = categories.map(function(c){return '<option value="'+c.code+'">'+c.name+'</option>'}).join('');
+  var idenInput = document.getElementById('fIden');
+  if (iden) {
+    var f = (fieldData[selectedCat]||[]).find(function(x){return x.iden===iden});
+    idenInput.value=f.iden; idenInput.disabled=true; idenInput.style.background='#f5f5f5';
+    document.getElementById('fName').value=f.name;
+    sel.value=selectedCat;
+    document.getElementById('fWidget').value=f.widget;
+    document.getElementById('fDataType').value=f.dataType;
+    document.getElementById('fSource').value=f.source;
+    document.getElementById('fDefault').value=f.def;
+    document.getElementById('fSort').value=f.sort;
+    document.querySelector('input[name=fReq][value="'+f.required+'"]').checked=true;
+    document.querySelector('input[name=fStatus][value="'+f.status+'"]').checked=true;
+    renderKvTable(f.vr||{});
+  } else {
+    idenInput.value=''; idenInput.disabled=false; idenInput.style.background='';
+    document.getElementById('fName').value='';
+    sel.value=selectedCat;
+    document.getElementById('fWidget').value='文本输入';
+    document.getElementById('fDataType').value='STRING';
+    document.getElementById('fSource').value='无';
+    document.getElementById('fDefault').value='';
+    var maxSort = Math.max(0, ...(fieldData[selectedCat]||[]).map(function(x){return x.sort}));
+    document.getElementById('fSort').value = maxSort + 1;
+    document.querySelector('input[name=fReq][value="否"]').checked=true;
+    document.querySelector('input[name=fStatus][value="启用"]').checked=true;
+    renderKvTable({});
+  }
+  onWidgetOrSourceChange();
+  document.getElementById('fieldModal').classList.add('active');
+}
+function closeFieldModal(){ document.getElementById('fieldModal').classList.remove('active'); }
+
+// 数据来源=自定义代码集时显示值域
+function onWidgetOrSourceChange(){
+  var isCustom = document.getElementById('fSource').value === '自定义代码集';
+  document.getElementById('vrSection').classList.toggle('hidden', !isCustom);
+}
+
+function renderKvTable(kv){
+  var body=document.getElementById('kvBody');
+  var entries=Object.entries(kv);
+  if(!entries.length){body.innerHTML='';addKvRow();return}
+  body.innerHTML=entries.map(function(p){
+    return '<tr><td><input class="kv-key" value="'+p[0]+'"></td><td><input class="kv-val" value="'+p[1]+'"></td><td><button class="ant-btn ant-btn-text ant-btn-sm" style="color:var(--ant-error)" onclick="removeKvRow(this)"><i class="fa-solid fa-trash-can"></i></button></td></tr>';
+  }).join('');
+}
+function addKvRow(){document.getElementById('kvBody').insertAdjacentHTML('beforeend','<tr><td><input class="kv-key" placeholder="0"></td><td><input class="kv-val" placeholder="离线"></td><td><button class="ant-btn ant-btn-text ant-btn-sm" style="color:var(--ant-error)" onclick="removeKvRow(this)"><i class="fa-solid fa-trash-can"></i></button></td></tr>')}
+function removeKvRow(btn){if(document.getElementById('kvBody').querySelectorAll('tr').length<=1)return;btn.closest('tr').remove()}
+
+function submitField(){
+  var iden=document.getElementById('fIden').value.trim();
+  var name=document.getElementById('fName').value.trim();
+  var category=document.getElementById('fCategory').value;
+  var widget=document.getElementById('fWidget').value;
+  var dataType=document.getElementById('fDataType').value;
+  var source=document.getElementById('fSource').value;
+  var def=document.getElementById('fDefault').value.trim();
+  var sort=parseInt(document.getElementById('fSort').value)||1;
+  var required=document.querySelector('input[name=fReq]:checked').value;
+  var status=document.querySelector('input[name=fStatus]:checked').value;
+  var ok=true;
+  var setErr=function(k,m){var el=document.getElementById(k);if(m){el.textContent=m;el.classList.remove('hidden');ok=false}else el.classList.add('hidden')};
+  // 全局已有标识集合
+  var allIdens=[];Object.keys(fieldData).forEach(function(c){fieldData[c].forEach(function(f){allIdens.push(f.iden)})});
+  if(!iden)setErr('fIdenErr','字段标识不能为空');
+  else if(!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(iden))setErr('fIdenErr','格式不正确，字母数字下划线');
+  else if(!editingIden&&allIdens.indexOf(iden)>=0)setErr('fIdenErr',"字段标识'"+iden+"'已存在");
+  else setErr('fIdenErr','');
+  if(!name)setErr('fNameErr','字段名称不能为空');else setErr('fNameErr','');
+  var vr=null;
+  if(source==='自定义代码集'){
+    var keys=document.querySelectorAll('#kvBody .kv-key'),vals=document.querySelectorAll('#kvBody .kv-val');
+    var obj={},dup=[];keys.forEach(function(inp,i){var k=inp.value.trim(),v=vals[i]?vals[i].value.trim():'';if(k&&v){if(obj[k])dup.push(k);obj[k]=v}});
+    if(!Object.keys(obj).length)setErr('kvErr','自定义代码集必须填写键值对');
+    else if(dup.length)setErr('kvErr','键"'+dup[0]+'"重复');
+    else {vr=obj;setErr('kvErr','')}
+  }
+  if(!ok)return;
+  var now=new Date();
+  var t=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  if(editingIden){
+    var f=(fieldData[selectedCat]||[]).find(function(x){return x.iden===editingIden});
+    var changes={};
+    if(name!==f.name)changes.name={old:f.name,new:name};
+    if(widget!==f.widget)changes.widget={old:f.widget,new:widget};
+    if(dataType!==f.dataType)changes.dataType={old:f.dataType,new:dataType};
+    if(required!==f.required)changes.required={old:f.required,new:required};
+    if(source!==f.source)changes.source={old:f.source,new:source};
+    var oldVrStr=f.vr?Object.entries(f.vr).map(function(p){return p[0]+'-'+p[1]}).join(','):'-';
+    var newVrStr=vr?Object.entries(vr).map(function(p){return p[0]+'-'+p[1]}).join(','):'-';
+    if(oldVrStr!==newVrStr)changes.valueRange={old:oldVrStr,new:newVrStr};
+    if(sort!==f.sort)changes.sort={old:f.sort,new:sort};
+    if(status!==f.status)changes.status={old:f.status,new:status};
+    // 分类变更：移动到目标分类
+    var moved = category!==selectedCat;
+    Object.assign(f,{name:name,widget:widget,dataType:dataType,required:required,source:source,def:def,sort:sort,status:status,vr:vr});
+    if(Object.keys(changes).length){f.version++;f.history.unshift({ver:f.version,type:'修改',time:t,user:'admin',changes:changes})}
+    if(moved){fieldData[selectedCat]=fieldData[selectedCat].filter(function(x){return x.iden!==f.iden});if(!fieldData[category])fieldData[category]=[];fieldData[category].push(f)}
+    showToast('修改成功');
+  } else {
+    if(!fieldData[category])fieldData[category]=[];
+    fieldData[category].push({iden:iden,name:name,widget:widget,dataType:dataType,required:required,source:source,def:def,sort:sort,status:status,vr:vr,version:1,history:[{ver:1,type:'新增',time:t,user:'admin',changes:{}}]});
+    showToast('新增成功');
+  }
+  closeFieldModal();renderCatTree();renderFieldTable();
+}
+
+// ============ 删除 ============
+var pendingDel=null;
+function handleDelete(iden){
+  pendingDel=iden;
+  var f=(fieldData[selectedCat]||[]).find(function(x){return x.iden===iden});
+  document.getElementById('confirmText').textContent='确定删除字段"'+f.name+'"（'+f.iden+'）？删除后设备信息页面将不再显示该字段。';
+  document.getElementById('confirmModal').classList.add('active');
+}
+function confirmAction(){
+  fieldData[selectedCat]=fieldData[selectedCat].filter(function(x){return x.iden!==pendingDel});
+  document.getElementById('confirmModal').classList.remove('active');
+  renderCatTree();renderFieldTable();showToast('删除成功');
+}
+function closeConfirmModal(){document.getElementById('confirmModal').classList.remove('active')}
+
+// ============ 版本历史抽屉 ============
+function openHistory(iden){
+  var f=(fieldData[selectedCat]||[]).find(function(x){return x.iden===iden});
+  document.getElementById('historyTitle').textContent='字段"'+f.name+'"的版本历史';
+  document.getElementById('historyBody').innerHTML=f.history.map(function(h,i){
+    var isFirst=i===f.history.length-1;
+    var ck=Object.keys(h.changes);
+    var changeHtml='';
+    if(ck.length){
+      changeHtml=ck.map(function(k){var c=h.changes[k];return '<div class="diff-line diff-old" style="margin-bottom:2px"><i class="fa-solid fa-minus mr-1" style="color:#ff4d4f;font-size:10px"></i><b>'+k+'：</b>'+c.old+'</div><div class="diff-line diff-new"><i class="fa-solid fa-plus mr-1" style="color:#52c41a;font-size:10px"></i><b>'+k+'：</b>'+c.new+'</div>'}).join('');
+    }
+    return '<div class="timeline-item"><div class="flex items-center gap-2 mb-2"><span class="timeline-dot"></span><span style="font-weight:600;font-size:14px">v'+h.ver+'</span><span class="ant-tag '+(h.type==='新增'?'ant-tag-green':'ant-tag-orange')+'">'+h.type+'</span><span class="text-xs text-tertiary ml-auto">'+h.time+'  '+h.user+'</span></div>'+(changeHtml?'<div class="ml-5 mb-2">'+changeHtml+'</div>':'<div class="ml-5 text-xs text-tertiary mb-2">新增字段，无变更记录</div>')+'</div>';
+  }).join('');
+  document.getElementById('historyMask').classList.add('active');
+  document.getElementById('historyDrawer').classList.add('active');
+}
+function closeHistory(){document.getElementById('historyMask').classList.remove('active');document.getElementById('historyDrawer').classList.remove('active')}
+
+document.getElementById('fieldModal').addEventListener('click',function(e){if(e.target===this)closeFieldModal()});
+document.getElementById('confirmModal').addEventListener('click',function(e){if(e.target===this)closeConfirmModal()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeFieldModal();closeConfirmModal();closeHistory()}});
+
+renderCatTree();
+</script>
+</body>
+</html>

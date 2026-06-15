@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>校园路灯控制器 - 版本管理 - 物联中枢 V2.2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>
+    .drawer-mask { position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;display:none; }
+    .drawer-mask.active{display:block;}
+    .drawer{position:fixed;top:0;right:0;width:700px;height:100vh;background:#fff;box-shadow:var(--shadow-2);z-index:1001;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s var(--ease-in-out);}
+    .drawer.active{transform:translateX(0);}
+    .drawer-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--ant-border-secondary);font-size:16px;font-weight:600;}
+    .drawer-body{flex:1;overflow-y:auto;padding:24px;}
+    .snap-item{display:flex;padding:5px 0;font-size:13px;color:var(--ant-text);}
+    .snap-label{width:140px;color:var(--ant-text-secondary);flex-shrink:0;font-size:13px;}
+    .diff-highlight{background:#f6ffed;padding:2px 6px;border-radius:3px;font-size:13px;}
+    .diff-old-val{background:#fff1f0;padding:2px 6px;border-radius:3px;font-size:13px;text-decoration:line-through;color:#a8071a;}
+    .compare-col{padding:20px;border-radius:8px;}
+    .compare-col-l{background:#fff1f0;}
+    .compare-col-r{background:#f6ffed;}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">智慧校园一体化公共服务平台-物联中枢</span>
+    <div class="spacer"></div>
+    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">超</div>
+      <span style="font-size:13px;">超级管理员</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">本次迭代功能</div>
+      <div class="menu-item active"><i class="fa-solid fa-microchip"></i>产品 / 数据实例</div>
+      <div class="menu-item" onclick="location.href='admin-metadata-list.html'"><i class="fa-solid fa-folder-tree"></i>元数据分类</div>
+      <div class="menu-item" onclick="location.href='admin-dict-list.html'"><i class="fa-solid fa-table-list"></i>元数据管理</div>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><a href="list.html">产品 / 数据实例</a><span>/</span><span class="current">校园路灯控制器</span>
+      </div>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="page-title" style="margin-bottom:0">校园路灯控制器</span>
+        <span class="ant-tag ant-tag-blue">照明设备</span>
+        <span class="ant-tag ant-tag-green">直连设备</span>
+      </div>
+
+      <!-- Tab 栏：现有 Tab + 新增"版本历史" -->
+      <div class="tab-bar">
+        <div class="tab-item active" id="tabConfig" onclick="switchTab('config')">配置信息</div>
+        <div class="tab-item" onclick="showToast('物模型 Tab，非本次迭代范围')">物模型</div>
+        <div class="tab-item" onclick="showToast('设备接入 Tab，非本次迭代范围')">设备接入</div>
+        <div class="tab-item" onclick="showToast('Topic映射 Tab，非本次迭代范围')">Topic映射</div>
+        <div class="tab-item" onclick="showToast('物模型映射 Tab，非本次迭代范围')">物模型映射</div>
+        <div class="tab-item" onclick="showToast('数据解析 Tab，非本次迭代范围')">数据解析</div>
+        <div class="tab-item" id="tabVersion" onclick="switchTab('version')"><i class="fa-solid fa-code-branch mr-1"></i>版本历史</div>
+      </div>
+
+      <!-- 配置信息 Tab 内容（含版本号展示） -->
+      <div id="tabContentConfig">
+        <div class="ant-card ant-card-bordered">
+          <div class="ant-card-head">产品信息</div>
+          <div class="ant-card-body">
+            <div class="grid grid-cols-2 gap-6">
+              <div class="snap-item"><span class="snap-label">ID</span><span>2052752227797303</span></div>
+              <div class="snap-item"><span class="snap-label">产品分类</span><span>照明设备</span></div>
+              <div class="snap-item"><span class="snap-label">设备类型</span><span>直连设备</span></div>
+              <div class="snap-item"><span class="snap-label">接入方式</span><span>HTTP推送协议</span></div>
+              <div class="snap-item"><span class="snap-label">创建时间</span><span>2026-05-08 22:07:24</span></div>
+              <div class="snap-item">
+                <span class="snap-label">当前版本</span>
+                <span style="font-weight:700;color:var(--ant-primary);font-size:15px;">v3</span>
+              </div>
+              <div class="snap-item"><span class="snap-label">说明</span><span>校园主干道路灯控制器</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 版本历史 Tab 内容 -->
+      <div id="tabContentVersion" style="display:none">
+        <div class="flex items-center gap-4 mb-4 p-3 rounded-lg" style="background:#e6f4ff">
+          <span class="text-sm" style="color:var(--ant-primary);font-weight:600;">当前版本: <span style="font-size:16px;">v3</span></span>
+        </div>
+
+        <div class="ant-card ant-card-bordered">
+          <div class="ant-card-body" style="padding:0">
+            <table class="ant-table">
+              <thead>
+                <tr>
+                  <th width="80">版本</th>
+                  <th width="120">类型</th>
+                  <th width="170">时间</th>
+                  <th width="120">操作人</th>
+                  <th width="200">备注</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span style="font-weight:700;color:var(--ant-primary)">v3</span></td>
+                  <td><span class="ant-tag ant-tag-orange">数据变更</span></td>
+                  <td>2026-06-13 14:30</td>
+                  <td>admin</td>
+                  <td style="color:var(--ant-text-secondary);font-size:13px">接入方式: MQTT → HTTP推送协议</td>
+                  <td>
+                    <div class="action-wrap">
+                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showVersionSnap('v3','数据变更','2026-06-13 14:30')"><i class="fa-solid fa-eye mr-1"></i>查看</button>
+                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showVersionCompare('v2','v3')"><i class="fa-solid fa-code-compare mr-1"></i>对比</button>
+                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="handleRollback('v3')" disabled style="color:var(--ant-text-disabled)">回溯（已是最新）</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span style="font-weight:700;color:var(--ant-primary)">v2</span></td>
+                  <td><span class="ant-tag ant-tag-blue">配置变更</span></td>
+                  <td>2026-06-10 09:00</td>
+                  <td>admin</td>
+                  <td style="color:var(--ant-text-secondary);font-size:13px">配置信息更新，调整设备参数</td>
+                  <td>
+                    <div class="action-wrap">
+                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showVersionSnap('v2','配置变更','2026-06-10 09:00')"><i class="fa-solid fa-eye mr-1"></i>查看</button>
+                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showVersionCompare('v1','v2')"><i class="fa-solid fa-code-compare mr-1"></i>对比</button>
+                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="handleRollback('v2')"><i class="fa-solid fa-rotate-left mr-1"></i>回溯</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span style="font-weight:700;color:var(--ant-primary)">v1</span></td>
+                  <td><span class="ant-tag ant-tag-green">初始化</span></td>
+                  <td>2026-05-08 22:07</td>
+                  <td>admin</td>
+                  <td style="color:var(--ant-text-secondary);font-size:13px">产品创建</td>
+                  <td>
+                    <div class="action-wrap">
+                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showVersionSnap('v1','初始化','2026-05-08 22:07')"><i class="fa-solid fa-eye mr-1"></i>查看</button>
+                      <button class="ant-btn ant-btn-text ant-btn-sm" disabled style="color:var(--ant-text-disabled)">对比</button>
+                      <button class="ant-btn ant-btn-text ant-btn-sm" disabled style="color:var(--ant-text-disabled)">回溯</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 版本快照抽屉 -->
+<div class="drawer-mask" id="snapshotMask" onclick="closeSnapshot()"></div>
+<div class="drawer" id="snapshotDrawer">
+  <div class="drawer-header">
+    <span id="snapshotTitle">版本快照</span>
+    <span class="ant-modal-close" onclick="closeSnapshot()"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="drawer-body" id="snapshotBody"></div>
+</div>
+
+<!-- 版本对比抽屉 -->
+<div class="drawer-mask" id="compareMask" onclick="closeCompare()"></div>
+<div class="drawer" id="compareDrawer">
+  <div class="drawer-header">
+    <span id="compareTitle">版本对比</span>
+    <span class="ant-modal-close" onclick="closeCompare()"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="drawer-body" id="compareBody"></div>
+</div>
+
+<!-- 回溯确认弹窗 -->
+<div class="ant-modal-mask" id="rollbackModal">
+  <div class="ant-modal" style="width:460px">
+    <div class="ant-modal-header">
+      <span><i class="fa-solid fa-circle-exclamation" style="color:var(--ant-warning);margin-right:8px"></i>版本回溯</span>
+      <span class="ant-modal-close" onclick="closeRollbackModal()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body">
+      <p id="rollbackText" style="margin:0;font-size:14px;"></p>
+      <p style="margin:12px 0 0;font-size:12px;color:var(--ant-text-tertiary);">回溯将生成新版本 v4，历史链完整保留，当前版本指向新版本。</p>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeRollbackModal()">取消</button>
+      <button class="ant-btn ant-btn-primary" id="rollbackBtn" onclick="confirmRollback()">确定回溯</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showToast(msg, duration) {
+  duration = duration || 2000;
+  var wrap = document.querySelector('.toast-wrap');
+  if (!wrap) { wrap = document.createElement('div'); wrap.className = 'toast-wrap'; document.body.appendChild(wrap); }
+  var el = document.createElement('div');
+  el.className = 'toast-msg';
+  el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>' + msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(function () { el.classList.add('show'); });
+  setTimeout(function () { el.classList.remove('show'); setTimeout(function () { el.remove(); }, 300); }, duration);
+}
+
+// Tab 切换
+function switchTab(tab) {
+  document.getElementById('tabContentConfig').style.display = tab === 'config' ? '' : 'none';
+  document.getElementById('tabContentVersion').style.display = tab === 'version' ? '' : 'none';
+  document.getElementById('tabConfig').className = 'tab-item' + (tab === 'config' ? ' active' : '');
+  document.getElementById('tabVersion').className = 'tab-item' + (tab === 'version' ? ' active' : '');
+}
+
+// 快照数据（模拟）- 每个版本的配置快照
+const versionSnapData = {
+  'v3': {接入方式:'HTTP推送协议',产品分类:'照明设备',设备类型:'直连设备',
+    data:{开关:'开',亮度:'75',在线状态:'在线',安装位置:'主干道A段',经度:'119.65',纬度:'29.08'}},
+  'v2': {接入方式:'HTTP推送协议',产品分类:'照明设备',设备类型:'直连设备',
+    data:{开关:'开',亮度:'70',在线状态:'离线',安装位置:'主干道A段'}},
+  'v1': {接入方式:'MQTT协议',产品分类:'照明设备',设备类型:'直连设备',
+    data:{开关:'关',亮度:'50',在线状态:'离线',安装位置:'主干道A段'}}
+};
+
+function showVersionSnap(ver, type, time) {
+  document.getElementById('snapshotTitle').textContent = `版本 ${ver} 快照（${type} · ${time}）`;
+  const snap = versionSnapData[ver];
+  let html = '<div class="mb-4"><div style="font-weight:600;font-size:14px;margin-bottom:8px;color:var(--ant-text-secondary)">配置信息</div>';
+  html += ['接入方式','产品分类','设备类型'].map(k =>
+    `<div class="snap-item"><span class="snap-label">${k}</span><span>${snap[k]}</span></div>`
+  ).join('') + '</div>';
+  html += '<div style="border-top:1px solid #f0f0f0;padding-top:12px"><div style="font-weight:600;font-size:14px;margin-bottom:8px;color:var(--ant-text-secondary)">物模型数据（人工维护）</div>';
+  html += Object.entries(snap.data).map(([k,v]) =>
+    `<div class="snap-item"><span class="snap-label">${k}</span><span>${v}</span></div>`
+  ).join('') + '</div>';
+  document.getElementById('snapshotBody').innerHTML = html;
+  document.getElementById('snapshotMask').classList.add('active');
+  document.getElementById('snapshotDrawer').classList.add('active');
+}
+function closeSnapshot() { document.getElementById('snapshotMask').classList.remove('active'); document.getElementById('snapshotDrawer').classList.remove('active'); }
+
+function showVersionCompare(verL, verR) {
+  document.getElementById('compareTitle').textContent = `版本对比：${verL} vs ${verR}`;
+  const l = versionSnapData[verL], r = versionSnapData[verR];
+  const allKeys = [...new Set([...Object.keys(l.data), ...Object.keys(r.data)])];
+  let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">';
+  // 左列
+  html += `<div class="compare-col compare-col-l"><div style="font-weight:700;margin-bottom:12px;font-size:14px">${verL}（${verL==='v1'?'2026-05-08':verL==='v2'?'2026-06-10':'2026-06-13'}）</div>`;
+  html += ['接入方式','产品分类','设备类型'].map(k => {
+    const isDiff = l[k] !== r[k];
+    return `<div class="snap-item"><span class="snap-label">${k}</span><span style="${isDiff?'background:#fffbe6;padding:2px 6px;border-radius:3px':''}">${l[k]}</span></div>`;
+  }).join('');
+  html += '<div style="border-top:1px solid #f0f0f0;margin:8px 0"></div>';
+  html += allKeys.map(k => {
+    const lv = l.data[k] || '（无此字段）';
+    const rv = r.data[k] || '（无此字段）';
+    const isDiff = lv !== rv;
+    return `<div class="snap-item"><span class="snap-label">${k}</span><span style="${isDiff?'background:#fffbe6;padding:2px 6px;border-radius:3px;font-weight:600':''}">${lv}</span></div>`;
+  }).join('') + '</div>';
+  // 右列
+  html += `<div class="compare-col compare-col-r"><div style="font-weight:700;margin-bottom:12px;font-size:14px">${verR}（${verR==='v3'?'2026-06-13':verR==='v2'?'2026-06-10':'2026-05-08'}）</div>`;
+  html += ['接入方式','产品分类','设备类型'].map(k => {
+    const isDiff = l[k] !== r[k];
+    return `<div class="snap-item"><span class="snap-label">${k}</span><span style="${isDiff?'background:#f6ffed;padding:2px 6px;border-radius:3px;font-weight:600':''}">${r[k]}</span></div>`;
+  }).join('');
+  html += '<div style="border-top:1px solid #f0f0f0;margin:8px 0"></div>';
+  html += allKeys.map(k => {
+    const lv = l.data[k] || '（无此字段）';
+    const rv = r.data[k] || '（无此字段）';
+    const isDiff = lv !== rv;
+    return `<div class="snap-item"><span class="snap-label">${k}</span><span style="${isDiff?'background:#f6ffed;padding:2px 6px;border-radius:3px;font-weight:600':''}">${rv||'（该版本无此字段）'}</span></div>`;
+  }).join('') + '</div></div>';
+  document.getElementById('compareBody').innerHTML = html;
+  document.getElementById('compareMask').classList.add('active');
+  document.getElementById('compareDrawer').classList.add('active');
+}
+function closeCompare() { document.getElementById('compareMask').classList.remove('active'); document.getElementById('compareDrawer').classList.remove('active'); }
+
+// 回溯
+let pendingRollbackVer = null;
+function handleRollback(ver) {
+  pendingRollbackVer = ver;
+  document.getElementById('rollbackText').textContent = `确定将产品回溯到 ${ver} 版本？当前数据将保存为新版本 v4。`;
+  document.getElementById('rollbackBtn').disabled = false;
+  document.getElementById('rollbackBtn').textContent = '确定回溯';
+  document.getElementById('rollbackModal').classList.add('active');
+}
+function closeRollbackModal() { document.getElementById('rollbackModal').classList.remove('active'); }
+function confirmRollback() {
+  const btn = document.getElementById('rollbackBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>回溯中...';
+  setTimeout(() => {
+    showToast(`回溯成功，已生成新版本 v4（回溯自${pendingRollbackVer}）`);
+    closeRollbackModal();
+  }, 1200);
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closeSnapshot(); closeCompare(); closeRollbackModal(); }
+});
+document.getElementById('rollbackModal').addEventListener('click', function(e) { if (e.target === this) closeRollbackModal(); });
+</script>
+</body>
+</html>

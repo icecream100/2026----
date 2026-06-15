@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设备影子 - 设备详情 - 智慧校园物联中枢</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>
+    .shadow-status-bar { display:flex; align-items:center; gap:24px; padding:12px 0; margin-bottom:16px; }
+    .shadow-status-item { display:flex; align-items:center; gap:6px; font-size:14px; }
+    .shadow-status-label { color:rgba(0,0,0,0.45); font-size:12px; }
+    .shadow-status-value { font-weight:500; color:rgba(0,0,0,0.88); }
+    .json-viewer { background:#1e1e2e; border-radius:8px; padding:20px; overflow:auto; max-height:520px; }
+    .json-viewer pre { margin:0; font-family:'Menlo','Monaco','Consolas','Courier New',monospace; font-size:13px; line-height:1.7; color:#cdd6f4; white-space:pre-wrap; word-break:break-all; }
+    .json-key { color:#89b4fa; }
+    .json-string { color:#a6e3a1; }
+    .json-number { color:#fab387; }
+    .json-bool { color:#f38ba8; }
+    .json-null { color:#6c7086; }
+    .json-bracket { color:#cdd6f4; }
+    .json-comment { color:#6c7086; font-style:italic; }
+    .desired-row { display:flex; align-items:center; gap:12px; margin-bottom:12px; padding:12px; background:#fafafa; border-radius:6px; border:1px solid #f0f0f0; }
+    .desired-row select, .desired-row input { flex:1; min-width:0; }
+    .btn-remove-row { color:rgba(0,0,0,0.25); cursor:pointer; padding:4px; }
+    .btn-remove-row:hover { color:#ff4d4f; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">智慧校园一体化公共服务平台</span>
+    <div class="spacer"></div>
+    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>2</span>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">超</div>
+      <span style="font-size:13px;">超级管理员</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">设备管理</div>
+      <div class="menu-item" onclick="showToast('产品列表页（非本次原型范围）')"><i class="fa-solid fa-box"></i>产品</div>
+      <div class="menu-item active"><i class="fa-solid fa-server"></i>设备</div>
+      <div class="menu-item" onclick="showToast('分组管理页（非本次原型范围）')"><i class="fa-solid fa-layer-group"></i>分组管理</div>
+      <div class="menu-group-title">物模型知识库</div>
+      <div class="menu-item" onclick="showToast('物模型列表页（非本次原型范围）')"><i class="fa-solid fa-cubes"></i>物模型</div>
+      <div class="menu-group-title">通用</div>
+      <div class="menu-item" onclick="showToast('MQTT 连接页（非本次原型范围）')"><i class="fa-solid fa-tower-broadcast"></i>MQTT连接</div>
+      <div class="menu-item" onclick="showToast('智能助手（非本次原型范围）')"><i class="fa-solid fa-robot"></i>智能助手</div>
+      <div class="menu-group-title">管理控制台</div>
+      <div class="menu-item" onclick="showToast('设备接入控制台（非本次原型范围）')"><i class="fa-solid fa-table-columns"></i>设备接入</div>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span>设备</span><span>/</span><span class="current">杭州测试空调01 (DeviceA_001)</span>
+      </div>
+
+      <div class="flex items-center gap-3 mb-4">
+        <h1 class="text-xl font-semibold" style="margin:0;">杭州测试空调01</h1>
+        <span class="ant-tag ant-tag-green">在线</span>
+        <span class="ant-tag ant-tag-blue">MQTT</span>
+        <span style="font-size:13px;color:rgba(0,0,0,0.45);margin-left:8px;">设备标识：DeviceA_001</span>
+      </div>
+      <div class="text-sm mb-6" style="color:rgba(0,0,0,0.45);">
+        所属产品：杭州测试（MJH测试01） · 固件版本：V1.0 · 最后上线：2026-06-15 08:00:00
+      </div>
+
+      <div class="tab-bar" id="mainTabs">
+        <div class="tab-item" onclick="switchTab('info')">设备信息</div>
+        <div class="tab-item" onclick="switchTab('model')">物模型</div>
+        <div class="tab-item active" onclick="switchTab('shadow')">设备影子</div>
+      </div>
+
+      <!-- ========== 设备影子 Tab：JSON + 操作按钮 ========== -->
+      <div id="tab-shadow" class="tab-content active" style="display:block;">
+
+        <!-- 状态栏 -->
+        <div class="shadow-status-bar">
+          <div class="shadow-status-item">
+            <span class="status-dot pulse-dot" style="background:#52c41a;"></span>
+            <span class="shadow-status-label">设备状态</span>
+            <span class="shadow-status-value">在线</span>
+          </div>
+          <div class="shadow-status-item">
+            <span class="shadow-status-label">影子版本</span>
+            <span class="shadow-status-value" id="shadowVersion">v5</span>
+          </div>
+          <div class="shadow-status-item">
+            <span class="shadow-status-label">最后上报</span>
+            <span class="shadow-status-value">2026-06-15 10:32:18</span>
+          </div>
+          <div class="flex-1"></div>
+          <button class="ant-btn ant-btn-sm" onclick="handleRefresh()"><i class="fa-solid fa-rotate-right"></i> 刷新</button>
+        </div>
+
+        <!-- 影子 JSON 文档 -->
+        <div class="json-viewer" id="jsonViewer"></div>
+
+        <!-- 操作按钮 -->
+        <div class="flex gap-2 mt-4">
+          <button class="ant-btn ant-btn-primary" onclick="openEditDesired()"><i class="fa-solid fa-pen"></i> 编辑期望状态</button>
+          <button class="ant-btn ant-btn-dangerous" onclick="openClearDesiredAll()"><i class="fa-solid fa-trash-can"></i> 清除期望</button>
+          <button class="ant-btn ant-btn-dangerous" onclick="openClearShadowAll()"><i class="fa-solid fa-bomb"></i> 清空影子</button>
+        </div>
+
+      </div>
+
+      <div id="tab-info" class="tab-content" style="display:none;"><div class="ant-card"><div class="ant-card-body"><p style="color:rgba(0,0,0,0.45);">设备信息页（非本次原型范围）</p></div></div></div>
+      <div id="tab-model" class="tab-content" style="display:none;"><div class="ant-card"><div class="ant-card-body"><p style="color:rgba(0,0,0,0.45);">物模型页（非本次原型范围）</p></div></div></div>
+    </main>
+  </div>
+</div>
+
+<!-- 编辑 desired 弹窗 -->
+<div id="modalEditDesired" class="ant-modal-mask" style="display:none;">
+  <div class="ant-modal" style="width:640px;">
+    <div class="ant-modal-header">
+      <div class="ant-modal-title">编辑期望状态</div>
+      <div class="ant-modal-close" onclick="closeModal('modalEditDesired')"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="ant-modal-body">
+      <div id="editError" style="display:none;background:#fff2f0;border:1px solid #ffccc7;border-radius:6px;padding:8px 12px;margin-bottom:16px;font-size:14px;color:#ff4d4f;">
+        <i class="fa-solid fa-circle-exclamation mr-1"></i><span id="editErrorMsg"></span>
+      </div>
+      <div class="text-sm mb-3" style="color:rgba(0,0,0,0.45);">选择物模型属性并填写期望值，提交后下发至当前设备。</div>
+      <div id="desiredRows">
+        <div class="desired-row">
+          <select class="ant-select" style="width:150px;" onchange="syncCurrentVal(this)">
+            <option value="">请选择属性</option>
+            <option value="switch" data-cur="开" data-type="enum" data-enum="on,off">开关 (switch)</option>
+            <option value="brightness" data-cur="80" data-type="number" data-min="0" data-max="100">亮度 (brightness)</option>
+            <option value="mode" data-cur="制冷" data-type="enum" data-enum="cool,heat,fan,dry">模式 (mode)</option>
+          </select>
+          <div style="min-width:80px;font-size:12px;color:rgba(0,0,0,0.45);">当前：—</div>
+          <input class="ant-input" style="width:120px;" placeholder="期望值">
+          <span class="btn-remove-row" onclick="removeDesiredRow(this)"><i class="fa-solid fa-xmark"></i></span>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <input id="desiredRemark" class="ant-input" style="width:100%;" placeholder="备注（选填，最长200字）" maxlength="200">
+      </div>
+      <button class="ant-btn ant-btn-sm" style="margin-top:8px;" onclick="addDesiredRow()"><i class="fa-solid fa-plus"></i> 添加一行</button>
+      <div style="margin-top:8px;font-size:12px;color:rgba(0,0,0,0.45);">
+        <i class="fa-solid fa-circle-info mr-1"></i>当前版本：v5，提交时自动校验版本号
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeModal('modalEditDesired')">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="submitDesired()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 清除 desired 确认 -->
+<div id="modalClearDesired" class="ant-modal-mask" style="display:none;">
+  <div class="ant-modal" style="width:400px;">
+    <div class="ant-modal-header">
+      <div class="ant-modal-title">确认清除期望状态</div>
+      <div class="ant-modal-close" onclick="closeModal('modalClearDesired')"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="ant-modal-body">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <i class="fa-solid fa-circle-exclamation" style="color:#faad14;font-size:20px;margin-top:2px;"></i>
+        <div id="clearDesiredMsg" style="font-size:14px;color:rgba(0,0,0,0.88);line-height:1.6;">
+          清除后，该设备将不再收到期望指令，确定继续？
+        </div>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeModal('modalClearDesired')">取消</button>
+      <button class="ant-btn ant-btn-dangerous" onclick="confirmClearDesired()">确认清除</button>
+    </div>
+  </div>
+</div>
+
+<!-- 清空影子确认 -->
+<div id="modalClearShadow" class="ant-modal-mask" style="display:none;">
+  <div class="ant-modal" style="width:400px;">
+    <div class="ant-modal-header">
+      <div class="ant-modal-title">确认清空影子文档</div>
+      <div class="ant-modal-close" onclick="closeModal('modalClearShadow')"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="ant-modal-body">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <i class="fa-solid fa-triangle-exclamation" style="color:#ff4d4f;font-size:20px;margin-top:2px;"></i>
+        <div style="font-size:14px;color:rgba(0,0,0,0.88);line-height:1.6;">
+          清空后 <strong>reported 和 desired 全部清除</strong>，设备需重新上报才能恢复，确定继续？
+        </div>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeModal('modalClearShadow')">取消</button>
+      <button class="ant-btn ant-btn-dangerous" onclick="confirmClearShadow()">确认清空</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap"></div>
+
+<script>
+// 影子文档 mock 数据
+var shadowDoc = {
+  state:{
+    reported:{ temperature:26, humidity:62, switch:'on', brightness:80, mode:'cool' },
+    desired:{ switch:'off', brightness:100, mode:'cool' }
+  },
+  metadata:{
+    reported:{
+      temperature:{timestamp:1718257938},
+      humidity:{timestamp:1718257938},
+      switch:{timestamp:1718257805},
+      brightness:{timestamp:1718257805},
+      mode:{timestamp:1718257680}
+    },
+    desired:{
+      switch:{timestamp:1718257805},
+      brightness:{timestamp:1718257805},
+      mode:{timestamp:1718257680}
+    }
+  },
+  version:5,
+  timestamp:1718257938
+};
+
+// JSON 语法高亮渲染
+function highlightJson(obj) {
+  var json = JSON.stringify(obj, null, 2);
+  json = json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  json = json.replace(/"([^"]+)"(\s*:)/g, '<span class="json-key">"$1"</span>$2');
+  json = json.replace(/:\s*"([^"]*)"/g, ': <span class="json-string">"$1"</span>');
+  json = json.replace(/:\s*(\d+\.?\d*)/g, ': <span class="json-number">$1</span>');
+  json = json.replace(/:\s*(true|false)/g, ': <span class="json-bool">$1</span>');
+  json = json.replace(/:\s*(null)/g, ': <span class="json-null">$1</span>');
+  return json;
+}
+
+function renderShadow() {
+  document.getElementById('jsonViewer').innerHTML = '<pre>' + highlightJson(shadowDoc) + '</pre>';
+  document.getElementById('shadowVersion').textContent = 'v' + shadowDoc.version;
+}
+
+// 初始化渲染
+renderShadow();
+
+// Tab 切换
+function switchTab(key) {
+  document.querySelectorAll('.tab-content').forEach(function(el){ el.style.display='none'; });
+  document.getElementById('tab-' + key).style.display = 'block';
+  document.querySelectorAll('#mainTabs .tab-item').forEach(function(el){ el.classList.remove('active'); });
+  event.target.classList.add('active');
+}
+
+// 弹窗
+function openModal(id){ document.getElementById(id).style.display='flex'; }
+function closeModal(id){ document.getElementById(id).style.display='none'; }
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape') ['modalEditDesired','modalClearDesired','modalClearShadow'].forEach(function(id){
+    if(document.getElementById(id).style.display==='flex') closeModal(id);
+  });
+});
+document.querySelectorAll('.ant-modal-mask').forEach(function(m){
+  m.addEventListener('click', function(e){ if(e.target===m) m.style.display='none'; });
+});
+
+// Toast
+function showToast(msg, dur){
+  dur=dur||2500; var w=document.querySelector('.toast-wrap');
+  var el=document.createElement('div'); el.className='toast-msg';
+  el.innerHTML='<i class="fa-solid fa-circle-info" style="color:#1677ff;"></i>'+msg;
+  w.appendChild(el);
+  requestAnimationFrame(function(){el.classList.add('show');});
+  setTimeout(function(){el.classList.remove('show');setTimeout(function(){el.remove();},300);},dur);
+}
+
+// 刷新
+function handleRefresh(){ renderShadow(); showToast('影子文档已刷新（版本 v'+shadowDoc.version+'）'); }
+
+// 编辑 desired
+function openEditDesired(){
+  document.getElementById('editError').style.display='none';
+  var firstSel=document.querySelector('#desiredRows .desired-row select');
+  firstSel.value='switch'; syncCurrentVal(firstSel);
+  document.querySelector('#desiredRows .desired-row input').value='关';
+  openModal('modalEditDesired');
+}
+function syncCurrentVal(sel){
+  var cur=sel.options[sel.selectedIndex].getAttribute('data-cur')||'—';
+  sel.closest('.desired-row').querySelector('div[style*="font-size:12px"]').textContent='当前：'+cur;
+}
+function addDesiredRow(){
+  var r=document.createElement('div'); r.className='desired-row';
+  r.innerHTML='<select class="ant-select" style="width:150px;" onchange="syncCurrentVal(this)">'+
+    '<option value="">请选择属性</option>'+
+    '<option value="switch" data-cur="开" data-type="enum" data-enum="on,off">开关 (switch)</option>'+
+    '<option value="brightness" data-cur="80" data-type="number" data-min="0" data-max="100">亮度 (brightness)</option>'+
+    '<option value="mode" data-cur="制冷" data-type="enum" data-enum="cool,heat,fan,dry">模式 (mode)</option>'+
+    '</select><div style="min-width:80px;font-size:12px;color:rgba(0,0,0,0.45);">当前：—</div>'+
+    '<input class="ant-input" style="width:120px;" placeholder="期望值">'+
+    '<span class="btn-remove-row" onclick="removeDesiredRow(this)"><i class="fa-solid fa-xmark"></i></span>';
+  document.getElementById('desiredRows').appendChild(r);
+}
+function removeDesiredRow(btn){
+  if(document.querySelectorAll('#desiredRows .desired-row').length<=1){showToast('至少保留一行');return;}
+  btn.closest('.desired-row').remove();
+}
+function submitDesired(){
+  var editErr=document.getElementById('editError');
+  var editErrMsg=document.getElementById('editErrorMsg');
+  var hasError=false;
+  var errMsg='';
+  var seenFields={};
+  document.querySelectorAll('#desiredRows .desired-row').forEach(function(r){
+    var sel=r.querySelector('select');
+    var inp=r.querySelector('input');
+    var fk=sel.value;
+    var val=inp.value.trim();
+    // 字段必填
+    if(!fk){ errMsg='请为每一行选择属性'; hasError=true; return; }
+    // 字段不可重复
+    if(seenFields[fk]){ errMsg='属性 '+fk+' 重复添加，请移除重复行'; hasError=true; return; }
+    seenFields[fk]=true;
+    // 期望值必填
+    if(!val){ errMsg='请为属性 '+fk+' 填写期望值'; hasError=true; return; }
+    // 类型校验
+    var opt=sel.options[sel.selectedIndex];
+    var type=opt.getAttribute('data-type');
+    if(type==='enum'){
+      var enums=opt.getAttribute('data-enum').split(',');
+      if(enums.indexOf(val)===-1){ errMsg='属性 '+fk+' 的有效值为：'+enums.join('、')+'，当前值不符合'; hasError=true; return; }
+    }else if(type==='number'){
+      var min=parseFloat(opt.getAttribute('data-min'));
+      var max=parseFloat(opt.getAttribute('data-max'));
+      var num=parseFloat(val);
+      if(isNaN(num)||num<min||num>max){ errMsg='属性 '+fk+' 必须为数字，范围 '+min+'~'+max; hasError=true; return; }
+    }
+  });
+  if(hasError){ editErr.style.display='block'; editErrMsg.textContent=errMsg; return; }
+  // 模拟：更新 shadowDoc 的 desired 和 version
+  shadowDoc.state.desired.switch='off';
+  shadowDoc.version++;
+  renderShadow();
+  closeModal('modalEditDesired');
+  var remark=document.getElementById('desiredRemark').value.trim();
+  var toastMsg='期望状态设置成功（版本 v'+shadowDoc.version+'）';
+  if(remark) toastMsg+='，备注：'+remark;
+  showToast(toastMsg);
+}
+
+// 清除 desired
+function openClearDesiredAll(){ openModal('modalClearDesired'); }
+function confirmClearDesired(){
+  shadowDoc.state.desired={};
+  shadowDoc.version++;
+  renderShadow();
+  closeModal('modalClearDesired');
+  showToast('期望状态已清除（版本 v'+shadowDoc.version+'）');
+}
+
+// 清空影子
+function openClearShadowAll(){ openModal('modalClearShadow'); }
+function confirmClearShadow(){
+  shadowDoc.state={reported:{},desired:{}};
+  shadowDoc.metadata={reported:{},desired:{}};
+  shadowDoc.version=1;
+  shadowDoc.timestamp=0;
+  renderShadow();
+  closeModal('modalClearShadow');
+  showToast('影子文档已清空，版本重置为 v1');
+}
+</script>
+</body>
+</html>

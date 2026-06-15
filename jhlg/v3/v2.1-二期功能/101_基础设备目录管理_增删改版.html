@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基础目录管理(V1.1) - 金华理工物联网平台</title>
+    <style>
+        :root {
+            --primary: #1677ff;
+            --primary-hover: #4096ff;
+            --primary-bg: #e6f4ff;
+            --success: #52c41a;
+            --success-bg: #f6ffed;
+            --warning: #faad14;
+            --warning-bg: #fffbe6;
+            --error: #ff4d4f;
+            --error-bg: #fff2f0;
+            --text: rgba(0,0,0,0.88);
+            --text-secondary: rgba(0,0,0,0.65);
+            --text-tertiary: rgba(0,0,0,0.45);
+            --border: #d9d9d9;
+            --border-secondary: #f0f0f0;
+            --bg: #f5f5f5;
+            --bg-container: #ffffff;
+            --shadow-1: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+            --shadow-2: 0 3px 6px -4px rgba(0,0,0,0.12), 0 6px 16px 0 rgba(0,0,0,0.08), 0 9px 28px 8px rgba(0,0,0,0.05);
+            --radius-base: 4px;
+            --radius-lg: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5714;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        /* 布局 */
+        .app-container { display: flex; height: 100vh; }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 220px;
+            background: var(--bg-container);
+            border-right: 1px solid var(--border-secondary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            height: 56px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border-secondary);
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), #722ed1);
+            border-radius: 8px;
+        }
+
+        .brand-text { font-size: 16px; font-weight: 600; }
+
+        .nav-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 0;
+        }
+
+        .nav-group-title {
+            padding: 8px 16px 4px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 40px;
+            padding: 0 16px;
+            margin: 2px 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-base);
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover { background: rgba(0,0,0,0.06); color: var(--text); }
+        .nav-item.active { background: var(--primary-bg); color: var(--primary); font-weight: 500; }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            height: 56px;
+            background: var(--bg-container);
+            border-bottom: 1px solid var(--border-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .page-title { font-size: 16px; font-weight: 600; }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow: hidden;
+            padding: 16px;
+        }
+
+        /* 布局网格 */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 16px;
+            height: 100%;
+        }
+
+        /* 树形面板 */
+        .tree-panel {
+            background: var(--bg-container);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tree-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tree-header-title { font-weight: 600; font-size: 14px; }
+
+        .tree-search-box {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-secondary);
+        }
+
+        .tree-search-input {
+            width: 100%;
+            height: 32px;
+            padding: 4px 11px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-base);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .tree-search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(22,119,255,0.1);
+        }
+
+        .tree-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        /* 树节点 */
+        .tree-node {
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+            user-select: none;
+            position: relative;
+        }
+
+        .tree-node:hover { background: rgba(0,0,0,0.04); }
+        .tree-node.active { background: var(--primary-bg); color: var(--primary); }
+
+        .tree-node-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .tree-expand {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-tertiary);
+            transition: transform 0.2s;
+        }
+
+        .tree-expand.expanded { transform: rotate(90deg); }
+
+        .tree-icon { font-size: 16px; }
+
+        .tree-label { flex: 1; }
+
+        .tree-count {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* 来源标识 */
+        .source-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .source-other { background: var(--warning); }
+        .source-manual { background: var(--success); }
+        .source-iot { background: #8b5cf6; }
+
+        /* 子节点缩进 */
+        .tree-children { padding-left: 24px; }
+
+        /* 内容面板 */
+        .content-panel {
+            background: var(--bg-container);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 筛选栏 */
+        .filter-bar {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-secondary);
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .filter-input {
+            height: 32px;
+            padding: 4px 11px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-base);
+            font-size: 14px;
+            outline: none;
+            min-width: 160px;
+        }
+
+        .filter-select {
+            height: 32px;
+            padding: 0 11px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-base);
+            font-size: 14px;
+            background: var(--bg-container);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 11px center;
+            padding-right: 30px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        /* 按钮 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 32px;
+            padding: 4px 15px;
+            font-size: 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-base);
+            background: var(--bg-container);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
+            color: #fff;
+        }
+
+        .btn-danger {
+            color: var(--error);
+            border-color: var(--error);
+        }
+
+        .btn-danger:hover {
+            background: var(--error);
+            color: #fff;
+        }
+
+        .btn-sm {
+            height: 24px;
+            padding: 0 7px;
+            font-size: 12px;
+        }
+
+        .btn-link {
+            border: none;
+            background: none;
+            color: var(--primary);
+            padding: 0;
+            height: auto;
+        }
+
+        .btn-link:hover {
+            color: var(--primary-hover);
+            background: rgba(0,0,0,0.06);
+        }
+
+        /* 表格 */
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            padding: 0 16px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .data-table th {
+            padding: 12px 16px;
+            font-weight: 600;
+            color: var(--text);
+            background: var(--bg-container);
+            border-bottom: 1px solid var(--border-secondary);
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-secondary);
+            color: var(--text);
+        }
+
+        .data-table tbody tr:hover td {
+            background: rgba(0,0,0,0.02);
+        }
+
+        /* 分页 */
+        .pagination-bar {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pagination-info { font-size: 12px; color: var(--text-tertiary); }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination-item {
+            min-width: 32px;
+            height: 32px;
+            padding: 0 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-base);
+            background: var(--bg-container);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .pagination-item:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .pagination-item.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .pagination-item.disabled {
+            color: var(--text-tertiary);
+            cursor: not-allowed;
+            background: var(--bg);
+        }
+
+        /* 弹窗 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-container);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-2);
+            width: 520px;
+            max-width: 92vw;
+            max-height: 90vh;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-secondary);
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-base);
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            font-size: 18px;
+        }
+
+        .modal-close:hover {
+            background: rgba(0,0,0,0.06);
+            color: var(--text-secondary);
+        }
+
+        .modal-body {
+            padding: 24px;
+            max-height: calc(100vh - 200px);
+            overflow: auto;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-secondary);
+        }
+
+        /* 表单 */
+        .form-item {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .form-label-required::before {
+            content: '*';
+            color: var(--error);
+            margin-right: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 32px;
+            padding: 4px 11px;
+            font-size: 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-base);
+            background: var(--bg-container);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-input:hover { border-color: var(--primary-hover); }
+        .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+        .form-input::placeholder { color: var(--text-tertiary); }
+        .form-input[readonly] { background: var(--bg); color: var(--text-secondary); }
+
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        .form-error {
+            font-size: 12px;
+            color: var(--error);
+            margin-top: 4px;
+        }
+
+        /* 标签 */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            height: 22px;
+            padding: 0 7px;
+            font-size: 12px;
+            border: 1px solid transparent;
+            border-radius: var(--radius-base);
+            background: var(--bg);
+            color: var(--text-secondary);
+        }
+
+        .tag-green { color: var(--success); background: var(--success-bg); border-color: #b7eb8f; }
+        .tag-blue { color: var(--primary); background: var(--primary-bg); border-color: #91caff; }
+        .tag-red { color: var(--error); background: var(--error-bg); border-color: #ffa39e; }
+
+        /* 消息提示 */
+        .message-container {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1010;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .message {
+            padding: 10px 16px;
+            background: var(--bg-container);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            border-left: 4px solid var(--primary);
+            animation: messageSlideDown 0.3s ease-in-out;
+        }
+
+        .message-success { border-left-color: var(--success); }
+        .message-error { border-left-color: var(--error); }
+
+        @keyframes messageSlideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 右键菜单 */
+        .context-menu {
+            position: fixed;
+            background: var(--bg-container);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-2);
+            padding: 4px 0;
+            min-width: 160px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .context-menu.active { display: block; }
+
+        .context-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 36px;
+            padding: 0 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 14px;
+        }
+
+        .context-menu-item:hover { background: rgba(0,0,0,0.06); }
+        .context-menu-item.disabled { color: var(--text-tertiary); cursor: not-allowed; }
+        .context-menu-item.danger { color: var(--error); }
+        .context-menu-divider { height: 1px; background: var(--border-secondary); margin: 4px 0; }
+
+        /* 删除确认弹窗 */
+        .delete-info {
+            background: var(--bg);
+            border-radius: var(--radius-base);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+        }
+
+        .delete-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .delete-info-label { color: var(--text-secondary); }
+        .delete-info-value { font-weight: 500; }
+
+        /* 选项弹窗 */
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-item:hover { border-color: var(--primary); background: var(--primary-bg); }
+        .option-item.selected { border-color: var(--primary); background: var(--primary-bg); }
+
+        .option-radio {
+            width: 16px;
+            height: 16px;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .option-item.selected .option-radio {
+            border-color: var(--primary);
+        }
+
+        .option-item.selected .option-radio::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .option-content { flex: 1; }
+        .option-title { font-weight: 500; }
+        .option-desc { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+
+        /* 版本标识 */
+        .version-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: var(--success-bg);
+            color: var(--success);
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border-secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-text">物联网平台</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-group-title">设备空间管理</div>
+                <a href="101_基础设备目录管理_增删改版.html" class="nav-item active">
+                    <span>📚</span> 基础目录
+                    <span class="version-badge" style="margin-left: auto;">V1.1</span>
+                </a>
+                <a href="101_标签管理.html" class="nav-item">
+                    <span>🏷️</span> 标签管理
+                </a>
+                <a href="101_地图广场.html" class="nav-item">
+                    <span>🗺️</span> 地图广场
+                </a>
+                <a href="101_地图管理.html" class="nav-item">
+                    <span>⚙️</span> 地图配置
+                </a>
+
+                <div class="nav-group-title">设备治理</div>
+                <a href="102_治理任务.html" class="nav-item">
+                    <span>📋</span> 治理任务
+                </a>
+                <a href="102_治理参数设置.html" class="nav-item">
+                    <span>⚙️</span> 参数设置
+                </a>
+
+                <div class="nav-group-title">物联网设备管理</div>
+                <a href="103_平台设备管理.html" class="nav-item">
+                    <span>🖥️</span> 平台管理
+                </a>
+                <a href="103_平台通道管理.html" class="nav-item">
+                    <span>📡</span> 通道管理
+                </a>
+                <a href="103_设备分组管理.html" class="nav-item">
+                    <span>📂</span> 设备分组
+                </a>
+
+                <div class="nav-group-title">视频权限管理</div>
+                <a href="104_直接共享.html" class="nav-item">
+                    <span>📱</span> 直接共享
+                </a>
+                <a href="104_代理共享.html" class="nav-item">
+                    <span>🔗</span> 代理共享
+                </a>
+
+                <div class="nav-group-title">权限审批管理</div>
+                <a href="105_需求登记.html" class="nav-item">
+                    <span>📝</span> 需求登记
+                </a>
+                <a href="105_需求审批.html" class="nav-item">
+                    <span>⚖️</span> 需求审批
+                </a>
+                <a href="105_授权管理.html" class="nav-item">
+                    <span>🛑</span> 授权管理
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 顶部栏 -->
+            <header class="top-bar">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <h2 class="page-title">基础目录管理</h2>
+                    <span class="version-badge">V1.1 新增增删改功能</span>
+                </div>
+                <div class="user-profile">
+                    <span>管理员</span>
+                    <div class="avatar">👤</div>
+                </div>
+            </header>
+
+            <!-- 内容区 -->
+            <div class="content-area">
+                <div class="layout-grid">
+                    <!-- 组织树面板 -->
+                    <div class="tree-panel">
+                        <div class="tree-header">
+                            <span class="tree-header-title">组织目录</span>
+                            <button class="btn btn-sm" onclick="openAddNodeModal()" title="新增子节点">
+                                ➕ 新增
+                            </button>
+                        </div>
+                        <div class="tree-search-box">
+                            <input type="text" class="tree-search-input" placeholder="搜索组织...">
+                        </div>
+                        <div class="tree-content" id="treeContent">
+                            <!-- 物联网设备根节点（系统预置，不可操作） -->
+                            <div class="tree-node" data-id="root-iot" data-type="system" onclick="selectNode(this)" oncontextmenu="showContextMenu(event, this, 'system')">
+                                <span class="tree-expand"></span>
+                                <span class="source-dot source-iot"></span>
+                                <span class="tree-icon">📦</span>
+                                <span class="tree-label">物联网设备</span>
+                                <span class="tree-count">(56/56)</span>
+                            </div>
+
+                            <!-- 金华理工学院（下级平台目录，不可操作） -->
+                            <div class="tree-node" data-id="platform-jhlg" data-type="platform" onclick="selectNode(this)" oncontextmenu="showContextMenu(event, this, 'platform')">
+                                <span class="tree-expand expanded" onclick="toggleExpand(this.parentElement)">▶</span>
+                                <span class="source-dot source-other"></span>
+                                <span class="tree-icon">🏫</span>
+                                <span class="tree-label">金华理工学院</span>
+                                <span class="tree-count">(120/120)</span>
+                            </div>
+
+                            <!-- 教学楼A区（下级平台目录，不可操作） -->
+                            <div class="tree-children">
+                                <div class="tree-node" data-id="platform-building-a" data-type="platform" onclick="selectNode(this)" oncontextmenu="showContextMenu(event, this, 'platform')">
+                                    <span class="tree-expand expanded" onclick="toggleExpand(this.parentElement)">▶</span>
+                                    <span class="source-dot source-other"></span>
+                                    <span class="tree-icon">🏢</span>
+                                    <span class="tree-label">教学楼A区</span>
+                                    <span class="tree-count">(45/45)</span>
+                                </div>
+
+                                <!-- 一楼大厅（下级平台目录，不可操作） -->
+                                <div class="tree-children">
+                                    <div class="tree-node" data-id="platform-floor1" data-type="platform" onclick="selectNode(this)" oncontextmenu="showContextMenu(event, this, 'platform')">
+                                        <span class="tree-expand"></span>
+                                        <span class="source-dot source-other"></span>
+                                        <span class="tree-icon">📁</span>
+                                        <span class="tree-label">一楼大厅</span>
+                                        <span class="tree-count">(10/10)</span>
+                                    </div>
+                                    <div class="tree-node" data-id="platform-floor2" data-type="platform" onclick="selectNode(this)" oncontextmenu="showContextMenu(event, this, 'platform')">
+                                        <span class="tree-expand"></span>
+                                        <span class="source-dot source-other"></span>
+                                        <span class="tree-icon">📁</span>
+                                        <span class="tree-label">二楼教室</span>
+                                        <span class="tree-count">(35/35)</span>
+                                    </div>
+                                </div>
+
+                                <!-- 行政楼（手动创建，可操作） -->
+                                <div class="tree-node active" data-id="manual-admin" data-type="manual" onclick="selectNode(this)" oncontextmenu="showContextMenu(event, this, 'manual')">
+                                    <span class="tree-expand expanded" onclick="toggleExpand(this.parentElement)">▶</span>
+                                    <span class="source-dot source-manual"></span>
+                                    <span class="tree-icon">🏛️</span>
+                                    <span class="tree-label">行政楼</span>
+                                    <span class="tree-count">(20/20)</span>
+                                </div>
+
+                                <!-- 行政楼子节点（手动创建，可操作） -->
+                                <div class="tree-children">
+                                    <div class="tree-node" data-id="manual-admin-1f" data-type="manual" onclick="selectNode(this)" oncontextmenu="showContextMenu(event, this, 'manual')">
+                                        <span class="tree-expand"></span>
+                                        <span class="source-dot source-manual"></span>
+                                        <span class="tree-icon">📁</span>
+                                        <span class="tree-label">一楼大厅</span>
+                                        <span class="tree-count">(8/8)</span>
+                                    </div>
+                                    <div class="tree-node" data-id="manual-admin-2f" data-type="manual" onclick="selectNode(this)" oncontextmenu="showContextMenu(event, this, 'manual')">
+                                        <span class="tree-expand"></span>
+                                        <span class="source-dot source-manual"></span>
+                                        <span class="tree-icon">📁</span>
+                                        <span class="tree-label">二楼办公区</span>
+                                        <span class="tree-count">(12/12)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 图书馆（手动创建，可操作） -->
+                            <div class="tree-node" data-id="manual-library" data-type="manual" onclick="selectNode(this)" oncontextmenu="showContextMenu(event, this, 'manual')">
+                                <span class="tree-expand"></span>
+                                <span class="source-dot source-manual"></span>
+                                <span class="tree-icon">📚</span>
+                                <span class="tree-label">图书馆</span>
+                                <span class="tree-count">(30/30)</span>
+                            </div>
+
+                            <!-- 体育馆（手动创建，可操作） -->
+                            <div class="tree-node" data-id="manual-gym" data-type="manual" onclick="selectNode(this)" oncontextmenu="showContextMenu(event, this, 'manual')">
+                                <span class="tree-expand"></span>
+                                <span class="source-dot source-manual"></span>
+                                <span class="tree-icon">🏟️</span>
+                                <span class="tree-label">体育馆</span>
+                                <span class="tree-count">(25/25)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 设备列表面板 -->
+                    <div class="content-panel">
+                        <!-- 工具栏 -->
+                        <div class="toolbar">
+                            <div style="flex: 1;"></div>
+                            <span style="font-size: 12px; color: var(--text-tertiary);">
+                                <span class="source-dot source-manual" style="vertical-align: middle;"></span> 绿色 = 手动创建（可操作）
+                                <span class="source-dot source-other" style="vertical-align: middle; margin-left: 12px;"></span> 黄色 = 外部同步（不可操作）
+                                <span class="source-dot source-iot" style="vertical-align: middle; margin-left: 12px;"></span> 紫色 = 系统预置（不可操作）
+                            </span>
+                        </div>
+
+                        <!-- 筛选栏 -->
+                        <div class="filter-bar">
+                            <div class="filter-item">
+                                <span class="filter-label">设备名称</span>
+                                <input type="text" class="filter-input" placeholder="输入设备名称">
+                            </div>
+                            <div class="filter-item">
+                                <span class="filter-label">在线状态</span>
+                                <select class="filter-select">
+                                    <option>全部</option>
+                                    <option>在线</option>
+                                    <option>离线</option>
+                                </select>
+                            </div>
+                            <div class="filter-actions">
+                                <button class="btn btn-primary">查询</button>
+                                <button class="btn">重置</button>
+                                <button class="btn">📥 导出</button>
+                            </div>
+                        </div>
+
+                        <!-- 表格 -->
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 200px;">设备名称</th>
+                                        <th>归属组织</th>
+                                        <th>归属组织编码</th>
+                                        <th>设备ID</th>
+                                        <th>在线状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <span>📹</span>
+                                                <span>行政楼-1F-大厅全景</span>
+                                            </div>
+                                        </td>
+                                        <td>一楼大厅</td>
+                                        <td>ORG_MANUAL_001</td>
+                                        <td>33070200001310000041</td>
+                                        <td><span class="tag tag-green">在线</span></td>
+                                        <td>
+                                            <button class="btn btn-link btn-sm">详情</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <span>📹</span>
+                                                <span>行政楼-1F-东门球机</span>
+                                            </div>
+                                        </td>
+                                        <td>一楼大厅</td>
+                                        <td>ORG_MANUAL_001</td>
+                                        <td>33070200001310000042</td>
+                                        <td><span class="tag tag-green">在线</span></td>
+                                        <td>
+                                            <button class="btn btn-link btn-sm">详情</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <span>🌡️</span>
+                                                <span>行政楼-2F-温湿度传感器</span>
+                                            </div>
+                                        </td>
+                                        <td>二楼办公区</td>
+                                        <td>ORG_MANUAL_002</td>
+                                        <td>SN:ADMIN20260206001</td>
+                                        <td><span class="tag tag-green">在线</span></td>
+                                        <td>
+                                            <button class="btn btn-link btn-sm">详情</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <span>🚪</span>
+                                                <span>行政楼-2F-门禁控制器</span>
+                                            </div>
+                                        </td>
+                                        <td>二楼办公区</td>
+                                        <td>ORG_MANUAL_002</td>
+                                        <td>SN:ADMIN20260206002</td>
+                                        <td><span class="tag" style="color: var(--text-tertiary);">离线</span></td>
+                                        <td>
+                                            <button class="btn btn-link btn-sm">详情</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <span>📹</span>
+                                                <span>行政楼-2F-走廊枪机</span>
+                                            </div>
+                                        </td>
+                                        <td>二楼办公区</td>
+                                        <td>ORG_MANUAL_002</td>
+                                        <td>33070200001310000043</td>
+                                        <td><span class="tag tag-green">在线</span></td>
+                                        <td>
+                                            <button class="btn btn-link btn-sm">详情</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 分页 -->
+                        <div class="pagination-bar">
+                            <span class="pagination-info">共 20 条</span>
+                            <div class="pagination">
+                                <span class="pagination-item disabled">‹</span>
+                                <span class="pagination-item active">1</span>
+                                <span class="pagination-item">2</span>
+                                <span class="pagination-item">›</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右键菜单 -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="handleAddNode()">
+            <span>➕</span> 新增子节点
+        </div>
+        <div class="context-menu-item" onclick="handleEditNode()">
+            <span>✏️</span> 编辑节点
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item danger" onclick="handleDeleteNode()">
+            <span>🗑️</span> 删除节点
+        </div>
+    </div>
+
+    <!-- 新增节点弹窗 -->
+    <div class="modal-overlay" id="addNodeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span>新增目录节点</span>
+                <button class="modal-close" onclick="closeModal('addNodeModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-item">
+                    <label class="form-label">父节点名称</label>
+                    <input type="text" class="form-input" id="parentNodeName" readonly value="行政楼">
+                </div>
+                <div class="form-item">
+                    <label class="form-label">节点编码</label>
+                    <input type="text" class="form-input" readonly value="系统自动生成" style="color: var(--text-tertiary);">
+                    <div class="form-hint">编码由系统自动生成，不可修改</div>
+                </div>
+                <div class="form-item">
+                    <label class="form-label form-label-required">节点名称</label>
+                    <input type="text" class="form-input" id="nodeName" placeholder="请输入节点名称（1-50字符）" maxlength="50">
+                    <div class="form-hint">同一父节点下不可重复</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('addNodeModal')">取消</button>
+                <button class="btn btn-primary" onclick="confirmAddNode()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑节点弹窗 -->
+    <div class="modal-overlay" id="editNodeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span>编辑目录节点</span>
+                <button class="modal-close" onclick="closeModal('editNodeModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-item">
+                    <label class="form-label">节点编码</label>
+                    <input type="text" class="form-input" readonly value="ORG_MANUAL_001">
+                </div>
+                <div class="form-item">
+                    <label class="form-label form-label-required">节点名称</label>
+                    <input type="text" class="form-input" id="editNodeName" placeholder="请输入节点名称（1-50字符）" maxlength="50" value="行政楼">
+                    <div class="form-hint">同一父节点下不可重复</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('editNodeModal')">取消</button>
+                <button class="btn btn-primary" onclick="confirmEditNode()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗（简化版） -->
+    <div class="modal-overlay" id="deleteConfirmModal">
+        <div class="modal" style="width: 420px;">
+            <div class="modal-header">
+                <span>确认删除</span>
+                <button class="modal-close" onclick="closeModal('deleteConfirmModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 16px;">您确定要删除以下目录节点吗？</p>
+                <div class="delete-info">
+                    <div class="delete-info-item">
+                        <span class="delete-info-label">节点名称</span>
+                        <span class="delete-info-value" id="deleteNodeName">行政楼</span>
+                    </div>
+                    <div class="delete-info-item" id="deleteChildInfo" style="display: none;">
+                        <span class="delete-info-label">下级节点</span>
+                        <span class="delete-info-value" id="deleteChildCount">2 个（将一并删除）</span>
+                    </div>
+                    <div class="delete-info-item" id="deleteDeviceInfo" style="display: none;">
+                        <span class="delete-info-label">关联设备</span>
+                        <span class="delete-info-value" id="deleteDeviceCount">20 台（将自动解除关联）</span>
+                    </div>
+                </div>
+                <div style="background: var(--primary-bg); border-radius: var(--radius-base); padding: 12px; margin-top: 12px;">
+                    <p style="font-size: 12px; color: var(--primary); margin: 0;">
+                        💡 提示：删除后，下级节点将一并删除，关联设备将自动解除归属关系
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('deleteConfirmModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDeleteNode()">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 消息提示容器 -->
+    <div class="message-container" id="messageContainer"></div>
+
+    <script>
+        // 当前选中的节点
+        let selectedNode = null;
+        let selectedNodeType = null;
+
+        // 选择节点
+        function selectNode(node) {
+            // 移除之前的选中状态
+            document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('active'));
+            // 设置新的选中状态
+            node.classList.add('active');
+            selectedNode = node;
+            selectedNodeType = node.dataset.type;
+
+            // 更新按钮状态
+            updateButtonState();
+        }
+
+        // 更新按钮状态
+        function updateButtonState() {
+            // 按钮已移除，保留函数避免调用报错
+        }
+
+        // 展开/折叠节点
+        function toggleExpand(node) {
+            const expandIcon = node.querySelector('.tree-expand');
+            const children = node.nextElementSibling;
+
+            if (expandIcon && children && children.classList.contains('tree-children')) {
+                expandIcon.classList.toggle('expanded');
+                children.style.display = children.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        // 显示右键菜单
+        function showContextMenu(event, node, type) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            selectNode(node);
+
+            const menu = document.getElementById('contextMenu');
+            menu.style.left = event.clientX + 'px';
+            menu.style.top = event.clientY + 'px';
+            menu.classList.add('active');
+
+            // 根据节点类型启用/禁用菜单项
+            const items = menu.querySelectorAll('.context-menu-item');
+            if (type === 'manual') {
+                items.forEach(item => item.classList.remove('disabled'));
+            } else {
+                items[1] && items[1].classList.add('disabled'); // 编辑
+                items[2] && items[2].classList.add('disabled'); // 删除
+            }
+        }
+
+        // 隐藏右键菜单
+        function hideContextMenu() {
+            document.getElementById('contextMenu').classList.remove('active');
+        }
+
+        // 点击其他地方隐藏菜单
+        document.addEventListener('click', hideContextMenu);
+
+        // 打开新增节点弹窗
+        function openAddNodeModal() {
+            const parentNodeName = selectedNode ? selectedNode.querySelector('.tree-label').textContent : '行政楼';
+            document.getElementById('parentNodeName').value = parentNodeName;
+            document.getElementById('nodeName').value = '';
+            openModal('addNodeModal');
+        }
+
+        // 处理新增节点（从右键菜单）
+        function handleAddNode() {
+            hideContextMenu();
+            openAddNodeModal();
+        }
+
+        // 确认新增节点
+        function confirmAddNode() {
+            const nodeName = document.getElementById('nodeName').value.trim();
+
+            if (!nodeName) {
+                showMessage('请输入节点名称', 'error');
+                return;
+            }
+
+            if (nodeName.length > 50) {
+                showMessage('节点名称不能超过50个字符', 'error');
+                return;
+            }
+
+            // 模拟创建成功
+            closeModal('addNodeModal');
+            showMessage('节点创建成功', 'success');
+
+            // 模拟添加节点到树
+            setTimeout(() => {
+                addNodeToTree(nodeName);
+            }, 300);
+        }
+
+        // 添加节点到树
+        function addNodeToTree(name) {
+            const treeContent = document.getElementById('treeContent');
+            const newNode = document.createElement('div');
+            newNode.className = 'tree-node';
+            newNode.dataset.id = 'manual-' + Date.now();
+            newNode.dataset.type = 'manual';
+            newNode.onclick = function() { selectNode(this); };
+            newNode.oncontextmenu = function(e) { showContextMenu(e, this, 'manual'); };
+            newNode.innerHTML = `
+                <span class="tree-expand"></span>
+                <span class="source-dot source-manual"></span>
+                <span class="tree-icon">📁</span>
+                <span class="tree-label">${name}</span>
+                <span class="tree-count">(0/0)</span>
+            `;
+
+            // 找到当前选中节点的父容器，添加新节点
+            if (selectedNode) {
+                const parent = selectedNode.parentElement;
+                const childrenContainer = parent.querySelector('.tree-children');
+                if (childrenContainer) {
+                    childrenContainer.appendChild(newNode);
+                } else {
+                    const newChildren = document.createElement('div');
+                    newChildren.className = 'tree-children';
+                    newChildren.appendChild(newNode);
+                    parent.appendChild(newChildren);
+                }
+            } else {
+                treeContent.appendChild(newNode);
+            }
+
+            // 高亮新节点
+            selectNode(newNode);
+        }
+
+        // 打开编辑节点弹窗
+        function openEditNodeModal() {
+            if (!selectedNode || selectedNodeType !== 'manual') {
+                showMessage('只能编辑手动创建的节点（绿色标识）', 'error');
+                return;
+            }
+
+            const nodeName = selectedNode.querySelector('.tree-label').textContent;
+            document.getElementById('editNodeName').value = nodeName;
+            openModal('editNodeModal');
+        }
+
+        // 处理编辑节点（从右键菜单）
+        function handleEditNode() {
+            hideContextMenu();
+            openEditNodeModal();
+        }
+
+        // 确认编辑节点
+        function confirmEditNode() {
+            const nodeName = document.getElementById('editNodeName').value.trim();
+
+            if (!nodeName) {
+                showMessage('请输入节点名称', 'error');
+                return;
+            }
+
+            if (nodeName.length > 50) {
+                showMessage('节点名称不能超过50个字符', 'error');
+                return;
+            }
+
+            // 更新节点名称
+            if (selectedNode) {
+                selectedNode.querySelector('.tree-label').textContent = nodeName;
+            }
+
+            closeModal('editNodeModal');
+            showMessage('节点名称更新成功', 'success');
+        }
+
+        // 打开删除确认弹窗
+        function openDeleteConfirmModal() {
+            if (!selectedNode || selectedNodeType !== 'manual') {
+                showMessage('只能删除手动创建的节点（绿色标识）', 'error');
+                return;
+            }
+
+            const nodeName = selectedNode.querySelector('.tree-label').textContent;
+            const childCount = selectedNode.parentElement.querySelectorAll('.tree-children .tree-node').length;
+            const deviceCount = selectedNode.querySelector('.tree-count').textContent.match(/\((\d+)\//)?.[1] || '0';
+
+            document.getElementById('deleteNodeName').textContent = nodeName;
+
+            // 显示/隐藏下级节点信息
+            const childInfo = document.getElementById('deleteChildInfo');
+            if (childCount > 0) {
+                childInfo.style.display = 'flex';
+                document.getElementById('deleteChildCount').textContent = childCount + ' 个（将一并删除）';
+            } else {
+                childInfo.style.display = 'none';
+            }
+
+            // 显示/隐藏关联设备信息
+            const deviceInfo = document.getElementById('deleteDeviceInfo');
+            if (parseInt(deviceCount) > 0) {
+                deviceInfo.style.display = 'flex';
+                document.getElementById('deleteDeviceCount').textContent = deviceCount + ' 台（将自动解除关联）';
+            } else {
+                deviceInfo.style.display = 'none';
+            }
+
+            openModal('deleteConfirmModal');
+        }
+
+        // 处理删除节点（从右键菜单）
+        function handleDeleteNode() {
+            hideContextMenu();
+            openDeleteConfirmModal();
+        }
+
+        // 确认删除节点
+        function confirmDeleteNode() {
+            // 直接执行删除（方案A：自动处理）
+            executeDelete();
+        }
+
+        // 执行删除
+        function executeDelete() {
+            if (selectedNode) {
+                // 模拟：级联删除该节点及其所有子节点
+                const nextSibling = selectedNode.nextElementSibling;
+                if (nextSibling && nextSibling.classList.contains('tree-children')) {
+                    nextSibling.remove();
+                }
+
+                // 删除节点
+                selectedNode.remove();
+                selectedNode = null;
+                selectedNodeType = null;
+                updateButtonState();
+            }
+
+            closeModal('deleteConfirmModal');
+            showMessage('节点删除成功，下级节点已一并删除，关联设备已解除关联', 'success');
+        }
+
+        // 打开弹窗
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        // 关闭弹窗
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // 显示消息
+        function showMessage(text, type = 'success') {
+            const container = document.getElementById('messageContainer');
+            const message = document.createElement('div');
+            message.className = `message message-${type}`;
+            message.innerHTML = `
+                <span>${type === 'success' ? '✅' : '❌'}</span>
+                <span>${text}</span>
+            `;
+            container.appendChild(message);
+
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 默认选中行政楼节点
+            const defaultNode = document.querySelector('[data-id="manual-admin"]');
+            if (defaultNode) {
+                selectNode(defaultNode);
+            }
+        });
+    </script>
+</body>
+
+</html>

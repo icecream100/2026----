@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金华理工 - 产品原型评审导航</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card { transition: all 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- 标题区 -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">金华理工 - 产品原型评审</h1>
+            <p class="text-gray-600 mt-2">v2.1 + V2.2 版本合并</p>
+            <p class="text-sm text-gray-500 mt-1">更新时间：2026-06-15</p>
+        </div>
+
+        <!-- V2.2 新增功能 -->
+        <div class="mb-10">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                V2.2 新增功能
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="v2.2-新增功能/admin-product-list.html" class="card bg-white rounded-lg p-5 border border-gray-200 hover:border-green-400">
+                    <h3 class="font-medium text-gray-900">产品管理列表</h3>
+                    <p class="text-sm text-gray-600 mt-2">产品列表、搜索、新增产品</p>
+                    <span class="inline-block mt-3 text-xs text-green-600 bg-green-50 px-2 py-1 rounded">admin-product/list</span>
+                </a>
+                <a href="v2.2-新增功能/admin-product-detail.html" class="card bg-white rounded-lg p-5 border border-gray-200 hover:border-green-400">
+                    <h3 class="font-medium text-gray-900">产品详情</h3>
+                    <p class="text-sm text-gray-600 mt-2">产品信息、物模型、设备列表</p>
+                    <span class="inline-block mt-3 text-xs text-green-600 bg-green-50 px-2 py-1 rounded">admin-product/detail</span>
+                </a>
+                <a href="v2.2-新增功能/admin-metadata-list.html" class="card bg-white rounded-lg p-5 border border-gray-200 hover:border-green-400">
+                    <h3 class="font-medium text-gray-900">元数据管理</h3>
+                    <p class="text-sm text-gray-600 mt-2">数据字典、元数据定义</p>
+                    <span class="inline-block mt-3 text-xs text-green-600 bg-green-50 px-2 py-1 rounded">admin-metadata/list</span>
+                </a>
+                <a href="v2.2-新增功能/admin-dict-list.html" class="card bg-white rounded-lg p-5 border border-gray-200 hover:border-green-400">
+                    <h3 class="font-medium text-gray-900">字典管理</h3>
+                    <p class="text-sm text-gray-600 mt-2">系统字典配置</p>
+                    <span class="inline-block mt-3 text-xs text-green-600 bg-green-50 px-2 py-1 rounded">admin-dict/list</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- v2.1 功能 -->
+        <div class="mb-10">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="inline-block w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                v2.1 功能
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="v2.1-二期功能/101_基础设备目录管理_增删改版.html" class="card bg-white rounded-lg p-5 border border-gray-200 hover:border-blue-400">
+                    <h3 class="font-medium text-gray-900">基础设备目录管理</h3>
+                    <p class="text-sm text-gray-600 mt-2">设备目录增删改（v2.1 更新）</p>
+                    <span class="inline-block mt-3 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">v2.1 更新</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 底部说明 -->
+        <div class="mt-12 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 class="font-medium text-blue-900 mb-2">版本说明</h3>
+            <ul class="text-sm text-blue-800 space-y-1">
+                <li>• <strong>V2.2</strong>：新增产品管理、元数据管理、字典管理</li>
+                <li>• <strong>v2.1</strong>：基础设备目录管理增删改功能</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

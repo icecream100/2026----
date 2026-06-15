@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>产品 / 数据实例 - 物联中枢 V2.2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">智慧校园一体化公共服务平台-物联中枢</span>
+    <div class="spacer"></div>
+    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">超</div>
+      <span style="font-size:13px;">超级管理员</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">本次迭代功能</div>
+      <div class="menu-item active"><i class="fa-solid fa-microchip"></i>产品 / 数据实例</div>
+      <div class="menu-item" onclick="location.href='admin-metadata-list.html'"><i class="fa-solid fa-folder-tree"></i>元数据分类</div>
+      <div class="menu-item" onclick="location.href='admin-dict-list.html'"><i class="fa-solid fa-table-list"></i>元数据管理</div>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span>设备接入</span><span>/</span><span class="current">产品 / 数据实例</span>
+      </div>
+      <div class="page-title">产品 / 数据实例</div>
+
+      <div class="ant-card ant-card-bordered mt-4">
+        <div class="ant-card-body" style="padding:0">
+          <table class="ant-table">
+            <thead>
+              <tr>
+                <th width="60">序号</th>
+                <th>产品名称</th>
+                <th width="160">产品ID</th>
+                <th width="120">产品分类</th>
+                <th width="100">设备类型</th>
+                <th width="140">接入方式</th>
+                <th width="170">创建时间</th>
+                <th width="80">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>校园路灯控制器</td>
+                <td>2052752227797303</td>
+                <td>照明设备</td>
+                <td>直连设备</td>
+                <td>HTTP推送协议</td>
+                <td>2026-05-08 22:07:24</td>
+                <td><button class="ant-btn ant-btn-text ant-btn-sm" onclick="location.href='admin-product-detail.html'"><i class="fa-solid fa-eye mr-1"></i>查看</button></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>温湿度监测终端</td>
+                <td>2052752228013047</td>
+                <td>传感器</td>
+                <td>直连设备</td>
+                <td>MQTT协议</td>
+                <td>2026-05-10 09:30:15</td>
+                <td><button class="ant-btn ant-btn-text ant-btn-sm" onclick="showToast('查看详情，演示同上')"><i class="fa-solid fa-eye mr-1"></i>查看</button></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>智能门禁网关</td>
+                <td>2052752228150221</td>
+                <td>门禁设备</td>
+                <td>网关子设备</td>
+                <td>MQTT协议</td>
+                <td>2026-05-12 14:20:00</td>
+                <td><button class="ant-btn ant-btn-text ant-btn-sm" onclick="showToast('查看详情，演示同上')"><i class="fa-solid fa-eye mr-1"></i>查看</button></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>视频监控摄像头</td>
+                <td>2052752228390115</td>
+                <td>监控设备</td>
+                <td>直连设备</td>
+                <td>HTTP推送协议</td>
+                <td>2026-05-15 10:05:30</td>
+                <td><button class="ant-btn ant-btn-text ant-btn-sm" onclick="showToast('查看详情，演示同上')"><i class="fa-solid fa-eye mr-1"></i>查看</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+function showToast(msg, duration) {
+  duration = duration || 2000;
+  var wrap = document.querySelector('.toast-wrap');
+  if (!wrap) { wrap = document.createElement('div'); wrap.className = 'toast-wrap'; document.body.appendChild(wrap); }
+  var el = document.createElement('div');
+  el.className = 'toast-msg';
+  el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>' + msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(function () { el.classList.add('show'); });
+  setTimeout(function () { el.classList.remove('show'); setTimeout(function () { el.remove(); }, 300); }, duration);
+}
+</script>
+</body>
+</html>
