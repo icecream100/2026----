@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>校园路灯控制器 - 版本管理 - 物联中枢 V2.2</title>
+  <meta name="description" content="产品详情页，展示配置信息和版本历史，支持版本快照查看、版本对比和版本回溯功能。点击应用配置按钮生成版本。">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="../proto-ui.css">
@@ -39,10 +40,19 @@
 
   <div class="content-wrap">
     <aside class="sider">
-      <div class="menu-group-title">本次迭代功能</div>
+      <div class="menu-group-title">设备空间管理</div>
+      <div class="menu-item"><i class="fa-solid fa-table-cells-large"></i>设备空间管理</div>
+      <div class="menu-group-title">设备接入</div>
+      <div class="menu-item"><i class="fa-solid fa-gauge"></i>仪表盘</div>
+      <div class="menu-item"><i class="fa-solid fa-diagram-project"></i>协议管理</div>
+      <div class="menu-item" onclick="showToast('现有模块，非本次迭代范围')"><i class="fa-solid fa-sitemap"></i>物模型知识库</div>
+      <div class="menu-group-title" style="font-size:12px"><i class="fa-solid fa-database mr-1" style="font-size:10px"></i>元数据管理</div>
+      <div class="menu-item" style="padding-left:36px" onclick="location.href='../admin-metadata/list.html'"><i class="fa-solid fa-folder-tree"></i>元数据分类</div>
+      <div class="menu-item" style="padding-left:36px" onclick="location.href='../admin-dict/list.html'"><i class="fa-solid fa-table-list"></i>元数据管理</div>
+      <div class="menu-item"><i class="fa-solid fa-network-wired"></i>网络组件</div>
       <div class="menu-item active"><i class="fa-solid fa-microchip"></i>产品 / 数据实例</div>
-      <div class="menu-item" onclick="location.href='admin-metadata-list.html'"><i class="fa-solid fa-folder-tree"></i>元数据分类</div>
-      <div class="menu-item" onclick="location.href='admin-dict-list.html'"><i class="fa-solid fa-table-list"></i>元数据管理</div>
+      <div class="menu-item"><i class="fa-solid fa-shield-halved"></i>证书管理</div>
+      <div class="menu-item"><i class="fa-solid fa-cloud-arrow-up"></i>固件升级</div>
     </aside>
 
     <main class="main">
@@ -53,6 +63,9 @@
         <span class="page-title" style="margin-bottom:0">校园路灯控制器</span>
         <span class="ant-tag ant-tag-blue">照明设备</span>
         <span class="ant-tag ant-tag-green">直连设备</span>
+        <div style="margin-left:auto">
+          <button class="ant-btn ant-btn-primary" onclick="handleApplyConfig()"><i class="fa-solid fa-check mr-1"></i>应用配置</button>
+        </div>
       </div>
 
       <!-- Tab 栏：现有 Tab + 新增"版本历史" -->
@@ -64,6 +77,7 @@
         <div class="tab-item" onclick="showToast('物模型映射 Tab，非本次迭代范围')">物模型映射</div>
         <div class="tab-item" onclick="showToast('数据解析 Tab，非本次迭代范围')">数据解析</div>
         <div class="tab-item" id="tabVersion" onclick="switchTab('version')"><i class="fa-solid fa-code-branch mr-1"></i>版本历史</div>
+        <span id="draftIndicator" style="display:none;color:#faad14;font-size:11px;margin-left:-8px;align-self:center" title="有未应用的修改">●</span>
       </div>
 
       <!-- 配置信息 Tab 内容（含版本号展示） -->
@@ -98,10 +112,10 @@
             <table class="ant-table">
               <thead>
                 <tr>
-                  <th width="80">版本</th>
-                  <th width="120">类型</th>
-                  <th width="170">时间</th>
-                  <th width="120">操作人</th>
+                  <th width="120">版本</th>
+                  <th width="100">类型</th>
+                  <th width="150">时间</th>
+                  <th width="100">操作人</th>
                   <th width="200">备注</th>
                   <th>操作</th>
                 </tr>
@@ -109,13 +123,13 @@
               <tbody>
                 <tr>
                   <td><span style="font-weight:700;color:var(--ant-primary)">v3</span></td>
-                  <td><span class="ant-tag ant-tag-orange">数据变更</span></td>
-                  <td>2026-06-13 14:30</td>
+                  <td><span class="ant-tag ant-tag-orange">应用配置</span></td>
+                  <td>2026-06-16 14:30</td>
                   <td>admin</td>
-                  <td style="color:var(--ant-text-secondary);font-size:13px">接入方式: MQTT → HTTP推送协议</td>
+                  <td style="color:var(--ant-text-secondary);font-size:13px">物模型映射规则变更，数据解析脚本更新</td>
                   <td>
                     <div class="action-wrap">
-                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showVersionSnap('v3','数据变更','2026-06-13 14:30')"><i class="fa-solid fa-eye mr-1"></i>查看</button>
+                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showVersionSnap('v3','应用配置','2026-06-16 14:30')"><i class="fa-solid fa-eye mr-1"></i>查看</button>
                       <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showVersionCompare('v2','v3')"><i class="fa-solid fa-code-compare mr-1"></i>对比</button>
                       <button class="ant-btn ant-btn-text ant-btn-sm" onclick="handleRollback('v3')" disabled style="color:var(--ant-text-disabled)">回溯（已是最新）</button>
                     </div>
@@ -123,13 +137,13 @@
                 </tr>
                 <tr>
                   <td><span style="font-weight:700;color:var(--ant-primary)">v2</span></td>
-                  <td><span class="ant-tag ant-tag-blue">配置变更</span></td>
-                  <td>2026-06-10 09:00</td>
+                  <td><span class="ant-tag ant-tag-blue">应用配置</span></td>
+                  <td>2026-06-15 09:00</td>
                   <td>admin</td>
-                  <td style="color:var(--ant-text-secondary);font-size:13px">配置信息更新，调整设备参数</td>
+                  <td style="color:var(--ant-text-secondary);font-size:13px">配置信息更新，设备接入topic调整</td>
                   <td>
                     <div class="action-wrap">
-                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showVersionSnap('v2','配置变更','2026-06-10 09:00')"><i class="fa-solid fa-eye mr-1"></i>查看</button>
+                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showVersionSnap('v2','应用配置','2026-06-15 09:00')"><i class="fa-solid fa-eye mr-1"></i>查看</button>
                       <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showVersionCompare('v1','v2')"><i class="fa-solid fa-code-compare mr-1"></i>对比</button>
                       <button class="ant-btn ant-btn-text ant-btn-sm" onclick="handleRollback('v2')"><i class="fa-solid fa-rotate-left mr-1"></i>回溯</button>
                     </div>
@@ -138,12 +152,12 @@
                 <tr>
                   <td><span style="font-weight:700;color:var(--ant-primary)">v1</span></td>
                   <td><span class="ant-tag ant-tag-green">初始化</span></td>
-                  <td>2026-05-08 22:07</td>
+                  <td>2026-06-14 10:30</td>
                   <td>admin</td>
                   <td style="color:var(--ant-text-secondary);font-size:13px">产品创建</td>
                   <td>
                     <div class="action-wrap">
-                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showVersionSnap('v1','初始化','2026-05-08 22:07')"><i class="fa-solid fa-eye mr-1"></i>查看</button>
+                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showVersionSnap('v1','初始化','2026-06-14 10:30')"><i class="fa-solid fa-eye mr-1"></i>查看</button>
                       <button class="ant-btn ant-btn-text ant-btn-sm" disabled style="color:var(--ant-text-disabled)">对比</button>
                       <button class="ant-btn ant-btn-text ant-btn-sm" disabled style="color:var(--ant-text-disabled)">回溯</button>
                     </div>
@@ -186,8 +200,9 @@
       <span class="ant-modal-close" onclick="closeRollbackModal()"><i class="fa-solid fa-xmark"></i></span>
     </div>
     <div class="ant-modal-body">
+      <div id="rollbackPreview" style="background:#fafafa;border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:13px;"></div>
       <p id="rollbackText" style="margin:0;font-size:14px;"></p>
-      <p style="margin:12px 0 0;font-size:12px;color:var(--ant-text-tertiary);">回溯将生成新版本 v4，历史链完整保留，当前版本指向新版本。</p>
+      <p style="margin:12px 0 0;font-size:12px;color:var(--ant-text-tertiary);">回溯将直接恢复目标版本快照的全量数据，生成新版本承载，历史链完整保留。</p>
     </div>
     <div class="ant-modal-footer">
       <button class="ant-btn" onclick="closeRollbackModal()">取消</button>
@@ -215,29 +230,89 @@ function switchTab(tab) {
   document.getElementById('tabContentVersion').style.display = tab === 'version' ? '' : 'none';
   document.getElementById('tabConfig').className = 'tab-item' + (tab === 'config' ? ' active' : '');
   document.getElementById('tabVersion').className = 'tab-item' + (tab === 'version' ? ' active' : '');
+  // 模拟草稿态：切换到非版本历史Tab时显示未应用标记
+  if (tab !== 'version') {
+    document.getElementById('draftIndicator').style.display = 'inline';
+  }
 }
 
-// 快照数据（模拟）- 每个版本的配置快照
+// 快照数据（模拟）- 每个版本的全量快照（6个tab）
 const versionSnapData = {
-  'v3': {接入方式:'HTTP推送协议',产品分类:'照明设备',设备类型:'直连设备',
-    data:{开关:'开',亮度:'75',在线状态:'在线',安装位置:'主干道A段',经度:'119.65',纬度:'29.08'}},
-  'v2': {接入方式:'HTTP推送协议',产品分类:'照明设备',设备类型:'直连设备',
-    data:{开关:'开',亮度:'70',在线状态:'离线',安装位置:'主干道A段'}},
-  'v1': {接入方式:'MQTT协议',产品分类:'照明设备',设备类型:'直连设备',
-    data:{开关:'关',亮度:'50',在线状态:'离线',安装位置:'主干道A段'}}
+  'v3': {
+    配置信息: {接入方式:'HTTP推送协议',产品分类:'照明设备',设备类型:'直连设备',说明:'校园主干道路灯控制器'},
+    物模型: [{name:'温度',type:'float',unit:'℃'},{name:'开关',type:'bool',unit:''},{name:'亮度',type:'int',unit:'%'}],
+    设备接入: {接入协议:'HTTP推送协议',认证方式:'Token',心跳间隔:'60s'},
+    Topic映射: [{topic:'/device/telemetry',type:'遥测'},{topic:'/device/event',type:'事件'},{topic:'/device/command',type:'命令'}],
+    物模型映射: [{source:'temperature',target:'温度',type:'float'},{source:'switch',target:'开关',type:'bool'}],
+    数据解析: 'function parse(payload) {\n  return {\n    temperature: payload.temp,\n    switch: payload.sw === 1\n  };\n}'
+  },
+  'v2': {
+    配置信息: {接入方式:'HTTP推送协议',产品分类:'照明设备',设备类型:'直连设备',说明:'校园主干道路灯控制器'},
+    物模型: [{name:'温度',type:'float',unit:'℃'},{name:'开关',type:'bool',unit:''}],
+    设备接入: {接入协议:'HTTP推送协议',认证方式:'Token',心跳间隔:'60s'},
+    Topic映射: [{topic:'/device/telemetry',type:'遥测'},{topic:'/device/event',type:'事件'}],
+    物模型映射: [{source:'temp',target:'温度',type:'float'}],
+    数据解析: 'function parse(payload) {\n  return {\n    temperature: payload.temp\n  };\n}'
+  },
+  'v1': {
+    配置信息: {接入方式:'MQTT协议',产品分类:'照明设备',设备类型:'直连设备',说明:'校园主干道路灯控制器'},
+    物模型: [{name:'温度',type:'float',unit:'℃'}],
+    设备接入: {接入协议:'MQTT协议',认证方式:'证书',心跳间隔:'30s'},
+    Topic映射: [{topic:'/device/telemetry',type:'遥测'}],
+    物模型映射: [],
+    数据解析: ''
+  }
 };
 
 function showVersionSnap(ver, type, time) {
   document.getElementById('snapshotTitle').textContent = `版本 ${ver} 快照（${type} · ${time}）`;
   const snap = versionSnapData[ver];
-  let html = '<div class="mb-4"><div style="font-weight:600;font-size:14px;margin-bottom:8px;color:var(--ant-text-secondary)">配置信息</div>';
-  html += ['接入方式','产品分类','设备类型'].map(k =>
-    `<div class="snap-item"><span class="snap-label">${k}</span><span>${snap[k]}</span></div>`
-  ).join('') + '</div>';
-  html += '<div style="border-top:1px solid #f0f0f0;padding-top:12px"><div style="font-weight:600;font-size:14px;margin-bottom:8px;color:var(--ant-text-secondary)">物模型数据（人工维护）</div>';
-  html += Object.entries(snap.data).map(([k,v]) =>
+  let html = '';
+
+  // 配置信息
+  html += '<div class="mb-4"><div style="font-weight:600;font-size:14px;margin-bottom:8px;color:var(--ant-text-secondary)"><i class="fa-solid fa-cog mr-2"></i>配置信息</div>';
+  html += Object.entries(snap.配置信息).map(([k,v]) =>
     `<div class="snap-item"><span class="snap-label">${k}</span><span>${v}</span></div>`
   ).join('') + '</div>';
+
+  // 物模型
+  html += '<div style="border-top:1px solid #f0f0f0;padding-top:12px" class="mb-4"><div style="font-weight:600;font-size:14px;margin-bottom:8px;color:var(--ant-text-secondary)"><i class="fa-solid fa-cube mr-2"></i>物模型</div>';
+  html += snap.物模型.map(item =>
+    `<div class="snap-item"><span class="snap-label">${item.name}</span><span class="ant-tag ant-tag-blue">${item.type}</span> ${item.unit ? `<span style="color:var(--ant-text-secondary);font-size:12px">${item.unit}</span>` : ''}</div>`
+  ).join('') + '</div>';
+
+  // 设备接入
+  html += '<div style="border-top:1px solid #f0f0f0;padding-top:12px" class="mb-4"><div style="font-weight:600;font-size:14px;margin-bottom:8px;color:var(--ant-text-secondary)"><i class="fa-solid fa-network-wired mr-2"></i>设备接入</div>';
+  html += Object.entries(snap.设备接入).map(([k,v]) =>
+    `<div class="snap-item"><span class="snap-label">${k}</span><span>${v}</span></div>`
+  ).join('') + '</div>';
+
+  // Topic映射
+  html += '<div style="border-top:1px solid #f0f0f0;padding-top:12px" class="mb-4"><div style="font-weight:600;font-size:14px;margin-bottom:8px;color:var(--ant-text-secondary)"><i class="fa-solid fa-diagram-project mr-2"></i>Topic映射</div>';
+  html += snap.Topic映射.map(item =>
+    `<div class="snap-item"><span class="snap-label">${item.topic}</span><span class="ant-tag ant-tag-green">${item.type}</span></div>`
+  ).join('') + '</div>';
+
+  // 物模型映射
+  html += '<div style="border-top:1px solid #f0f0f0;padding-top:12px" class="mb-4"><div style="font-weight:600;font-size:14px;margin-bottom:8px;color:var(--ant-text-secondary)"><i class="fa-solid fa-link mr-2"></i>物模型映射</div>';
+  if (snap.物模型映射.length === 0) {
+    html += '<div style="color:var(--ant-text-tertiary);font-size:13px">暂无映射规则</div>';
+  } else {
+    html += snap.物模型映射.map(item =>
+      `<div class="snap-item"><span class="snap-label">${item.source} → ${item.target}</span><span class="ant-tag">${item.type}</span></div>`
+    ).join('');
+  }
+  html += '</div>';
+
+  // 数据解析
+  html += '<div style="border-top:1px solid #f0f0f0;padding-top:12px"><div style="font-weight:600;font-size:14px;margin-bottom:8px;color:var(--ant-text-secondary)"><i class="fa-solid fa-code mr-2"></i>数据解析</div>';
+  if (snap.数据解析) {
+    html += `<div style="background:#f5f5f5;padding:12px;border-radius:6px;font-family:monospace;font-size:12px;white-space:pre-wrap">${snap.数据解析}</div>`;
+  } else {
+    html += '<div style="color:var(--ant-text-tertiary);font-size:13px">暂无解析脚本</div>';
+  }
+  html += '</div>';
+
   document.getElementById('snapshotBody').innerHTML = html;
   document.getElementById('snapshotMask').classList.add('active');
   document.getElementById('snapshotDrawer').classList.add('active');
@@ -247,45 +322,134 @@ function closeSnapshot() { document.getElementById('snapshotMask').classList.rem
 function showVersionCompare(verL, verR) {
   document.getElementById('compareTitle').textContent = `版本对比：${verL} vs ${verR}`;
   const l = versionSnapData[verL], r = versionSnapData[verR];
-  const allKeys = [...new Set([...Object.keys(l.data), ...Object.keys(r.data)])];
+
   let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">';
+
   // 左列
-  html += `<div class="compare-col compare-col-l"><div style="font-weight:700;margin-bottom:12px;font-size:14px">${verL}（${verL==='v1'?'2026-05-08':verL==='v2'?'2026-06-10':'2026-06-13'}）</div>`;
-  html += ['接入方式','产品分类','设备类型'].map(k => {
-    const isDiff = l[k] !== r[k];
-    return `<div class="snap-item"><span class="snap-label">${k}</span><span style="${isDiff?'background:#fffbe6;padding:2px 6px;border-radius:3px':''}">${l[k]}</span></div>`;
-  }).join('');
-  html += '<div style="border-top:1px solid #f0f0f0;margin:8px 0"></div>';
-  html += allKeys.map(k => {
-    const lv = l.data[k] || '（无此字段）';
-    const rv = r.data[k] || '（无此字段）';
-    const isDiff = lv !== rv;
-    return `<div class="snap-item"><span class="snap-label">${k}</span><span style="${isDiff?'background:#fffbe6;padding:2px 6px;border-radius:3px;font-weight:600':''}">${lv}</span></div>`;
-  }).join('') + '</div>';
+  html += `<div class="compare-col compare-col-l"><div style="font-weight:700;margin-bottom:12px;font-size:14px">${verL}</div>`;
+
+  // 配置信息对比
+  html += '<div style="margin-bottom:12px"><div style="font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ant-text-secondary)"><i class="fa-solid fa-cog mr-1"></i>配置信息</div>';
+  Object.keys(l.配置信息).forEach(k => {
+    const isDiff = l.配置信息[k] !== r.配置信息[k];
+    html += `<div class="snap-item"><span class="snap-label">${k}</span><span style="${isDiff?'background:#fffbe6;padding:2px 6px;border-radius:3px':''}">${l.配置信息[k]}</span></div>`;
+  });
+  html += '</div>';
+
+  // 物模型对比
+  html += '<div style="margin-bottom:12px"><div style="font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ant-text-secondary)"><i class="fa-solid fa-cube mr-1"></i>物模型</div>';
+  l.物模型.forEach(item => {
+    html += `<div class="snap-item"><span class="snap-label">${item.name}</span><span class="ant-tag ant-tag-blue">${item.type}</span></div>`;
+  });
+  html += '</div>';
+
+  // 设备接入对比
+  html += '<div style="margin-bottom:12px"><div style="font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ant-text-secondary)"><i class="fa-solid fa-network-wired mr-1"></i>设备接入</div>';
+  Object.keys(l.设备接入).forEach(k => {
+    const isDiff = l.设备接入[k] !== r.设备接入[k];
+    html += `<div class="snap-item"><span class="snap-label">${k}</span><span style="${isDiff?'background:#fffbe6;padding:2px 6px;border-radius:3px':''}">${l.设备接入[k]}</span></div>`;
+  });
+  html += '</div>';
+
+  // Topic映射对比
+  html += '<div style="margin-bottom:12px"><div style="font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ant-text-secondary)"><i class="fa-solid fa-diagram-project mr-1"></i>Topic映射</div>';
+  l.Topic映射.forEach(item => {
+    html += `<div class="snap-item"><span class="snap-label">${item.topic}</span><span class="ant-tag ant-tag-green">${item.type}</span></div>`;
+  });
+  html += '</div>';
+
+  // 物模型映射对比
+  html += '<div style="margin-bottom:12px"><div style="font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ant-text-secondary)"><i class="fa-solid fa-link mr-1"></i>物模型映射</div>';
+  if (l.物模型映射.length === 0) {
+    html += '<div style="color:var(--ant-text-tertiary);font-size:13px">暂无映射规则</div>';
+  } else {
+    l.物模型映射.forEach(item => {
+      html += `<div class="snap-item"><span class="snap-label">${item.source} → ${item.target}</span></div>`;
+    });
+  }
+  html += '</div>';
+
+  html += '</div>';
+
   // 右列
-  html += `<div class="compare-col compare-col-r"><div style="font-weight:700;margin-bottom:12px;font-size:14px">${verR}（${verR==='v3'?'2026-06-13':verR==='v2'?'2026-06-10':'2026-05-08'}）</div>`;
-  html += ['接入方式','产品分类','设备类型'].map(k => {
-    const isDiff = l[k] !== r[k];
-    return `<div class="snap-item"><span class="snap-label">${k}</span><span style="${isDiff?'background:#f6ffed;padding:2px 6px;border-radius:3px;font-weight:600':''}">${r[k]}</span></div>`;
-  }).join('');
-  html += '<div style="border-top:1px solid #f0f0f0;margin:8px 0"></div>';
-  html += allKeys.map(k => {
-    const lv = l.data[k] || '（无此字段）';
-    const rv = r.data[k] || '（无此字段）';
-    const isDiff = lv !== rv;
-    return `<div class="snap-item"><span class="snap-label">${k}</span><span style="${isDiff?'background:#f6ffed;padding:2px 6px;border-radius:3px;font-weight:600':''}">${rv||'（该版本无此字段）'}</span></div>`;
-  }).join('') + '</div></div>';
+  html += `<div class="compare-col compare-col-r"><div style="font-weight:700;margin-bottom:12px;font-size:14px">${verR}</div>`;
+
+  // 配置信息对比
+  html += '<div style="margin-bottom:12px"><div style="font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ant-text-secondary)"><i class="fa-solid fa-cog mr-1"></i>配置信息</div>';
+  Object.keys(r.配置信息).forEach(k => {
+    const isDiff = l.配置信息[k] !== r.配置信息[k];
+    html += `<div class="snap-item"><span class="snap-label">${k}</span><span style="${isDiff?'background:#f6ffed;padding:2px 6px;border-radius:3px;font-weight:600':''}">${r.配置信息[k]}</span></div>`;
+  });
+  html += '</div>';
+
+  // 物模型对比
+  html += '<div style="margin-bottom:12px"><div style="font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ant-text-secondary)"><i class="fa-solid fa-cube mr-1"></i>物模型</div>';
+  r.物模型.forEach(item => {
+    html += `<div class="snap-item"><span class="snap-label">${item.name}</span><span class="ant-tag ant-tag-blue">${item.type}</span></div>`;
+  });
+  html += '</div>';
+
+  // 设备接入对比
+  html += '<div style="margin-bottom:12px"><div style="font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ant-text-secondary)"><i class="fa-solid fa-network-wired mr-1"></i>设备接入</div>';
+  Object.keys(r.设备接入).forEach(k => {
+    const isDiff = l.设备接入[k] !== r.设备接入[k];
+    html += `<div class="snap-item"><span class="snap-label">${k}</span><span style="${isDiff?'background:#f6ffed;padding:2px 6px;border-radius:3px;font-weight:600':''}">${r.设备接入[k]}</span></div>`;
+  });
+  html += '</div>';
+
+  // Topic映射对比
+  html += '<div style="margin-bottom:12px"><div style="font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ant-text-secondary)"><i class="fa-solid fa-diagram-project mr-1"></i>Topic映射</div>';
+  r.Topic映射.forEach(item => {
+    html += `<div class="snap-item"><span class="snap-label">${item.topic}</span><span class="ant-tag ant-tag-green">${item.type}</span></div>`;
+  });
+  html += '</div>';
+
+  // 物模型映射对比
+  html += '<div style="margin-bottom:12px"><div style="font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ant-text-secondary)"><i class="fa-solid fa-link mr-1"></i>物模型映射</div>';
+  if (r.物模型映射.length === 0) {
+    html += '<div style="color:var(--ant-text-tertiary);font-size:13px">暂无映射规则</div>';
+  } else {
+    r.物模型映射.forEach(item => {
+      html += `<div class="snap-item"><span class="snap-label">${item.source} → ${item.target}</span></div>`;
+    });
+  }
+  html += '</div>';
+
+  html += '</div></div>';
+
   document.getElementById('compareBody').innerHTML = html;
   document.getElementById('compareMask').classList.add('active');
   document.getElementById('compareDrawer').classList.add('active');
 }
 function closeCompare() { document.getElementById('compareMask').classList.remove('active'); document.getElementById('compareDrawer').classList.remove('active'); }
 
+// 应用配置
+function handleApplyConfig() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>应用中...';
+  setTimeout(() => {
+    showToast('配置已应用，已生成新版本 v4');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>应用配置';
+    document.getElementById('draftIndicator').style.display = 'none';
+  }, 1500);
+}
+
 // 回溯
 let pendingRollbackVer = null;
 function handleRollback(ver) {
   pendingRollbackVer = ver;
-  document.getElementById('rollbackText').textContent = `确定将产品回溯到 ${ver} 版本？当前数据将保存为新版本 v4。`;
+  const currentVer = 'v3';
+  const newVer = 'v4';
+  document.getElementById('rollbackPreview').innerHTML =
+    `<div style="display:flex;gap:24px;margin-bottom:4px">` +
+    `<div><span style="color:var(--ant-text-secondary)">回溯目标</span><br><span style="font-weight:700;color:var(--ant-primary);font-size:16px">${ver}</span></div>` +
+    `<div><span style="color:var(--ant-text-secondary)">当前版本</span><br><span style="font-weight:700;font-size:16px">${currentVer}</span></div>` +
+    `<div><span style="color:var(--ant-text-secondary)">将生成</span><br><span style="font-weight:700;color:#52c41a;font-size:16px">${newVer}</span></div>` +
+    `</div>` +
+    `<div style="color:var(--ant-text-tertiary);font-size:12px">产品6个Tab的配置信息将恢复为${ver}时刻的状态</div>`;
+  document.getElementById('rollbackText').textContent = `确定将产品回溯到 ${ver} 版本？当前数据将保存为新版本 ${newVer}。`;
   document.getElementById('rollbackBtn').disabled = false;
   document.getElementById('rollbackBtn').textContent = '确定回溯';
   document.getElementById('rollbackModal').classList.add('active');
