@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>物模型详情 - 物联中枢 V2.2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>
+    .snap-item{display:flex;padding:8px 0;font-size:14px;color:var(--ant-text);line-height:1.6}
+    .snap-label{width:120px;color:var(--ant-text-secondary);flex-shrink:0;font-size:14px}
+    .snap-item > span:last-child{flex:1;word-break:break-all}
+    code.code-tag{background:#f5f5f5;padding:2px 6px;border-radius:3px;font-size:12px;font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;color:#c41d7f}
+    .ant-table tbody td code{background:#f5f5f5;padding:2px 6px;border-radius:3px;font-size:12px}
+    .empty-card{background:#fff;border:1px dashed var(--ant-border);border-radius:8px;padding:32px;text-align:center;color:var(--ant-text-tertiary)}
+    .empty-card .ant-empty-icon{font-size:40px;opacity:0.35;margin-bottom:8px}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">智慧校园一体化公共服务平台-物联中枢</span>
+    <div class="spacer"></div>
+    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">超</div>
+      <span style="font-size:13px;">超级管理员</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">本次迭代功能</div>
+      <div class="menu-item" onclick="location.href='admin-product-list.html'"><i class="fa-solid fa-microchip"></i>产品 / 数据实例</div>
+      <div class="menu-item active"><i class="fa-solid fa-cube"></i>物模型详情</div>
+      <div class="menu-item" onclick="location.href='admin-metadata-list.html'"><i class="fa-solid fa-folder-tree"></i>元数据分类</div>
+      <div class="menu-item" onclick="location.href='admin-dict-list.html'"><i class="fa-solid fa-table-list"></i>元数据管理</div>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span>物模型知识库</span><span>/</span><span class="current">智慧照明设备</span>
+      </div>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="page-title" style="margin-bottom:0">智慧照明设备</span>
+        <span class="ant-tag ant-tag-blue">照明设备</span>
+        <span class="ant-tag ant-tag-green">启用</span>
+        <div style="margin-left:auto">
+          <button class="ant-btn ant-btn-primary" onclick="openEditModal()"><i class="fa-solid fa-pen mr-1"></i>编辑</button>
+        </div>
+      </div>
+
+      <!-- Tab 栏 -->
+      <div class="tab-bar">
+        <div class="tab-item active" id="tabBasic" onclick="switchTab('basic')">基本信息</div>
+        <div class="tab-item" id="tabProperty" onclick="switchTab('property')">属性定义</div>
+        <div class="tab-item" id="tabEvent" onclick="switchTab('event')">事件定义</div>
+        <div class="tab-item" id="tabService" onclick="switchTab('service')">服务定义</div>
+      </div>
+
+      <!-- 基本信息 Tab 内容 -->
+      <div id="tabContentBasic">
+        <div class="ant-card ant-card-bordered">
+          <div class="ant-card-head">基础信息</div>
+          <div class="ant-card-body">
+            <div class="grid grid-cols-2 gap-6">
+              <div class="snap-item"><span class="snap-label">物模型名称</span><span>智慧照明设备</span></div>
+              <div class="snap-item"><span class="snap-label">产品分类</span><span>照明设备</span></div>
+              <div class="snap-item"><span class="snap-label">提供方</span><span>智慧校园科技有限公司</span></div>
+              <div class="snap-item"><span class="snap-label">厂家</span><span>照明设备制造商</span></div>
+              <div class="snap-item"><span class="snap-label">说明</span><span>适用于校园主干道、教学区等区域的智慧照明控制设备</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 属性定义 Tab 内容 -->
+      <div id="tabContentProperty" style="display:none">
+        <div class="ant-card ant-card-bordered">
+          <div class="ant-card-head">属性列表</div>
+          <div class="ant-card-body" style="padding:0">
+            <table class="ant-table">
+              <thead>
+                <tr>
+                  <th width="120">属性标识</th>
+                  <th width="120">属性名称</th>
+                  <th width="100">数据类型</th>
+                  <th width="100">单位</th>
+                  <th>说明</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code class="code-tag">switch</code></td>
+                  <td>开关</td>
+                  <td><span class="ant-tag ant-tag-gray">BOOL</span></td>
+                  <td>-</td>
+                  <td>照明设备开关状态</td>
+                </tr>
+                <tr>
+                  <td><code class="code-tag">brightness</code></td>
+                  <td>亮度</td>
+                  <td><span class="ant-tag ant-tag-gray">INT</span></td>
+                  <td>%</td>
+                  <td>照明设备亮度百分比</td>
+                </tr>
+                <tr>
+                  <td><code class="code-tag">colorTemp</code></td>
+                  <td>色温</td>
+                  <td><span class="ant-tag ant-tag-gray">INT</span></td>
+                  <td>K</td>
+                  <td>照明设备色温值</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 事件定义 Tab 内容 -->
+      <div id="tabContentEvent" style="display:none">
+        <div class="ant-card ant-card-bordered">
+          <div class="ant-card-head">事件列表</div>
+          <div class="ant-card-body" style="padding:0">
+            <table class="ant-table">
+              <thead>
+                <tr>
+                  <th width="120">事件标识</th>
+                  <th width="120">事件名称</th>
+                  <th width="100">事件类型</th>
+                  <th>说明</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code class="code-tag">fault</code></td>
+                  <td>故障上报</td>
+                  <td><span class="ant-tag ant-tag-red">告警</span></td>
+                  <td>设备故障时自动上报</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 服务定义 Tab 内容 -->
+      <div id="tabContentService" style="display:none">
+        <div class="ant-card ant-card-bordered">
+          <div class="ant-card-head">服务列表</div>
+          <div class="ant-card-body" style="padding:0">
+            <table class="ant-table">
+              <thead>
+                <tr>
+                  <th width="120">服务标识</th>
+                  <th width="120">服务名称</th>
+                  <th width="100">调用方式</th>
+                  <th>说明</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code class="code-tag">dimming</code></td>
+                  <td>调光控制</td>
+                  <td><span class="ant-tag ant-tag-blue">异步</span></td>
+                  <td>控制照明设备亮度调节</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 编辑弹窗 -->
+<div class="ant-modal-mask" id="editModal">
+  <div class="ant-modal" style="width:640px;max-height:88vh">
+    <div class="ant-modal-header">
+      <span>编辑物模型基本信息</span>
+      <span class="ant-modal-close" onclick="closeEditModal()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body">
+      <div class="ant-form-item">
+        <label class="ant-form-label ant-form-label-required">物模型名称</label>
+        <input id="modelName" class="ant-input" maxlength="50" placeholder="请输入物模型名称">
+        <div id="modelNameErr" class="text-error text-sm mt-2 hidden"></div>
+      </div>
+      <div class="ant-form-item">
+        <label class="ant-form-label ant-form-label-required">产品分类</label>
+        <select id="productCategory" class="ant-select w-full">
+          <option value="">请选择产品分类</option>
+          <option value="照明设备" selected>照明设备</option>
+          <option value="温湿度传感器">温湿度传感器</option>
+          <option value="门禁设备">门禁设备</option>
+          <option value="摄像头">摄像头</option>
+        </select>
+        <div id="productCategoryErr" class="text-error text-sm mt-2 hidden"></div>
+      </div>
+      <div class="ant-form-item">
+        <label class="ant-form-label">提供方</label>
+        <input id="provider" class="ant-input" maxlength="100" placeholder="请输入提供方">
+      </div>
+      <div class="ant-form-item">
+        <label class="ant-form-label">厂家</label>
+        <input id="manufacturer" class="ant-input" maxlength="100" placeholder="请输入厂家">
+      </div>
+      <div class="ant-form-item" style="margin-bottom:0">
+        <label class="ant-form-label">说明</label>
+        <textarea id="remark" class="ant-input" rows="3" maxlength="500" placeholder="请输入说明"></textarea>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeEditModal()">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="submitEdit()">确定</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showToast(msg,d){d=d||2000;var w=document.querySelector('.toast-wrap');if(!w){w=document.createElement('div');w.className='toast-wrap';document.body.appendChild(w)}var e=document.createElement('div');e.className='toast-msg';e.innerHTML='<i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>'+msg;w.appendChild(e);requestAnimationFrame(function(){e.classList.add('show')});setTimeout(function(){e.classList.remove('show');setTimeout(function(){e.remove()},300)},d)}
+
+// Tab 切换
+function switchTab(tab) {
+  document.querySelectorAll('.tab-item').forEach(function(item) {
+    item.classList.remove('active');
+  });
+  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+
+  document.querySelectorAll('[id^="tabContent"]').forEach(function(content) {
+    content.style.display = 'none';
+  });
+  document.getElementById('tabContent' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = '';
+}
+
+// 编辑弹窗
+function openEditModal() {
+  document.getElementById('modelName').value = '智慧照明设备';
+  document.getElementById('productCategory').value = '照明设备';
+  document.getElementById('provider').value = '智慧校园科技有限公司';
+  document.getElementById('manufacturer').value = '照明设备制造商';
+  document.getElementById('remark').value = '适用于校园主干道、教学区等区域的智慧照明控制设备';
+  ['modelNameErr', 'productCategoryErr'].forEach(function(k) {
+    document.getElementById(k).classList.add('hidden');
+  });
+  document.getElementById('editModal').classList.add('active');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('active');
+}
+
+function submitEdit() {
+  var modelName = document.getElementById('modelName').value.trim();
+  var productCategory = document.getElementById('productCategory').value;
+  var ok = true;
+
+  var setErr = function(k, m) {
+    var el = document.getElementById(k);
+    if (m) {
+      el.textContent = m;
+      el.classList.remove('hidden');
+      ok = false;
+    } else {
+      el.classList.add('hidden');
+    }
+  };
+
+  if (!modelName) setErr('modelNameErr', '物模型名称不能为空');
+  else setErr('modelNameErr', '');
+
+  if (!productCategory) setErr('productCategoryErr', '请选择产品分类');
+  else setErr('productCategoryErr', '');
+
+  if (!ok) return;
+
+  // 更新页面显示
+  document.querySelector('.page-title').textContent = modelName;
+  document.querySelector('.ant-tag-blue').textContent = productCategory;
+
+  var basicContent = document.getElementById('tabContentBasic');
+  var items = basicContent.querySelectorAll('.snap-item span:last-child');
+  items[0].textContent = modelName;
+  items[1].textContent = productCategory;
+  items[2].textContent = document.getElementById('provider').value;
+  items[3].textContent = document.getElementById('manufacturer').value;
+  items[4].textContent = document.getElementById('remark').value;
+
+  closeEditModal();
+  showToast('修改成功');
+}
+
+document.getElementById('editModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEditModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeEditModal();
+});
+</script>
+</body>
+</html>
