@@ -47,14 +47,6 @@
                      onkeydown="if(event.key==='Enter')handleSearch()">
             </div>
             <div class="flex items-center gap-2">
-              <label class="text-sm text-secondary">征集类型</label>
-              <select id="searchType" class="ant-select" style="width:150px">
-                <option value="">全部</option>
-                <option value="表单反馈">表单反馈</option>
-                <option value="问卷投票">问卷投票</option>
-              </select>
-            </div>
-            <div class="flex items-center gap-2">
               <label class="text-sm text-secondary">状态</label>
               <select id="searchStatus" class="ant-select" style="width:150px">
                 <option value="">全部</option>
@@ -77,7 +69,7 @@
 
       <!-- 工具栏 -->
       <div class="flex items-center justify-between mb-4">
-        <span class="text-sm text-secondary">共 <span id="totalCount">6</span> 条</span>
+        <span class="text-sm text-secondary">共 <span id="totalCount">3</span> 条</span>
         <button class="ant-btn ant-btn-primary" onclick="location.href='create.html'">
           <i class="fa-solid fa-plus"></i> 新增征集
         </button>
@@ -91,7 +83,6 @@
               <tr>
                 <th width="60">序号</th>
                 <th>征集标题</th>
-                <th width="100">征集类型</th>
                 <th width="90">状态</th>
                 <th width="90">反馈数量</th>
                 <th width="300">起止时间</th>
@@ -106,7 +97,7 @@
 
       <!-- 分页 -->
       <div class="flex items-center justify-between mt-4">
-        <span class="text-sm text-secondary" id="paginationInfo">共 6 条</span>
+        <span class="text-sm text-secondary" id="paginationInfo">共 3 条</span>
         <div class="ant-pagination">
           <button class="ant-pagination-item"><i class="fa-solid fa-chevron-left" style="font-size:12px"></i></button>
           <button class="ant-pagination-item ant-pagination-item-active">1</button>
@@ -136,21 +127,16 @@
 
 <script>
 const statusTagClass = { '未开始': 'ant-tag-gray', '进行中': 'ant-tag-green', '已结束': 'ant-tag-red' };
-const typeTagClass = { '表单反馈': 'ant-tag-blue', '问卷投票': 'ant-tag-purple' };
 
 const tableData = [
-  { id: 1, title: '2026年度政务服务满意度调查', type: '问卷投票', status: '进行中', count: 1256, startTime: '2026-06-01 00:00', endTime: '2026-06-30 23:59', createTime: '2026-05-28 09:30' },
-  { id: 2, title: '雄安新区公共交通优化建议征集', type: '表单反馈', status: '进行中', count: 89, startTime: '2026-06-15 00:00', endTime: '2026-07-15 23:59', createTime: '2026-06-10 14:20' },
-  { id: 3, title: '社区养老服务质量评价', type: '问卷投票', status: '已结束', count: 2048, startTime: '2026-05-01 00:00', endTime: '2026-05-31 23:59', createTime: '2026-04-25 10:00' },
-  { id: 4, title: '新区绿化方案公众意见征集', type: '表单反馈', status: '未开始', count: 0, startTime: '2026-07-01 00:00', endTime: '2026-07-31 23:59', createTime: '2026-06-20 16:45' },
-  { id: 5, title: '智慧停车系统功能需求调查', type: '问卷投票', status: '进行中', count: 567, startTime: '2026-06-10 00:00', endTime: '2026-07-10 23:59', createTime: '2026-06-08 11:30' },
-  { id: 6, title: '政务大厅服务窗口满意度反馈', type: '表单反馈', status: '已结束', count: 342, startTime: '2026-04-01 00:00', endTime: '2026-04-30 23:59', createTime: '2026-03-28 08:15' }
+  { id: 2, title: '雄安新区公共交通优化建议征集', status: '进行中', count: 89, startTime: '2026-06-15 00:00', endTime: '2026-07-15 23:59', createTime: '2026-06-10 14:20' },
+  { id: 4, title: '新区绿化方案公众意见征集', status: '未开始', count: 0, startTime: '2026-07-01 00:00', endTime: '2026-07-31 23:59', createTime: '2026-06-20 16:45' },
+  { id: 6, title: '政务大厅服务窗口满意度反馈', status: '已结束', count: 342, startTime: '2026-04-01 00:00', endTime: '2026-04-30 23:59', createTime: '2026-03-28 08:15' }
 ];
 
 function getSearchValues() {
   return {
     title: document.getElementById('searchTitle').value.trim(),
-    type: document.getElementById('searchType').value,
     status: document.getElementById('searchStatus').value
   };
 }
@@ -160,14 +146,12 @@ function renderTable(filters) {
   const body = document.getElementById('tableBody');
   const rows = tableData.filter(function(item) {
     return (!filters.title || item.title.indexOf(filters.title) >= 0)
-        && (!filters.type || item.type === filters.type)
         && (!filters.status || item.status === filters.status);
   });
   body.innerHTML = rows.map(function(item, i) {
     return '<tr>'
       + '<td>' + (i + 1) + '</td>'
       + '<td><a href="feedback.html?id=' + item.id + '" style="color:var(--ant-primary)">' + item.title + '</a></td>'
-      + '<td><span class="ant-tag ' + (typeTagClass[item.type] || 'ant-tag-gray') + '">' + item.type + '</span></td>'
       + '<td><span class="ant-tag ' + (statusTagClass[item.status] || 'ant-tag-gray') + '">' + item.status + '</span></td>'
       + '<td>' + item.count + '</td>'
       + '<td>' + item.startTime + ' ~ ' + item.endTime + '</td>'
@@ -186,7 +170,6 @@ function renderTable(filters) {
 function handleSearch() { renderTable(getSearchValues()); }
 function handleReset() {
   document.getElementById('searchTitle').value = '';
-  document.getElementById('searchType').value = '';
   document.getElementById('searchStatus').value = '';
   renderTable({});
 }

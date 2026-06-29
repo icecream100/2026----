@@ -114,13 +114,8 @@
 
   <!-- 筛选栏 -->
   <div class="filter-bar">
-    <div class="flex items-center justify-between flex-wrap gap-3">
-      <div class="flex items-center gap-2">
-        <button class="filter-btn active" onclick="filterByType(this, '')">全部</button>
-        <button class="filter-btn" onclick="filterByType(this, '表单反馈')">表单反馈</button>
-        <button class="filter-btn" onclick="filterByType(this, '问卷投票')">问卷投票</button>
-      </div>
-      <input type="text" id="searchInput" class="ant-input" style="width:200px;" placeholder="搜索征集标题..." onkeydown="if(event.key==='Enter')handleSearch()">
+    <div class="flex items-center justify-end flex-wrap gap-3">
+      <input type="text" id="searchInput" class="ant-input" style="width:240px;" placeholder="搜索征集标题..." onkeydown="if(event.key==='Enter')handleSearch()">
     </div>
   </div>
 
@@ -141,19 +136,13 @@
 })();
 
 const collections = [
-  { id: 1, title: '2026年度政务服务满意度调查', type: '问卷投票', status: '进行中', count: 1256, endTime: '2026-06-30', desc: '为持续提升政务服务质量，现面向社会公众开展满意度调查。' },
-  { id: 2, title: '雄安新区公共交通优化建议征集', type: '表单反馈', status: '进行中', count: 89, endTime: '2026-07-15', desc: '为进一步优化公共交通网络，提升市民出行便利性，现公开征集建议。' },
-  { id: 3, title: '智慧停车系统功能需求调查', type: '问卷投票', status: '进行中', count: 567, endTime: '2026-07-10', desc: '雄安新区正在规划建设智慧停车系统，现开展功能需求调查。' },
-  { id: 4, title: '新区绿化方案公众意见征集', type: '表单反馈', status: '未开始', count: 0, endTime: '2026-07-31', desc: '2026年绿化工程即将启动，现面向公众征集意见和建议。' },
-  { id: 5, title: '社区养老服务质量评价', type: '问卷投票', status: '已结束', count: 2048, endTime: '2026-05-31', desc: '为了解社区养老服务现状，提升养老服务质量。' },
-  { id: 6, title: '政务大厅服务窗口满意度反馈', type: '表单反馈', status: '已结束', count: 342, endTime: '2026-04-30', desc: '请对您近期办理业务时的服务体验进行评价和反馈。' }
+  { id: 2, title: '雄安新区公共交通优化建议征集', status: '进行中', count: 89, endTime: '2026-07-15', desc: '为进一步优化公共交通网络，提升市民出行便利性，现公开征集建议。' },
+  { id: 4, title: '新区绿化方案公众意见征集', status: '未开始', count: 0, endTime: '2026-07-31', desc: '2026年绿化工程即将启动，现面向公众征集意见和建议。' },
+  { id: 6, title: '政务大厅服务窗口满意度反馈', status: '已结束', count: 342, endTime: '2026-04-30', desc: '请对您近期办理业务时的服务体验进行评价和反馈。' }
 ];
 
-let currentFilter = '';
-
-function renderList(filter, keyword) {
+function renderList(keyword) {
   let filtered = collections;
-  if (filter) filtered = filtered.filter(function(item) { return item.type === filter; });
   if (keyword) {
     keyword = keyword.toLowerCase();
     filtered = filtered.filter(function(item) { return item.title.toLowerCase().indexOf(keyword) >= 0; });
@@ -166,7 +155,6 @@ function renderList(filter, keyword) {
 
   document.getElementById('collectionList').innerHTML = filtered.map(function(item) {
     var statusClass = item.status === '进行中' ? 'tag-green' : item.status === '未开始' ? 'tag-gray' : 'tag-gray';
-    var typeClass = item.type === '问卷投票' ? 'tag-purple' : 'tag-blue';
     var canClick = item.status === '进行中';
     var endDate = new Date(item.endTime);
     var daysLeft = Math.ceil((endDate - new Date()) / (1000 * 60 * 60 * 24));
@@ -174,10 +162,7 @@ function renderList(filter, keyword) {
     return '<div class="card" onclick="' + (canClick ? 'location.href=\'detail.html?id=' + item.id + '\'' : '') + '" style="' + (!canClick ? 'opacity:0.6;cursor:default;' : '') + '">'
       + '<div class="flex items-start justify-between mb-2">'
         + '<div class="card-title">' + item.title + '</div>'
-        + '<div class="flex gap-2">'
-          + '<span class="tag ' + typeClass + '">' + item.type + '</span>'
-          + '<span class="tag ' + statusClass + '">' + item.status + '</span>'
-        + '</div>'
+        + '<span class="tag ' + statusClass + '">' + item.status + '</span>'
       + '</div>'
       + '<div class="card-desc">' + item.desc + '</div>'
       + '<div class="card-meta">'
@@ -190,18 +175,11 @@ function renderList(filter, keyword) {
   }).join('');
 }
 
-function filterByType(btn, type) {
-  document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
-  btn.classList.add('active');
-  currentFilter = type;
-  renderList(type, document.getElementById('searchInput').value.trim());
-}
-
 function handleSearch() {
-  renderList(currentFilter, document.getElementById('searchInput').value.trim());
+  renderList(document.getElementById('searchInput').value.trim());
 }
 
-renderList('', '');
+renderList('');
 </script>
 
 </body>

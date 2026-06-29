@@ -41,14 +41,14 @@
       <!-- 征集基本信息 -->
       <div class="ant-card ant-card-bordered mb-4">
         <div class="ant-card-body">
-          <div class="grid grid-cols-4 gap-4" id="basicInfo">
+          <div class="grid grid-cols-3 gap-4" id="basicInfo">
             <!-- 动态生成 -->
           </div>
         </div>
       </div>
 
-      <!-- 筛选条件（表单反馈类型显示） -->
-      <div class="ant-card ant-card-bordered mb-4" id="filterCard" style="display:none;">
+      <!-- 筛选条件 -->
+      <div class="ant-card ant-card-bordered mb-4">
         <div class="ant-card-body">
           <div class="flex items-center gap-4 flex-wrap">
             <div class="flex items-center gap-2">
@@ -72,33 +72,24 @@
         </div>
       </div>
 
-      <!-- 问卷投票统计（问卷投票类型显示） -->
-      <div class="ant-card ant-card-bordered mb-4" id="voteStatsCard" style="display:none;">
-        <div class="ant-card-head">
-          <span class="ant-card-head-title">选项分布</span>
-          <button class="ant-btn ant-btn-sm" onclick="showToast('导出成功')"><i class="fa-solid fa-download"></i> 导出 Excel</button>
-        </div>
-        <div class="ant-card-body">
-          <div class="space-y-4" id="voteStats">
-            <!-- 动态生成 -->
-          </div>
-        </div>
-      </div>
-
-      <!-- 反馈/投票明细 -->
+      <!-- 反馈明细 -->
       <div class="ant-card ant-card-bordered">
         <div class="ant-card-head">
-          <span class="ant-card-head-title" id="detailTitle">反馈明细</span>
+          <span class="ant-card-head-title">反馈明细</span>
           <button class="ant-btn ant-btn-sm" onclick="showToast('导出成功')"><i class="fa-solid fa-download"></i> 导出 Excel</button>
         </div>
         <div class="ant-card-body" style="padding:0">
           <table class="ant-table">
-            <thead id="tableHead">
-              <!-- 动态生成 -->
+            <thead>
+              <tr>
+                <th width="60">序号</th>
+                <th width="80">反馈人</th>
+                <th width="150">反馈标题</th>
+                <th>反馈内容</th>
+                <th width="160">提交时间</th>
+              </tr>
             </thead>
-            <tbody id="tableBody">
-              <!-- 动态生成 -->
-            </tbody>
+            <tbody id="tableBody"></tbody>
           </table>
         </div>
       </div>
@@ -127,33 +118,12 @@ const collectionId = parseInt(urlParams.get('id')) || 1;
 
 // 征集基本信息
 const collections = {
-  1: { id: 1, title: '2026年度政务服务满意度调查', type: '问卷投票', status: '进行中', count: 1256, startTime: '2026-06-01 00:00', endTime: '2026-06-30 23:59' },
-  2: { id: 2, title: '雄安新区公共交通优化建议征集', type: '表单反馈', status: '进行中', count: 89, startTime: '2026-06-15 00:00', endTime: '2026-07-15 23:59' },
-  3: { id: 3, title: '社区养老服务质量评价', type: '问卷投票', status: '已结束', count: 2048, startTime: '2026-05-01 00:00', endTime: '2026-05-31 23:59' },
-  4: { id: 4, title: '新区绿化方案公众意见征集', type: '表单反馈', status: '未开始', count: 0, startTime: '2026-07-01 00:00', endTime: '2026-07-31 23:59' },
-  5: { id: 5, title: '智慧停车系统功能需求调查', type: '问卷投票', status: '进行中', count: 567, startTime: '2026-06-10 00:00', endTime: '2026-07-10 23:59' },
-  6: { id: 6, title: '政务大厅服务窗口满意度反馈', type: '表单反馈', status: '已结束', count: 342, startTime: '2026-04-01 00:00', endTime: '2026-04-30 23:59' }
+  2: { id: 2, title: '雄安新区公共交通优化建议征集', status: '进行中', count: 89, startTime: '2026-06-15 00:00', endTime: '2026-07-15 23:59' },
+  4: { id: 4, title: '新区绿化方案公众意见征集', status: '未开始', count: 0, startTime: '2026-07-01 00:00', endTime: '2026-07-31 23:59' },
+  6: { id: 6, title: '政务大厅服务窗口满意度反馈', status: '已结束', count: 342, startTime: '2026-04-01 00:00', endTime: '2026-04-30 23:59' }
 };
 
-const currentCollection = collections[collectionId] || collections[1];
-
-// 问卷投票选项数据
-const voteOptions = [
-  { name: '非常满意', count: 687, percent: 54.7, color: 'var(--ant-primary)' },
-  { name: '满意', count: 312, percent: 24.8, color: '#95de64' },
-  { name: '一般', count: 156, percent: 12.4, color: 'var(--ant-warning)' },
-  { name: '不满意', count: 78, percent: 6.2, color: 'var(--ant-error)' },
-  { name: '非常不满意', count: 23, percent: 1.8, color: '#bfbfbf' }
-];
-
-// 投票明细数据
-const voteDetails = [
-  { id: 1, user: '张三', option: '非常满意', time: '2026-06-25 14:30:22' },
-  { id: 2, user: '匿名', option: '满意', time: '2026-06-25 13:15:08' },
-  { id: 3, user: '李四', option: '非常满意', time: '2026-06-25 11:42:55' },
-  { id: 4, user: '王五', option: '一般', time: '2026-06-25 10:20:33' },
-  { id: 5, user: '匿名', option: '不满意', time: '2026-06-24 16:55:12' }
-];
+const currentCollection = collections[collectionId] || collections[2];
 
 // 表单反馈数据
 const feedbackDetails = [
@@ -167,7 +137,6 @@ const feedbackDetails = [
 // 渲染基本信息
 function renderBasicInfo() {
   const statusTagClass = { '未开始': 'ant-tag-gray', '进行中': 'ant-tag-green', '已结束': 'ant-tag-red' };
-  const typeTagClass = { '表单反馈': 'ant-tag-blue', '问卷投票': 'ant-tag-purple' };
 
   document.getElementById('basicInfo').innerHTML =
     '<div>'
@@ -175,90 +144,37 @@ function renderBasicInfo() {
       + '<div class="text-sm font-medium mt-1">' + currentCollection.title + '</div>'
     + '</div>'
     + '<div>'
-      + '<div class="text-xs text-tertiary">征集类型</div>'
-      + '<div class="mt-1"><span class="ant-tag ' + typeTagClass[currentCollection.type] + '">' + currentCollection.type + '</span></div>'
-    + '</div>'
-    + '<div>'
       + '<div class="text-xs text-tertiary">状态</div>'
       + '<div class="mt-1"><span class="ant-tag ' + statusTagClass[currentCollection.status] + '">' + currentCollection.status + '</span></div>'
     + '</div>'
     + '<div>'
-      + '<div class="text-xs text-tertiary">' + (currentCollection.type === '问卷投票' ? '投票总数' : '反馈总数') + '</div>'
+      + '<div class="text-xs text-tertiary">反馈总数</div>'
       + '<div class="text-lg font-semibold mt-1" style="color:var(--ant-primary)">' + currentCollection.count.toLocaleString() + '</div>'
     + '</div>';
-}
-
-// 渲染问卷投票统计
-function renderVoteStats() {
-  if (currentCollection.type !== '问卷投票') return;
-
-  document.getElementById('voteStatsCard').style.display = '';
-  let html = '';
-  voteOptions.forEach(function(option) {
-    html += '<div>'
-      + '<div class="flex justify-between text-sm mb-1">'
-        + '<span>' + option.name + '</span>'
-        + '<span class="text-secondary">' + option.count + ' 票（' + option.percent + '%）</span>'
-      + '</div>'
-      + '<div style="height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden;">'
-        + '<div style="height:100%;width:' + option.percent + '%;background:' + option.color + ';border-radius:4px;"></div>'
-      + '</div>'
-    + '</div>';
-  });
-  document.getElementById('voteStats').innerHTML = html;
-}
-
-// 渲染表单反馈筛选
-function renderFilterCard() {
-  if (currentCollection.type !== '表单反馈') return;
-  document.getElementById('filterCard').style.display = '';
 }
 
 // 渲染表格
 function renderTable(filters) {
   filters = filters || {};
 
-  if (currentCollection.type === '问卷投票') {
-    // 问卷投票 - 投票明细
-    document.getElementById('detailTitle').textContent = '投票明细';
-    document.getElementById('tableHead').innerHTML = '<tr><th width="60">序号</th><th>投票人</th><th>所选选项</th><th width="180">投票时间</th></tr>';
-
-    let rows = voteDetails;
-    if (filters.user) {
-      rows = rows.filter(function(r) { return r.user.indexOf(filters.user) >= 0; });
-    }
-    if (filters.date) {
-      rows = rows.filter(function(r) { return r.time.indexOf(filters.date) >= 0; });
-    }
-
-    document.getElementById('tableBody').innerHTML = rows.map(function(item, i) {
-      return '<tr><td>' + (i + 1) + '</td><td>' + item.user + '</td><td>' + item.option + '</td><td>' + item.time + '</td></tr>';
-    }).join('');
-    document.getElementById('paginationInfo').textContent = '共 ' + rows.length + ' 条';
-  } else {
-    // 表单反馈 - 反馈明细
-    document.getElementById('detailTitle').textContent = '反馈明细';
-    document.getElementById('tableHead').innerHTML = '<tr><th width="60">序号</th><th width="80">反馈人</th><th width="150">反馈标题</th><th>反馈内容</th><th width="160">提交时间</th></tr>';
-
-    let rows = feedbackDetails;
-    if (filters.user) {
-      rows = rows.filter(function(r) { return r.user.indexOf(filters.user) >= 0; });
-    }
-    if (filters.date) {
-      rows = rows.filter(function(r) { return r.time.indexOf(filters.date) >= 0; });
-    }
-
-    document.getElementById('tableBody').innerHTML = rows.map(function(item, i) {
-      return '<tr>'
-        + '<td>' + (i + 1) + '</td>'
-        + '<td>' + item.user + '</td>'
-        + '<td><span class="text-sm font-medium">' + item.title + '</span></td>'
-        + '<td><div class="text-sm text-secondary" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + item.content + '">' + item.content + '</div></td>'
-        + '<td>' + item.time + '</td>'
-        + '</tr>';
-    }).join('');
-    document.getElementById('paginationInfo').textContent = '共 ' + rows.length + ' 条';
+  let rows = feedbackDetails;
+  if (filters.user) {
+    rows = rows.filter(function(r) { return r.user.indexOf(filters.user) >= 0; });
   }
+  if (filters.date) {
+    rows = rows.filter(function(r) { return r.time.indexOf(filters.date) >= 0; });
+  }
+
+  document.getElementById('tableBody').innerHTML = rows.map(function(item, i) {
+    return '<tr>'
+      + '<td>' + (i + 1) + '</td>'
+      + '<td>' + item.user + '</td>'
+      + '<td><span class="text-sm font-medium">' + item.title + '</span></td>'
+      + '<td><div class="text-sm text-secondary" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + item.content + '">' + item.content + '</div></td>'
+      + '<td>' + item.time + '</td>'
+      + '</tr>';
+  }).join('');
+  document.getElementById('paginationInfo').textContent = '共 ' + rows.length + ' 条';
 }
 
 function handleSearch() {
@@ -277,8 +193,6 @@ function handleReset() {
 
 // 初始化
 renderBasicInfo();
-renderVoteStats();
-renderFilterCard();
 renderTable({});
 
 function showToast(msg, duration) {

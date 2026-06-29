@@ -48,19 +48,6 @@
               <input id="formTitle" class="ant-input" maxlength="100" placeholder="请输入征集标题">
             </div>
             <div class="ant-form-item">
-              <label class="ant-form-label ant-form-label-required">征集类型</label>
-              <div class="ant-radio-group">
-                <label class="ant-radio">
-                  <input type="radio" name="formType" value="form" checked onchange="toggleType()">
-                  <span>表单反馈</span>
-                </label>
-                <label class="ant-radio">
-                  <input type="radio" name="formType" value="survey" onchange="toggleType()">
-                  <span>问卷投票</span>
-                </label>
-              </div>
-            </div>
-            <div class="ant-form-item">
               <label class="ant-form-label ant-form-label-required">征集说明</label>
               <textarea id="formDesc" class="ant-input" rows="4" placeholder="请说明征集目的、背景等"></textarea>
             </div>
@@ -99,30 +86,6 @@
             </div>
           </div>
 
-          <div class="divider"></div>
-
-          <!-- 问卷选项（仅问卷投票显示） -->
-          <div class="form-section" id="optionSection" style="display:none">
-            <h4>问卷选项</h4>
-            <div id="optionList">
-              <div class="flex items-center gap-2 mb-3">
-                <span class="text-sm text-secondary" style="width:24px">1</span>
-                <input class="ant-input" style="flex:1" placeholder="选项名称（必填）" maxlength="50">
-                <input class="ant-input" style="width:200px" placeholder="选项说明（选填）" maxlength="200">
-                <button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="removeOption(this)"><i class="fa-solid fa-xmark"></i></button>
-              </div>
-              <div class="flex items-center gap-2 mb-3">
-                <span class="text-sm text-secondary" style="width:24px">2</span>
-                <input class="ant-input" style="flex:1" placeholder="选项名称（必填）" maxlength="50">
-                <input class="ant-input" style="width:200px" placeholder="选项说明（选填）" maxlength="200">
-                <button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="removeOption(this)"><i class="fa-solid fa-xmark"></i></button>
-              </div>
-            </div>
-            <button class="ant-btn ant-btn-dashed" onclick="addOption()" style="width:100%">
-              <i class="fa-solid fa-plus"></i> 添加选项
-            </button>
-          </div>
-
           <!-- 操作按钮 -->
           <div class="flex justify-end gap-2 mt-6">
             <button class="ant-btn" onclick="location.href='list.html'">取消</button>
@@ -135,35 +98,6 @@
 </div>
 
 <script>
-function toggleType() {
-  var val = document.querySelector('input[name="formType"]:checked').value;
-  document.getElementById('optionSection').style.display = val === 'survey' ? '' : 'none';
-}
-
-var optionCount = 2;
-function addOption() {
-  if (optionCount >= 20) { showToast('最多 20 个选项'); return; }
-  optionCount++;
-  var div = document.createElement('div');
-  div.className = 'flex items-center gap-2 mb-3';
-  div.innerHTML = '<span class="text-sm text-secondary" style="width:24px">' + optionCount + '</span>'
-    + '<input class="ant-input" style="flex:1" placeholder="选项名称（必填）" maxlength="50">'
-    + '<input class="ant-input" style="width:200px" placeholder="选项说明（选填）" maxlength="200">'
-    + '<button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="removeOption(this)"><i class="fa-solid fa-xmark"></i></button>';
-  document.getElementById('optionList').appendChild(div);
-}
-
-function removeOption(btn) {
-  var items = document.getElementById('optionList').children;
-  if (items.length <= 2) { showToast('至少保留 2 个选项'); return; }
-  btn.parentElement.remove();
-  optionCount = 0;
-  Array.from(document.getElementById('optionList').children).forEach(function(el) {
-    optionCount++;
-    el.querySelector('span').textContent = optionCount;
-  });
-}
-
 function submitForm() {
   var title = document.getElementById('formTitle').value.trim();
   var desc = document.getElementById('formDesc').value.trim();
@@ -173,13 +107,6 @@ function submitForm() {
   var end = document.getElementById('formEnd').value;
   if (!start || !end) { showToast('请设置起止时间'); return; }
   if (start >= end) { showToast('结束时间必须晚于开始时间'); return; }
-  var type = document.querySelector('input[name="formType"]:checked').value;
-  if (type === 'survey') {
-    var opts = document.querySelectorAll('#optionList input[placeholder*="选项名称"]');
-    var empty = false;
-    opts.forEach(function(inp) { if (!inp.value.trim()) empty = true; });
-    if (empty) { showToast('请填写所有选项名称'); return; }
-  }
   showToast('征集已创建');
   setTimeout(function() { location.href = 'list.html'; }, 1000);
 }
