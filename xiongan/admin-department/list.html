@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>处室维护 - 雄安二期</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">雄安二期首页重构</span>
+    <div class="spacer"></div>
+    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
+      <span style="font-size:13px;">管理员</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">内容管理</div>
+      <div class="menu-item" onclick="location.href='../admin-opinion/list.html'"><i class="fa-solid fa-comments"></i>意见征集</div>
+      <div class="menu-item" onclick="location.href='../admin-topic/list.html'"><i class="fa-solid fa-layer-group"></i>专题专栏</div>
+      <div class="menu-item active" onclick="location.href='list.html'"><i class="fa-solid fa-building"></i>处室维护</div>
+      <div class="menu-item" onclick="location.href='../admin-file/list.html'"><i class="fa-solid fa-folder-open"></i>文件管理</div>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span class="current">处室维护</span>
+      </div>
+      <div class="page-title">内设处室及联系方式维护</div>
+
+      <!-- 搜索栏 -->
+      <div class="ant-card ant-card-bordered mb-4">
+        <div class="ant-card-body">
+          <div class="flex items-center gap-4 flex-wrap">
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-secondary">处室名称</label>
+              <input id="searchName" class="ant-input" style="width:200px" placeholder="请输入处室名称"
+                     onkeydown="if(event.key==='Enter')handleSearch()">
+            </div>
+            <div class="flex gap-2">
+              <button class="ant-btn ant-btn-primary" onclick="handleSearch()"><i class="fa-solid fa-search"></i> 查询</button>
+              <button class="ant-btn" onclick="handleReset()"><i class="fa-solid fa-rotate-right"></i> 重置</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-sm text-secondary">共 <span id="totalCount">6</span> 条</span>
+        <button class="ant-btn ant-btn-primary" onclick="location.href='create.html'"><i class="fa-solid fa-plus"></i> 新增处室</button>
+      </div>
+
+      <!-- 表格 -->
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding:0">
+          <table class="ant-table">
+            <thead>
+              <tr>
+                <th width="60">序号</th>
+                <th>处室名称</th>
+                <th width="100">负责人</th>
+                <th width="140">联系电话</th>
+                <th width="180">办公地点</th>
+                <th width="80">排序号</th>
+                <th width="150">操作</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mt-4">
+        <span class="text-sm text-secondary" id="paginationInfo">共 6 条</span>
+        <div class="ant-pagination">
+          <button class="ant-pagination-item"><i class="fa-solid fa-chevron-left" style="font-size:12px"></i></button>
+          <button class="ant-pagination-item ant-pagination-item-active">1</button>
+          <button class="ant-pagination-item"><i class="fa-solid fa-chevron-right" style="font-size:12px"></i></button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 删除确认弹窗 -->
+<div class="ant-modal-mask" id="deleteModalMask">
+  <div class="ant-modal" id="deleteModal" style="width:400px">
+    <div class="ant-modal-header">
+      <span><i class="fa-solid fa-circle-exclamation" style="color:var(--ant-warning);margin-right:8px"></i>确认删除</span>
+      <span class="ant-modal-close" onclick="closeModal('deleteModal')"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body">
+      <p>确定要删除该处室信息吗？删除后前台将不再展示。</p>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeModal('deleteModal')">取消</button>
+      <button class="ant-btn ant-btn-dangerous" onclick="confirmDelete()">删除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const tableData = [
+  { id: 1, name: '办公室', leader: '张建国', phone: '0312-5551001', location: '综合楼 3 层 301 室', sortOrder: 100 },
+  { id: 2, name: '发展规划处', leader: '李明远', phone: '0312-5551002', location: '综合楼 3 层 305 室', sortOrder: 90 },
+  { id: 3, name: '政策法规处', leader: '王文华', phone: '0312-5551003', location: '综合楼 4 层 401 室', sortOrder: 80 },
+  { id: 4, name: '行政审批处', leader: '赵德胜', phone: '0312-5551004', location: '政务服务中心 2 层', sortOrder: 70 },
+  { id: 5, name: '信息技术处', leader: '陈志强', phone: '0312-5551005', location: '综合楼 5 层 501 室', sortOrder: 60 },
+  { id: 6, name: '综合执法处', leader: '刘大伟', phone: '0312-5551006', location: '综合楼 4 层 405 室', sortOrder: 50 }
+];
+
+function getSearchValues() {
+  return { name: document.getElementById('searchName').value.trim() };
+}
+
+function renderTable(filters) {
+  filters = filters || {};
+  const body = document.getElementById('tableBody');
+  const rows = tableData.filter(function(item) {
+    return !filters.name || item.name.indexOf(filters.name) >= 0;
+  });
+  body.innerHTML = rows.map(function(item, i) {
+    return '<tr>'
+      + '<td>' + (i + 1) + '</td>'
+      + '<td>' + item.name + '</td>'
+      + '<td>' + item.leader + '</td>'
+      + '<td>' + item.phone + '</td>'
+      + '<td>' + item.location + '</td>'
+      + '<td>' + item.sortOrder + '</td>'
+      + '<td>'
+        + '<button class="ant-btn ant-btn-text ant-btn-sm" onclick="location.href=\'create.html?edit=' + item.id + '\'">编辑</button>'
+        + '<button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="handleDelete(' + item.id + ')">删除</button>'
+      + '</td>'
+      + '</tr>';
+  }).join('');
+  document.getElementById('totalCount').textContent = rows.length;
+  document.getElementById('paginationInfo').textContent = '共 ' + rows.length + ' 条';
+}
+
+function handleSearch() { renderTable(getSearchValues()); }
+function handleReset() {
+  document.getElementById('searchName').value = '';
+  renderTable({});
+}
+
+function handleDelete(id) { openModal('deleteModal'); }
+function confirmDelete() { showToast('已删除'); closeModal('deleteModal'); }
+
+renderTable({});
+
+function showToast(msg, duration) {
+  duration = duration || 2000;
+  var wrap = document.querySelector('.toast-wrap');
+  if (!wrap) { wrap = document.createElement('div'); wrap.className = 'toast-wrap'; document.body.appendChild(wrap); }
+  var el = document.createElement('div');
+  el.className = 'toast-msg';
+  el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--ant-success);"></i>' + msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(function() { el.classList.add('show'); });
+  setTimeout(function() { el.classList.remove('show'); setTimeout(function() { el.remove(); }, 300); }, duration);
+}
+function openModal(id) {
+  var modal = document.getElementById(id); var mask = document.getElementById(id + 'Mask');
+  if (modal) modal.classList.add('active'); if (mask) mask.classList.add('active');
+}
+function closeModal(id) {
+  var modal = document.getElementById(id); var mask = document.getElementById(id + 'Mask');
+  if (modal) modal.classList.remove('active'); if (mask) mask.classList.remove('active');
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.ant-modal.active').forEach(function(m) { m.classList.remove('active'); });
+    document.querySelectorAll('.ant-modal-mask.active').forEach(function(m) { m.classList.remove('active'); });
+  }
+});
+document.getElementById('deleteModalMask').addEventListener('click', function(e) { if (e.target === this) closeModal('deleteModal'); });
+</script>
+</body>
+</html>

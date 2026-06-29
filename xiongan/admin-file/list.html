@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文件管理 - 雄安二期</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">雄安二期首页重构</span>
+    <div class="spacer"></div>
+    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
+      <span style="font-size:13px;">管理员</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">内容管理</div>
+      <div class="menu-item" onclick="location.href='../admin-opinion/list.html'"><i class="fa-solid fa-comments"></i>意见征集</div>
+      <div class="menu-item" onclick="location.href='../admin-topic/list.html'"><i class="fa-solid fa-layer-group"></i>专题专栏</div>
+      <div class="menu-item" onclick="location.href='../admin-department/list.html'"><i class="fa-solid fa-building"></i>处室维护</div>
+      <div class="menu-item active" onclick="location.href='list.html'"><i class="fa-solid fa-folder-open"></i>文件管理</div>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span class="current">文件管理</span>
+      </div>
+      <div class="page-title">文件管理</div>
+
+      <!-- 搜索栏 -->
+      <div class="ant-card ant-card-bordered mb-4">
+        <div class="ant-card-body">
+          <div class="flex items-center gap-4 flex-wrap">
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-secondary">文件名称</label>
+              <input id="searchName" class="ant-input" style="width:200px" placeholder="请输入文件名称"
+                     onkeydown="if(event.key==='Enter')handleSearch()">
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-secondary">文件分类</label>
+              <select id="searchCategory" class="ant-select" style="width:150px">
+                <option value="">全部</option>
+                <option value="政策文件">政策文件</option>
+                <option value="通知公告">通知公告</option>
+                <option value="表格模板">表格模板</option>
+                <option value="工作报告">工作报告</option>
+                <option value="其他">其他</option>
+              </select>
+            </div>
+            <div class="flex gap-2">
+              <button class="ant-btn ant-btn-primary" onclick="handleSearch()"><i class="fa-solid fa-search"></i> 查询</button>
+              <button class="ant-btn" onclick="handleReset()"><i class="fa-solid fa-rotate-right"></i> 重置</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-sm text-secondary">共 <span id="totalCount">8</span> 条</span>
+        <button class="ant-btn ant-btn-primary" onclick="openUploadModal()"><i class="fa-solid fa-upload"></i> 上传文件</button>
+      </div>
+
+      <!-- 表格 -->
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding:0">
+          <table class="ant-table">
+            <thead>
+              <tr>
+                <th width="60">序号</th>
+                <th>文件名称</th>
+                <th width="100">文件分类</th>
+                <th width="100">文件大小</th>
+                <th width="80">文件类型</th>
+                <th width="90">上传人</th>
+                <th width="160">上传时间</th>
+                <th width="150">操作</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mt-4">
+        <span class="text-sm text-secondary" id="paginationInfo">共 8 条</span>
+        <div class="ant-pagination">
+          <button class="ant-pagination-item"><i class="fa-solid fa-chevron-left" style="font-size:12px"></i></button>
+          <button class="ant-pagination-item ant-pagination-item-active">1</button>
+          <button class="ant-pagination-item"><i class="fa-solid fa-chevron-right" style="font-size:12px"></i></button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 上传弹窗 -->
+<div class="ant-modal-mask" id="uploadModalMask">
+  <div class="ant-modal" id="uploadModal" style="width:560px">
+    <div class="ant-modal-header">
+      <span>上传文件</span>
+      <span class="ant-modal-close" onclick="closeModal('uploadModal')"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body">
+      <div class="ant-form-item">
+        <label class="ant-form-label ant-form-label-required">选择文件</label>
+        <div style="border:1px dashed var(--ant-border);border-radius:8px;padding:24px;text-align:center;">
+          <i class="fa-solid fa-cloud-arrow-up" style="font-size:32px;color:var(--ant-primary);margin-bottom:8px;"></i>
+          <p class="text-sm text-secondary mb-2">点击或拖拽文件到此处</p>
+          <p class="text-xs text-tertiary">不限类型，单文件最大 100MB，批量最多 10 个</p>
+          <button class="ant-btn ant-btn-sm mt-3" onclick="showToast('请选择文件')">选择文件</button>
+        </div>
+      </div>
+      <div class="ant-form-item">
+        <label class="ant-form-label ant-form-label-required">文件名称</label>
+        <input class="ant-input" placeholder="默认取文件名，可修改" maxlength="200">
+      </div>
+      <div class="ant-form-item">
+        <label class="ant-form-label">文件分类</label>
+        <select class="ant-select w-full">
+          <option value="其他">其他</option>
+          <option value="政策文件">政策文件</option>
+          <option value="通知公告">通知公告</option>
+          <option value="表格模板">表格模板</option>
+          <option value="工作报告">工作报告</option>
+        </select>
+      </div>
+      <div class="ant-form-item">
+        <label class="ant-form-label">文件说明</label>
+        <textarea class="ant-input" rows="3" placeholder="选填，最大 500 字符" maxlength="500"></textarea>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeModal('uploadModal')">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="submitUpload()">上传</button>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑弹窗 -->
+<div class="ant-modal-mask" id="editModalMask">
+  <div class="ant-modal" id="editModal" style="width:500px">
+    <div class="ant-modal-header">
+      <span>编辑文件信息</span>
+      <span class="ant-modal-close" onclick="closeModal('editModal')"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body">
+      <div class="ant-form-item">
+        <label class="ant-form-label ant-form-label-required">文件名称</label>
+        <input id="editName" class="ant-input" maxlength="200">
+      </div>
+      <div class="ant-form-item">
+        <label class="ant-form-label">文件分类</label>
+        <select id="editCategory" class="ant-select w-full">
+          <option value="其他">其他</option>
+          <option value="政策文件">政策文件</option>
+          <option value="通知公告">通知公告</option>
+          <option value="表格模板">表格模板</option>
+          <option value="工作报告">工作报告</option>
+        </select>
+      </div>
+      <div class="ant-form-item">
+        <label class="ant-form-label">文件说明</label>
+        <textarea id="editDesc" class="ant-input" rows="3" maxlength="500"></textarea>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeModal('editModal')">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="submitEdit()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 删除确认弹窗 -->
+<div class="ant-modal-mask" id="deleteModalMask">
+  <div class="ant-modal" id="deleteModal" style="width:400px">
+    <div class="ant-modal-header">
+      <span><i class="fa-solid fa-circle-exclamation" style="color:var(--ant-warning);margin-right:8px"></i>确认删除</span>
+      <span class="ant-modal-close" onclick="closeModal('deleteModal')"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body">
+      <p>文件删除后将从存储中永久移除，不可恢复。确定要删除吗？</p>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeModal('deleteModal')">取消</button>
+      <button class="ant-btn ant-btn-dangerous" onclick="confirmDelete()">永久删除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const categoryTagClass = {
+  '政策文件': 'ant-tag-blue', '通知公告': 'ant-tag-green', '表格模板': 'ant-tag-orange',
+  '工作报告': 'ant-tag-purple', '其他': 'ant-tag-gray'
+};
+
+const tableData = [
+  { id: 1, name: '雄安新区绿化管理办法.pdf', category: '政策文件', size: '2.3 MB', type: 'pdf', uploader: '张建国', time: '2026-06-20 09:30:00' },
+  { id: 2, name: '2026年重点项目进展通报.docx', category: '通知公告', size: '1.1 MB', type: 'docx', uploader: '李明远', time: '2026-06-19 14:20:00' },
+  { id: 3, name: '政务服务满意度调查表.xlsx', category: '表格模板', size: '456 KB', type: 'xlsx', uploader: '王文华', time: '2026-06-18 11:00:00' },
+  { id: 4, name: '2026年第一季度工作简报.pdf', category: '工作报告', size: '5.8 MB', type: 'pdf', uploader: '赵德胜', time: '2026-06-15 16:45:00' },
+  { id: 5, name: '新区人才引进政策解读.pdf', category: '政策文件', size: '1.5 MB', type: 'pdf', uploader: '陈志强', time: '2026-06-12 10:30:00' },
+  { id: 6, name: '智慧交通建设规划图.png', category: '其他', size: '8.2 MB', type: 'png', uploader: '刘大伟', time: '2026-06-10 08:15:00' },
+  { id: 7, name: '行政审批流程优化方案.docx', category: '通知公告', size: '780 KB', type: 'docx', uploader: '张建国', time: '2026-06-08 15:30:00' },
+  { id: 8, name: '办公用品领用登记表.xlsx', category: '表格模板', size: '125 KB', type: 'xlsx', uploader: '李明远', time: '2026-06-05 09:00:00' }
+];
+
+function getSearchValues() {
+  return { name: document.getElementById('searchName').value.trim(), category: document.getElementById('searchCategory').value };
+}
+
+function renderTable(filters) {
+  filters = filters || {};
+  const body = document.getElementById('tableBody');
+  const rows = tableData.filter(function(item) {
+    return (!filters.name || item.name.indexOf(filters.name) >= 0) && (!filters.category || item.category === filters.category);
+  });
+  body.innerHTML = rows.map(function(item, i) {
+    return '<tr>'
+      + '<td>' + (i + 1) + '</td>'
+      + '<td><a href="javascript:;" style="color:var(--ant-primary)" onclick="showToast(\'开始下载\')">' + item.name + '</a></td>'
+      + '<td><span class="ant-tag ' + (categoryTagClass[item.category] || 'ant-tag-gray') + '">' + item.category + '</span></td>'
+      + '<td>' + item.size + '</td>'
+      + '<td>' + item.type + '</td>'
+      + '<td>' + item.uploader + '</td>'
+      + '<td>' + item.time + '</td>'
+      + '<td>'
+        + '<button class="ant-btn ant-btn-text ant-btn-sm" onclick="openEditModal(' + item.id + ')">编辑</button>'
+        + '<button class="ant-btn ant-btn-text ant-btn-sm" onclick="showToast(\'开始下载\')">下载</button>'
+        + '<button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="handleDelete(' + item.id + ')">删除</button>'
+      + '</td>'
+      + '</tr>';
+  }).join('');
+  document.getElementById('totalCount').textContent = rows.length;
+  document.getElementById('paginationInfo').textContent = '共 ' + rows.length + ' 条';
+}
+
+function handleSearch() { renderTable(getSearchValues()); }
+function handleReset() {
+  document.getElementById('searchName').value = '';
+  document.getElementById('searchCategory').value = '';
+  renderTable({});
+}
+
+function openUploadModal() { openModal('uploadModal'); }
+function submitUpload() { showToast('文件已上传'); closeModal('uploadModal'); renderTable(getSearchValues()); }
+
+function openEditModal(id) {
+  var item = tableData.find(function(d) { return d.id === id; });
+  if (item) {
+    document.getElementById('editName').value = item.name;
+    document.getElementById('editCategory').value = item.category;
+    document.getElementById('editDesc').value = '';
+  }
+  openModal('editModal');
+}
+function submitEdit() { showToast('已保存'); closeModal('editModal'); }
+
+function handleDelete(id) { openModal('deleteModal'); }
+function confirmDelete() { showToast('文件已删除'); closeModal('deleteModal'); renderTable(getSearchValues()); }
+
+renderTable({});
+
+function showToast(msg, duration) {
+  duration = duration || 2000;
+  var wrap = document.querySelector('.toast-wrap');
+  if (!wrap) { wrap = document.createElement('div'); wrap.className = 'toast-wrap'; document.body.appendChild(wrap); }
+  var el = document.createElement('div');
+  el.className = 'toast-msg';
+  el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--ant-success);"></i>' + msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(function() { el.classList.add('show'); });
+  setTimeout(function() { el.classList.remove('show'); setTimeout(function() { el.remove(); }, 300); }, duration);
+}
+function openModal(id) {
+  var modal = document.getElementById(id); var mask = document.getElementById(id + 'Mask');
+  if (modal) modal.classList.add('active'); if (mask) mask.classList.add('active');
+}
+function closeModal(id) {
+  var modal = document.getElementById(id); var mask = document.getElementById(id + 'Mask');
+  if (modal) modal.classList.remove('active'); if (mask) mask.classList.remove('active');
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.ant-modal.active').forEach(function(m) { m.classList.remove('active'); });
+    document.querySelectorAll('.ant-modal-mask.active').forEach(function(m) { m.classList.remove('active'); });
+  }
+});
+document.getElementById('uploadModalMask').addEventListener('click', function(e) { if (e.target === this) closeModal('uploadModal'); });
+document.getElementById('editModalMask').addEventListener('click', function(e) { if (e.target === this) closeModal('editModal'); });
+document.getElementById('deleteModalMask').addEventListener('click', function(e) { if (e.target === this) closeModal('deleteModal'); });
+</script>
+</body>
+</html>

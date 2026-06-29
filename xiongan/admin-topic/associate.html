@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>关联管理 - 雄安二期</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">雄安二期首页重构</span>
+    <div class="spacer"></div>
+    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
+      <span style="font-size:13px;">管理员</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">内容管理</div>
+      <div class="menu-item" onclick="location.href='../admin-opinion/list.html'"><i class="fa-solid fa-comments"></i>意见征集</div>
+      <div class="menu-item active" onclick="location.href='list.html'"><i class="fa-solid fa-layer-group"></i>专题专栏</div>
+      <div class="menu-item" onclick="location.href='../admin-department/list.html'"><i class="fa-solid fa-building"></i>处室维护</div>
+      <div class="menu-item" onclick="location.href='../admin-file/list.html'"><i class="fa-solid fa-folder-open"></i>文件管理</div>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span>
+        <a href="list.html">专题专栏管理</a><span>/</span>
+        <span class="current">关联管理</span>
+      </div>
+      <div class="page-title" id="pageTitle">关联管理</div>
+
+      <!-- 专题信息卡片 -->
+      <div class="ant-card ant-card-bordered mb-4">
+        <div class="ant-card-body" style="padding:16px 20px;">
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-secondary">专题名称：</span>
+            <span style="font-size:15px;font-weight:600;" id="topicName">--</span>
+            <span class="ant-tag" id="topicStatus" style="margin-left:8px;">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 已关联列表 -->
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-sm text-secondary">已关联信息公开 <span id="totalCount">0</span> 条</span>
+        <button class="ant-btn ant-btn-primary" onclick="openAddAssocModal()"><i class="fa-solid fa-plus"></i> 新增关联</button>
+      </div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding:0">
+          <table class="ant-table">
+            <thead>
+              <tr>
+                <th width="60">序号</th>
+                <th>信息公开标题</th>
+                <th width="120">发布时间</th>
+                <th width="100">操作</th>
+              </tr>
+            </thead>
+            <tbody id="assocBody"></tbody>
+          </table>
+          <div class="empty-state" id="emptyHint" style="display:none;">
+            <div class="empty-state-icon"><i class="fa-solid fa-link-slash"></i></div>
+            <div class="empty-state-title">暂无关联</div>
+            <div class="empty-state-desc">点击"新增关联"为专题添加信息公开关联</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mt-4">
+        <span class="text-sm text-secondary" id="paginationInfo">共 0 条</span>
+        <div class="flex gap-2">
+          <button class="ant-btn" onclick="history.back()"><i class="fa-solid fa-arrow-left mr-1"></i>返回专题列表</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 新增关联弹窗 -->
+<div class="ant-modal-mask" id="addAssocModalMask">
+  <div class="ant-modal" id="addAssocModal" style="width:560px">
+    <div class="ant-modal-header">
+      <span><i class="fa-solid fa-plus" style="color:var(--ant-primary);margin-right:8px"></i>新增关联</span>
+      <span class="ant-modal-close" onclick="closeModal('addAssocModal')"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body">
+      <div class="flex items-center gap-2 mb-2">
+        <select id="addAssocCategory" class="ant-input" style="width:130px;cursor:pointer;" onchange="onCategoryChange()">
+          <option value="">全部栏目</option>
+        </select>
+        <input id="addAssocSearch" class="ant-input" style="flex:1" placeholder="搜索信息公开标题"
+               onkeydown="if(event.key==='Enter')filterAddAssoc()">
+        <button class="ant-btn ant-btn-sm" onclick="filterAddAssoc()"><i class="fa-solid fa-search"></i></button>
+      </div>
+      <div style="max-height:250px;overflow-y:auto;border:1px solid var(--ant-border);border-radius:8px;padding:12px;" id="addAssocList">
+        <!-- 动态生成 -->
+      </div>
+      <!-- 分页 -->
+      <div class="flex items-center justify-between mt-2" id="assocPagination" style="display:none;">
+        <span class="text-xs text-tertiary" id="assocPageInfo">第 1/1 页</span>
+        <div class="flex gap-1">
+          <button class="ant-btn ant-btn-sm" onclick="goAssocPage(-1)" id="assocPrevBtn">上一页</button>
+          <button class="ant-btn ant-btn-sm" onclick="goAssocPage(1)" id="assocNextBtn">下一页</button>
+        </div>
+      </div>
+      <p class="text-xs text-tertiary mt-2">已选 <span id="addSelectedCount">0</span> 条</p>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeModal('addAssocModal')">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="confirmAddAssoc()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 解除关联确认弹窗 -->
+<div class="ant-modal-mask" id="unlinkModalMask">
+  <div class="ant-modal" id="unlinkModal" style="width:400px">
+    <div class="ant-modal-header">
+      <span><i class="fa-solid fa-circle-exclamation" style="color:var(--ant-warning);margin-right:8px"></i>解除关联</span>
+      <span class="ant-modal-close" onclick="closeModal('unlinkModal')"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body">
+      <p>确定要解除该信息公开的关联吗？解除后不影响信息公开本身。</p>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeModal('unlinkModal')">取消</button>
+      <button class="ant-btn ant-btn-dangerous" onclick="confirmUnlink()">解除关联</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// 从 URL 获取参数
+var urlParams = new URLSearchParams(window.location.search);
+var topicId = parseInt(urlParams.get('id')) || 1;
+var topicNameParam = decodeURIComponent(urlParams.get('name') || '未命名专题');
+
+// 专题基础数据（与 list.html 同步）
+var topicsTable = [
+  { id: 1, name: '雄安新区建设成就', status: '启用' },
+  { id: 2, name: '民生保障政策专题', status: '启用' },
+  { id: 3, name: '营商环境优化', status: '启用' },
+  { id: 4, name: '生态环境保护', status: '停用' },
+  { id: 5, name: '智慧城市建设', status: '启用' }
+];
+var currentTopic = topicsTable.find(function(t) { return t.id === topicId; }) || { name: topicNameParam, status: '--' };
+document.getElementById('pageTitle').textContent = '关联管理 - ' + currentTopic.name;
+document.getElementById('topicName').textContent = currentTopic.name;
+document.getElementById('topicStatus').textContent = currentTopic.status;
+document.getElementById('topicStatus').className = 'ant-tag ' + (currentTopic.status === '启用' ? 'ant-tag-green' : 'ant-tag-gray');
+
+// 关联数据（与 list.html 同步）
+var relationData = {
+  1: [
+    { id: 1, title: '雄安新区2026年重点项目建设进展通报', publishTime: '2026-05-15' },
+    { id: 2, title: '新区智慧交通系统建设规划公示', publishTime: '2026-06-01' }
+  ],
+  2: [
+    { id: 3, title: '雄安新区人才引进优惠政策（2026版）', publishTime: '2026-05-20' }
+  ],
+  3: [
+    { id: 4, title: '关于优化营商环境的若干措施', publishTime: '2026-06-05' }
+  ],
+  4: [],
+  5: []
+};
+
+// 栏目类别
+var infoCategories = ['通知公告', '政策法规', '规划计划', '财政信息', '项目建设', '民生保障'];
+
+var allInfos = [
+  { id: 1, title: '关于印发《雄安新区绿化管理办法》的通知', publishTime: '2026-04-10', category: '政策法规' },
+  { id: 2, title: '雄安新区2026年重点项目建设进展通报', publishTime: '2026-05-15', category: '通知公告' },
+  { id: 3, title: '新区政务服务"最多跑一次"改革实施方案', publishTime: '2026-05-20', category: '政策法规' },
+  { id: 4, title: '雄安新区人才引进优惠政策（2026版）', publishTime: '2026-05-20', category: '民生保障' },
+  { id: 5, title: '新区智慧交通系统建设规划公示', publishTime: '2026-06-01', category: '规划计划' },
+  { id: 6, title: '关于优化营商环境的若干措施', publishTime: '2026-06-05', category: '政策法规' },
+  { id: 7, title: '雄安新区教育事业发展"十四五"规划', publishTime: '2026-06-10', category: '规划计划' },
+  { id: 8, title: '关于加快数字雄安建设的实施意见', publishTime: '2026-06-12', category: '政策法规' },
+  { id: 9, title: '雄安新区公共数据开放管理办法（试行）', publishTime: '2026-06-15', category: '政策法规' },
+  { id: 10, title: '2026年雄安新区防汛抗旱应急预案', publishTime: '2026-06-16', category: '通知公告' },
+  { id: 11, title: '新区建筑工程质量安全监管细则', publishTime: '2026-06-18', category: '项目建设' },
+  { id: 12, title: '雄安新区地下综合管廊运营维护规范', publishTime: '2026-06-20', category: '项目建设' },
+  { id: 13, title: '关于推进绿色建筑发展的若干规定', publishTime: '2026-06-21', category: '政策法规' },
+  { id: 14, title: '雄安新区城市管理综合执法办法', publishTime: '2026-06-22', category: '政策法规' },
+  { id: 15, title: '新区供水供电供气设施建设管理办法', publishTime: '2026-06-23', category: '民生保障' },
+  { id: 16, title: '雄安新区土地使用权出让管理办法', publishTime: '2026-06-24', category: '财政信息' },
+  { id: 17, title: '关于完善新区基本公共服务体系的方案', publishTime: '2026-06-25', category: '民生保障' },
+  { id: 18, title: '雄安新区文化旅游产业发展规划纲要', publishTime: '2026-06-26', category: '规划计划' },
+  { id: 19, title: '新区全民健身设施建设实施意见', publishTime: '2026-06-27', category: '民生保障' },
+  { id: 20, title: '雄安新区科技创新专项资金管理办法', publishTime: '2026-06-28', category: '财政信息' }
+];
+
+var topicAssocs = relationData[topicId] || [];
+var pendingUnlinkId = null;
+var addAssocPage = 1;
+var addAssocPageSize = 5;
+var addAssocKeyword = '';
+var addAssocCategory = '';
+
+// 初始化栏目下拉
+(function() {
+  var sel = document.getElementById('addAssocCategory');
+  infoCategories.forEach(function(cat) {
+    var opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    sel.appendChild(opt);
+  });
+})();
+
+function renderAssocTable() {
+  var body = document.getElementById('assocBody');
+  var empty = document.getElementById('emptyHint');
+
+  if (topicAssocs.length === 0) {
+    body.innerHTML = '';
+    empty.style.display = 'flex';
+  } else {
+    empty.style.display = 'none';
+    body.innerHTML = topicAssocs.map(function(item, i) {
+      return '<tr>'
+        + '<td>' + (i + 1) + '</td>'
+        + '<td>' + item.title + '</td>'
+        + '<td>' + item.publishTime + '</td>'
+        + '<td>'
+          + '<button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="handleUnlink(' + item.id + ')">解除关联</button>'
+        + '</td>'
+        + '</tr>';
+    }).join('');
+  }
+  document.getElementById('totalCount').textContent = topicAssocs.length;
+  document.getElementById('paginationInfo').textContent = '共 ' + topicAssocs.length + ' 条';
+}
+
+function openAddAssocModal() {
+  document.getElementById('addAssocSearch').value = '';
+  document.getElementById('addAssocCategory').value = '';
+  addAssocPage = 1;
+  addAssocKeyword = '';
+  addAssocCategory = '';
+  renderAddAssocList();
+  openModal('addAssocModal');
+}
+
+function renderAddAssocList(keyword) {
+  if (typeof keyword !== 'undefined') { addAssocKeyword = keyword || ''; }
+  var currentIds = topicAssocs.map(function(r) { return r.id; });
+  var available = allInfos.filter(function(info) { return currentIds.indexOf(info.id) < 0; });
+  if (addAssocCategory) {
+    available = available.filter(function(info) { return info.category === addAssocCategory; });
+  }
+  if (addAssocKeyword) {
+    available = available.filter(function(info) { return info.title.indexOf(addAssocKeyword) >= 0; });
+  }
+  var totalPages = Math.ceil(available.length / addAssocPageSize) || 1;
+  if (addAssocPage > totalPages) { addAssocPage = totalPages; }
+  var start = (addAssocPage - 1) * addAssocPageSize;
+  var pageItems = available.slice(start, start + addAssocPageSize);
+
+  var list = document.getElementById('addAssocList');
+  if (available.length === 0) {
+    list.innerHTML = '<p class="text-center text-secondary" style="padding:20px;">没有可添加的信息公开</p>';
+  } else {
+    list.innerHTML = pageItems.map(function(info) {
+      return '<label class="ant-checkbox mb-2 flex items-center"><input type="checkbox" class="add-assoc-check" value="' + info.id + '"><span>' + info.title + '</span></label>';
+    }).join('');
+  }
+
+  // 分页控制
+  var pag = document.getElementById('assocPagination');
+  var prevBtn = document.getElementById('assocPrevBtn');
+  var nextBtn = document.getElementById('assocNextBtn');
+  if (totalPages <= 1) {
+    pag.style.display = 'none';
+  } else {
+    pag.style.display = 'flex';
+    document.getElementById('assocPageInfo').textContent = '第 ' + addAssocPage + '/' + totalPages + ' 页 · 共 ' + available.length + ' 条';
+    prevBtn.disabled = addAssocPage <= 1;
+    nextBtn.disabled = addAssocPage >= totalPages;
+  }
+
+  document.querySelectorAll('.add-assoc-check').forEach(function(cb) {
+    cb.addEventListener('change', updateAddSelectedCount);
+  });
+  updateAddSelectedCount();
+}
+
+function goAssocPage(dir) {
+  addAssocPage += dir;
+  renderAddAssocList();
+}
+
+function onCategoryChange() {
+  addAssocCategory = document.getElementById('addAssocCategory').value;
+  addAssocPage = 1;
+  renderAddAssocList();
+}
+
+function filterAddAssoc() {
+  var keyword = document.getElementById('addAssocSearch').value.trim();
+  addAssocPage = 1;
+  renderAddAssocList(keyword);
+}
+
+function updateAddSelectedCount() {
+  var count = document.querySelectorAll('.add-assoc-check:checked').length;
+  document.getElementById('addSelectedCount').textContent = count;
+}
+
+function confirmAddAssoc() {
+  var checked = document.querySelectorAll('.add-assoc-check:checked');
+  if (checked.length === 0) {
+    showToast('请选择要关联的信息公开');
+    return;
+  }
+  if (!relationData[topicId]) {
+    relationData[topicId] = [];
+  }
+  checked.forEach(function(cb) {
+    var infoId = parseInt(cb.value);
+    var info = allInfos.find(function(i) { return i.id === infoId; });
+    if (info && !relationData[topicId].some(function(r) { return r.id === infoId; })) {
+      relationData[topicId].push({ id: info.id, title: info.title, publishTime: info.publishTime });
+    }
+  });
+  topicAssocs = relationData[topicId];
+  showToast('已添加 ' + checked.length + ' 条关联');
+  closeModal('addAssocModal');
+  renderAssocTable();
+}
+
+function handleUnlink(id) {
+  pendingUnlinkId = id;
+  openModal('unlinkModal');
+}
+
+function confirmUnlink() {
+  if (pendingUnlinkId) {
+    relationData[topicId] = relationData[topicId].filter(function(a) { return a.id !== pendingUnlinkId; });
+    topicAssocs = relationData[topicId];
+    pendingUnlinkId = null;
+    renderAssocTable();
+    showToast('关联已解除');
+  }
+  closeModal('unlinkModal');
+}
+
+renderAssocTable();
+
+function showToast(msg, duration) {
+  duration = duration || 2000;
+  var wrap = document.querySelector('.toast-wrap');
+  if (!wrap) { wrap = document.createElement('div'); wrap.className = 'toast-wrap'; document.body.appendChild(wrap); }
+  var el = document.createElement('div');
+  el.className = 'toast-msg';
+  el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--ant-success);"></i>' + msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(function() { el.classList.add('show'); });
+  setTimeout(function() { el.classList.remove('show'); setTimeout(function() { el.remove(); }, 300); }, duration);
+}
+function openModal(id) {
+  var modal = document.getElementById(id); var mask = document.getElementById(id + 'Mask');
+  if (modal) modal.classList.add('active'); if (mask) mask.classList.add('active');
+}
+function closeModal(id) {
+  var modal = document.getElementById(id); var mask = document.getElementById(id + 'Mask');
+  if (modal) modal.classList.remove('active'); if (mask) mask.classList.remove('active');
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.ant-modal.active').forEach(function(m) { m.classList.remove('active'); });
+    document.querySelectorAll('.ant-modal-mask.active').forEach(function(m) { m.classList.remove('active'); });
+  }
+});
+document.getElementById('addAssocModalMask').addEventListener('click', function(e) { if (e.target === this) closeModal('addAssocModal'); });
+document.getElementById('unlinkModalMask').addEventListener('click', function(e) { if (e.target === this) closeModal('unlinkModal'); });
+</script>
+</body>
+</html>

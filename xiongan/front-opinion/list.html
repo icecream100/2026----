@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>意见征集 - 雄安新区</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>
+    /* ===== 政务门户导航 ===== */
+    .portal-topbar { background:#1a3a6b; height:32px; display:flex; align-items:center; padding:0 40px; font-size:12px; color:rgba(255,255,255,0.75); }
+    .portal-topbar .topbar-right { margin-left:auto; color:rgba(255,255,255,0.85); cursor:pointer; }
+    .portal-topbar .topbar-right:hover { color:#fff; }
+    .portal-logobar { background:#fff; padding:14px 40px; display:flex; align-items:center; gap:16px; border-bottom:1px solid #e8edf5; }
+    .portal-logo-icon { width:56px; height:56px; flex-shrink:0; }
+    .portal-brand { flex:1; }
+    .portal-brand-name { font-size:26px; font-weight:700; color:#1a3a6b; letter-spacing:1px; line-height:1.2; }
+    .portal-brand-en { font-size:11px; color:#5a7aaa; letter-spacing:1.5px; margin-top:2px; }
+    .portal-search-wrap { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+    .portal-search-box { display:flex; align-items:center; border:1px solid #c8d4e8; border-radius:4px; overflow:hidden; height:36px; }
+    .portal-search-scope { padding:0 12px; background:#f0f4fa; height:100%; border-right:1px solid #c8d4e8; display:flex; align-items:center; font-size:13px; color:#1a3a6b; gap:4px; cursor:pointer; white-space:nowrap; }
+    .portal-search-scope .arrow { font-size:10px; color:#8aa0c0; }
+    .portal-search-input { border:none; outline:none; padding:0 10px; font-size:13px; color:#333; width:200px; background:#fff; }
+    .portal-search-input::placeholder { color:#b0bdd0; }
+    .portal-search-btn { width:40px; height:100%; background:#1a3a6b; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; }
+    .portal-search-btn:hover { background:#2550a0; }
+    .portal-hot-search { font-size:12px; color:#7a90b0; display:flex; align-items:center; gap:6px; }
+    .portal-hot-search span { color:#5a7aaa; }
+    .portal-hot-tag { color:#1a6abf; cursor:pointer; text-decoration:none; }
+    .portal-hot-tag:hover { color:#c8a44a; }
+    .portal-navbar { background:#1e3c6e; height:48px; display:flex; align-items:stretch; padding:0 40px; }
+    .portal-nav-item { display:flex; align-items:center; padding:0 28px; font-size:15px; color:rgba(255,255,255,0.85); cursor:pointer; text-decoration:none; white-space:nowrap; }
+    .portal-nav-item:hover { background:rgba(255,255,255,0.1); color:#fff; }
+    .portal-nav-item.active { background:#c8a44a; color:#fff; font-weight:600; }
+
+    .filter-bar { background: #fff; padding: 16px 20px; border-radius: 8px; margin-bottom:20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .filter-btn { padding: 6px 16px; border: 1px solid var(--ant-border); border-radius: 4px; background: #fff; color: var(--ant-text-secondary); cursor: pointer; font-size: 13px; }
+    .filter-btn:hover, .filter-btn.active { border-color: var(--ant-primary); color: var(--ant-primary); background: var(--ant-primary-bg); }
+    .card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+    .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-color: var(--ant-primary); }
+    .card-title { font-size: 16px; font-weight: 600; color: var(--ant-text); margin-bottom: 8px; }
+    .card-desc { font-size: 13px; color: var(--ant-text-secondary); margin-bottom: 12px; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-meta { display: flex; gap: 16px; font-size: 12px; color: var(--ant-text-tertiary); }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .tag-blue { background: #e6f4ff; color: #1677ff; }
+    .tag-purple { background: #f9f0ff; color: #722ed1; }
+    .tag-green { background: #f6ffed; color: #52c41a; }
+    .tag-gray { background: #f5f5f5; color: #666; }
+    .empty { text-align: center; padding: 48px; color: var(--ant-text-tertiary); }
+  </style>
+</head>
+<body style="background:#f5f5f5;min-height:100vh;">
+
+<!-- 政务门户导航 -->
+<div class="portal-topbar">
+  <span>欢迎访问雄安新区数字建设管理平台！今日是<span id="topbar-date"></span> 天气：多云 17°C</span>
+  <span class="topbar-right"><i class="fa-regular fa-user" style="margin-right:4px;"></i>用户登录</span>
+</div>
+<div class="portal-logobar">
+  <div class="portal-logo-icon">
+    <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="28" cy="28" r="28" fill="#1a3a6b"/>
+      <path d="M28 10 C20 18, 12 22, 12 30 C12 38, 19 44, 28 44 C37 44, 44 38, 44 30 C44 22, 36 18, 28 10Z" fill="none" stroke="#4a90d9" stroke-width="1.5"/>
+      <path d="M28 10 L28 44" stroke="#4a90d9" stroke-width="1.5"/>
+      <path d="M14 26 C18 24, 22 20, 28 18 C34 20, 38 24, 42 26" stroke="#6ab0f0" stroke-width="1.5" fill="none"/>
+      <path d="M16 32 C20 30, 24 28, 28 26 C32 28, 36 30, 40 32" stroke="#6ab0f0" stroke-width="1.2" fill="none"/>
+      <circle cx="28" cy="28" r="3" fill="#c8a44a"/>
+      <line x1="28" y1="18" x2="28" y2="22" stroke="#c8a44a" stroke-width="1.5"/>
+      <line x1="28" y1="34" x2="28" y2="38" stroke="#c8a44a" stroke-width="1.5"/>
+      <line x1="18" y1="28" x2="22" y2="28" stroke="#c8a44a" stroke-width="1.5"/>
+      <line x1="34" y1="28" x2="38" y2="28" stroke="#c8a44a" stroke-width="1.5"/>
+    </svg>
+  </div>
+  <div class="portal-brand">
+    <div class="portal-brand-name">雄安新区数字建设管理平台</div>
+    <div class="portal-brand-en">XIONG'AN NEW AREA DIGITAL CONSTRUCTION MANAGEMENT PLATFORM</div>
+  </div>
+  <div class="portal-search-wrap">
+    <div class="portal-search-box">
+      <div class="portal-search-scope">本站查询 <span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
+      <input class="portal-search-input" type="text" placeholder="请输入关键字">
+      <button class="portal-search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+    <div class="portal-hot-search">
+      <span>热门搜索：</span>
+      <a class="portal-hot-tag" href="#">实名制接口规范</a>
+      <a class="portal-hot-tag" href="#">平台使用手册</a>
+      <a class="portal-hot-tag" href="#">企业资质</a>
+    </div>
+  </div>
+</div>
+<nav class="portal-navbar">
+  <a class="portal-nav-item" href="../index.html">首页</a>
+  <a class="portal-nav-item" href="#">政务公开</a>
+  <a class="portal-nav-item" href="#">政务服务</a>
+  <a class="portal-nav-item active" href="#">政民互动</a>
+  <a class="portal-nav-item" href="#">专题专栏</a>
+</nav>
+
+<div class="max-w-4xl mx-auto px-4" style="padding-top:20px;padding-bottom:48px;">
+
+  <!-- 面包屑 + 页面标题 -->
+  <div style="background:#fff;padding:12px 20px;border-radius:8px;margin-bottom:16px;font-size:13px;color:var(--ant-text-secondary);">
+    <a href="../index.html" style="color:var(--ant-primary);text-decoration:none;">首页</a> <span>/</span>
+    <span>政民互动</span> <span>/</span>
+    <span>意见征集</span>
+  </div>
+  <div style="margin-bottom:16px;">
+    <h1 style="font-size:24px;font-weight:600;color:var(--ant-text);margin-bottom:6px;"><i class="fa-solid fa-comments mr-2"></i>意见征集</h1>
+    <p style="font-size:14px;color:var(--ant-text-secondary);">倾听民意、汇集民智，共同参与雄安新区建设</p>
+  </div>
+
+  <!-- 筛选栏 -->
+  <div class="filter-bar">
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <div class="flex items-center gap-2">
+        <button class="filter-btn active" onclick="filterByType(this, '')">全部</button>
+        <button class="filter-btn" onclick="filterByType(this, '表单反馈')">表单反馈</button>
+        <button class="filter-btn" onclick="filterByType(this, '问卷投票')">问卷投票</button>
+      </div>
+      <input type="text" id="searchInput" class="ant-input" style="width:200px;" placeholder="搜索征集标题..." onkeydown="if(event.key==='Enter')handleSearch()">
+    </div>
+  </div>
+
+  <!-- 征集列表 -->
+  <div id="collectionList"></div>
+
+</div>
+
+<script>
+// 动态填充日期
+(function() {
+  var d = new Date();
+  var weeks = ['日','一','二','三','四','五','六'];
+  document.getElementById('topbar-date').textContent = d.getFullYear() + '年' +
+    String(d.getMonth()+1).padStart(2,'0') + '月' +
+    String(d.getDate()).padStart(2,'0') + '日' +
+    ' 周' + weeks[d.getDay()];
+})();
+
+const collections = [
+  { id: 1, title: '2026年度政务服务满意度调查', type: '问卷投票', status: '进行中', count: 1256, endTime: '2026-06-30', desc: '为持续提升政务服务质量，现面向社会公众开展满意度调查。' },
+  { id: 2, title: '雄安新区公共交通优化建议征集', type: '表单反馈', status: '进行中', count: 89, endTime: '2026-07-15', desc: '为进一步优化公共交通网络，提升市民出行便利性，现公开征集建议。' },
+  { id: 3, title: '智慧停车系统功能需求调查', type: '问卷投票', status: '进行中', count: 567, endTime: '2026-07-10', desc: '雄安新区正在规划建设智慧停车系统，现开展功能需求调查。' },
+  { id: 4, title: '新区绿化方案公众意见征集', type: '表单反馈', status: '未开始', count: 0, endTime: '2026-07-31', desc: '2026年绿化工程即将启动，现面向公众征集意见和建议。' },
+  { id: 5, title: '社区养老服务质量评价', type: '问卷投票', status: '已结束', count: 2048, endTime: '2026-05-31', desc: '为了解社区养老服务现状，提升养老服务质量。' },
+  { id: 6, title: '政务大厅服务窗口满意度反馈', type: '表单反馈', status: '已结束', count: 342, endTime: '2026-04-30', desc: '请对您近期办理业务时的服务体验进行评价和反馈。' }
+];
+
+let currentFilter = '';
+
+function renderList(filter, keyword) {
+  let filtered = collections;
+  if (filter) filtered = filtered.filter(function(item) { return item.type === filter; });
+  if (keyword) {
+    keyword = keyword.toLowerCase();
+    filtered = filtered.filter(function(item) { return item.title.toLowerCase().indexOf(keyword) >= 0; });
+  }
+
+  if (filtered.length === 0) {
+    document.getElementById('collectionList').innerHTML = '<div class="empty"><i class="fa-solid fa-inbox" style="font-size:32px;margin-bottom:12px;display:block;"></i>暂无相关征集活动</div>';
+    return;
+  }
+
+  document.getElementById('collectionList').innerHTML = filtered.map(function(item) {
+    var statusClass = item.status === '进行中' ? 'tag-green' : item.status === '未开始' ? 'tag-gray' : 'tag-gray';
+    var typeClass = item.type === '问卷投票' ? 'tag-purple' : 'tag-blue';
+    var canClick = item.status === '进行中';
+    var endDate = new Date(item.endTime);
+    var daysLeft = Math.ceil((endDate - new Date()) / (1000 * 60 * 60 * 24));
+
+    return '<div class="card" onclick="' + (canClick ? 'location.href=\'detail.html?id=' + item.id + '\'' : '') + '" style="' + (!canClick ? 'opacity:0.6;cursor:default;' : '') + '">'
+      + '<div class="flex items-start justify-between mb-2">'
+        + '<div class="card-title">' + item.title + '</div>'
+        + '<div class="flex gap-2">'
+          + '<span class="tag ' + typeClass + '">' + item.type + '</span>'
+          + '<span class="tag ' + statusClass + '">' + item.status + '</span>'
+        + '</div>'
+      + '</div>'
+      + '<div class="card-desc">' + item.desc + '</div>'
+      + '<div class="card-meta">'
+        + '<span><i class="fa-solid fa-users mr-1"></i>' + item.count + ' 人参与</span>'
+        + (canClick ? '<span><i class="fa-solid fa-clock mr-1"></i>剩余 ' + daysLeft + ' 天</span>' : '')
+        + (item.status === '已结束' ? '<span style="color:var(--ant-text-tertiary);">已结束</span>' : '')
+        + (item.status === '未开始' ? '<span style="color:var(--ant-text-tertiary);">即将开始</span>' : '')
+      + '</div>'
+    + '</div>';
+  }).join('');
+}
+
+function filterByType(btn, type) {
+  document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  currentFilter = type;
+  renderList(type, document.getElementById('searchInput').value.trim());
+}
+
+function handleSearch() {
+  renderList(currentFilter, document.getElementById('searchInput').value.trim());
+}
+
+renderList('', '');
+</script>
+
+</body>
+</html>

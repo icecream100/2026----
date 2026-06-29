@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新增专题 - 雄安二期</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">雄安二期首页重构</span>
+    <div class="spacer"></div>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
+      <span style="font-size:13px;">管理员</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">内容管理</div>
+      <div class="menu-item" onclick="location.href='../admin-opinion/list.html'"><i class="fa-solid fa-comments"></i>意见征集</div>
+      <div class="menu-item active" onclick="location.href='list.html'"><i class="fa-solid fa-layer-group"></i>专题专栏</div>
+      <div class="menu-item" onclick="location.href='../admin-department/list.html'"><i class="fa-solid fa-building"></i>处室维护</div>
+      <div class="menu-item" onclick="location.href='../admin-file/list.html'"><i class="fa-solid fa-folder-open"></i>文件管理</div>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span>
+        <a href="list.html">专题专栏管理</a><span>/</span>
+        <span class="current">新增专题</span>
+      </div>
+      <div class="page-title">新增专题</div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body">
+          <div class="form-section">
+            <h4>基本信息</h4>
+            <div class="ant-form-item">
+              <label class="ant-form-label ant-form-label-required">专题名称</label>
+              <input id="formName" class="ant-input" maxlength="50" placeholder="请输入专题名称">
+            </div>
+            <div class="ant-form-item">
+              <label class="ant-form-label">专题图标</label>
+              <div style="border:1px dashed var(--ant-border);border-radius:8px;padding:16px;text-align:center;width:120px;">
+                <i class="fa-solid fa-image" style="font-size:24px;color:var(--ant-primary);"></i>
+                <p class="text-xs text-tertiary mt-1">上传图标</p>
+              </div>
+              <p class="text-xs text-tertiary mt-1">建议 200×200px，支持 jpg/png，最大 2MB。不填使用默认图标。</p>
+            </div>
+            <div class="ant-form-item">
+              <label class="ant-form-label ant-form-label-required">专题简介</label>
+              <textarea id="formDesc" class="ant-input" rows="4" placeholder="介绍专题背景、内容概述"></textarea>
+            </div>
+            <div class="ant-form-item">
+              <label class="ant-form-label">封面图</label>
+              <div style="border:1px dashed var(--ant-border);border-radius:8px;padding:24px;text-align:center;">
+                <i class="fa-solid fa-panorama" style="font-size:32px;color:var(--ant-primary);margin-bottom:8px;"></i>
+                <p class="text-sm text-secondary mb-2">上传封面图</p>
+                <p class="text-xs text-tertiary">建议 1920×400px，用于前台专题页头部</p>
+                <button class="ant-btn ant-btn-sm mt-3" onclick="showToast('请选择图片')">选择图片</button>
+              </div>
+            </div>
+            <div class="flex gap-6">
+              <div class="ant-form-item" style="flex:1">
+                <label class="ant-form-label ant-form-label-required">排序号</label>
+                <input id="formSort" type="number" class="ant-input" value="0" min="0">
+                <p class="text-xs text-tertiary mt-1">数值越大越靠前</p>
+              </div>
+              <div class="ant-form-item" style="flex:1">
+                <label class="ant-form-label ant-form-label-required">状态</label>
+                <label class="ant-checkbox">
+                  <input type="checkbox" id="formStatus" checked>
+                  <span>启用</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-2 mt-6">
+            <button class="ant-btn" onclick="location.href='list.html'">取消</button>
+            <button class="ant-btn ant-btn-primary" onclick="submitForm()">提交</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+function submitForm() {
+  var name = document.getElementById('formName').value.trim();
+  var desc = document.getElementById('formDesc').value.trim();
+  if (!name) { showToast('请输入专题名称'); return; }
+  if (!desc) { showToast('请输入专题简介'); return; }
+  showToast('专题已创建');
+  setTimeout(function() { location.href = 'list.html'; }, 1000);
+}
+function showToast(msg, duration) {
+  duration = duration || 2000;
+  var wrap = document.querySelector('.toast-wrap');
+  if (!wrap) { wrap = document.createElement('div'); wrap.className = 'toast-wrap'; document.body.appendChild(wrap); }
+  var el = document.createElement('div');
+  el.className = 'toast-msg';
+  el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--ant-success);"></i>' + msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(function() { el.classList.add('show'); });
+  setTimeout(function() { el.classList.remove('show'); setTimeout(function() { el.remove(); }, 300); }, duration);
+}
+</script>
+</body>
+</html>

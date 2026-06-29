@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新增处室 - 雄安二期</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">雄安二期首页重构</span>
+    <div class="spacer"></div>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
+      <span style="font-size:13px;">管理员</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">内容管理</div>
+      <div class="menu-item" onclick="location.href='../admin-opinion/list.html'"><i class="fa-solid fa-comments"></i>意见征集</div>
+      <div class="menu-item" onclick="location.href='../admin-topic/list.html'"><i class="fa-solid fa-layer-group"></i>专题专栏</div>
+      <div class="menu-item active" onclick="location.href='list.html'"><i class="fa-solid fa-building"></i>处室维护</div>
+      <div class="menu-item" onclick="location.href='../admin-file/list.html'"><i class="fa-solid fa-folder-open"></i>文件管理</div>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span>
+        <a href="list.html">处室维护</a><span>/</span>
+        <span class="current">新增处室</span>
+      </div>
+      <div class="page-title">新增处室</div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body">
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">处室名称</label>
+            <input id="formName" class="ant-input" maxlength="50" placeholder="请输入处室名称">
+          </div>
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">处室职责</label>
+            <textarea id="formResp" class="ant-input" rows="5" placeholder="说明处室主要职责"></textarea>
+          </div>
+          <div class="flex gap-6">
+            <div class="ant-form-item" style="flex:1">
+              <label class="ant-form-label ant-form-label-required">负责人</label>
+              <input id="formLeader" class="ant-input" maxlength="20" placeholder="请输入负责人姓名">
+            </div>
+            <div class="ant-form-item" style="flex:1">
+              <label class="ant-form-label ant-form-label-required">联系电话</label>
+              <input id="formPhone" class="ant-input" maxlength="30" placeholder="如 0312-1234567">
+            </div>
+          </div>
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">办公地点</label>
+            <input id="formLocation" class="ant-input" maxlength="100" placeholder="请输入办公地点">
+          </div>
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">办公时间</label>
+            <input id="formHours" class="ant-input" maxlength="100" placeholder="如 周一至周五 8:30-12:00，14:00-17:30">
+          </div>
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">排序号</label>
+            <input id="formSort" type="number" class="ant-input" value="0" min="0" style="width:200px">
+            <p class="text-xs text-tertiary mt-1">数值越大越靠前</p>
+          </div>
+
+          <div class="flex justify-end gap-2 mt-6">
+            <button class="ant-btn" onclick="location.href='list.html'">取消</button>
+            <button class="ant-btn ant-btn-primary" onclick="submitForm()">提交</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+function submitForm() {
+  var name = document.getElementById('formName').value.trim();
+  var resp = document.getElementById('formResp').value.trim();
+  var leader = document.getElementById('formLeader').value.trim();
+  var phone = document.getElementById('formPhone').value.trim();
+  var location = document.getElementById('formLocation').value.trim();
+  var hours = document.getElementById('formHours').value.trim();
+  if (!name) { showToast('请输入处室名称'); return; }
+  if (!resp) { showToast('请输入处室职责'); return; }
+  if (!leader) { showToast('请输入负责人'); return; }
+  if (!phone) { showToast('请输入联系电话'); return; }
+  if (!location) { showToast('请输入办公地点'); return; }
+  if (!hours) { showToast('请输入办公时间'); return; }
+  showToast('处室已创建');
+  setTimeout(function() { location.href = 'list.html'; }, 1000);
+}
+function showToast(msg, duration) {
+  duration = duration || 2000;
+  var wrap = document.querySelector('.toast-wrap');
+  if (!wrap) { wrap = document.createElement('div'); wrap.className = 'toast-wrap'; document.body.appendChild(wrap); }
+  var el = document.createElement('div');
+  el.className = 'toast-msg';
+  el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--ant-success);"></i>' + msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(function() { el.classList.add('show'); });
+  setTimeout(function() { el.classList.remove('show'); setTimeout(function() { el.remove(); }, 300); }, duration);
+}
+</script>
+</body>
+</html>

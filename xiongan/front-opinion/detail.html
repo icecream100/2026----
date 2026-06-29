@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>征集详情 - 雄安新区</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>
+    .header { background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%); color: #fff; padding: 32px 0; }
+    .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+    .header .meta { display: flex; gap: 20px; font-size: 13px; opacity: 0.85; }
+    .breadcrumb { padding: 12px 0; font-size: 13px; color: var(--ant-text-tertiary); }
+    .breadcrumb a { color: var(--ant-text-secondary); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--ant-primary); }
+    .card { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px; }
+    .card-header { padding: 16px 20px; border-bottom: 1px solid var(--ant-border); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .card-body { padding: 20px; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .tag-green { background: #f6ffed; color: #52c41a; }
+    .option-item { display: flex; align-items: center; padding: 14px 16px; border: 2px solid var(--ant-border); border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
+    .option-item:hover, .option-item.selected { border-color: var(--ant-primary); background: var(--ant-primary-bg); }
+    .option-radio { width: 18px; height: 18px; border: 2px solid var(--ant-border); border-radius: 50%; margin-right: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .option-item.selected .option-radio { border-color: var(--ant-primary); }
+    .option-item.selected .option-radio::after { content: ''; width: 8px; height: 8px; background: var(--ant-primary); border-radius: 50%; }
+    .success-msg { text-align: center; padding: 40px; }
+    .success-msg i { font-size: 48px; color: var(--ant-success); margin-bottom: 16px; }
+    .success-msg h3 { font-size: 18px; margin-bottom: 8px; }
+    .success-msg p { color: var(--ant-text-secondary); font-size: 14px; margin-bottom: 24px; }
+  </style>
+</head>
+<body style="background:#f5f5f5;min-height:100vh;">
+
+<!-- 头部 -->
+<div class="header">
+  <div class="max-w-3xl mx-auto px-4">
+    <div class="breadcrumb">
+      <a href="list.html"><i class="fa-solid fa-arrow-left mr-1"></i> 返回列表</a>
+    </div>
+    <h1 id="pageTitle">加载中...</h1>
+    <div class="meta" id="pageMeta"></div>
+  </div>
+</div>
+
+<div class="max-w-3xl mx-auto px-4" style="padding:24px 0 48px;">
+
+  <!-- 征集说明 -->
+  <div class="card">
+    <div class="card-header"><i class="fa-solid fa-info-circle" style="color:var(--ant-primary)"></i> 征集说明</div>
+    <div class="card-body" id="collectionDesc" style="font-size:14px;color:var(--ant-text-secondary);line-height:1.8;"></div>
+  </div>
+
+  <!-- 提交表单 -->
+  <div class="card" id="formCard">
+    <div class="card-header"><i class="fa-solid fa-pen" style="color:var(--ant-primary)"></i> <span id="formTitle">提交反馈</span></div>
+    <div class="card-body">
+      <!-- 表单反馈 -->
+      <div id="formMode">
+        <div class="ant-form-item">
+          <label class="ant-form-label ant-form-label-required">反馈标题</label>
+          <input type="text" class="ant-input" id="feedbackTitle" placeholder="简要概括您的建议或意见" maxlength="100">
+        </div>
+        <div class="ant-form-item">
+          <label class="ant-form-label ant-form-label-required">反馈内容</label>
+          <textarea class="ant-input" id="feedbackContent" placeholder="请详细描述您的建议、意见..." rows="5" maxlength="2000"></textarea>
+        </div>
+      </div>
+      <!-- 问卷投票 -->
+      <div id="voteMode" style="display:none;">
+        <div class="ant-form-item">
+          <label class="ant-form-label ant-form-label-required">请选择</label>
+          <div id="voteOptions"></div>
+        </div>
+      </div>
+      <!-- 匿名 -->
+      <div class="ant-form-item">
+        <label class="ant-checkbox">
+          <input type="checkbox" id="anonymousCheck">
+          <span>匿名提交</span>
+        </label>
+      </div>
+      <!-- 按钮 -->
+      <div class="flex justify-center gap-3 mt-6">
+        <button class="ant-btn" onclick="location.href='list.html'">返回</button>
+        <button class="ant-btn ant-btn-primary" onclick="submitForm()">提交</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 成功提示 -->
+  <div class="card" id="successCard" style="display:none;">
+    <div class="success-msg">
+      <i class="fa-solid fa-circle-check"></i>
+      <h3>提交成功！</h3>
+      <p>感谢您的参与</p>
+      <button class="ant-btn ant-btn-primary" onclick="location.href='list.html'">返回列表</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var collections = {
+  1: { id: 1, title: '2026年度政务服务满意度调查', type: '问卷投票', count: 1256, endTime: '2026-06-30', desc: '为持续提升政务服务质量，现面向社会公众开展满意度调查。所有数据仅用于统计分析，请放心填写。', options: ['非常满意', '满意', '一般', '不满意', '非常不满意'] },
+  2: { id: 2, title: '雄安新区公共交通优化建议征集', type: '表单反馈', count: 89, endTime: '2026-07-15', desc: '为进一步优化公共交通网络，提升市民出行便利性，现公开征集优化建议。' },
+  3: { id: 3, title: '智慧停车系统功能需求调查', type: '问卷投票', count: 567, endTime: '2026-07-10', desc: '雄安新区正在规划建设智慧停车系统，现开展功能需求调查。', options: ['车位实时查询', '在线预约车位', '无感支付', '室内导航', '共享车位'] }
+};
+
+var urlParams = new URLSearchParams(window.location.search);
+var id = parseInt(urlParams.get('id')) || 1;
+var data = collections[id] || collections[1];
+var selectedOption = -1;
+
+// 初始化
+document.getElementById('pageTitle').textContent = data.title;
+var endDate = new Date(data.endTime);
+var daysLeft = Math.ceil((endDate - new Date()) / (1000 * 60 * 60 * 24));
+document.getElementById('pageMeta').innerHTML = '<span><i class="fa-solid fa-clock mr-1"></i>剩余 ' + daysLeft + ' 天</span><span><i class="fa-solid fa-users mr-1"></i>' + data.count + ' 人参与</span>';
+document.getElementById('collectionDesc').textContent = data.desc;
+
+if (data.type === '问卷投票') {
+  document.getElementById('formMode').style.display = 'none';
+  document.getElementById('voteMode').style.display = '';
+  document.getElementById('formTitle').textContent = '参与投票';
+  document.getElementById('voteOptions').innerHTML = data.options.map(function(opt, i) {
+    return '<div class="option-item" onclick="selectOpt(' + i + ',this)"><div class="option-radio"></div><span>' + opt + '</span></div>';
+  }).join('');
+} else {
+  document.getElementById('formTitle').textContent = '提交反馈';
+}
+
+function selectOpt(i, el) {
+  selectedOption = i;
+  document.querySelectorAll('.option-item').forEach(function(e) { e.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+
+function submitForm() {
+  if (data.type === '问卷投票') {
+    if (selectedOption < 0) { alert('请选择一个选项'); return; }
+  } else {
+    if (!document.getElementById('feedbackTitle').value.trim()) { alert('请输入标题'); return; }
+    if (!document.getElementById('feedbackContent').value.trim()) { alert('请输入内容'); return; }
+  }
+  document.getElementById('formCard').style.display = 'none';
+  document.getElementById('successCard').style.display = '';
+}
+</script>
+
+</body>
+</html>

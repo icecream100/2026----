@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雄安二期首页重构 — 原型导航</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="proto-ui.css">
+  <link rel="stylesheet" href="tailwind-fallback.css">
+  <style>
+    .page-card { background:#fff; border-radius:8px; border:1px solid var(--ant-border-secondary); box-shadow:var(--shadow-1); transition:all 0.2s; cursor:pointer; text-decoration:none; display:block; color:inherit; }
+    .page-card:hover { border-color:var(--ant-primary); box-shadow:0 4px 12px rgba(22,119,255,0.15); transform:translateY(-1px); }
+    .section-bar { width:4px; height:16px; border-radius:2px; display:inline-block; margin-right:10px; }
+    .legend-tag { border-radius:10px; padding:1px 6px; font-size:11px; font-weight:500; }
+    .tag-new { background:#fff2f0; color:#ff4d4f; border:1px solid #ffccc7; }
+
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <header class="header" style="padding:0 32px;">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <div>
+      <div class="app-name">雄安二期首页重构</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.5);">后台管理原型 · 共 13 个页面 · 2026.06</div>
+    </div>
+    <div class="spacer"></div>
+  </header>
+
+  <main class="p-8 max-w-7xl mx-auto">
+
+    <div class="flex gap-4 mb-8 p-4 bg-white rounded-lg" style="border:1px solid #f0f0f0;">
+      <span class="flex items-center gap-2 text-sm"><span class="legend-tag tag-new">全新</span> 本次新增后台功能</span>
+    </div>
+
+    <!-- 意见征集管理 -->
+    <section class="mb-10">
+      <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+        <span class="section-bar" style="background:#1677ff;"></span>意见征集管理
+        <span class="ml-3 text-xs font-normal text-tertiary">M-01 · 发布征集、查看反馈/投票</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-4">
+        <a href="admin-opinion/list.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:var(--ant-primary-bg);color:var(--ant-primary);">
+                <i class="fa-solid fa-comments"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">后台 - 意见征集列表</div>
+                <div class="text-xs text-tertiary">征集管理 + 反馈查看</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">全新</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-opinion/ · 4 个页面 · 列表/新增/编辑/反馈详情</p>
+        </a>
+        <a href="front-opinion/list.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#e6f4ff;color:#1677ff;">
+                <i class="fa-solid fa-globe"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">前台 - 意见征集列表</div>
+                <div class="text-xs text-tertiary">公众参与入口</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">全新</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">front-opinion/ · 2 个页面 · 列表/详情提交</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- 专题专栏管理 -->
+    <section class="mb-10">
+      <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+        <span class="section-bar" style="background:#52c41a;"></span>专题专栏管理
+        <span class="ml-3 text-xs font-normal text-tertiary">M-02 · 创建专题、关联信息公开、前台聚合展示</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-4">
+        <a href="admin-topic/list.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#f6ffed;color:var(--ant-success);">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">专题列表</div>
+                <div class="text-xs text-tertiary">专题管理 + 关联信息公开</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">全新</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-topic/ · 2 个页面 · 列表/新增编辑</p>
+        </a>
+        <a href="front-topic/detail.html?id=1" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#e6f4ff;color:#1677ff;">
+                <i class="fa-solid fa-globe"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">前台 - 专题详情</div>
+                <div class="text-xs text-tertiary">专题聚合展示</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">全新</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">front-topic/ · 1 个页面 · 封面+关联信息公开列表</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- 内设处室及联系方式维护 -->
+    <section class="mb-10">
+      <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+        <span class="section-bar" style="background:#faad14;"></span>内设处室及联系方式维护
+        <span class="ml-3 text-xs font-normal text-tertiary">M-03 · 维护处室名称、职责、负责人、联系方式</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-4">
+        <a href="admin-department/list.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff7e6;color:var(--ant-warning);">
+                <i class="fa-solid fa-building"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">处室列表</div>
+                <div class="text-xs text-terti6ry">处室信息维护</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">全新</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-department/ · 2 个页面 · 列表/新增编辑</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- 文件管理 -->
+    <section class="mb-10">
+      <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+        <span class="section-bar" style="background:#ff4d4f;"></span>文件管理
+        <span class="ml-3 text-xs font-normal text-tertiary">M-04 · 上传/管理不限类型文件</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-4">
+        <a href="admin-file/list.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff1f0;color:var(--ant-error);">
+                <i class="fa-solid fa-folder-open"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">文件列表</div>
+                <div class="text-xs text-tertiary">文件上传与管理</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">全新</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-file/ · 1 个页面 · 列表（含上传弹窗）</p>
+        </a>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

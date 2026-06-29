@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>编辑征集 - 雄安二期</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">雄安二期首页重构</span>
+    <div class="spacer"></div>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
+      <span style="font-size:13px;">管理员</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">内容管理</div>
+      <div class="menu-item active" onclick="location.href='list.html'"><i class="fa-solid fa-comments"></i>意见征集</div>
+      <div class="menu-item" onclick="location.href='../admin-topic/list.html'"><i class="fa-solid fa-layer-group"></i>专题专栏</div>
+      <div class="menu-item" onclick="location.href='../admin-department/list.html'"><i class="fa-solid fa-building"></i>处室维护</div>
+      <div class="menu-item" onclick="location.href='../admin-file/list.html'"><i class="fa-solid fa-folder-open"></i>文件管理</div>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span>
+        <a href="list.html">意见征集管理</a><span>/</span>
+        <span class="current">编辑征集</span>
+      </div>
+      <div class="page-title">编辑征集</div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body">
+          <div class="form-section">
+            <h4>基本信息</h4>
+            <div class="ant-form-item">
+              <label class="ant-form-label ant-form-label-required">征集标题</label>
+              <input id="formTitle" class="ant-input" maxlength="100" value="新区绿化方案公众意见征集">
+            </div>
+            <div class="ant-form-item">
+              <label class="ant-form-label ant-form-label-required">征集类型</label>
+              <div class="ant-radio-group">
+                <label class="ant-radio">
+                  <input type="radio" name="formType" value="form" checked disabled>
+                  <span>表单反馈</span>
+                </label>
+                <label class="ant-radio">
+                  <input type="radio" name="formType" value="survey" disabled>
+                  <span>问卷投票</span>
+                </label>
+              </div>
+              <p class="text-xs text-tertiary mt-1">征集类型创建后不可修改</p>
+            </div>
+            <div class="ant-form-item">
+              <label class="ant-form-label ant-form-label-required">征集说明</label>
+              <textarea id="formDesc" class="ant-input" rows="4">为提升新区绿化品质，现面向公众征集绿化方案建议，包括但不限于树种选择、绿化带设计、口袋公园布局等方面。</textarea>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="form-section">
+            <h4>时间设置</h4>
+            <div class="flex gap-6">
+              <div class="ant-form-item" style="flex:1">
+                <label class="ant-form-label ant-form-label-required">开始时间</label>
+                <input id="formStart" type="datetime-local" class="ant-input" value="2026-07-01T00:00">
+              </div>
+              <div class="ant-form-item" style="flex:1">
+                <label class="ant-form-label ant-form-label-required">结束时间</label>
+                <input id="formEnd" type="datetime-local" class="ant-input" value="2026-07-31T23:59">
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-2 mt-6">
+            <button class="ant-btn" onclick="location.href='list.html'">取消</button>
+            <button class="ant-btn ant-btn-primary" onclick="submitForm()">保存</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+function submitForm() {
+  var title = document.getElementById('formTitle').value.trim();
+  if (!title) { showToast('请输入征集标题'); return; }
+  showToast('已保存');
+  setTimeout(function() { location.href = 'list.html'; }, 1000);
+}
+function showToast(msg, duration) {
+  duration = duration || 2000;
+  var wrap = document.querySelector('.toast-wrap');
+  if (!wrap) { wrap = document.createElement('div'); wrap.className = 'toast-wrap'; document.body.appendChild(wrap); }
+  var el = document.createElement('div');
+  el.className = 'toast-msg';
+  el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--ant-success);"></i>' + msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(function() { el.classList.add('show'); });
+  setTimeout(function() { el.classList.remove('show'); setTimeout(function() { el.remove(); }, 300); }, duration);
+}
+</script>
+</body>
+</html>

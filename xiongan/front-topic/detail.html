@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>专题详情 - 雄安新区</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>
+    /* ===== 政务门户导航 ===== */
+    .portal-topbar { background:#1a3a6b; height:32px; display:flex; align-items:center; padding:0 40px; font-size:12px; color:rgba(255,255,255,0.75); }
+    .portal-topbar .topbar-right { margin-left:auto; color:rgba(255,255,255,0.85); cursor:pointer; }
+    .portal-topbar .topbar-right:hover { color:#fff; }
+    .portal-logobar { background:#fff; padding:14px 40px; display:flex; align-items:center; gap:16px; border-bottom:1px solid #e8edf5; }
+    .portal-logo-icon { width:56px; height:56px; flex-shrink:0; }
+    .portal-brand { flex:1; }
+    .portal-brand-name { font-size:26px; font-weight:700; color:#1a3a6b; letter-spacing:1px; line-height:1.2; }
+    .portal-brand-en { font-size:11px; color:#5a7aaa; letter-spacing:1.5px; margin-top:2px; }
+    .portal-search-wrap { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+    .portal-search-box { display:flex; align-items:center; border:1px solid #c8d4e8; border-radius:4px; overflow:hidden; height:36px; }
+    .portal-search-scope { padding:0 12px; background:#f0f4fa; height:100%; border-right:1px solid #c8d4e8; display:flex; align-items:center; font-size:13px; color:#1a3a6b; gap:4px; cursor:pointer; white-space:nowrap; }
+    .portal-search-scope .arrow { font-size:10px; color:#8aa0c0; }
+    .portal-search-input { border:none; outline:none; padding:0 10px; font-size:13px; color:#333; width:200px; background:#fff; }
+    .portal-search-input::placeholder { color:#b0bdd0; }
+    .portal-search-btn { width:40px; height:100%; background:#1a3a6b; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; }
+    .portal-search-btn:hover { background:#2550a0; }
+    .portal-hot-search { font-size:12px; color:#7a90b0; display:flex; align-items:center; gap:6px; }
+    .portal-hot-search span { color:#5a7aaa; }
+    .portal-hot-tag { color:#1a6abf; cursor:pointer; text-decoration:none; }
+    .portal-hot-tag:hover { color:#c8a44a; }
+    .portal-navbar { background:#1e3c6e; height:48px; display:flex; align-items:stretch; padding:0 40px; }
+    .portal-nav-item { display:flex; align-items:center; padding:0 28px; font-size:15px; color:rgba(255,255,255,0.85); cursor:pointer; text-decoration:none; white-space:nowrap; }
+    .portal-nav-item:hover { background:rgba(255,255,255,0.1); color:#fff; }
+    .portal-nav-item.active { background:#c8a44a; color:#fff; font-weight:600; }
+
+    /* 专题头部：封面图 + 名称 + 简介 */
+    .topic-hero { position: relative; height: 240px; border-radius: 0 0 12px 12px; overflow: hidden; }
+    .topic-hero .cover { position: absolute; inset: 0; background-size: cover; background-position: center; }
+    .topic-hero .mask { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.65) 100%); }
+    .topic-hero .hero-content { position: absolute; left: 0; right: 0; bottom: 0; padding: 28px; color: #fff; }
+    .topic-hero h1 { font-size: 28px; font-weight: 600; margin-bottom: 10px; }
+    .topic-hero .topic-desc { font-size: 14px; line-height: 1.7; opacity: 0.92; max-width: 760px; }
+    .crumb { background:#fff; padding:12px 20px; border-radius:8px; margin-bottom:16px; font-size:13px; color:var(--ant-text-secondary); }
+    .crumb a { color:var(--ant-primary); text-decoration:none; }
+    .crumb a:hover { text-decoration:underline; }
+    .list-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .list-head .title { font-size:16px; font-weight:600; color:var(--ant-text); }
+    .list-head .title .bar { display:inline-block; width:4px; height:16px; border-radius:2px; background:var(--ant-primary); margin-right:8px; vertical-align:-2px; }
+    .info-item { background:#fff; border-radius:8px; padding:18px 20px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,0.06); cursor:pointer; transition:all 0.2s; border:1px solid transparent; }
+    .info-item:hover { box-shadow:0 4px 12px rgba(0,0,0,0.1); border-color:var(--ant-primary); }
+    .info-title { font-size:16px; font-weight:600; color:var(--ant-text); margin-bottom:8px; }
+    .info-summary { font-size:13px; color:var(--ant-text-secondary); line-height:1.6; margin-bottom:12px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .info-meta { display:flex; gap:18px; font-size:12px; color:var(--ant-text-tertiary); }
+    .pagination { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:20px; }
+    .page-btn { min-width:32px; height:32px; padding:0 8px; border:1px solid var(--ant-border); border-radius:4px; background:#fff; color:var(--ant-text-secondary); cursor:pointer; font-size:13px; }
+    .page-btn:hover:not(:disabled) { border-color:var(--ant-primary); color:var(--ant-primary); }
+    .page-btn.active { border-color:var(--ant-primary); background:var(--ant-primary); color:#fff; }
+    .page-btn:disabled { opacity:0.4; cursor:not-allowed; }
+    .empty { text-align:center; padding:48px; color:var(--ant-text-tertiary); background:#fff; border-radius:8px; }
+  </style>
+</head>
+<body style="background:#f5f5f5;min-height:100vh;">
+
+<!-- 政务门户导航 -->
+<div class="portal-topbar">
+  <span>欢迎访问雄安新区数字建设管理平台！今日是<span id="topbar-date"></span> 天气：多云 17°C</span>
+  <span class="topbar-right"><i class="fa-regular fa-user" style="margin-right:4px;"></i>用户登录</span>
+</div>
+<div class="portal-logobar">
+  <div class="portal-logo-icon">
+    <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="28" cy="28" r="28" fill="#1a3a6b"/>
+      <path d="M28 10 C20 18, 12 22, 12 30 C12 38, 19 44, 28 44 C37 44, 44 38, 44 30 C44 22, 36 18, 28 10Z" fill="none" stroke="#4a90d9" stroke-width="1.5"/>
+      <path d="M28 10 L28 44" stroke="#4a90d9" stroke-width="1.5"/>
+      <path d="M14 26 C18 24, 22 20, 28 18 C34 20, 38 24, 42 26" stroke="#6ab0f0" stroke-width="1.5" fill="none"/>
+      <path d="M16 32 C20 30, 24 28, 28 26 C32 28, 36 30, 40 32" stroke="#6ab0f0" stroke-width="1.2" fill="none"/>
+      <circle cx="28" cy="28" r="3" fill="#c8a44a"/>
+      <line x1="28" y1="18" x2="28" y2="22" stroke="#c8a44a" stroke-width="1.5"/>
+      <line x1="28" y1="34" x2="28" y2="38" stroke="#c8a44a" stroke-width="1.5"/>
+      <line x1="18" y1="28" x2="22" y2="28" stroke="#c8a44a" stroke-width="1.5"/>
+      <line x1="34" y1="28" x2="38" y2="28" stroke="#c8a44a" stroke-width="1.5"/>
+    </svg>
+  </div>
+  <div class="portal-brand">
+    <div class="portal-brand-name">雄安新区数字建设管理平台</div>
+    <div class="portal-brand-en">XIONG'AN NEW AREA DIGITAL CONSTRUCTION MANAGEMENT PLATFORM</div>
+  </div>
+  <div class="portal-search-wrap">
+    <div class="portal-search-box">
+      <div class="portal-search-scope">本站查询 <span class="arrow"><i class="fa-solid fa-chevron-down"></i></span></div>
+      <input class="portal-search-input" type="text" placeholder="请输入关键字">
+      <button class="portal-search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+    <div class="portal-hot-search">
+      <span>热门搜索：</span>
+      <a class="portal-hot-tag" href="#">实名制接口规范</a>
+      <a class="portal-hot-tag" href="#">平台使用手册</a>
+      <a class="portal-hot-tag" href="#">企业资质</a>
+    </div>
+  </div>
+</div>
+<nav class="portal-navbar">
+  <a class="portal-nav-item" href="../index.html">首页</a>
+  <a class="portal-nav-item" href="#">政务公开</a>
+  <a class="portal-nav-item" href="#">政务服务</a>
+  <a class="portal-nav-item" href="#">政民互动</a>
+  <a class="portal-nav-item active" href="#">专题专栏</a>
+</nav>
+
+<!-- 专题头部 -->
+<div class="topic-hero" id="topicHero">
+  <div class="cover" id="topicCover"></div>
+  <div class="mask"></div>
+  <div class="hero-content max-w-4xl mx-auto" style="left:50%;transform:translateX(-50%);width:100%;padding-left:16px;padding-right:16px;">
+    <h1 id="topicName">专题名称</h1>
+    <div class="topic-desc" id="topicDesc">专题简介</div>
+  </div>
+</div>
+
+<div class="max-w-4xl mx-auto px-4" style="padding-top:20px;padding-bottom:48px;">
+
+  <!-- 面包屑 -->
+  <div class="crumb">
+    <a href="../index.html">首页</a> <span>/</span>
+    <a href="#" onclick="history.back();return false;">专题专栏</a> <span>/</span>
+    <span id="crumbName">专题详情</span>
+  </div>
+
+  <!-- 信息公开列表 -->
+  <div class="list-head">
+    <div class="title"><span class="bar"></span>信息公开</div>
+    <div class="text-sm text-tertiary" id="totalInfo">共 0 条</div>
+  </div>
+  <div id="infoList"></div>
+  <div class="pagination" id="pagination"></div>
+
+</div>
+
+<script>
+// 动态填充日期
+(function() {
+  var d = new Date();
+  var weeks = ['日','一','二','三','四','五','六'];
+  var str = (d.getFullYear()) + '年' +
+            String(d.getMonth()+1).padStart(2,'0') + '月' +
+            String(d.getDate()).padStart(2,'0') + '日' +
+            ' 周' + weeks[d.getDay()];
+  document.getElementById('topbar-date').textContent = str;
+})();
+
+// 专题基础信息（与后台 admin-topic 数据对应）
+const topics = {
+  1: { name: '雄安新区建设成就', desc: '集中展示雄安新区设立以来在城市建设、基础设施、产业发展等领域取得的重大成就与里程碑事件。', cover: 'linear-gradient(135deg,#1677ff 0%,#0958d9 100%)' },
+  2: { name: '民生保障政策专题', desc: '汇聚教育、医疗、养老、住房等民生领域的最新政策文件与实施方案，方便公众一站式查阅。', cover: 'linear-gradient(135deg,#eb2f96 0%,#c41d7f 100%)' },
+  3: { name: '营商环境优化', desc: '聚焦企业开办、政务服务、行政审批等营商环境优化举措，助力市场主体高效办事。', cover: 'linear-gradient(135deg,#fa8c16 0%,#d46b08 100%)' },
+  5: { name: '智慧城市建设', desc: '展示雄安新区智慧交通、智慧政务、数字孪生城市等智慧城市建设的规划与进展。', cover: 'linear-gradient(135deg,#13c2c2 0%,#08979c 100%)' }
+};
+
+// 各专题关联的信息公开（已关联且已发布，按发布时间倒序）
+const topicInfos = {
+  1: [
+    { title: '雄安新区2026年重点项目建设进展通报', org: '雄安新区管委会', date: '2026-05-15', summary: '截至2026年5月，新区在建重点项目共计128个，累计完成投资超3000亿元，启动区基础设施框架基本形成。' },
+    { title: '新区智慧交通系统建设规划公示', org: '新区交通管理局', date: '2026-06-01', summary: '规划构建以轨道交通为骨干、常规公交为主体的绿色出行体系，公共交通出行比例目标达到80%。' },
+    { title: '雄安新区启动区城市风貌设计导则发布', org: '新区规划建设局', date: '2026-04-28', summary: '导则明确启动区建筑高度、色彩、风格等管控要求，塑造中西合璧、以中为主的城市风貌。' },
+    { title: '新区地下管廊一期工程顺利贯通', org: '新区建设投资集团', date: '2026-04-12', summary: '一期综合管廊全长约30公里，集成给水、电力、通信等多种市政管线，提升城市运行安全韧性。' }
+  ],
+  2: [
+    { title: '雄安新区基本医疗保险实施办法（2026版）', org: '新区社会保障局', date: '2026-06-10', summary: '统一城乡居民医保待遇标准，扩大门诊慢特病保障范围，新增多个高值药品纳入报销目录。' },
+    { title: '关于推进普惠性养老服务发展的实施意见', org: '新区民政局', date: '2026-05-25', summary: '到2027年实现街道综合养老服务中心全覆盖，建设一批普惠性养老床位，支持社区居家养老。' },
+    { title: '新区义务教育优质均衡发展三年行动计划', org: '新区教育局', date: '2026-05-18', summary: '通过名校办分校、教师轮岗交流等举措，推动优质教育资源向新建片区均衡布局。' },
+    { title: '保障性租赁住房申请指南（2026年度）', org: '新区住房保障中心', date: '2026-04-30', summary: '面向新就业大学生、外来务工人员等群体，明确申请条件、租金标准与办理流程。' }
+  ],
+  3: [
+    { title: '关于优化营商环境的若干措施', org: '新区营商环境建设局', date: '2026-06-05', summary: '推出企业开办全程网办、涉企事项一窗受理等30条举措，企业开办时间压缩至0.5个工作日。' },
+    { title: '新区政务服务"最多跑一次"改革实施方案', org: '新区政务服务中心', date: '2026-05-20', summary: '梳理高频政务服务事项清单，推动线上线下融合办理，实现群众和企业办事少跑腿。' },
+    { title: '雄安新区市场主体登记便利化改革通知', org: '新区市场监督管理局', date: '2026-04-22', summary: '推行经营范围规范化登记、住所标准化申报，提升市场主体登记便利度。' }
+  ],
+  5: [
+    { title: '新区智慧交通系统建设规划公示', org: '新区交通管理局', date: '2026-06-01', summary: '依托城市信息模型（CIM）平台，打造车路协同、智能信号控制的智慧交通体系。' },
+    { title: '雄安新区数字孪生城市建设白皮书', org: '新区数字城市建设局', date: '2026-05-28', summary: '同步建设数字城市与现实城市，实现物理空间与数字空间映射，支撑城市智能化治理。' },
+    { title: '新区"一网通办"政务服务平台升级公告', org: '新区政务服务中心', date: '2026-05-08', summary: '平台新增智能客服、电子证照、跨区域通办等功能，政务服务事项网办率提升至95%以上。' }
+  ]
+};
+
+const PAGE_SIZE = 15;
+let currentPage = 1;
+let curTopicId = 1;
+
+function getQueryId() {
+  var m = location.search.match(/[?&]id=(\d+)/);
+  return m ? parseInt(m[1], 10) : 1;
+}
+
+function renderTopic() {
+  curTopicId = getQueryId();
+  var topic = topics[curTopicId] || topics[1];
+  document.getElementById('topicName').textContent = topic.name;
+  document.getElementById('topicDesc').textContent = topic.desc;
+  document.getElementById('crumbName').textContent = topic.name;
+  document.title = topic.name + ' - 雄安新区';
+  document.getElementById('topicCover').style.background = topic.cover;
+}
+
+function renderList() {
+  var infos = topicInfos[curTopicId] || [];
+  document.getElementById('totalInfo').textContent = '共 ' + infos.length + ' 条';
+
+  if (infos.length === 0) {
+    document.getElementById('infoList').innerHTML = '<div class="empty"><i class="fa-solid fa-inbox" style="font-size:32px;margin-bottom:12px;display:block;"></i>该专题暂无信息公开内容</div>';
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  var totalPages = Math.ceil(infos.length / PAGE_SIZE);
+  if (currentPage > totalPages) currentPage = 1;
+  var start = (currentPage - 1) * PAGE_SIZE;
+  var pageData = infos.slice(start, start + PAGE_SIZE);
+
+  document.getElementById('infoList').innerHTML = pageData.map(function(item) {
+    return '<div class="info-item" onclick="showToast(\'打开信息公开详情（演示）\')">'
+      + '<div class="info-title">' + item.title + '</div>'
+      + '<div class="info-summary">' + item.summary + '</div>'
+      + '<div class="info-meta">'
+        + '<span><i class="fa-solid fa-building-columns mr-1"></i>' + item.org + '</span>'
+        + '<span><i class="fa-solid fa-calendar-day mr-1"></i>' + item.date + '</span>'
+      + '</div>'
+    + '</div>';
+  }).join('');
+
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+  if (totalPages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+  var html = '<button class="page-btn" ' + (currentPage === 1 ? 'disabled' : '') + ' onclick="goPage(' + (currentPage - 1) + ')"><i class="fa-solid fa-angle-left"></i></button>';
+  for (var p = 1; p <= totalPages; p++) {
+    html += '<button class="page-btn ' + (p === currentPage ? 'active' : '') + '" onclick="goPage(' + p + ')">' + p + '</button>';
+  }
+  html += '<button class="page-btn" ' + (currentPage === totalPages ? 'disabled' : '') + ' onclick="goPage(' + (currentPage + 1) + ')"><i class="fa-solid fa-angle-right"></i></button>';
+  document.getElementById('pagination').innerHTML = html;
+}
+
+function goPage(p) {
+  currentPage = p;
+  renderList();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.75);color:#fff;padding:8px 16px;border-radius:6px;font-size:13px;z-index:9999;';
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 1800);
+}
+
+renderTopic();
+renderList();
+</script>
+
+</body>
+</html>
