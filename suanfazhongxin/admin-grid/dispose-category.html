@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>处置类别维护 - 算法中心 + 业务场景功能</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>
+    .field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    @media(max-width:1280px){.field-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">算法中心 + 业务场景功能</span>
+    <div class="spacer"></div>
+    <button class="nav-action" onclick="showToast('通知中心已打开')"><i class="fa-regular fa-bell mr-1"></i>6</button>
+    <button class="nav-action" onclick="showToast('已切换为演示账号')"><i class="fa-regular fa-user mr-1"></i>平台管理员 · alex</button>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">4 大核心模块</div>
+      <div class="menu-item" onclick="location.href='../admin-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>算法中心</div>
+      <div class="menu-item active" onclick="location.href='../admin-grid/list.html'"><i class="fa-solid fa-sitemap"></i>业务管理</div>
+      <div class="menu-item" onclick="location.href='../admin-policy/home.html'"><i class="fa-solid fa-diagram-project"></i>策略管理</div>
+      <div class="menu-item has-sub" onclick="toggleSubMenu(this)"><i class="fa-solid fa-bell"></i>报警中心<i class="fa-solid fa-chevron-right menu-arrow"></i></div>
+      <div class="menu-sub collapsed">
+        <div class="menu-item" onclick="location.href='../admin-dashboard/index.html'">看板</div>
+        <div class="menu-item" onclick="location.href='../handle-flow/confirm.html'" style="position:relative">待确认告警<span class="menu-badge">18</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/handle.html'" style="position:relative">待处理告警<span class="menu-badge">26</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/review.html'" style="position:relative">待审核告警<span class="menu-badge">9</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/list.html'">告警列表</div>
+      </div>
+      <div class="menu-group-title mt-4">原型版本</div>
+      <div class="menu-item" onclick="location.href='../index.html'"><i class="fa-solid fa-compass"></i>返回导航中心</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><a href="list.html">业务管理</a><span>/</span><span class="current">处置类别维护</span></div>
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <div class="page-title">处置类别维护</div>
+        </div>
+        <div class="flex gap-2">
+          <button class="ant-btn" onclick="location.href='workspace.html'"><i class="fa-solid fa-arrow-left"></i> 返回工作台</button>
+          <button class="ant-btn ant-btn-primary" onclick="openCategoryModal()"><i class="fa-solid fa-plus"></i> 新增类别</button>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered mb-4">
+        <div class="ant-card-body">
+          <div class="flex gap-4 flex-wrap">
+            <select id="catStatus" class="ant-select" style="width:140px">
+              <option value="">全部状态</option>
+              <option>启用</option>
+              <option>停用</option>
+            </select>
+            <input id="catName" class="ant-input" style="width:220px" placeholder="类别名称" onkeydown="if(event.key==='Enter')renderCategories(true)">
+            <button class="ant-btn ant-btn-primary" onclick="renderCategories(true)"><i class="fa-solid fa-search"></i> 查询</button>
+            <button class="ant-btn" onclick="resetCategoryFilter()"><i class="fa-solid fa-rotate-right"></i> 重置</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding:0;overflow:auto">
+          <table class="ant-table">
+            <thead>
+              <tr>
+                <th>类别名称</th>
+                <th>类别编码</th>
+                <th>状态</th>
+                <th>引用数</th>
+                <th>描述</th>
+                <th>最近修改时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="categoryBody"></tbody>
+          </table>
+          <div id="emptyState" class="ant-empty hidden">
+            <div class="ant-empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+            <div class="ant-empty-text">未找到符合条件的处置类别，请调整筛选条件</div>
+            <button class="ant-btn" onclick="resetCategoryFilter()">清空筛选</button>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center justify-between mt-4">
+        <span class="text-sm text-secondary" id="pageInfo">共 0 条</span>
+        <div class="ant-pagination">
+          <button class="ant-pagination-item" onclick="changePage(currentPage-1)"><i class="fa-solid fa-chevron-left"></i></button>
+          <span id="pageButtons"></span>
+          <button class="ant-pagination-item" onclick="changePage(currentPage+1)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="ant-modal-mask" id="categoryModal">
+        <div class="ant-modal" style="width:720px">
+          <div class="ant-modal-header">
+            <span id="categoryModalTitle">新增类别</span>
+            <span class="ant-modal-close" onclick="closeModal('categoryModal')"><i class="fa-solid fa-xmark"></i></span>
+          </div>
+          <div class="ant-modal-body">
+            <div class="field-grid">
+              <div class="ant-form-item">
+                <label class="ant-form-label ant-form-label-required">类别名称</label>
+                <input id="formName" class="ant-input" placeholder="如：现场已整改">
+              </div>
+              <div class="ant-form-item">
+                <label class="ant-form-label">类别编码</label>
+                <input id="formCode" class="ant-input readonly" value="保存后后台自动生成" disabled>
+                <div class="text-secondary text-sm mt-2">无需手动输入，后台按业务和类别名称自动生成</div>
+              </div>
+              <div class="ant-form-item">
+                <label class="ant-form-label ant-form-label-required">状态</label>
+                <select id="formStatus" class="ant-select w-full"><option>启用</option><option>停用</option></select>
+              </div>
+              <div class="ant-form-item">
+                <label class="ant-form-label">引用说明</label>
+                <input id="formRef" class="ant-input readonly" value="保存后由系统统计引用数" disabled>
+              </div>
+            </div>
+            <div class="ant-form-item">
+              <label class="ant-form-label">描述</label>
+              <textarea id="formDesc" class="ant-input" rows="4" placeholder="请输入处置类别说明，最多 200 字"></textarea>
+            </div>
+          </div>
+          <div class="ant-modal-footer">
+            <button class="ant-btn" onclick="closeModal('categoryModal')">取消</button>
+            <button class="ant-btn ant-btn-primary" onclick="saveCategory()">保存类别</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ant-modal-mask" id="confirmModal">
+        <div class="ant-modal" style="width:420px">
+          <div class="ant-modal-header"><span>确认操作</span><span class="ant-modal-close" onclick="closeModal('confirmModal')"><i class="fa-solid fa-xmark"></i></span></div>
+          <div class="ant-modal-body"><p id="confirmText">确定执行操作？</p></div>
+          <div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('confirmModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="runConfirm()">确认执行</button></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="toast-wrap"></div>
+<script>
+function toggleSubMenu(el){el.classList.toggle('expanded');var sub=el.nextElementSibling;if(sub&&sub.classList.contains('menu-sub')){sub.classList.toggle('collapsed')}}
+</script>
+
+<script>
+function showToast(msg,duration){duration=duration||2000;var wrap=document.querySelector('.toast-wrap');var el=document.createElement('div');el.className='toast-msg';el.innerHTML='<i class="fa-solid fa-circle-info" style="color:#1677ff"></i>'+msg;wrap.appendChild(el);requestAnimationFrame(function(){el.classList.add('show')});setTimeout(function(){el.classList.remove('show');setTimeout(function(){el.remove()},300)},duration)}
+function openModal(id){document.getElementById(id).classList.add('active')}
+function closeModal(id){document.getElementById(id).classList.remove('active')}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.ant-modal-mask.active').forEach(function(m){m.classList.remove('active')})});
+document.querySelectorAll('.ant-modal-mask').forEach(function(mask){mask.addEventListener('click',function(e){if(e.target===mask)mask.classList.remove('active')})});
+const categories=[
+  {id:1,name:'现场已整改',code:'DISPOSE_FIXED',status:'启用',refCount:36,desc:'现场问题已完成整改，上传整改后照片',updateTime:'今天 09:12'},
+  {id:2,name:'已劝离/警告',code:'DISPOSE_WARNED',status:'启用',refCount:18,desc:'适用于人员违规、占道等轻量处置',updateTime:'昨天 15:30'},
+  {id:3,name:'转交主管部门',code:'DISPOSE_TRANSFER',status:'启用',refCount:9,desc:'超出现场人员权限，转交主管部门处理',updateTime:'昨天 11:20'},
+  {id:4,name:'现场不存在',code:'DISPOSE_NOT_FOUND',status:'启用',refCount:12,desc:'到场核查后未发现告警描述的问题',updateTime:'06-22 10:20'},
+  {id:5,name:'设备误报',code:'DISPOSE_FALSE_ALARM',status:'停用',refCount:42,desc:'历史类别，已被“现场不存在”替代',updateTime:'06-21 17:00'},
+  {id:6,name:'需二次复核',code:'DISPOSE_RECHECK',status:'启用',refCount:0,desc:'处理完成后仍需业务管理员复核',updateTime:'06-20 14:30'}
+];
+let currentPage=1,pageSize=10,filtered=categories,editingId=null,confirmCallback=null;
+function tagStatus(v){return v==='启用'?'ant-tag-green':'ant-tag-gray'}
+function getFilters(){return {status:catStatus.value,name:catName.value.trim()}}
+function renderCategories(tip){const f=getFilters();filtered=categories.filter(c=>(!f.status||c.status===f.status)&&(!f.name||c.name.includes(f.name)));const start=(currentPage-1)*pageSize;const rows=filtered.slice(start,start+pageSize);categoryBody.innerHTML=rows.map(c=>`<tr><td>${c.name}</td><td><code>${c.code}</code></td><td><span class="ant-tag ${tagStatus(c.status)}">${c.status}</span></td><td>${c.refCount}</td><td>${c.desc}</td><td>${c.updateTime}</td><td><div class="action-wrap"><button class="ant-btn ant-btn-text ant-btn-sm" onclick="openCategoryModal(${c.id})">编辑</button><button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleCategory(${c.id})">启停</button><button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="deleteCategory(${c.id})">删除</button></div></td></tr>`).join('');emptyState.classList.toggle('hidden',filtered.length>0);updatePagination();if(tip)showToast('查询完成')}
+function updatePagination(){const max=Math.max(1,Math.ceil(filtered.length/pageSize));currentPage=Math.min(currentPage,max);pageInfo.textContent=`共 ${filtered.length} 条，当前第 ${currentPage}/${max} 页`;let html='';for(let i=1;i<=max;i++)html+=`<button class="ant-pagination-item ${i===currentPage?'active':''}" onclick="changePage(${i})">${i}</button>`;pageButtons.innerHTML=html}
+function changePage(p){const max=Math.max(1,Math.ceil(filtered.length/pageSize));currentPage=Math.min(Math.max(1,p),max);renderCategories()}
+function resetCategoryFilter(){catStatus.value='';catName.value='';currentPage=1;renderCategories();showToast('筛选条件已重置')}
+function openCategoryModal(id){editingId=id||null;categoryModalTitle.textContent=id?'编辑类别':'新增类别';const c=categories.find(x=>x.id===id);formName.value=c?c.name:'';formCode.value=c?c.code:'保存后后台自动生成';formCode.disabled=true;formCode.classList.add('readonly');formStatus.value=c?c.status:'启用';formDesc.value=c?c.desc:'';openModal('categoryModal')}
+function saveCategory(){if(!formName.value.trim()){showToast('保存失败：类别名称不能为空');return}showToast(editingId?'处置类别已保存':'处置类别已新增，类别编码由后台自动生成');closeModal('categoryModal');renderCategories()}
+function askConfirm(text,cb){confirmCallback=cb;confirmText.textContent=text;openModal('confirmModal')}
+function runConfirm(){if(confirmCallback)confirmCallback();closeModal('confirmModal')}
+function toggleCategory(id){const c=categories.find(x=>x.id===id);askConfirm(`${c.status==='启用'?'停用':'启用'}处置类别「${c.name}」？`,function(){c.status=c.status==='启用'?'停用':'启用';renderCategories();showToast('处置类别状态已更新')})}
+function deleteCategory(id){const c=categories.find(x=>x.id===id);askConfirm(`删除处置类别「${c.name}」？`,function(){if(c.refCount>0){showToast('删除失败：该类别已被引用，只能停用');return}showToast('处置类别已删除')})}
+renderCategories();
+</script>
+</body>
+</html>

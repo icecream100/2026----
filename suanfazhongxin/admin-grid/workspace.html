@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>业务工作台 - 算法中心 + 业务场景功能</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>
+    .business-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}
+    .summary-item.clickable{cursor:pointer;transition:all .2s}
+    .summary-item.clickable:hover{border-color:var(--ant-primary);box-shadow:0 2px 8px rgba(22,119,255,.15)}
+    .summary-item{background:#fff;border:1px solid var(--ant-border-secondary);border-radius:8px;padding:12px 14px;box-shadow:var(--shadow-1)}
+    .health-row{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--ant-border-secondary)}
+    .health-label{display:flex;align-items:center;gap:10px}
+    .health-name{min-width:72px;font-weight:500}
+    /* 健康度面板 V1.6.4 重做：单行卡片 */
+    .health-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:12px 16px}
+    @media(max-width:1280px){.health-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:768px){.health-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:480px){.health-grid{grid-template-columns:1fr}}
+    .health-item{background:#fff;border:1px solid var(--ant-border-secondary);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:10px;transition:border-color .2s,box-shadow .2s;cursor:pointer;position:relative;overflow:hidden}
+    .health-item:hover{border-color:#1677ff;box-shadow:0 2px 8px rgba(22,119,255,.12)}
+    .health-item.warning{border-left:3px solid #faad14;background:linear-gradient(90deg,#fffbeb,#fff);padding-left:8px}
+    .health-icon-wrap{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+    .health-icon-wrap.ok{background:#f6ffed;color:#52c41a}
+    .health-icon-wrap.warn{background:#fffbe6;color:#faad14}
+    .health-info{flex:1;min-width:0}
+    .health-info-title{font-size:13px;font-weight:600;line-height:1.2}
+    .health-info-desc{font-size:11px;color:var(--ant-text-secondary);line-height:1.3;margin-top:1px}
+    .health-action{font-size:11px;color:#1677ff;font-weight:500;white-space:nowrap;opacity:0;transition:opacity .2s;flex-shrink:0}
+    .health-item:hover .health-action,.health-item.warning .health-action{opacity:1}
+    .tree-box{border:1px solid var(--ant-border-secondary);border-radius:8px;padding:12px;background:#fff}
+    .tree-node-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:6px;cursor:pointer}
+    .tree-node-row:hover,.tree-node-row.active{background:var(--ant-primary-bg);color:var(--ant-primary)}
+    .device-thumb{width:44px;height:32px;border-radius:6px;background:linear-gradient(135deg,#172554,#0f766e);color:#fff;display:flex;align-items:center;justify-content:center}
+    .field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .tab-panel.hidden{display:none}
+    .associate-tree{max-height:420px;overflow:auto}
+    .associate-list{min-height:360px}
+    @media(max-width:1280px){.grid.grid-cols-12{grid-template-columns:1fr}.col-span-4,.col-span-8{grid-column:span 1/span 1}.business-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.field-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">算法中心 + 业务场景功能</span>
+    <div class="spacer"></div>
+    <button class="nav-action" onclick="showToast('通知中心已打开')"><i class="fa-regular fa-bell mr-1"></i>6</button>
+    <button class="nav-action" onclick="showToast('已切换为演示账号')"><i class="fa-regular fa-user mr-1"></i>平台管理员 · alex</button>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">4 大核心模块</div>
+      <div class="menu-item" onclick="location.href='../admin-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>算法中心</div>
+      <div class="menu-item active" onclick="location.href='../admin-grid/list.html'"><i class="fa-solid fa-sitemap"></i>业务管理</div>
+      <div class="menu-item" onclick="location.href='../admin-policy/home.html'"><i class="fa-solid fa-diagram-project"></i>策略管理</div>
+      <div class="menu-item has-sub" onclick="toggleSubMenu(this)"><i class="fa-solid fa-bell"></i>报警中心<i class="fa-solid fa-chevron-right menu-arrow"></i></div>
+      <div class="menu-sub collapsed">
+        <div class="menu-item" onclick="location.href='../admin-dashboard/index.html'">看板</div>
+        <div class="menu-item" onclick="location.href='../handle-flow/confirm.html'" style="position:relative">待确认告警<span class="menu-badge">18</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/handle.html'" style="position:relative">待处理告警<span class="menu-badge">26</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/review.html'" style="position:relative">待审核告警<span class="menu-badge">9</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/list.html'">告警列表</div>
+      </div>
+      <div class="menu-group-title mt-4">原型版本</div>
+      <div class="menu-item" onclick="location.href='../index.html'"><i class="fa-solid fa-compass"></i>返回导航中心</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><a href="list.html">业务管理</a><span>/</span><span class="current">明厨亮灶</span></div>
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <div class="page-title">明厨亮灶 · 业务工作台</div>
+        </div>
+        <button class="ant-btn" onclick="location.href='list.html'"><i class="fa-solid fa-arrow-left"></i> 返回业务列表</button>
+      </div>
+
+      <div class="ant-card ant-card-bordered mb-4" id="healthBoard">
+        <div class="ant-card-head">
+          <div class="flex items-center gap-3">
+            <div class="ant-card-head-title">业务"明厨亮灶"配置健康度</div>
+            <!-- 进度条 -->
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:120px;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden">
+                <div style="width:83.33%;height:100%;background:linear-gradient(90deg,#52c41a,#73d13d);border-radius:3px"></div>
+              </div>
+              <span class="text-sm"><strong style="color:#52c41a;font-size:15px">5</strong><span class="text-secondary"> /6 项通过</span></span>
+            </div>
+          </div>
+          <button class="ant-btn ant-btn-text ant-btn-sm" id="healthToggleBtn" onclick="toggleHealth()">收起 <i class="fa-solid fa-chevron-up"></i></button>
+        </div>
+        <div class="ant-card-body" style="padding:0">
+          <div id="healthExpanded">
+            <div class="health-grid">
+              <div class="health-item" onclick="switchTab('device')">
+                <div class="health-icon-wrap ok"><i class="fa-solid fa-sitemap"></i></div>
+                <div class="health-info"><div class="health-info-title">设备树</div><div class="health-info-desc">2 级 4 节点</div></div>
+                <div class="health-action">→</div>
+              </div>
+              <div class="health-item" onclick="switchTab('device')">
+                <div class="health-icon-wrap ok"><i class="fa-solid fa-microchip"></i></div>
+                <div class="health-info"><div class="health-info-title">设备纳管</div><div class="health-info-desc">1,280 台</div></div>
+                <div class="health-action">→</div>
+              </div>
+              <div class="health-item warning" onclick="switchTab('device')">
+                <div class="health-icon-wrap warn"><i class="fa-solid fa-user-gear"></i></div>
+                <div class="health-info"><div class="health-info-title">负责人</div><div class="health-info-desc" style="color:#d48806">2 节点未设置</div></div>
+                <div class="health-action">→</div>
+              </div>
+              <div class="health-item" onclick="switchTab('dispose')">
+                <div class="health-icon-wrap ok"><i class="fa-solid fa-tags"></i></div>
+                <div class="health-info"><div class="health-info-title">处置类别</div><div class="health-info-desc">6 个已启用</div></div>
+                <div class="health-action">→</div>
+              </div>
+              <div class="health-item" onclick="switchTab('notify')">
+                <div class="health-icon-wrap ok"><i class="fa-solid fa-bell"></i></div>
+                <div class="health-info"><div class="health-info-title">通知模板</div><div class="health-info-desc">3 个已启用</div></div>
+                <div class="health-action">→</div>
+              </div>
+              <div class="health-item" onclick="switchTab('algorithm-config')">
+                <div class="health-icon-wrap ok"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <div class="health-info"><div class="health-info-title">算法配置</div><div class="health-info-desc">6 个已关联</div></div>
+                <div class="health-action">→</div>
+              </div>
+            </div>
+          </div>
+          <div id="healthCollapsed" class="hidden" style="padding:14px 20px;display:flex;align-items:center;gap:16px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:80px;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden">
+                <div style="width:83.33%;height:100%;background:#52c41a;border-radius:3px"></div>
+              </div>
+              <span class="text-sm font-semibold" style="color:#52c41a">5/6</span>
+            </div>
+            <div style="display:flex;gap:4px">
+              <span title="设备树：正常" style="width:10px;height:10px;border-radius:50%;background:#52c41a;display:inline-block"></span>
+              <span title="设备：正常" style="width:10px;height:10px;border-radius:50%;background:#52c41a;display:inline-block"></span>
+              <span title="负责人：异常" style="width:10px;height:10px;border-radius:50%;background:#faad14;display:inline-block"></span>
+              <span title="处置类别：正常" style="width:10px;height:10px;border-radius:50%;background:#52c41a;display:inline-block"></span>
+              <span title="通知模板：正常" style="width:10px;height:10px;border-radius:50%;background:#52c41a;display:inline-block"></span>
+              <span title="算法配置：正常" style="width:10px;height:10px;border-radius:50%;background:#52c41a;display:inline-block"></span>
+            </div>
+            <span class="text-secondary text-xs ml-1">1 项需关注</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-bar mb-4">
+        <button class="tab-item active" id="tab-device" onclick="switchTab('device')"><i class="fa-solid fa-network-wired mr-1"></i>设备管理</button>
+        <button class="tab-item" id="tab-dispose" onclick="switchTab('dispose')"><i class="fa-solid fa-tags mr-1"></i>处置类别</button>
+        <button class="tab-item" id="tab-notify" onclick="switchTab('notify')"><i class="fa-solid fa-message mr-1"></i>通知模板</button>
+        <button class="tab-item" id="tab-algorithm-config" onclick="switchTab('algorithm-config')"><i class="fa-solid fa-microchip mr-1"></i>算法配置</button>
+      </div>
+
+      <section class="tab-panel" id="panel-device">
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-4 ant-card ant-card-bordered">
+            <div class="ant-card-head">
+              <div class="ant-card-head-title">设备树</div>
+              <button class="ant-btn ant-btn-sm ant-btn-primary" onclick="openNodeModal()">新增节点</button>
+            </div>
+            <div class="ant-card-body">
+              <div class="flex gap-2 mb-3">
+                <input class="ant-input" placeholder="搜索设备节点" onkeydown="if(event.key==='Enter')showToast('设备节点搜索完成')">
+                <button class="ant-btn" onclick="showToast('已折叠全部节点')">折叠全部</button>
+              </div>
+              <div class="tree-box">
+                <div class="tree-node-row active" onclick="selectNode('西湖区监管一所')">
+                  <span><i class="fa-solid fa-caret-down"></i> 西湖区监管一所</span>
+                  <span><span class="ant-tag ant-tag-blue">1280 台</span><span class="ant-tag ant-tag-green">张明</span></span>
+                </div>
+                <div class="tree-node-row" style="padding-left:28px" onclick="selectNode('片区A')"><span>片区A</span><span><span class="ant-tag ant-tag-blue">420 台</span><span class="ant-tag ant-tag-green">李娜</span></span></div>
+                <div class="tree-node-row" style="padding-left:28px" onclick="selectNode('片区B')"><span>片区B</span><span><span class="ant-tag ant-tag-blue">386 台</span><span class="ant-tag ant-tag-green">王强</span></span></div>
+                <div class="tree-node-row" style="padding-left:28px" onclick="selectNode('片区C')"><span>片区C</span><span><span class="ant-tag ant-tag-orange">0 台</span><span class="ant-tag ant-tag-red">未设置</span></span></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-8 ant-card ant-card-bordered">
+            <div class="ant-card-head">
+              <div class="ant-card-head-title">设备列表</div>
+              <div class="flex gap-2">
+                <button class="ant-btn ant-btn-sm" onclick="openAssociateDeviceModal()">关联设备</button>
+                <button class="ant-btn ant-btn-sm" onclick="showToast('设备列表已刷新')">刷新</button>
+              </div>
+            </div>
+            <div class="ant-card-body" style="padding:0;overflow:auto">
+              <table class="ant-table">
+                <thead><tr><th>设备名称</th><th>设备编码</th><th>设备类型</th><th>在线状态</th><th>负责人</th><th>最近上报</th><th>操作</th></tr></thead>
+                <tbody id="deviceBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-dispose">
+        <div class="flex items-center justify-between mb-4">
+          <div></div>
+          <button class="ant-btn ant-btn-primary" onclick="openCategoryModal()"><i class="fa-solid fa-plus"></i> 新增类别</button>
+        </div>
+        <div class="ant-card ant-card-bordered mb-4">
+          <div class="ant-card-body"><div class="flex gap-4 flex-wrap"><select id="catStatus" class="ant-select"><option value="">全部状态</option><option>启用</option><option>停用</option></select><input id="catName" class="ant-input" style="width:220px" placeholder="类别名称" onkeydown="if(event.key==='Enter')renderCategories(true)"><button class="ant-btn ant-btn-primary" onclick="renderCategories(true)">查询</button><button class="ant-btn" onclick="resetCategoryFilter()">重置</button></div></div>
+        </div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body" style="padding:0;overflow:auto"><table class="ant-table"><thead><tr><th>类别名称</th><th>类别编码</th><th>状态</th><th>引用数</th><th>描述</th><th>最近修改时间</th><th>操作</th></tr></thead><tbody id="categoryBody"></tbody></table><div id="categoryEmpty" class="ant-empty hidden"><div class="ant-empty-icon"><i class="fa-regular fa-folder-open"></i></div><div class="ant-empty-text">未找到符合条件的处置类别，请调整筛选条件</div><button class="ant-btn" onclick="resetCategoryFilter()">清空筛选</button></div></div></div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-notify">
+        <div class="flex items-center justify-between mb-4">
+          <div></div>
+          <button class="ant-btn ant-btn-primary" onclick="openTplModal()"><i class="fa-solid fa-plus"></i> 新增模板</button>
+        </div>
+        <div class="ant-card ant-card-bordered mb-4"><div class="ant-card-body"><div class="flex gap-4 flex-wrap"><select id="tplLevel" class="ant-select"><option value="">全部级别</option><option>紧急</option><option>重要</option><option>一般</option></select><select id="tplChannel" class="ant-select"><option value="">全部渠道</option><option>站内信</option><option>短信</option><option>钉钉</option><option>微信</option></select><input id="tplName" class="ant-input" style="width:220px" placeholder="模板名称" onkeydown="if(event.key==='Enter')renderTpl(true)"><button class="ant-btn ant-btn-primary" onclick="renderTpl(true)">查询</button><button class="ant-btn" onclick="resetTpl()">重置</button></div></div></div>
+        <div class="ant-card ant-card-bordered"><div class="ant-card-body" style="padding:0;overflow:auto"><table class="ant-table"><thead><tr><th>告警级别</th><th>适用渠道</th><th>文案预览</th><th>状态</th><th>最近修改</th><th>操作</th></tr></thead><tbody id="tplBody"></tbody></table></div></div>
+      </section>
+
+      <section class="tab-panel hidden" id="panel-algorithm-config">
+        <!-- V1.6 算法配置改为 iframe 嵌入独立页 algorithm-config.html（消除内联重复实现，统一字段/操作/演示态） -->
+        <iframe src="algorithm-config.html?business_id=biz_001&embedded=1" style="width:100%;height:calc(100vh - 220px);border:0" title="业务算法配置"></iframe>
+      </section>
+
+      <!-- V1.6 算法配置弹窗（关联/编辑级别/查看引用）已随内联实现一并移除，改由 iframe 内 algorithm-config.html 自带 -->
+
+      <div class="ant-modal-mask" id="nodeModal"><div class="ant-modal" style="width:600px"><div class="ant-modal-header"><span id="nodeModalTitle">新增节点</span><span class="ant-modal-close" onclick="closeModal('nodeModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">节点名称</label><input class="ant-input" id="nodeNameInput" placeholder="请输入节点名称"></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">节点编码</label><input class="ant-input" placeholder="DEVICE_NODE_A_001"></div><div class="ant-form-item"><label class="ant-form-label">父节点</label><select class="ant-select w-full"><option>西湖区监管一所</option><option>片区A</option><option>片区B</option></select></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">负责人-用户</label><select class="ant-select w-full" id="nodeOwnerSelect"><option value="">请选择负责人用户</option><option>张明（片区监管员）</option><option>李娜（门店负责人）</option><option>王强（片区监管员）</option><option>赵伟（业务管理员）</option></select></div></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('nodeModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="saveNode()">保存节点</button></div></div></div>
+      <div class="ant-modal-mask" id="deviceModal"><div class="ant-modal" style="width:1080px"><div class="ant-modal-header"><span>关联设备</span><span class="ant-modal-close" onclick="closeModal('deviceModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="grid grid-cols-12 gap-4"><div class="col-span-4"><div class="font-medium mb-3">设备树</div><div class="tree-box"><div class="tree-node-row active" onclick="selectAssociateTree('全部设备')"><span><i class="fa-solid fa-caret-down"></i> 全部设备</span><span><span class="ant-tag ant-tag-blue">1280 台</span></span></div><div class="tree-node-row" style="padding-left:28px" onclick="selectAssociateTree('摄像头')"><span>摄像头</span><span><span class="ant-tag ant-tag-blue">860 台</span></span></div><div class="tree-node-row" style="padding-left:28px" onclick="selectAssociateTree('烟感')"><span>烟感</span><span><span class="ant-tag ant-tag-blue">220 台</span></span></div><div class="tree-node-row" style="padding-left:28px" onclick="selectAssociateTree('门禁')"><span>门禁</span><span><span class="ant-tag ant-tag-blue">200 台</span></span></div></div></div><div class="col-span-8"><div class="flex gap-2 mb-3"><input id="associateDeviceKeyword" class="ant-input" placeholder="搜索设备名称/编码" onkeydown="if(event.key==='Enter')searchAssociateDevices()"><select id="associateOnlineStatus" class="ant-select" style="width:130px"><option value="">全部状态</option><option>在线</option><option>离线</option></select><button class="ant-btn ant-btn-primary" onclick="searchAssociateDevices()">查询</button><button class="ant-btn" onclick="resetAssociateDevices()">重置</button></div><table class="ant-table"><thead><tr><th width="48"><input type="checkbox" onclick="toggleAssociateAll(this)"></th><th>设备名称</th><th>设备编码</th><th>设备类型</th><th>在线状态</th><th>安装位置</th></tr></thead><tbody id="associateDeviceBody"></tbody></table><div class="flex items-center justify-between mt-4"><span class="text-sm text-secondary" id="associatePageInfo">共 0 条</span><div class="ant-pagination"><button class="ant-pagination-item" onclick="changeAssociatePage(associatePage-1)"><i class="fa-solid fa-chevron-left"></i></button><span id="associatePageButtons"></span><button class="ant-pagination-item" onclick="changeAssociatePage(associatePage+1)"><i class="fa-solid fa-chevron-right"></i></button></div></div></div></div></div><div class="ant-modal-footer"><span class="text-secondary text-sm mr-auto" id="associateSelectedInfo">已选择 0 台设备</span><button class="ant-btn" onclick="closeModal('deviceModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="saveAssociateDevices()">确认关联</button></div></div></div>
+      <div class="ant-modal-mask" id="categoryModal"><div class="ant-modal" style="width:720px"><div class="ant-modal-header"><span id="categoryModalTitle">新增类别</span><span class="ant-modal-close" onclick="closeModal('categoryModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="field-grid"><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">类别名称</label><input id="formName" class="ant-input" placeholder="如：现场已整改"></div><div class="ant-form-item"><label class="ant-form-label">类别编码</label><input id="formCode" class="ant-input readonly" value="保存后后台自动生成" disabled><div class="text-secondary text-sm mt-2">无需手动输入，后台按业务和类别名称自动生成</div></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">状态</label><select id="formStatus" class="ant-select w-full"><option>启用</option><option>停用</option></select></div><div class="ant-form-item"><label class="ant-form-label">引用说明</label><input class="ant-input" value="保存后由系统统计引用数" disabled></div></div><div class="ant-form-item"><label class="ant-form-label">描述</label><textarea id="formDesc" class="ant-input" rows="4" placeholder="请输入处置类别说明，最多 200 字"></textarea></div></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('categoryModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="saveCategory()">保存类别</button></div></div></div>
+      <div class="ant-modal-mask" id="tplModal"><div class="ant-modal" style="width:760px"><div class="ant-modal-header"><span id="tplTitle">新增模板</span><span class="ant-modal-close" onclick="closeModal('tplModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="field-grid"><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">模板名称</label><input id="tplFormName" class="ant-input" placeholder="如：紧急告警短信模板"></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">告警级别</label><select id="tplLevelSelect" class="ant-select w-full"><option>紧急</option><option>重要</option><option>一般</option></select><div class="text-secondary text-sm mt-2">每个级别仅维护 1 个模板</div></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">适用渠道</label><div class="flex gap-3 flex-wrap"><label><input type="checkbox" name="tplChannel" value="站内信" checked> 站内信</label><label><input type="checkbox" name="tplChannel" value="短信" checked> 短信</label><label><input type="checkbox" name="tplChannel" value="钉钉"> 钉钉</label><label><input type="checkbox" name="tplChannel" value="微信"> 微信</label></div><div class="text-secondary text-sm mt-2">一个模板可同时适用于多个渠道</div></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">状态</label><select class="ant-select w-full"><option>启用</option><option>停用</option></select></div></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">通知标题</label><input id="tplFormTitle" class="ant-input" value="{告警级别}告警：{告警类型}"></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">通知正文</label><textarea id="tplBodyInput" class="ant-input" rows="5">{业务名称}的{设备名称}在{触发时间}触发{告警类型}，位置：{设备位置}，请及时处理。</textarea></div><div class="mb-3"><span class="text-secondary text-sm mr-2">插入变量：</span><button class="ant-btn ant-btn-sm" onclick="insertVar('{业务名称}')">业务名称</button><button class="ant-btn ant-btn-sm" onclick="insertVar('{设备名称}')">设备名称</button><button class="ant-btn ant-btn-sm" onclick="insertVar('{告警类型}')">告警类型</button><button class="ant-btn ant-btn-sm" onclick="insertVar('{触发时间}')">触发时间</button></div><div class="ant-card ant-card-bordered"><div class="ant-card-head"><div class="ant-card-head-title">实时预览</div></div><div class="ant-card-body">明厨亮灶的摄像头-001 在 2026-06-25 09:30:00 触发厨房违规检测，位置：西湖区文一西路88号，请及时处理。</div></div></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('tplModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="saveTpl()">保存模板</button></div></div></div>
+      <div class="ant-modal-mask" id="confirmModal"><div class="ant-modal" style="width:420px"><div class="ant-modal-header"><span>确认操作</span><span class="ant-modal-close" onclick="closeModal('confirmModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><p id="confirmText">确定执行操作？</p></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('confirmModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="runConfirm()">确认执行</button></div></div></div>
+    </main>
+  </div>
+</div>
+<div class="toast-wrap"></div>
+<script>
+function toggleSubMenu(el){el.classList.toggle('expanded');var sub=el.nextElementSibling;if(sub&&sub.classList.contains('menu-sub')){sub.classList.toggle('collapsed')}}
+</script>
+
+<script>
+function showToast(msg,duration){duration=duration||2000;var wrap=document.querySelector('.toast-wrap');var el=document.createElement('div');el.className='toast-msg';el.innerHTML='<i class="fa-solid fa-circle-info" style="color:#1677ff"></i>'+msg;wrap.appendChild(el);requestAnimationFrame(function(){el.classList.add('show')});setTimeout(function(){el.classList.remove('show');setTimeout(function(){el.remove()},300)},duration)}
+function openModal(id){document.getElementById(id).classList.add('active')}
+function closeModal(id){document.getElementById(id).classList.remove('active')}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.ant-modal-mask.active').forEach(function(m){m.classList.remove('active')})});
+document.querySelectorAll('.ant-modal-mask').forEach(function(mask){mask.addEventListener('click',function(e){if(e.target===mask)mask.classList.remove('active')})});
+function switchTab(key){document.querySelectorAll('.tab-item').forEach(function(t){t.classList.remove('active')});document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.add('hidden')});document.getElementById('tab-'+key).classList.add('active');document.getElementById('panel-'+key).classList.remove('hidden');history.replaceState(null,'','?business_id=biz_001&tab='+key)}
+function toggleHealth(){var exp=document.getElementById('healthExpanded'),col=document.getElementById('healthCollapsed'),btn=document.getElementById('healthToggleBtn');var nowCollapsed=!col.classList.contains('hidden');if(nowCollapsed){col.classList.add('hidden');exp.classList.remove('hidden');btn.innerHTML='收起 <i class="fa-solid fa-chevron-up"></i>'}else{exp.classList.add('hidden');col.classList.remove('hidden');btn.innerHTML='展开 <i class="fa-solid fa-chevron-down"></i>'}}
+
+function showConfirm(text,cb){confirmCallback=cb;confirmText.textContent=text;openModal('confirmModal')}
+const deviceData={
+  '西湖区监管一所':[['摄像头-西湖-001','CAM-XH-001','枪机','在线','张明','3 分钟前'],['摄像头-西湖-002','CAM-XH-002','球机','在线','张明','5 分钟前'],['烟感-西湖-018','SMK-XH-018','烟感','离线','李娜','2 小时前'],['门禁-西湖-009','ACS-XH-009','门禁','在线','王强','8 分钟前']],
+  '片区A':[['摄像头-A-001','CAM-A-001','枪机','在线','李娜','3 分钟前'],['摄像头-A-018','CAM-A-018','球机','在线','李娜','7 分钟前'],['烟感-A-012','SMK-A-012','烟感','在线','李娜','10 分钟前']],
+  '片区B':[['摄像头-B-006','CAM-B-006','枪机','在线','王强','4 分钟前'],['门禁-B-002','ACS-B-002','门禁','在线','王强','12 分钟前']],
+  '片区C':[]
+};
+let currentNode='西湖区监管一所';
+function renderDevices(){const rows=deviceData[currentNode]||[];deviceBody.innerHTML=rows.length?rows.map(d=>`<tr><td><div class="flex items-center gap-2"><div class="device-thumb"><i class="fa-solid fa-video"></i></div>${d[0]}</div></td><td><code>${d[1]}</code></td><td>${d[2]}</td><td><span class="ant-tag ${d[3]==='在线'?'ant-tag-green':'ant-tag-red'}">${d[3]}</span></td><td>${d[4]}</td><td>${d[5]}</td><td><button class="ant-btn ant-btn-text ant-btn-sm" onclick="showToast('设备详情已打开')">查看</button><button class="ant-btn ant-btn-text ant-btn-sm" onclick="showToast('设备已从节点移除')">移除</button></td></tr>`).join(''):`<tr><td colspan="7" style="text-align:center;padding:40px"><div class="ant-empty"><div class="ant-empty-icon"><i class="fa-regular fa-folder-open"></i></div><div class="ant-empty-text">当前节点暂无设备，点击右上角“关联设备”开始</div><button class="ant-btn ant-btn-primary" onclick="openAssociateDeviceModal()">关联设备</button></div></td></tr>`}
+function selectNode(name){currentNode=name;document.querySelectorAll('.tree-node-row').forEach(x=>x.classList.remove('active'));event.currentTarget.classList.add('active');renderDevices();showToast('已切换到 '+name)}
+function openNodeModal(){nodeModalTitle.textContent='新增节点';openModal('nodeModal')}
+let associatePage=1,associatePageSize=5,associateTree='全部设备',associateFiltered=[];
+const associateDevices=[
+  ['摄像头-西湖-001','CAM-XH-001','摄像头','在线','西湖区监管一所一层后厨'],['摄像头-西湖-002','CAM-XH-002','摄像头','在线','西湖区监管一所大厅'],['摄像头-A-001','CAM-A-001','摄像头','在线','片区A后厨'],['摄像头-A-018','CAM-A-018','摄像头','在线','片区A入口'],['摄像头-B-006','CAM-B-006','摄像头','在线','片区B通道'],['烟感-西湖-018','SMK-XH-018','烟感','离线','西湖区监管一所仓库'],['烟感-A-012','SMK-A-012','烟感','在线','片区A仓储间'],['烟感-B-008','SMK-B-008','烟感','在线','片区B后厨'],['门禁-西湖-009','ACS-XH-009','门禁','在线','西湖区监管一所侧门'],['门禁-B-002','ACS-B-002','门禁','在线','片区B后门'],['门禁-C-003','ACS-C-003','门禁','离线','片区C仓库']
+];
+function openAssociateDeviceModal(){associatePage=1;associateTree='全部设备';document.querySelectorAll('#deviceModal .tree-node-row').forEach(function(x){x.classList.remove('active')});document.querySelector('#deviceModal .tree-node-row').classList.add('active');renderAssociateDevices();openModal('deviceModal')}
+function selectAssociateTree(type){associateTree=type;associatePage=1;document.querySelectorAll('#deviceModal .tree-node-row').forEach(x=>x.classList.remove('active'));event.currentTarget.classList.add('active');renderAssociateDevices();showToast('已切换设备树：'+type)}
+function searchAssociateDevices(){associatePage=1;renderAssociateDevices();showToast('设备查询完成')}
+function resetAssociateDevices(){associateDeviceKeyword.value='';associateOnlineStatus.value='';associateTree='全部设备';associatePage=1;document.querySelectorAll('#deviceModal .tree-node-row').forEach(x=>x.classList.remove('active'));document.querySelector('#deviceModal .tree-node-row').classList.add('active');renderAssociateDevices();showToast('筛选条件已重置')}
+function renderAssociateDevices(){const kw=associateDeviceKeyword.value.trim(),status=associateOnlineStatus.value;associateFiltered=associateDevices.filter(d=>(associateTree==='全部设备'||d[2]===associateTree)&&(!status||d[3]===status)&&(!kw||(d[0].includes(kw)||d[1].includes(kw))));const start=(associatePage-1)*associatePageSize;const rows=associateFiltered.slice(start,start+associatePageSize);associateDeviceBody.innerHTML=rows.map((d,i)=>`<tr><td><input type="checkbox" class="associate-check" onchange="updateAssociateSelected()"></td><td>${d[0]}</td><td><code>${d[1]}</code></td><td>${d[2]}</td><td><span class="ant-tag ${d[3]==='在线'?'ant-tag-green':'ant-tag-red'}">${d[3]}</span></td><td>${d[4]}</td></tr>`).join('')||`<tr><td colspan="6" style="text-align:center;padding:40px"><div class="ant-empty"><div class="ant-empty-icon"><i class="fa-regular fa-folder-open"></i></div><div class="ant-empty-text">未找到符合条件的设备</div></div></td></tr>`;updateAssociatePagination();updateAssociateSelected()}
+function updateAssociatePagination(){const max=Math.max(1,Math.ceil(associateFiltered.length/associatePageSize));associatePage=Math.min(associatePage,max);associatePageInfo.textContent=`共 ${associateFiltered.length} 条，当前第 ${associatePage}/${max} 页`;let html='';for(let i=1;i<=max;i++)html+=`<button class="ant-pagination-item ${i===associatePage?'active':''}" onclick="changeAssociatePage(${i})">${i}</button>`;associatePageButtons.innerHTML=html}
+function changeAssociatePage(page){const max=Math.max(1,Math.ceil(associateFiltered.length/associatePageSize));associatePage=Math.min(Math.max(1,page),max);renderAssociateDevices()}
+function toggleAssociateAll(box){document.querySelectorAll('.associate-check').forEach(x=>x.checked=box.checked);updateAssociateSelected()}
+function updateAssociateSelected(){const count=document.querySelectorAll('.associate-check:checked').length;associateSelectedInfo.textContent='已选择 '+count+' 台设备'}
+function saveAssociateDevices(){showToast('设备已关联到当前节点');closeModal('deviceModal');renderDevices()}
+
+const categories=[{id:1,name:'现场已整改',code:'DISPOSE_FIXED',status:'启用',refCount:36,desc:'现场问题已完成整改，上传整改后照片',updateTime:'今天 09:12'},{id:2,name:'已劝离/警告',code:'DISPOSE_WARNED',status:'启用',refCount:18,desc:'适用于人员违规、占道等轻量处置',updateTime:'昨天 15:30'},{id:3,name:'转交主管部门',code:'DISPOSE_TRANSFER',status:'启用',refCount:9,desc:'超出现场人员权限，转交主管部门处理',updateTime:'昨天 11:20'},{id:4,name:'设备误报',code:'DISPOSE_FALSE_ALARM',status:'停用',refCount:42,desc:'历史类别，已被“现场不存在”替代',updateTime:'06-21 17:00'},{id:5,name:'需二次复核',code:'DISPOSE_RECHECK',status:'启用',refCount:0,desc:'处理完成后仍需业务管理员复核',updateTime:'06-20 14:30'}];
+let editingCategoryId=null,confirmCallback=null;
+function tagStatus(v){return v==='启用'?'ant-tag-green':'ant-tag-gray'}
+/* showConfirm 已在算法配置区定义，此处不再重复 */
+function renderCategories(tip){const rows=categories.filter(c=>(!catStatus.value||c.status===catStatus.value)&&(!catName.value.trim()||c.name.includes(catName.value.trim())));categoryBody.innerHTML=rows.map(c=>`<tr><td>${c.name}</td><td><code>${c.code}</code></td><td><span class="ant-tag ${tagStatus(c.status)}">${c.status}</span></td><td>${c.refCount}</td><td>${c.desc}</td><td>${c.updateTime}</td><td><button class="ant-btn ant-btn-text ant-btn-sm" onclick="openCategoryModal(${c.id})">编辑</button><button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleCategory(${c.id})">启停</button><button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="deleteCategory(${c.id})">删除</button></td></tr>`).join('');categoryEmpty.classList.toggle('hidden',rows.length>0);if(tip)showToast('查询完成')}
+function resetCategoryFilter(){catStatus.value='';catName.value='';renderCategories();showToast('筛选条件已重置')}
+function openCategoryModal(id){editingCategoryId=id||null;categoryModalTitle.textContent=id?'编辑类别':'新增类别';const c=categories.find(x=>x.id===id);formName.value=c?c.name:'';formCode.value=c?c.code:'';formCode.disabled=!!c;formStatus.value=c?c.status:'启用';formDesc.value=c?c.desc:'';openModal('categoryModal')}
+function saveCategory(){if(!formName.value.trim()){showToast('保存失败：类别名称不能为空');return}showToast(editingCategoryId?'处置类别已保存':'处置类别已新增，类别编码将由后台自动生成');closeModal('categoryModal');renderCategories()}
+function runConfirm(){if(confirmCallback)confirmCallback();closeModal('confirmModal')}
+function toggleCategory(id){const c=categories.find(x=>x.id===id);showConfirm(`${c.status==='启用'?'停用':'启用'}处置类别「${c.name}」？`,function(){c.status=c.status==='启用'?'停用':'启用';renderCategories();showToast('处置类别状态已更新')})}
+function deleteCategory(id){const c=categories.find(x=>x.id===id);showConfirm(`删除处置类别「${c.name}」？`,function(){if(c.refCount>0){showToast('删除失败：该类别已被引用，只能停用');return}showToast('处置类别已删除')})}
+const templates=[['紧急','站内信、短信','【紧急】{业务名称}{设备名称}触发{告警类型}，请立即处理','启用','今天 09:12'],['重要','站内信、钉钉','{设备名称}触发重要告警，请在规定时限内处理','启用','昨天 15:30'],['一般','站内信、钉钉、微信','{业务名称}出现一般告警：{告警类型}','启用','昨天 11:20']];
+function tagLevel(v){return v==='紧急'?'ant-tag-red':v==='重要'?'ant-tag-orange':'ant-tag-blue'}
+function renderTpl(tip){tplBody.innerHTML=templates.filter(t=>(!tplLevel.value||t[0]===tplLevel.value)&&(!tplChannel.value||t[1].includes(tplChannel.value))).map(t=>`<tr><td><span class="ant-tag ${tagLevel(t[0])}">${t[0]}</span></td><td>${t[1].split('、').map(c=>`<span class="ant-tag ant-tag-blue">${c}</span>`).join('')}</td><td>${t[2]}</td><td><span class="ant-tag ${t[3]==='启用'?'ant-tag-green':'ant-tag-gray'}">${t[3]}</span></td><td>${t[4]}</td><td><button class="ant-btn ant-btn-text ant-btn-sm" onclick="openTplModal('${t[0]}')">编辑</button><button class="ant-btn ant-btn-text ant-btn-sm" onclick="showToast('模板状态已切换')">启停</button></td></tr>`).join('');if(tip)showToast('查询完成')}
+function resetTpl(){tplLevel.value='';tplChannel.value='';tplName.value='';renderTpl();showToast('筛选条件已重置')}
+function openTplModal(level){tplTitle.textContent=level?'编辑'+level+'级别模板':'新增模板';tplFormName.value=level?level+'告警通知模板':'';if(level&&document.getElementById('tplLevelSelect'))tplLevelSelect.value=level;openModal('tplModal')}
+function insertVar(v){tplBodyInput.value+=v;showToast('变量已插入')}
+function saveTpl(){if(!tplFormName.value.trim()){showToast('保存失败：模板名称不能为空');return}if(!document.querySelector('input[name="tplChannel"]:checked')){showToast('保存失败：请至少选择 1 个适用渠道');return}showToast('模板已保存；同级别仅保留这一份模板');closeModal('tplModal')}
+renderDevices();renderCategories();renderTpl();
+const params=new URLSearchParams(location.search);if(params.get('tab'))switchTab(params.get('tab'));
+</script>
+</body>
+</html>

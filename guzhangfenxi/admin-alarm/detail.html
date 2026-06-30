@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>告警详情 — AI 故障分析 · 视频智能运维管理平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>
+    /* ---------- 页面级微调：匹配系统截图 ---------- */
+    .header-sys { height:48px; background:#001529; display:flex; align-items:center; gap:12px; padding:0 16px; position:sticky; top:0; z-index:100; }
+    .header-sys .brand { display:flex; align-items:center; gap:10px; }
+    .header-sys .logo-box { width:28px; height:28px; border-radius:4px; background:#1677ff; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; }
+    .header-sys .app-title { color:#fff; font-size:15px; font-weight:600; letter-spacing:.2px; }
+    .header-sys .spacer { flex:1; }
+    .header-sys .header-action { color:rgba(255,255,255,0.75); font-size:13px; cursor:pointer; position:relative; }
+    .header-sys .header-action:hover { color:#fff; }
+    .header-sys .badge { position:absolute; right:-6px; top:-6px; min-width:16px; height:16px; padding:0 4px; border-radius:8px; background:#ff4d4f; color:#fff; font-size:10px; font-weight:600; display:flex; align-items:center; justify-content:center; }
+    .header-sys .user { display:flex; align-items:center; gap:6px; }
+    .header-sys .avatar { width:24px; height:24px; border-radius:50%; background:#1677ff; color:#fff; font-size:11px; display:flex; align-items:center; justify-content:center; }
+
+    .sider-sys { width:200px; background:#001529; min-height:calc(100vh - 48px); flex-shrink:0; overflow-y:auto; padding:8px 0; }
+    .menu-sys { list-style:none; margin:0; padding:0; }
+    .menu-sys li { display:flex; align-items:center; gap:10px; height:42px; padding:0 18px; color:rgba(255,255,255,0.65); font-size:13px; cursor:pointer; transition:all .2s; }
+    .menu-sys li:hover { color:#fff; background:rgba(255,255,255,0.05); }
+    .menu-sys li.active { color:#fff; background:#1677ff; }
+    .menu-sys li i { width:16px; text-align:center; font-size:14px; }
+    .menu-sys .divider { height:1px; background:rgba(255,255,255,0.08); margin:8px 16px; }
+
+    .main-sys { flex:1; min-width:0; background:#f6f8fa; padding:16px 24px 80px; }
+    .page-card { background:#fff; border-radius:8px; box-shadow:0 1px 2px 0 rgba(0,0,0,.03),0 1px 6px -1px rgba(0,0,0,.02),0 2px 4px 0 rgba(0,0,0,.02); }
+
+    .detail-title { font-size:18px; font-weight:600; color:rgba(0,0,0,.88); }
+    .status-tag { display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px; border-radius:4px; font-size:12px; border:1px solid transparent; }
+    .status-tag.red { color:#ff4d4f; background:#fff1f0; border-color:#ffa39e; }
+    .status-tag.orange { color:#fa8c16; background:#fff7e6; border-color:#ffd591; }
+    .status-dot { width:6px; height:6px; border-radius:50%; background:#ff4d4f; display:inline-block; }
+    .status-dot.orange { background:#fa8c16; }
+
+    .info-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px 24px; font-size:13px; }
+    .info-label { color:rgba(0,0,0,.45); margin-right:8px; }
+    .info-value { color:rgba(0,0,0,.88); }
+    .tag-compact { display:inline-flex; align-items:center; height:20px; padding:0 6px; border-radius:2px; font-size:12px; border:1px solid transparent; }
+    .tag-compact.red { color:#ff4d4f; background:#fff1f0; border-color:#ffa39e; }
+    .tag-compact.gray { color:rgba(0,0,0,.65); background:#f5f5f5; border-color:#d9d9d9; }
+    .tag-compact.orange { color:#fa8c16; background:#fff7e6; border-color:#ffd591; }
+
+    .link-text { color:#1677ff; cursor:pointer; }
+    .link-text:hover { text-decoration:underline; }
+
+    .live-btn { display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 12px; border-radius:4px; border:1px solid #d9d9d9; background:#fff; color:rgba(0,0,0,.65); font-size:13px; cursor:pointer; }
+    .live-btn:hover { color:#1677ff; border-color:#1677ff; }
+
+    .handle-title { display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:#1677ff; margin-bottom:16px; }
+    .radio-group { display:flex; align-items:center; gap:20px; }
+    .radio-item { display:flex; align-items:center; gap:6px; cursor:pointer; font-size:13px; color:rgba(0,0,0,.88); }
+    .radio-item input { width:14px; height:14px; accent-color:#1677ff; }
+
+    .tab-bar-sys { display:flex; border-bottom:1px solid #f0f0f0; }
+    .tab-sys { padding:10px 18px; cursor:pointer; font-size:13px; color:rgba(0,0,0,.65); border-bottom:2px solid transparent; margin-bottom:-1px; transition:all .2s; }
+    .tab-sys:hover { color:#1677ff; }
+    .tab-sys.active { color:#1677ff; border-bottom-color:#1677ff; font-weight:600; }
+
+    .chain-title { font-size:14px; font-weight:600; color:rgba(0,0,0,.88); margin-bottom:6px; }
+    .chain-desc { color:rgba(0,0,0,.45); font-size:12px; margin-bottom:20px; }
+    .chain-step { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; }
+    .node { display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .node-icon { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; border:2px solid #d9d9d9; background:#fff; color:rgba(0,0,0,.65); }
+    .node-icon.green { border-color:#52c41a; color:#52c41a; }
+    .node-icon.red { border-color:#ff4d4f; color:#ff4d4f; }
+    .node-icon.gray { border-color:#d9d9d9; color:rgba(0,0,0,.45); }
+    .node-label { font-size:11px; color:rgba(0,0,0,.65); }
+    .connector { display:flex; flex-direction:column; align-items:center; gap:2px; }
+    .connector-line { width:40px; height:2px; background:#d9d9d9; }
+    .connector-line.red { background:#ff4d4f; }
+    .connector-line.green { background:#52c41a; }
+    .connector-dots { display:flex; gap:3px; }
+    .connector-dots span { width:4px; height:4px; border-radius:50%; background:#d9d9d9; }
+    .connector-dots span.red { background:#ff4d4f; }
+
+    /* ---------- AI 分析样式（白底品牌，克制） ---------- */
+    .ai-tab-head { display:inline-flex; align-items:center; gap:5px; }
+    .ai-dot { width:6px; height:6px; border-radius:50%; }
+    .ai-dot-purple { background:#722ed1; }
+    .ai-dot-gray { background:#bfbfbf; }
+    .ai-dot-spin { width:10px; height:10px; border:1.5px solid #d3adf7; border-top-color:#722ed1; border-radius:50%; animation:ai-spin .8s linear infinite; display:inline-block; }
+    @keyframes ai-spin { to { transform:rotate(360deg); } }
+
+    .pill { display:inline-flex; align-items:center; gap:5px; height:26px; padding:0 10px; border-radius:13px; font-size:12px; background:#f9f0ff; color:#722ed1; border:1px solid #d3adf7; }
+    .pill .pill-label { color:rgba(114,46,209,.6); font-size:11px; }
+    .pill .pill-value { color:#722ed1; font-weight:700; }
+    .pill i { font-size:11px; opacity:.7; }
+
+    .meta-confidence { display:inline-flex; align-items:center; gap:4px; height:24px; padding:0 10px; border-radius:12px; background:#722ed1; color:#fff; font-size:12px; font-weight:700; }
+
+    .conclusion-box { background:#fff; border:1px solid #ffd8bf; border-left:3px solid #fa8c16; border-radius:4px; padding:12px 14px; font-size:13px; color:rgba(0,0,0,.88); line-height:1.6; }
+
+    .reason-card { border:1px solid #f0f0f0; border-radius:6px; padding:12px 14px; background:#fff; transition:all .2s; position:relative; overflow:hidden; }
+    .reason-card:hover { border-color:#d3adf7; box-shadow:0 2px 8px rgba(114,46,209,.06); }
+    .reason-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:#722ed1; }
+    .reason-card:first-child::before { background:#ff4d4f; }
+    .reason-card:nth-child(2)::before { background:#fa8c16; }
+    .rank-circle { width:24px; height:24px; border-radius:50%; background:#722ed1; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; flex-shrink:0; }
+    .reason-card:first-child .rank-circle { background:#ff4d4f; }
+    .reason-card:nth-child(2) .rank-circle { background:#fa8c16; }
+
+    .confidence-ring { width:36px; height:36px; position:relative; flex-shrink:0; }
+    .confidence-ring svg { transform:rotate(-90deg); }
+    .confidence-ring .ring-bg { fill:none; stroke:#f0f0f0; stroke-width:3; }
+    .confidence-ring .ring-fill { fill:none; stroke-width:3; stroke-linecap:round; transition:stroke-dashoffset .6s ease; }
+    .confidence-ring .ring-text { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; }
+    .evidence-tag { display:inline-flex; align-items:center; gap:3px; height:20px; padding:0 6px; border-radius:4px; background:#f6ffed; border:1px solid #b7eb8f; color:#52c41a; font-size:11px; margin-top:6px; }
+
+    .step-timeline { position:relative; padding-left:24px; }
+    .step-timeline::before { content:''; position:absolute; left:7px; top:6px; bottom:6px; width:2px; background:#b7eb8f; border-radius:1px; }
+    .step-item { position:relative; padding:6px 0; }
+    .step-item::before { content:''; position:absolute; left:-20px; top:12px; width:8px; height:8px; border-radius:50%; background:#fff; border:2px solid #52c41a; }
+    .step-item .step-content { background:#fff; border:1px solid #f0f0f0; border-radius:6px; padding:10px 12px; }
+    .step-item .step-content:hover { border-color:#b7eb8f; }
+    .step-num { display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; background:#52c41a; color:#fff; font-size:10px; font-weight:700; margin-right:6px; }
+    .risk-badge { display:inline-flex; align-items:center; gap:3px; height:18px; padding:0 6px; border-radius:4px; background:#fff7e6; border:1px solid #ffd591; color:#d46b08; font-size:11px; font-weight:600; margin-top:4px; }
+
+    .bottom-bar { background:#fafafa; border-radius:6px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; border:1px solid #f0f0f0; }
+    .adopt-btn { background:#722ed1 !important; border:none !important; }
+    .adopt-btn:hover { background:#9254de !important; }
+
+    .ai-loading-box { text-align:center; padding:40px 20px; color:rgba(0,0,0,.45); }
+    .ai-loading-box .big-spin { width:32px; height:32px; border:3px solid #f0f0f0; border-top-color:#722ed1; border-radius:50%; animation:ai-spin .8s linear infinite; margin:0 auto 12px; }
+    .ai-state-box { text-align:center; padding:36px 20px; border-radius:6px; margin:12px 0; }
+    .ai-state-box .state-icon { font-size:32px; margin-bottom:10px; }
+    .ai-adopted-badge { display:inline-flex; align-items:center; gap:4px; height:24px; padding:0 10px; border-radius:6px; background:#f9f0ff; color:#722ed1; border:1px solid #d3adf7; font-size:12px; font-weight:600; }
+
+    .section-title { font-size:13px; font-weight:700; color:rgba(0,0,0,.88); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+    .section-title i { font-size:14px; }
+    .collapse-arrow { cursor:pointer; color:rgba(0,0,0,.45); user-select:none; font-size:13px; }
+    .collapse-arrow:hover { color:#722ed1; }
+    .ai-section { padding:14px 0; border-bottom:1px solid #f0f0f0; }
+    .ai-section:last-child { border-bottom:none; }
+
+    .demo-switcher { position:fixed; right:16px; bottom:16px; z-index:900; background:#fff; border:1px solid #d9d9d9; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,.1); padding:10px 12px; font-size:12px; }
+    .demo-switcher .demo-title { font-weight:600; color:rgba(0,0,0,.45); margin-bottom:6px; font-size:11px; }
+    .demo-switcher button { display:block; width:100%; text-align:left; padding:4px 8px; border-radius:4px; font-size:11px; color:rgba(0,0,0,.65); cursor:pointer; background:transparent; border:none; transition:all .15s; }
+    .demo-switcher button:hover { background:#f5f5f5; }
+    .demo-switcher button.active { background:#f9f0ff; color:#722ed1; font-weight:600; }
+  </style>
+</head>
+<body>
+<div class="layout" style="min-height:100vh; display:flex; flex-direction:column;">
+  <!-- 顶部 -->
+  <header class="header-sys">
+    <div class="brand">
+      <div class="logo-box"><i class="fa-solid fa-video"></i></div>
+      <div class="app-title">视频智能运维管理平台</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="flex items-center gap-5">
+      <span class="header-action"><i class="fa-regular fa-bell"></i><span class="badge">5</span></span>
+      <span class="header-action user"><span class="avatar">张</span> 张工程师</span>
+    </div>
+  </header>
+
+  <div class="flex flex-1">
+    <!-- 侧边栏 -->
+    <aside class="sider-sys">
+      <ul class="menu-sys">
+        <li><i class="fa-solid fa-microchip"></i> 检测算法</li>
+        <li><i class="fa-solid fa-clipboard-list"></i> 巡检任务</li>
+        <li><i class="fa-solid fa-file-lines"></i> 巡检日志</li>
+        <li><i class="fa-solid fa-chart-line"></i> 可用性报告</li>
+        <li><i class="fa-solid fa-triangle-exclamation"></i> 故障预警</li>
+        <li class="active"><i class="fa-solid fa-bell"></i> 设备告警</li>
+      </ul>
+    </aside>
+
+    <!-- 主区 -->
+    <main class="main-sys">
+      <!-- 标题行 -->
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <h1 class="detail-title m-0">ALT-20260614-001</h1>
+          <span class="status-tag red"><span class="status-dot"></span> 待处理</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-tertiary text-sm" id="ai-analyzed-tag" style="display:none;"><i class="fa-solid fa-robot" style="color:#722ed1; margin-right:4px;"></i>AI 已分析</span>
+          <button class="ant-btn ant-btn-primary" onclick="showToast('请在处理模块完成告警处理','info')"><i class="fa-solid fa-check"></i> 处理告警</button>
+          <button class="ant-btn" style="padding:0 10px;" onclick="showToast('更多操作','info')"><i class="fa-solid fa-ellipsis"></i></button>
+        </div>
+      </div>
+
+      <!-- 基础信息 -->
+      <div class="page-card mb-4">
+        <div class="p-5">
+          <div class="info-grid">
+            <div><span class="info-label">告警级别</span><span class="tag-compact red">紧急</span></div>
+            <div><span class="info-label">报警类型</span>
+              <span class="tag-compact gray">链路异常</span>
+              <span class="tag-compact gray">心跳超时</span>
+              <span class="tag-compact gray">网络异常-延迟</span>
+            </div>
+            <div><span class="info-label">负责人</span><span class="info-value link-text">张工程师</span></div>
+            <div><span class="info-label">设备名称</span><span class="info-value">西区-CAM-001</span></div>
+            <div><span class="info-label">下级平台</span><span class="info-value">西区公安分局平台</span></div>
+            <div><span class="info-label">触发时间</span><span class="info-value">2026-04-14 09:12:33</span></div>
+            <div><span class="info-label">设备类型</span><span class="info-value">枪机</span></div>
+            <div><span class="info-label">设备 IP</span><span class="info-value">192.168.1.101</span></div>
+            <div><span class="info-label">巡检任务</span><span class="info-value link-text">西区日常巡检-0414</span></div>
+          </div>
+          <div class="mt-4">
+            <button class="live-btn"><i class="fa-solid fa-video"></i> 查看直播</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 告警处理 -->
+      <div class="page-card mb-4">
+        <div class="p-5">
+          <div class="handle-title"><i class="fa-solid fa-user-gear"></i> 告警处理</div>
+          <div class="ant-form-item" style="margin-bottom:16px;">
+            <div class="ant-form-label" style="margin-bottom:8px;">处理结果 <span style="color:#ff4d4f;">*</span></div>
+            <div class="radio-group">
+              <label class="radio-item"><input type="radio" name="result" value="resolved"> 已解决</label>
+              <label class="radio-item"><input type="radio" name="result" value="false"> 误报</label>
+              <label class="radio-item"><input type="radio" name="result" value="ignore"> 忽略</label>
+            </div>
+          </div>
+          <div class="ant-form-item" style="margin-bottom:16px;">
+            <div class="ant-form-label" style="margin-bottom:8px;">处理意见</div>
+            <textarea class="ant-input" id="handle-opinion" rows="3" placeholder="请填写处理意见（已解决时必填）"></textarea>
+          </div>
+          <div class="flex gap-2">
+            <button class="ant-btn ant-btn-primary" onclick="submitHandle()"><i class="fa-solid fa-check"></i> 提交</button>
+            <button class="ant-btn" onclick="cancelHandle()">取消</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 诊断 Tab -->
+      <div class="page-card">
+        <div class="p-5">
+          <div class="tab-bar-sys" id="diag-tabs">
+            <div class="tab-sys active" data-tab="network">网络状态</div>
+            <div class="tab-sys" data-tab="link">链路诊断</div>
+            <div class="tab-sys" data-tab="quality">画质类</div>
+            <div class="tab-sys" data-tab="ai">
+              <span class="ai-tab-head">
+                <span class="ai-dot ai-dot-purple" id="ai-tab-dot"></span>
+                AI 分析
+                <span id="ai-tab-status-text" style="font-size:12px;color:rgba(0,0,0,.45);font-weight:400;"></span>
+              </span>
+            </div>
+          </div>
+          <div id="tab-content"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- 弹窗：采纳此方案 -->
+<div class="ant-modal-mask" id="modal-adopt">
+  <div class="ant-modal" style="width:560px;border-radius:8px;overflow:hidden;">
+    <div class="ant-modal-header" style="background:#f9f0ff;border-bottom:1px solid #d3adf7;">
+      <span style="color:#722ed1;font-weight:600;"><i class="fa-solid fa-brain" style="margin-right:8px;"></i>采纳 AI 推荐方案</span>
+      <span class="ant-modal-close" onclick="closeModal('modal-adopt')"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body">
+      <div style="background:#e6f4ff;border:1px solid #91caff;border-radius:6px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:rgba(0,0,0,.65);">
+        <i class="fa-solid fa-circle-info" style="color:#1677ff;margin-right:8px;"></i>
+        将把 AI 推荐方案填入处理意见，并标记此次处理使用了 AI 方案。确认吗？
+      </div>
+      <div class="ant-form-label" style="font-weight:600;">方案摘要预览（只读）</div>
+      <textarea class="ant-input" readonly style="height:140px;background:#fafafa;border-radius:4px;font-size:13px;line-height:1.6;">[AI 方案已采纳]
+1. 登录上联交换机，检查 GE0/0/12 端口状态与 CRC 错误计数
+2. 若 CRC 持续增长，更换网线或端口，并清理端口统计
+3. 复观告警，确认 5 分钟内丢包率回落至 0%
+预计修复时长 15 分钟 · 所需权限：交换机操作</textarea>
+      <div class="text-tertiary text-sm mt-3" style="background:#f9f0ff;padding:10px 14px;border-radius:6px;border:1px solid #d3adf7;">
+        <i class="fa-solid fa-lightbulb" style="color:#722ed1;margin-right:6px;"></i>
+        采纳后处理意见可继续编辑；最终是否标记为"AI方案"以告警关闭时提交为准。
+      </div>
+    </div>
+    <div class="ant-modal-footer" style="border-top:1px solid #f0f0f0;">
+      <button class="ant-btn" onclick="closeModal('modal-adopt')">取消</button>
+      <button class="ant-btn ant-btn-primary adopt-btn" onclick="confirmAdopt()"><i class="fa-solid fa-check"></i> 确认采纳</button>
+    </div>
+  </div>
+</div>
+
+<!-- 演示状态切换器（原型专用） -->
+<div class="demo-switcher">
+  <div class="demo-title">演示：AI 分析状态</div>
+  <button class="active" onclick="renderAiTab('completed')">● 分析完成</button>
+  <button onclick="renderAiTab('analyzing')">◐ 分析中</button>
+  <button onclick="renderAiTab('timeout')">○ 超时</button>
+  <button onclick="renderAiTab('failed')">○ 失败</button>
+  <button onclick="renderAiTab('not_analyzed')">○ 未分析</button>
+</div>
+
+<!-- Toast 容器 -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+/* ============ Mock 数据：分析结果（completed） ============ */
+var ANALYSIS = {
+  fault_type: '网络丢包',
+  impact_device_count: 3,
+  expected_minutes: 15,
+  summary: '上联交换机 GE0/0/12 端口 CRC 错误持续增长导致链路异常，影响同网段 3 台摄像机画面延迟、心跳超时。',
+  confidence: 92,
+  analyzed_at: '09:12:45',
+  model_version: 'v1.3.2',
+  is_fallback: false,
+  reasons: [
+    { rank:1, name:'上联交换机端口丢包', confidence:88, description:'端口 CRC 错误计数 5 分钟内增长 240 次',
+      evidences:[{source:'链路诊断', text:'网段A→B 丢包 18%'}] },
+    { rank:2, name:'网线老化接触不良', confidence:52, description:'该端口近 7 天累计中断 3 次',
+      evidences:[{source:'网络状态', text:'端口 flapping 3 次/周'}] },
+    { rank:3, name:'上联带宽拥塞', confidence:38, description:'高峰时段带宽占用率 78%',
+      evidences:[{source:'网络状态', text:'带宽占用 78%'}] }
+  ],
+  solutions: {
+    main: {
+      steps: [
+        { action:'登录上联交换机，检查 GE0/0/12 端口状态与 CRC 错误计数', risk:'只读操作，无风险' },
+        { action:'若 CRC 持续增长，更换网线或端口，并清理端口统计', risk:'⚠ 切换瞬间中断约 10 秒' },
+        { action:'复观告警，确认 5 分钟内丢包率与延迟回落至正常范围' }
+      ],
+      expected_minutes: 15
+    },
+    alternatives: [
+      { steps:[{ action:'联系网络厂商远程协助排查端口硬件故障', risk:'⚠ 需协调厂商，耗时较长' }], expected_minutes: 60 }
+    ]
+  },
+  impact: {
+    device_count: 3
+  }
+};
+
+/* ============ Tab 切换 ============ */
+var currentTab = 'network';
+document.querySelectorAll('#diag-tabs .tab-sys').forEach(function(tab){
+  tab.addEventListener('click', function(){
+    document.querySelectorAll('#diag-tabs .tab-sys').forEach(function(t){ t.classList.remove('active'); });
+    tab.classList.add('active');
+    currentTab = tab.dataset.tab;
+    if (currentTab === 'ai') { renderAiTab(currentAiStatus); }
+    else { renderOtherTab(currentTab); }
+  });
+});
+
+function renderOtherTab(key){
+  var names = { network:'网络状态', link:'链路诊断', quality:'画质类' };
+  var html = '';
+  if (key === 'network') {
+    html = '<div class="chain-title"><i class="fa-solid fa-network-wired" style="color:#1677ff;margin-right:6px;"></i>全链路网络质量总览</div>'+
+           '<div class="chain-desc">优先判断平台级网络质量，再下钻链路连通性；点击任一路段查看该段网络指标。</div>'+
+           '<div class="chain-step">'+
+             '<div class="node"><div class="node-icon green"><i class="fa-solid fa-building"></i></div><div class="node-label">大平台</div></div>'+
+             '<div class="connector"><div class="connector-line green"></div><div class="connector-dots"><span></span><span></span></div></div>'+
+             '<div class="node"><div class="node-icon green"><i class="fa-solid fa-server"></i></div><div class="node-label">下级平台A</div></div>'+
+             '<div class="connector"><div class="connector-line red"></div><div class="connector-dots"><span class="red"></span><span class="red"></span></div></div>'+
+             '<div class="node"><div class="node-icon red"><i class="fa-solid fa-server"></i></div><div class="node-label">下下级平台B</div></div>'+
+             '<div class="connector"><div class="connector-line" style="border-bottom:2px dashed #d9d9d9;background:transparent;height:0;width:40px;"></div><div class="connector-dots"><span></span><span></span></div></div>'+
+             '<div class="node"><div class="node-icon gray"><i class="fa-solid fa-video"></i></div><div class="node-label">CAM-001</div></div>'+
+           '</div>';
+  } else {
+    html = '<div class="ant-empty"><div class="ant-empty-icon"><i class="fa-solid fa-table-list"></i></div>'+
+           '<div class="ant-empty-text">'+ names[key] +' 诊断数据（本原型仅演示网络状态与 AI 分析 Tab）</div></div>';
+  }
+  document.getElementById('tab-content').innerHTML = html;
+}
+
+/* ============ AI Tab 渲染 ============ */
+var currentAiStatus = 'completed';
+var adopted = false;
+
+function setAiTabHead(status){
+  var dot = document.getElementById('ai-tab-dot');
+  var txt = document.getElementById('ai-tab-status-text');
+  txt.textContent = '';
+  dot.className = 'ai-dot ai-dot-purple';
+  if (status === 'completed'){ dot.className = 'ai-dot ai-dot-purple'; }
+  else if (status === 'analyzing'){
+    var spin = document.createElement('span');
+    spin.className = 'ai-dot-spin'; spin.id = 'ai-tab-dot';
+    dot.parentNode.replaceChild(spin, dot);
+    txt.textContent = '分析中…'; return;
+  }
+  else if (status === 'timeout'){ dot.className = 'ai-dot ai-dot-gray'; txt.textContent = '超时'; }
+  else if (status === 'failed'){ dot.className = 'ai-dot ai-dot-gray'; txt.textContent = '失败'; }
+  else if (status === 'not_analyzed'){ dot.className = 'ai-dot ai-dot-gray'; }
+}
+
+function renderAiTab(status){
+  currentAiStatus = status;
+  setAiTabHead(status);
+  var analyzedTag = document.getElementById('ai-analyzed-tag');
+  analyzedTag.style.display = (status === 'completed') ? 'inline-flex' : 'none';
+
+  var container = document.getElementById('tab-content');
+  if (status === 'completed') { container.innerHTML = renderCompleted(); bindCompletedEvents(); }
+  else if (status === 'analyzing') { container.innerHTML = renderAnalyzing(); }
+  else if (status === 'timeout') { container.innerHTML = renderState('timeout','AI 分析超时（30 秒），可点击重试','fa-clock','#faad14','重新分析'); }
+  else if (status === 'failed') { container.innerHTML = renderState('failed','AI 分析暂不可用，请按常规流程处理','fa-triangle-exclamation','#ff4d4f','重新分析'); }
+  else if (status === 'not_analyzed') { container.innerHTML = renderState('not_analyzed','此告警未进行 AI 分析','fa-circle-question','#8c8c8c','立即分析'); }
+
+  // 同步演示切换器高亮
+  document.querySelectorAll('.demo-switcher button').forEach(function(b){ b.classList.remove('active'); });
+  if (event && event.target && event.target.tagName === 'BUTTON') event.target.classList.add('active');
+  else {
+    document.querySelectorAll('.demo-switcher button').forEach(function(b){
+      if (status === 'completed' && b.textContent.indexOf('分析完成') >= 0) b.classList.add('active');
+      if (status === 'analyzing' && b.textContent.indexOf('分析中') >= 0) b.classList.add('active');
+      if (status === 'timeout' && b.textContent.indexOf('超时') >= 0) b.classList.add('active');
+      if (status === 'failed' && b.textContent.indexOf('失败') >= 0) b.classList.add('active');
+      if (status === 'not_analyzed' && b.textContent.indexOf('未分析') >= 0) b.classList.add('active');
+    });
+  }
+}
+
+function renderAnalyzing(){
+  return '<div class="ai-loading-box">'+
+    '<div class="big-spin"></div>'+
+    '<div style="font-size:14px;color:rgba(0,0,0,.65);font-weight:500;">AI 正在分析此告警</div>'+
+    '<div style="font-size:12px;color:rgba(0,0,0,.45);margin-top:6px;">预计 5–30 秒，已等待 <span id="wait-sec" style="font-weight:600;color:#722ed1;">3</span> 秒</div>'+
+    '<div style="margin-top:16px;">'+
+      '<button class="ant-btn" disabled style="opacity:0.5;cursor:not-allowed;border-color:#d3adf7;color:#722ed1;">'+
+        '<i class="fa-solid fa-spinner fa-spin"></i> 分析中…'+
+      '</button>'+
+    '</div>'+
+  '</div>';
+}
+
+function renderState(status, msg, icon, color, btnText){
+  var bgMap = { timeout:'#fff7e6', failed:'#fff1f0', not_analyzed:'#f5f5f5' };
+  return '<div class="ai-state-box" style="background:'+bgMap[status]+';">'+
+    '<div class="state-icon" style="color:'+color+';"><i class="fa-solid '+icon+'"></i></div>'+
+    '<div style="font-size:13px;color:rgba(0,0,0,.65);margin-bottom:14px;font-weight:500;">'+msg+'</div>'+
+    '<button class="ant-btn ant-btn-primary adopt-btn" onclick="retryAnalysis()">'+
+      '<i class="fa-solid fa-rotate"></i> '+btnText+
+    '</button>'+
+  '</div>';
+}
+
+function retryAnalysis(){
+  showToast('已触发重新分析，状态切换为分析中', 'info');
+  renderAiTab('analyzing');
+  document.querySelectorAll('.demo-switcher button').forEach(function(b){
+    b.classList.toggle('active', b.textContent.indexOf('分析中') >= 0);
+  });
+}
+
+function renderCompleted(){
+  var a = ANALYSIS;
+
+  function confRing(conf, size){
+    var r = (size-6)/2, c = 2*Math.PI*r;
+    var color = conf>=70 ? '#52c41a' : (conf>=40 ? '#faad14' : '#8c8c8c');
+    var offset = c - (conf/100)*c;
+    return '<div class="confidence-ring" style="width:'+size+'px;height:'+size+'px;">'+
+      '<svg width="'+size+'" height="'+size+'"><circle class="ring-bg" cx="'+size/2+'" cy="'+size/2+'" r="'+r+'"/>'+
+      '<circle class="ring-fill" cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" stroke="'+color+'" stroke-dasharray="'+c+'" stroke-dashoffset="'+offset+'"/></svg>'+
+      '<div class="ring-text" style="color:'+color+';">'+conf+'%</div></div>';
+  }
+
+  var reasonsHtml = a.reasons.map(function(r){
+    var evidences = r.evidences.map(function(e){
+      return '<span class="evidence-tag"><i class="fa-solid fa-link"></i> '+ e.source +' · '+ e.text +'</span>';
+    }).join(' ');
+    return '<div class="reason-card mb-2">'+
+      '<div class="flex items-start gap-3">'+
+        '<div class="rank-circle">'+ r.rank +'</div>'+
+        '<div class="flex-1">'+
+          '<div class="flex items-center justify-between mb-1">'+
+            '<div class="font-bold" style="font-size:13px;">'+ r.name +'</div>'+
+            confRing(r.confidence, 36)+
+          '</div>'+
+          '<div class="text-tertiary text-xs mb-1">'+ (r.description||'') +'</div>'+
+          '<div class="flex flex-wrap gap-1">'+ evidences +'</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  var mainSteps = '<div class="step-timeline">'+
+    a.solutions.main.steps.map(function(s,i){
+      return '<div class="step-item">'+
+        '<div class="step-content">'+
+          '<div class="flex items-start gap-2">'+
+            '<span class="step-num">'+ (i+1) +'</span>'+
+            '<div class="flex-1">'+
+              '<div class="text-sm font-medium">'+ s.action +'</div>'+
+              (s.risk ? '<div class="risk-badge"><i class="fa-solid fa-triangle-exclamation"></i> '+ s.risk +'</div>' : '')+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    }).join('')+
+  '</div>';
+
+  var altHtml = a.solutions.alternatives.map(function(alt, idx){
+    var steps = alt.steps.map(function(s,i){
+      return '<div class="flex items-start gap-2 mt-1"><span class="step-num">'+ (i+1) +'</span><div class="text-xs flex-1">'+ s.action +(s.risk?'<div class="risk-badge"><i class="fa-solid fa-triangle-exclamation"></i> '+s.risk+'</div>':'')+'</div></div>';
+    }).join('');
+    return '<div class="mt-2 p-3" style="background:#fafafa;border-radius:6px;border:1px dashed #d9d9d9;">'+
+      '<div class="text-xs font-semibold text-secondary mb-1"><i class="fa-solid fa-lightbulb" style="color:#faad14;margin-right:4px;"></i> 备选方案 '+(idx+1)+'</div>'+
+      steps+
+      '<div class="text-tertiary text-xs mt-1">预计修复时长 '+alt.expected_minutes+' 分钟</div>'+
+    '</div>';
+  }).join('');
+
+  var bottomRight = '<button class="ant-btn ant-btn-primary adopt-btn" onclick="openModal(\'modal-adopt\')"><i class="fa-solid fa-check"></i> 采纳此方案</button>';
+
+  return ''+
+  '<div class="ai-section">'+
+    '<div class="flex items-start justify-between">'+
+      '<div class="flex gap-3 flex-wrap">'+
+        '<span class="pill"><i class="fa-solid fa-bug"></i><span class="pill-label">故障类型</span><span class="pill-value">'+ a.fault_type +'</span></span>'+
+        '<span class="pill"><i class="fa-solid fa-server"></i><span class="pill-label">影响范围</span><span class="pill-value">'+ a.impact.device_count +' 台设备</span></span>'+
+        '<span class="pill"><i class="fa-solid fa-clock"></i><span class="pill-label">预计修复</span><span class="pill-value">'+ a.expected_minutes +' 分钟</span></span>'+
+      '</div>'+
+      '<div class="flex flex-col items-end gap-2">'+
+        '<span class="meta-confidence"><i class="fa-solid fa-brain"></i> 置信度 '+ a.confidence +'%</span>'+
+        '<span class="text-tertiary text-xs">分析于 '+ a.analyzed_at +'</span>'+
+        '<a class="ant-btn ant-btn-text ant-btn-sm" onclick="retryAnalysis()" style="color:#722ed1;padding-right:0;"><i class="fa-solid fa-rotate"></i> 重新分析</a>'+
+      '</div>'+
+    '</div>'+
+  '</div>'+
+
+  (adopted ? '<div class="mb-3"><span class="ai-adopted-badge"><i class="fa-solid fa-circle-check"></i> 方案已采纳</span></div>' : '')+
+
+  '<div class="ai-section">'+
+    '<div class="conclusion-box">'+ a.summary +'</div>'+
+  '</div>'+
+
+  '<div class="ai-section">'+
+    '<div class="section-title"><i class="fa-solid fa-magnifying-glass-chart" style="color:#722ed1;"></i> 可能原因 Top3</div>'+
+    reasonsHtml +
+  '</div>'+
+
+  '<div class="ai-section">'+
+    '<div class="section-title"><i class="fa-solid fa-wrench" style="color:#52c41a;"></i> 推荐处置方案</div>'+
+    mainSteps +
+    '<div class="collapse-arrow mt-3" onclick="toggleAlt(this)" style="color:#722ed1;"><i class="fa-solid fa-chevron-down"></i> 备选方案</div>'+
+    '<div id="alt-wrap" class="hidden">'+ altHtml +'</div>'+
+    '<div class="text-tertiary text-xs mt-3 flex items-center gap-4">'+
+      '<span><i class="fa-solid fa-clock"></i> 预计修复时长 '+ a.solutions.main.expected_minutes +' 分钟</span>'+
+      '<span><i class="fa-solid fa-key"></i> 所需权限：交换机操作</span>'+
+    '</div>'+
+  '</div>'+
+
+  '<div class="bottom-bar">'+
+    '<div class="text-xs text-tertiary flex items-center gap-3">'+
+      '<span><i class="fa-solid fa-code-branch"></i> 模型版本：'+ a.model_version +'</span>'+
+      '<span><i class="fa-solid fa-robot"></i> 兜底：'+ (a.is_fallback?'<span style="color:#fa8c16;">是</span>':'否') +'</span>'+
+    '</div>'+
+    '<div class="flex items-center gap-2">'+
+      bottomRight +
+    '</div>'+
+  '</div>';
+}
+
+function bindCompletedEvents(){}
+function toggleAlt(el){ var w=document.getElementById('alt-wrap'); w.classList.toggle('hidden'); el.firstChild.style.transform = w.classList.contains('hidden')?'':'rotate(180deg)'; }
+
+/* ============ 采纳 ============ */
+function confirmAdopt(){
+  closeModal('modal-adopt');
+  adopted = true;
+  renderAiTab('completed');
+  // 将方案填充进处理意见
+  document.getElementById('handle-opinion').value = '[AI 方案已采纳]\n1. 登录上联交换机，检查 GE0/0/12 端口状态与 CRC 错误计数\n2. 若 CRC 持续增长，更换网线或端口，并清理端口统计\n3. 复观告警，确认 5 分钟内丢包率与延迟回落至正常范围';
+  showToast('已采纳 AI 方案，处理意见已填入', 'success');
+}
+
+/* ============ 告警处理提交 ============ */
+function submitHandle(){
+  var result = document.querySelector('input[name="result"]:checked');
+  var opinion = document.getElementById('handle-opinion').value.trim();
+  if (!result) { showToast('请选择处理结果', 'error'); return; }
+  if (result.value === 'resolved' && !opinion) { showToast('已解决时请填写处理意见', 'error'); return; }
+  showToast('告警处理已提交', 'success');
+}
+function cancelHandle(){
+  document.querySelectorAll('input[name="result"]').forEach(function(r){ r.checked = false; });
+  document.getElementById('handle-opinion').value = '';
+  showToast('已取消', 'info');
+}
+
+/* ============ 通用：弹窗 / Toast ============ */
+function openModal(id){ document.getElementById(id).classList.add('active'); }
+function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+function showToast(msg, type){
+  var wrap = document.getElementById('toast-wrap');
+  var el = document.createElement('div'); el.className = 'toast-msg';
+  var icon = type==='success'?'<i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>':(type==='error'?'<i class="fa-solid fa-circle-exclamation" style="color:#ff4d4f;"></i>':'<i class="fa-solid fa-circle-info" style="color:#1677ff;"></i>');
+  el.innerHTML = icon + '<span>'+msg+'</span>';
+  wrap.appendChild(el);
+  setTimeout(function(){ el.classList.add('show'); }, 10);
+  setTimeout(function(){ el.classList.remove('show'); setTimeout(function(){ el.remove(); }, 300); }, 2400);
+}
+
+document.querySelectorAll('.ant-modal-mask').forEach(function(m){
+  m.addEventListener('click', function(e){ if (e.target === m) m.classList.remove('active'); });
+});
+
+/* ============ 初始化：默认网络状态 Tab ============ */
+renderOtherTab('network');
+</script>
+</body>
+</html>

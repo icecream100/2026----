@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>算法中心 - 算法中心 + 业务场景功能</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>
+    .metric-strip { display:flex; gap:12px; flex-wrap:wrap; }
+    .metric-pill { background:#fff; border:1px solid var(--ant-border-secondary); border-radius:8px; padding:10px 14px; min-width:150px; box-shadow:var(--shadow-1); }
+    .field-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .drawer-panel { width:720px; max-width:92vw; margin-left:auto; height:100%; border-radius:0; }
+    .full-modal { width:min(1120px,94vw); max-height:88vh; overflow:auto; }
+    .tree-box { border:1px solid var(--ant-border-secondary); border-radius:8px; padding:12px; background:#fff; }
+    .tree-node-row { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:6px; cursor:pointer; }
+    .tree-node-row:hover,.tree-node-row.active { background:var(--ant-primary-bg); color:var(--ant-primary); }
+    .flow-card { border:1px solid var(--ant-border-secondary); border-radius:8px; padding:14px; background:#fff; }
+    .chart-card { min-height:260px; display:flex; flex-direction:column; justify-content:center; }
+    .fake-line { height:160px; background:linear-gradient(180deg,#fff,#f5f8ff); border:1px dashed var(--ant-border); border-radius:8px; position:relative; overflow:hidden; }
+    .fake-line svg { width:100%; height:100%; }
+    .evidence { height:260px; border-radius:10px; background:linear-gradient(135deg,#172554,#0f766e); color:white; display:flex; align-items:center; justify-content:center; flex-direction:column; }
+    .timeline { border-left:2px solid var(--ant-border-secondary); padding-left:16px; }
+    .timeline-item { position:relative; padding-bottom:18px; }
+    .timeline-item::before { content:''; position:absolute; left:-22px; top:3px; width:10px; height:10px; background:var(--ant-primary); border-radius:50%; }
+    .menu-item a { color:inherit; text-decoration:none; display:flex; align-items:center; gap:10px; width:100%; }
+    .readonly { background:#f5f5f5; color:var(--ant-text-tertiary); }
+    .ant-btn[disabled],.ant-btn[disabled]:hover{cursor:not-allowed;color:var(--ant-text-tertiary);background:var(--ant-bg-container-disabled);border-color:var(--ant-border);opacity:.6;}
+    .tip-wrap{position:relative;display:inline-block;}
+    .tip-wrap .tip-text{visibility:hidden;background:rgba(0,0,0,.85);color:#fff;text-align:center;border-radius:4px;padding:6px 10px;position:absolute;z-index:99;bottom:135%;left:50%;transform:translateX(-50%);font-size:12px;line-height:1.4;opacity:0;transition:opacity .18s;max-width:280px;white-space:normal;}
+    .tip-wrap:hover .tip-text{visibility:visible;opacity:1;}
+    .tip-wrap .tip-text::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:rgba(0,0,0,.85);}
+    @media (max-width: 1200px) { .field-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">算法中心 + 业务场景功能</span>
+    <div class="spacer"></div>
+    <button class="nav-action" onclick="showToast('通知中心已打开')"><i class="fa-regular fa-bell mr-1"></i>6</button>
+    <button class="nav-action" onclick="showToast('已切换为演示账号')"><i class="fa-regular fa-user mr-1"></i>平台管理员 · alex</button>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">4 大核心模块</div>
+      <div class="menu-item active" onclick="location.href='../admin-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>算法中心</div>
+      <div class="menu-item" onclick="location.href='../admin-grid/list.html'"><i class="fa-solid fa-sitemap"></i>业务管理</div>
+      <div class="menu-item" onclick="location.href='../admin-policy/home.html'"><i class="fa-solid fa-diagram-project"></i>策略管理</div>
+      <div class="menu-item has-sub" onclick="toggleSubMenu(this)"><i class="fa-solid fa-bell"></i>报警中心<i class="fa-solid fa-chevron-right menu-arrow"></i></div>
+      <div class="menu-sub collapsed">
+        <div class="menu-item" onclick="location.href='../admin-dashboard/index.html'">看板</div>
+        <div class="menu-item" onclick="location.href='../handle-flow/confirm.html'" style="position:relative">待确认告警<span class="menu-badge">18</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/handle.html'" style="position:relative">待处理告警<span class="menu-badge">26</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/review.html'" style="position:relative">待审核告警<span class="menu-badge">9</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/list.html'">告警列表</div>
+      </div>
+      <div class="menu-group-title mt-4">原型版本</div>
+      <div class="menu-item" onclick="location.href='../index.html'"><i class="fa-solid fa-compass"></i>返回导航中心</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><span class="current">算法中心</span></div>
+      
+<div class="flex items-start justify-between mb-4">
+  <div><div class="page-title">算法中心</div></div>
+  <div class="flex gap-2"><button class="ant-btn" onclick="openTypeManage()"><i class="fa-solid fa-tags"></i> 类型管理</button><button class="ant-btn" onclick="refreshTable()"><i class="fa-solid fa-rotate"></i> 刷新列表</button><button class="ant-btn ant-btn-primary" onclick="openAlgorithmModal()"><i class="fa-solid fa-plus"></i> 新增算法</button></div>
+</div>
+<div class="ant-card ant-card-bordered mb-4"><div class="ant-card-body"><div class="flex items-center gap-4 flex-wrap">
+  <div class="flex items-center gap-2"><label class="text-sm text-secondary">算法类型</label><select id="filterType" class="ant-select" style="width:150px"><option value="">全部</option><option>安全防范</option><option>合规检测</option><option>环境监测</option><option>人员统计</option><option>车辆统计</option></select></div>
+  <div class="flex items-center gap-2"><label class="text-sm text-secondary">状态</label><select id="filterStatus" class="ant-select" style="width:120px"><option value="">全部</option><option>启用</option><option>停用</option></select></div>
+  <div class="flex items-center gap-2"><label class="text-sm text-secondary">算法名称</label><input id="filterName" class="ant-input" style="width:220px" placeholder="请输入算法名称" onkeydown="if(event.key==='Enter')handleSearch()"></div>
+  <button class="ant-btn ant-btn-primary" onclick="handleSearch()"><i class="fa-solid fa-search"></i> 查询</button><button class="ant-btn" onclick="handleReset()"><i class="fa-solid fa-rotate-right"></i> 重置</button>
+</div></div></div>
+<div class="ant-card ant-card-bordered"><div class="ant-card-body" style="padding:0;overflow:auto"><table class="ant-table"><thead><tr><th>算法名称</th><th>算法编码</th><th>算法类型</th><th>输出类型</th><th>默认建议级别</th><th>引用情况</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead><tbody id="algorithmBody"></tbody></table><div id="algorithmEmpty" class="ant-empty hidden"><div class="ant-empty-icon"><i class="fa-regular fa-folder-open"></i></div><div class="ant-empty-text">未找到符合条件的算法，请调整筛选条件</div><button class="ant-btn" onclick="handleReset()">清空筛选</button></div></div></div>
+<div class="flex items-center justify-between mt-4"><span class="text-sm text-secondary" id="pageInfo">共 0 条</span><div class="flex items-center gap-3"><div class="flex items-center gap-2 text-sm text-secondary"><span>每页</span><select id="pageSizeSelect" class="ant-select" style="width:80px" onchange="changePageSize(this.value)"><option>10</option><option selected>20</option><option>50</option><option>100</option></select><span>条</span></div><div class="ant-pagination"><button class="ant-pagination-item" onclick="changePage(currentPage-1)"><i class="fa-solid fa-chevron-left"></i></button><span id="pageButtons"></span><button class="ant-pagination-item" onclick="changePage(currentPage+1)"><i class="fa-solid fa-chevron-right"></i></button></div></div></div>
+<div class="ant-modal-mask" id="algorithmModal"><div class="ant-modal" style="width:760px"><div class="ant-modal-header"><span id="algorithmModalTitle">新增算法</span><span class="ant-modal-close" onclick="closeModal('algorithmModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="grid grid-cols-2 gap-4"><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">算法名称</label><input id="algoName" class="ant-input" placeholder="如：厨房违规检测"></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">算法编码</label><input id="algoCode" class="ant-input" placeholder="ALG_KITCHEN_VIOLATION"></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">算法类型</label><select class="ant-select w-full"><option>安全防范</option><option>合规检测</option><option>环境监测</option><option>人员统计</option><option>车辆统计</option></select></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">输出类型</label><select class="ant-select w-full"><option>告警事件</option><option>统计数据</option><option>两者都有</option></select></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">默认建议级别</label><select class="ant-select w-full"><option>重要</option><option>紧急</option><option>一般</option></select><div class="text-xs text-secondary mt-1">默认建议级别用于业务首次关联该算法时自动带入，业务可在业务管理中调整本业务采用级别。最终告警级别以业务算法配置为准</div></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">状态</label><select class="ant-select w-full"><option>启用</option><option>停用</option></select></div></div><div class="ant-form-item"><label class="ant-form-label">算法描述</label><textarea class="ant-input" rows="3" placeholder="说明算法检测目标和适用场景"></textarea></div><div class="ant-card ant-card-bordered"><div class="ant-card-head"><div class="ant-card-head-title">可配参数定义</div><button class="ant-btn ant-btn-sm" onclick="addParamRow()"><i class="fa-solid fa-plus"></i> 添加参数</button></div><div class="ant-card-body" style="padding:0"><table class="ant-table"><thead><tr><th>参数名</th><th>参数标识</th><th>类型</th><th>取值范围</th><th>默认值</th><th>单位</th><th>必填</th><th>参数说明</th><th>操作</th></tr></thead><tbody id="paramRows"><tr><td><input class="ant-input" value="灵敏度"></td><td><input class="ant-input" value="sensitivity"></td><td><select class="ant-select"><option>数字滑块</option><option>下拉单选</option></select></td><td><input class="ant-input" value="0-100"></td><td><input class="ant-input" value="80"></td><td><input class="ant-input" value="%"></td><td><select class="ant-select"><option>否</option><option>是</option></select></td><td><input class="ant-input" value="检测灵敏度，值越高越敏感"></td><td><span class="tip-wrap"><button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" disabled>删除</button><span class="tip-text">该参数已被策略引用，不可删除</span></span></td></tr></tbody></table></div></div></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('algorithmModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="saveAlgorithm()">保存算法</button></div></div></div>
+<div class="ant-modal-mask" id="detailDrawer"><div class="ant-modal drawer-panel"><div class="ant-modal-header"><span id="detailTitle">算法详情</span><span class="ant-modal-close" onclick="closeModal('detailDrawer')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body" id="detailBody"></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('detailDrawer')">关闭</button><button class="ant-btn ant-btn-primary" onclick="openAlgorithmModal(selectedId)">编辑算法</button></div></div></div>
+<!-- 编辑参数变更软提示弹窗 -->
+<div class="ant-modal-mask" id="paramChangeModal"><div class="ant-modal" style="width:560px"><div class="ant-modal-header"><span>参数变更影响确认</span><span class="ant-modal-close" onclick="closeModal('paramChangeModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="ant-alert ant-alert-warning mb-3"><i class="fa-solid fa-triangle-exclamation" style="color:#faad14"></i> <span id="paramChangeDesc">以下参数变更将影响下游策略，请确认后继续。</span></div><div id="paramChangeList" style="max-height:240px;overflow:auto"></div></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('paramChangeModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="confirmParamChange()">确认变更</button></div></div></div>
+<!-- 算法类型管理弹窗 -->
+<div class="ant-modal-mask" id="typeManageModal"><div class="ant-modal" style="width:600px"><div class="ant-modal-header"><span>算法类型管理</span><span class="ant-modal-close" onclick="closeModal('typeManageModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="ant-alert ant-alert-info mb-3">算法类型为全局字典，新增后所有算法可选用。已被算法引用的类型不可删除。</div><div class="flex gap-2 mb-3"><input id="newTypeName" class="ant-input" style="flex:1" placeholder="输入新类型名称，如：设备状态检测"><button class="ant-btn ant-btn-primary" onclick="addAlgorithmType()"><i class="fa-solid fa-plus"></i> 新增</button></div><table class="ant-table"><thead><tr><th>类型名称</th><th>引用算法数</th><th>状态</th><th>操作</th></tr></thead><tbody id="typeManageBody"></tbody></table></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('typeManageModal')">关闭</button></div></div></div>
+<div class="ant-modal-mask" id="refsModal"><div class="ant-modal" style="width:860px"><div class="ant-modal-header"><span id="refsModalTitle">引用情况</span><span class="ant-modal-close" onclick="closeModal('refsModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="ant-tabs mb-3" style="display:flex;gap:4px;border-bottom:1px solid var(--ant-border-secondary);padding-bottom:8px"><button class="ant-btn ant-btn-sm ant-btn-primary" id="refsTabBiz" onclick="switchRefsTab('biz')">被业务引用</button><button class="ant-btn ant-btn-sm" id="refsTabPolicy" onclick="switchRefsTab('policy')">被策略引用</button></div><div id="refsBizWrap"><table class="ant-table"><thead><tr><th>业务名称</th><th>本业务告警级别</th><th>本业务状态</th><th>业务负责人</th><th>被策略引用数</th><th>更新时间</th></tr></thead><tbody id="refsBizBody"></tbody></table></div><div id="refsPolicyWrap" class="hidden"><table class="ant-table"><thead><tr><th>策略名称</th><th>所属业务</th><th>策略状态</th><th>业务算法级别</th><th>覆盖范围</th><th>最近触发时间</th><th>操作</th></tr></thead><tbody id="refsBody"></tbody></table></div></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('refsModal')">关闭</button></div></div></div>
+<div class="ant-modal-mask" id="confirmModal"><div class="ant-modal" style="width:420px"><div class="ant-modal-header"><span>确认操作</span><span class="ant-modal-close" onclick="closeModal('confirmModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><p id="confirmText">确定操作？</p></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('confirmModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="runConfirm()">确认执行</button></div></div></div>
+<script>
+function toggleSubMenu(el){el.classList.toggle('expanded');var sub=el.nextElementSibling;if(sub&&sub.classList.contains('menu-sub')){sub.classList.toggle('collapsed')}}
+</script>
+
+<script>
+const algorithms=[
+{id:1,name:'厨房违规检测',code:'ALG_KITCHEN_VIOLATION',type:'合规检测',outputType:'告警事件',level:'重要',bizRefs:3,refs:8,status:'启用',creator:'alex',createTime:'2026-06-21 09:40',desc:'检测后厨人员违规行为，包括未戴工帽、违规吸烟、人员离岗等',params:[{name:'灵敏度',key:'sensitivity',type:'数字滑块',required:'是',range:'0-100',default:'80',unit:'%',desc:'检测灵敏度阈值'},{name:'持续时间',key:'duration',type:'数字输入',required:'是',range:'1-30',default:'5',unit:'秒',desc:'目标持续出现时间'},{name:'最小目标',key:'min_size',type:'数字输入',required:'否',range:'16-256',default:'32',unit:'px',desc:'最小检测目标尺寸'},{name:'识别阈值',key:'threshold',type:'数字滑块',required:'是',range:'0.5-0.99',default:'0.85',unit:'',desc:'置信度阈值'}]},
+{id:2,name:'消防通道占用识别',code:'ALG_FIRE_LANE_OCCUPY',type:'安全防范',outputType:'告警事件',level:'紧急',bizRefs:2,refs:5,status:'启用',creator:'alex',createTime:'2026-06-20 16:12',desc:'检测消防通道是否有车辆或杂物占用',params:[{name:'占用比例',key:'occupy_ratio',type:'数字滑块',required:'是',range:'0.2-1.0',default:'0.5',unit:'',desc:'占用面积比例阈值'},{name:'持续时间',key:'duration',type:'数字输入',required:'是',range:'3-60',default:'10',unit:'秒',desc:'持续占用时间'}]},
+{id:3,name:'人员聚集统计',code:'ALG_CROWD_COUNT',type:'人员统计',outputType:'两者都有',level:'一般',bizRefs:2,refs:3,status:'启用',creator:'wang',createTime:'2026-06-18 11:25',desc:'统计区域内人员数量并检测聚集情况',params:[{name:'聚集阈值',key:'gather_threshold',type:'数字输入',required:'是',range:'5-50',default:'10',unit:'人',desc:'触发聚集告警的人数'},{name:'统计周期',key:'cycle',type:'数字输入',required:'是',range:'1-60',default:'5',unit:'秒',desc:'统计采样周期'}]},
+{id:4,name:'烟雾明火检测',code:'ALG_SMOKE_FIRE',type:'安全防范',outputType:'告警事件',level:'紧急',bizRefs:4,refs:12,status:'启用',creator:'alex',createTime:'2026-06-16 14:05',desc:'检测画面中的烟雾和明火特征',params:[{name:'灵敏度',key:'sensitivity',type:'数字滑块',required:'是',range:'0-100',default:'90',unit:'%',desc:'检测灵敏度'},{name:'最小火焰面积',key:'min_fire_area',type:'数字输入',required:'否',range:'100-10000',default:'500',unit:'px',desc:'最小火焰像素面积'}]},
+{id:5,name:'垃圾满溢识别',code:'ALG_TRASH_OVERFLOW',type:'环境监测',outputType:'告警事件',level:'一般',bizRefs:1,refs:2,status:'启用',creator:'li',createTime:'2026-06-14 10:18',desc:'检测垃圾桶是否满溢',params:[{name:'满溢比例',key:'overflow_ratio',type:'数字滑块',required:'是',range:'0.5-1.0',default:'0.8',unit:'',desc:'触发阈值'}]},
+{id:6,name:'车辆违停检测',code:'ALG_ILLEGAL_PARKING',type:'车辆统计',outputType:'告警事件',level:'重要',bizRefs:2,refs:4,status:'启用',creator:'alex',createTime:'2026-06-13 17:45',desc:'检测禁停区域内的违停车辆',params:[{name:'停留时间',key:'stay_time',type:'数字输入',required:'是',range:'10-300',default:'60',unit:'秒',desc:'触发违停的停留时长'},{name:'置信度',key:'confidence',type:'数字滑块',required:'是',range:'0.5-0.99',default:'0.8',unit:'',desc:'车辆识别置信度'}]},
+{id:7,name:'出入口客流统计',code:'ALG_GATE_FLOW',type:'人员统计',outputType:'统计数据',level:'—',bizRefs:0,refs:0,status:'停用',creator:'wang',createTime:'2026-06-12 08:30',desc:'统计出入口通过人数',params:[{name:'统计周期',key:'cycle',type:'数字输入',required:'是',range:'1-60',default:'10',unit:'秒',desc:'采样周期'}]},
+{id:8,name:'水浸异常检测',code:'ALG_WATER_LEAK',type:'环境监测',outputType:'告警事件',level:'重要',bizRefs:1,refs:1,status:'启用',creator:'li',createTime:'2026-06-10 12:22',desc:'检测画面中的积水/水浸现象',params:[{name:'灵敏度',key:'sensitivity',type:'数字滑块',required:'是',range:'0-100',default:'70',unit:'%',desc:'检测灵敏度'},{name:'最小面积',key:'min_area',type:'数字输入',required:'否',range:'50-5000',default:'200',unit:'px',desc:'最小积水面积'}]},
+{id:9,name:'未戴工帽识别',code:'ALG_HELMET_MISSING',type:'合规检测',outputType:'告警事件',level:'重要',bizRefs:2,refs:6,status:'启用',creator:'alex',createTime:'2026-06-09 15:10',desc:'检测施工/后厨区域未佩戴工帽人员',params:[{name:'置信度',key:'confidence',type:'数字滑块',required:'是',range:'0.5-0.99',default:'0.85',unit:'',desc:'识别置信度阈值'},{name:'持续时间',key:'duration',type:'数字输入',required:'是',range:'1-10',default:'3',unit:'秒',desc:'持续未戴时长'}]},
+{id:10,name:'越界闯入检测',code:'ALG_CROSS_BORDER',type:'安全防范',outputType:'告警事件',level:'紧急',bizRefs:3,refs:7,status:'启用',creator:'alex',createTime:'2026-06-08 09:12',desc:'检测设定的越界线闯入行为',params:[{name:'置信度',key:'confidence',type:'数字滑块',required:'是',range:'0.5-0.99',default:'0.8',unit:'',desc:'闯入识别置信度'}]},
+{id:11,name:'温湿度趋势分析',code:'ALG_TEMP_HUMID_TREND',type:'环境监测',outputType:'统计数据',level:'—',bizRefs:0,refs:0,status:'停用',creator:'wang',createTime:'2026-06-07 13:08',desc:'分析温湿度传感器数据趋势',params:[{name:'采样间隔',key:'interval',type:'数字输入',required:'是',range:'1-60',default:'5',unit:'分钟',desc:'数据采样间隔'}]},
+{id:12,name:'车辆通行统计',code:'ALG_VEHICLE_FLOW',type:'车辆统计',outputType:'统计数据',level:'—',bizRefs:0,refs:0,status:'启用',creator:'li',createTime:'2026-06-06 18:20',desc:'统计车道车辆通行数量',params:[{name:'统计周期',key:'cycle',type:'数字输入',required:'是',range:'1-60',default:'10',unit:'秒',desc:'统计采样周期'}]}];
+/* 算法类型字典（可扩展） */
+const algorithmTypes=['安全防范','合规检测','环境监测','人员统计','车辆统计'];
+let editingParamsChanged=false;
+let currentPage=1,pageSize=20,filtered=algorithms,selectedId=1,confirmCallback=null;
+function tagLevel(v){return v==='紧急'?'ant-tag-red':v==='重要'?'ant-tag-orange':v==='一般'?'ant-tag-blue':'ant-tag-gray'}
+function tagPolicy(v){return v==='启用'?'ant-tag-green':v==='暂停'?'ant-tag-gray':v==='待修复'?'ant-tag-red':'ant-tag-gray'}
+function getFilters(){return {type:document.getElementById('filterType').value,status:document.getElementById('filterStatus').value,name:document.getElementById('filterName').value.trim()};}
+function handleSearch(){currentPage=1;renderTable();showToast('查询完成');}
+function handleReset(){document.getElementById('filterType').value='';document.getElementById('filterStatus').value='';document.getElementById('filterName').value='';currentPage=1;renderTable();showToast('筛选条件已重置');}
+function renderTable(){const f=getFilters();filtered=algorithms.filter(a=>(!f.type||a.type===f.type)&&(!f.status||a.status===f.status)&&(!f.name||a.name.includes(f.name)));const start=(currentPage-1)*pageSize;const rows=filtered.slice(start,start+pageSize);document.getElementById('algorithmBody').innerHTML=rows.map(a=>`<tr><td><a href="javascript:void(0)" onclick="openDetail(${a.id})">${a.name}</a></td><td><code>${a.code}</code></td><td><span class="ant-tag ant-tag-blue">${a.type}</span></td><td>${a.outputType}</td><td><span class="ant-tag ${tagLevel(a.level)}">${a.level}</span></td><td><button class="ant-btn ant-btn-text ant-btn-sm" onclick="openRefs(${a.id})">业务 ${a.bizRefs} / 策略 ${a.refs}</button></td><td><span class="ant-tag ${a.status==='启用'?'ant-tag-green':'ant-tag-gray'}">${a.status}</span></td><td>${a.createTime}</td><td><div class="action-wrap">${renderActions(a)}</div></td></tr>`).join('');document.getElementById('algorithmEmpty').classList.toggle('hidden',filtered.length>0);updatePagination();}
+function renderActions(a){const editBtn=`<button class="ant-btn ant-btn-text ant-btn-sm" onclick="openAlgorithmModal(${a.id})">编辑</button>`;let stopBtn,deleteBtn;if(a.status==='启用'){const hasEnabledPolicyRefs=a.refs>0;if(hasEnabledPolicyRefs){stopBtn=`<span class="tip-wrap"><button class="ant-btn ant-btn-text ant-btn-sm" disabled>停用</button><span class="tip-text">该算法被 ${a.refs} 条启用策略引用，请先停用或解除相关策略引用后再停用算法</span></span><button class="ant-btn ant-btn-text ant-btn-sm" onclick="openRefs(${a.id})">查看引用</button>`;}else{stopBtn=`<button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleStatus(${a.id})">停用</button>`;}}else{stopBtn=`<button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleStatus(${a.id})">启用</button>`;}const tips=[];if(a.status==='启用')tips.push(`请先停用算法后再删除`);if(a.bizRefs>0)tips.push(`该算法被 ${a.bizRefs} 个业务关联，请先在业务算法配置中解绑`);if(a.refs>0)tips.push(`该算法被 ${a.refs} 条策略引用，请先解除引用`);if(a.refs>0||a.bizRefs>0)tips.push(`该算法存在历史告警引用，不能删除。请改为停用`);if(tips.length>0){deleteBtn=`<span class="tip-wrap"><button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" disabled>删除</button><span class="tip-text">${tips.join('<br>')}</span></span>`;}else{deleteBtn=`<button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="deleteAlgorithm(${a.id})">删除</button>`;}return editBtn+stopBtn+deleteBtn;}
+function updatePagination(){const max=Math.max(1,Math.ceil(filtered.length/pageSize));currentPage=Math.min(currentPage,max);document.getElementById('pageInfo').textContent=`共 ${filtered.length} 条，当前第 ${currentPage}/${max} 页`;let html='';for(let i=1;i<=max;i++)html+=`<button class="ant-pagination-item ${i===currentPage?'active':''}" onclick="changePage(${i})">${i}</button>`;document.getElementById('pageButtons').innerHTML=html;}
+function changePage(p){const max=Math.max(1,Math.ceil(filtered.length/pageSize));currentPage=Math.min(Math.max(1,p),max);renderTable();}
+function changePageSize(v){pageSize=parseInt(v)||20;currentPage=1;renderTable();}
+function refreshTable(){document.getElementById('algorithmBody').innerHTML='<tr><td colspan="9" style="text-align:center;padding:36px"><i class="fa-solid fa-spinner fa-spin" style="color:var(--ant-primary)"></i><div class="mt-2 text-secondary">刷新中…</div></td></tr>';setTimeout(()=>{renderTable();showToast('列表已刷新');},500)}
+function openAlgorithmModal(id){selectedId=id||null;document.getElementById('algorithmModalTitle').textContent=id?'编辑算法':'新增算法';const a=algorithms.find(x=>x.id===id);document.getElementById('algoName').value=a?a.name:'';document.getElementById('algoCode').value=a?a.code:'';document.getElementById('algoCode').classList.toggle('readonly',!!id);openModal('algorithmModal');}
+function addParamRow(){document.getElementById('paramRows').insertAdjacentHTML('beforeend','<tr><td><input class="ant-input" placeholder="参数名"></td><td><input class="ant-input" placeholder="param_key"></td><td><select class="ant-select"><option>数字输入</option><option>文本输入</option></select></td><td><input class="ant-input" placeholder="如 0-100"></td><td><input class="ant-input" placeholder="默认值"></td><td><input class="ant-input" placeholder="单位"></td><td><select class="ant-select" disabled title="已被策略引用的算法新增参数仅允许非必填"><option>否</option></select></td><td><input class="ant-input" placeholder="参数说明"></td><td><button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="this.closest(\'tr\').remove();showToast(\'参数行已删除\')">删除</button></td></tr>');}
+function saveAlgorithm(){const name=document.getElementById('algoName').value.trim();if(!name){showToast('保存失败：算法名称不能为空');return;}if(selectedId&&checkParamChangeOnSave())return;showToast(selectedId?'算法已保存':'算法已创建');closeModal('algorithmModal');renderTable();}
+function openDetail(id){selectedId=id;const a=algorithms.find(x=>x.id===id);document.getElementById('detailTitle').textContent='算法详情 - '+a.name;const paramTableHtml=a.params&&a.params.length?'<table class="ant-table" style="font-size:12px"><thead><tr><th>参数名</th><th>参数标识</th><th>类型</th><th>必填</th><th>取值范围</th><th>默认值</th><th>单位</th><th>说明</th></tr></thead><tbody>'+a.params.map(p=>'<tr><td>'+p.name+'</td><td><code>'+p.key+'</code></td><td>'+p.type+'</td><td>'+(p.required==='是'?'<span style="color:#ff4d4f">是</span>':'否')+'</td><td>'+p.range+'</td><td>'+p.default+'</td><td>'+(p.unit||'—')+'</td><td style="color:#8c8c8c">'+(p.desc||'—')+'</td></tr>').join('')+'</tbody></table>':'<div class="text-secondary text-sm" style="padding:16px;text-align:center">该算法暂无可配参数</div>';document.getElementById('detailBody').innerHTML='<div class="metric-strip mb-4"><div class="metric-pill"><div class="text-secondary text-xs">引用情况</div><div class="text-xl font-semibold">业务 '+a.bizRefs+' / 策略 '+a.refs+'</div></div><div class="metric-pill"><div class="text-secondary text-xs">状态</div><span class="ant-tag '+(a.status==='启用'?'ant-tag-green':'ant-tag-gray')+'">'+a.status+'</span></div></div><div class="ant-card ant-card-bordered mb-4"><div class="ant-card-head"><div class="ant-card-head-title">基本信息</div></div><div class="ant-card-body field-grid"><div>算法编码：<code>'+a.code+'</code></div><div>算法类型：'+a.type+'</div><div>输出类型：'+a.outputType+'</div><div>默认建议级别：'+(a.level==='—'?'<span class="text-tertiary">—</span>':'<span class="ant-tag '+tagLevel(a.level)+'">'+a.level+'</span>')+'</div><div>创建人：'+a.creator+'</div><div>创建时间：'+a.createTime+'</div><div>最近更新：昨天 17:20</div></div><div class="text-xs text-secondary mt-3" style="grid-column:1/-1">默认建议级别用于业务首次关联该算法时自动带入，业务可在业务管理中调整本业务采用级别。最终告警级别以业务算法配置为准。</div></div><div class="ant-card ant-card-bordered mb-4"><div class="ant-card-head"><div class="ant-card-head-title">算法描述</div></div><div class="ant-card-body"><div style="font-size:13px;color:#595959;line-height:1.6">'+(a.desc||'暂无描述')+'</div></div></div><div class="ant-card ant-card-bordered mb-4"><div class="ant-card-head"><div class="ant-card-head-title">参数定义 ('+(a.params?a.params.length:0)+' 个)</div></div><div class="ant-card-body" style="padding:0;overflow:auto">'+paramTableHtml+'</div></div><div class="ant-card ant-card-bordered"><div class="ant-card-head"><div class="ant-card-head-title">引用关系</div><div class="ant-card-extra"><div class="ant-tabs" style="display:inline-flex;gap:4px"><button class="ant-btn ant-btn-sm ant-btn-primary" id="detailTabBiz" onclick="switchDetailTab(\'biz\')">被业务引用</button><button class="ant-btn ant-btn-sm" id="detailTabPolicy" onclick="switchDetailTab(\'policy\')">被策略引用</button></div></div></div><div class="ant-card-body"><div id="detailBizRefList"></div><div id="detailPolicyRefList" class="hidden"></div></div></div>';renderDetailRefs(a);openModal('detailDrawer');}
+function renderDetailRefs(a){const bizList=[{name:'明厨亮灶监管业务',level:'重要',status:'启用',owner:'张明',policyCount:3,updateTime:'2026-06-24 14:20'},{name:'消防通道监管业务',level:'紧急',status:'启用',owner:'李强',policyCount:2,updateTime:'2026-06-23 09:12'},{name:'养老机构安全业务',level:'重要',status:'启用',owner:'王芳',policyCount:1,updateTime:'2026-06-22 17:45'}].slice(0,Math.max(1,a.bizRefs));const policyList=[{name:'明厨亮灶-A区监管策略',biz:'明厨亮灶监管业务',status:'启用',level:'重要',scope:'片区A',triggerTime:'2026-06-25 08:12'},{name:'消防通道重点监管策略',biz:'消防通道监管业务',status:'启用',level:'紧急',scope:'全街道',triggerTime:'2026-06-25 07:40'},{name:'综治-夜间巡查策略',biz:'综治巡查业务',status:'暂停',level:'重要',scope:'片区B',triggerTime:'2026-06-24 22:30'},{name:'养老机构安全策略',biz:'养老机构安全业务',status:'待修复',level:'一般',scope:'院区',triggerTime:'—'}].slice(0,Math.max(1,a.refs));document.getElementById('detailBizRefList').innerHTML=`<table class="ant-table"><thead><tr><th>业务名称</th><th>本业务告警级别</th><th>本业务状态</th><th>业务负责人</th><th>被策略引用数</th><th>更新时间</th></tr></thead><tbody>${bizList.map(b=>`<tr><td>${b.name}</td><td><span class="ant-tag ${tagLevel(b.level)}">${b.level}</span></td><td><span class="ant-tag ${tagPolicy(b.status)}">${b.status}</span></td><td>${b.owner}</td><td>${b.policyCount}</td><td>${b.updateTime}</td></tr>`).join('')}</tbody></table>`;document.getElementById('detailPolicyRefList').innerHTML=`<table class="ant-table"><thead><tr><th>策略名称</th><th>所属业务</th><th>策略状态</th><th>业务算法级别</th><th>覆盖范围</th><th>最近触发时间</th></tr></thead><tbody>${policyList.map(p=>`<tr><td>${p.name}</td><td>${p.biz}</td><td><span class="ant-tag ${tagPolicy(p.status)}">${p.status}</span></td><td><span class="ant-tag ${tagLevel(p.level)}">${p.level}</span></td><td>${p.scope}</td><td>${p.triggerTime}</td></tr>`).join('')}</tbody></table>`;}
+function checkParamChangeOnSave(){
+  if(!selectedId)return false;
+  const a=algorithms.find(x=>x.id===selectedId);
+  if(!a||!a.params)return false;
+  /* 模拟：取值范围变更影响检查 */
+  const affectedStrategies=[
+    {param:'灵敏度',change:'取值范围从 0-100 改为 0-80',count:5},
+    {param:'识别阈值',change:'取值范围从 0.5-0.99 改为 0.6-0.95',count:3}
+  ];
+  if(a.refs>0&&affectedStrategies.length>0){
+    document.getElementById('paramChangeDesc').textContent='以下参数变更将影响 '+a.refs+' 条引用策略，部分策略的已存参数值可能超出新范围，请确认后继续。';
+    document.getElementById('paramChangeList').innerHTML=affectedStrategies.map(s=>'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f5f5f5"><i class="fa-solid fa-triangle-exclamation" style="color:#faad14"></i><span style="font-size:13px"><strong>'+s.param+'</strong>：'+s.change+'，影响 <strong>'+s.count+'</strong> 条策略</span></div>').join('');
+    openModal('paramChangeModal');
+    return true;
+  }
+  return false;
+}
+function confirmParamChange(){closeModal('paramChangeModal');showToast('参数变更已确认，受影响策略需手动修正');closeModal('algorithmModal');renderTable();}
+function openTypeManage(){
+  const typeCount={};
+  algorithms.forEach(a=>{typeCount[a.type]=(typeCount[a.type]||0)+1});
+  document.getElementById('typeManageBody').innerHTML=algorithmTypes.map(t=>'<tr><td>'+t+'</td><td>'+(typeCount[t]||0)+'</td><td><span class="ant-tag ant-tag-green">启用</span></td><td>'+(typeCount[t]>0?'<span class="text-tertiary text-sm">已被引用，不可删除</span>':'<button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="deleteAlgorithmType(\''+t+'\')">删除</button>')+'</td></tr>').join('');
+  openModal('typeManageModal');
+}
+function addAlgorithmType(){
+  const name=document.getElementById('newTypeName').value.trim();
+  if(!name){showToast('请输入类型名称');return}
+  if(algorithmTypes.includes(name)){showToast('该类型已存在');return}
+  algorithmTypes.push(name);
+  document.getElementById('newTypeName').value='';
+  openTypeManage();
+  showToast('算法类型「'+name+'」已新增');
+  /* 同步更新筛选器和表单下拉 */
+  updateTypeSelects();
+}
+function deleteAlgorithmType(name){
+  const count=algorithms.filter(a=>a.type===name).length;
+  if(count>0){showToast('该类型已被 '+count+' 个算法引用，不能删除');return}
+  const idx=algorithmTypes.indexOf(name);
+  if(idx>-1)algorithmTypes.splice(idx,1);
+  openTypeManage();
+  showToast('算法类型「'+name+'」已删除');
+  updateTypeSelects();
+}
+function updateTypeSelects(){
+  const opts='<option value="">全部</option>'+algorithmTypes.map(t=>'<option>'+t+'</option>').join('');
+  const filterEl=document.getElementById('filterType');
+  if(filterEl)filterEl.innerHTML=opts;
+}
+
+function switchDetailTab(tab){const biz=document.getElementById('detailTabBiz'),pol=document.getElementById('detailTabPolicy'),bizList=document.getElementById('detailBizRefList'),polList=document.getElementById('detailPolicyRefList');if(tab==='biz'){biz.classList.add('ant-btn-primary');pol.classList.remove('ant-btn-primary');bizList.classList.remove('hidden');polList.classList.add('hidden');}else{pol.classList.add('ant-btn-primary');biz.classList.remove('ant-btn-primary');polList.classList.remove('hidden');bizList.classList.add('hidden');}}
+function openRefs(id){const a=algorithms.find(x=>x.id===id);document.getElementById('refsModalTitle').textContent=a.name+' 引用情况';const bizList=[{name:'明厨亮灶监管业务',level:'重要',status:'启用',owner:'张明',policyCount:3,updateTime:'2026-06-24 14:20'},{name:'消防通道监管业务',level:'紧急',status:'启用',owner:'李强',policyCount:2,updateTime:'2026-06-23 09:12'},{name:'养老机构安全业务',level:'重要',status:'启用',owner:'王芳',policyCount:1,updateTime:'2026-06-22 17:45'}].slice(0,Math.max(1,a.bizRefs));document.getElementById('refsBizBody').innerHTML=bizList.map(b=>`<tr><td>${b.name}</td><td><span class="ant-tag ${tagLevel(b.level)}">${b.level}</span></td><td><span class="ant-tag ${b.status==='启用'?'ant-tag-green':'ant-tag-gray'}">${b.status}</span></td><td>${b.owner}</td><td>${b.policyCount}</td><td>${b.updateTime}</td></tr>`).join('');document.getElementById('refsBody').innerHTML=['明厨亮灶-A区监管策略','消防通道重点监管策略','综治-夜间巡查策略','养老机构安全策略'].map((n,i)=>{const bizName=i%2?'消防通道监管业务':'明厨亮灶监管业务';const lv=i%2?'紧急':'重要';return `<tr><td>${n}</td><td>${bizName}</td><td><span class="ant-tag ant-tag-green">启用</span></td><td><span class="ant-tag ${tagLevel(lv)}">${lv}</span></td><td>片区${String.fromCharCode(65+i)}</td><td>2026-06-25 ${8+i}:${10+i}0</td><td><button class="ant-btn ant-btn-text ant-btn-sm" onclick="location.href='../admin-policy/home.html?business_id=biz_001'">查看策略</button></td></tr>`;}).join('');switchRefsTab('biz');openModal('refsModal');}
+function switchRefsTab(tab){const biz=document.getElementById('refsTabBiz'),pol=document.getElementById('refsTabPolicy'),bizWrap=document.getElementById('refsBizWrap'),polWrap=document.getElementById('refsPolicyWrap');if(tab==='biz'){biz.classList.add('ant-btn-primary');pol.classList.remove('ant-btn-primary');bizWrap.classList.remove('hidden');polWrap.classList.add('hidden');}else{pol.classList.add('ant-btn-primary');biz.classList.remove('ant-btn-primary');polWrap.classList.remove('hidden');bizWrap.classList.add('hidden');}}
+function askConfirm(text,cb){confirmCallback=cb;document.getElementById('confirmText').textContent=text;openModal('confirmModal');}
+function runConfirm(){if(confirmCallback)confirmCallback();closeModal('confirmModal');}
+function toggleStatus(id){const a=algorithms.find(x=>x.id===id);if(a.status==='启用'){if(a.refs>0){showToast('该算法被 '+a.refs+' 条启用策略引用，请先停用或解除相关策略引用后再停用算法');return;}askConfirm('停用后将不能被新业务关联。'+a.bizRefs+' 个业务已关联该算法，已派单告警继续处置，但新告警将不再产生。',()=>{a.status='停用';renderTable();showToast('算法状态已更新');});}else{askConfirm('启用算法「'+a.name+'」？',()=>{a.status='启用';renderTable();showToast('算法状态已更新');});}}
+function deleteAlgorithm(id){const a=algorithms.find(x=>x.id===id);if(a.status==='启用'){showToast('请先停用算法后再删除');return;}if(a.bizRefs>0||a.refs>0){showToast('当前算法已被业务关联、策略引用或存在历史告警，不能删除。请改为停用。');return;}askConfirm('删除算法「'+a.name+'」？仅停用且无引用时可删除。',()=>showToast('算法已删除'));}
+renderTable();
+</script>
+
+    </main>
+  </div>
+</div>
+<div class="toast-wrap"></div>
+<script>
+function showToast(msg, duration) {
+  duration = duration || 2000;
+  var wrap = document.querySelector('.toast-wrap');
+  var el = document.createElement('div');
+  el.className = 'toast-msg';
+  el.innerHTML = '<i class="fa-solid fa-circle-info" style="color:#1677ff"></i>' + msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(function(){ el.classList.add('show'); });
+  setTimeout(function(){ el.classList.remove('show'); setTimeout(function(){ el.remove(); }, 300); }, duration);
+}
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') document.querySelectorAll('.ant-modal-mask.active').forEach(function(m){m.classList.remove('active');}); });
+document.querySelectorAll('.ant-modal-mask').forEach(function(mask){ mask.addEventListener('click', function(e){ if(e.target===mask) mask.classList.remove('active'); }); });
+</script>
+</body>
+</html>

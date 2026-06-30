@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>告警详情 - 算法中心 + 业务场景功能</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>
+    .overview-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+    .overview-item{background:#fff;border:1px solid var(--ant-border-secondary);border-radius:8px;padding:12px 14px;box-shadow:var(--shadow-1)}
+    .field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 24px}
+    .field-item{display:flex;gap:8px;line-height:24px}.field-label{color:var(--ant-text-secondary);min-width:96px}.field-value{color:var(--ant-text);font-weight:500}
+    .process-card{border:1px solid var(--ant-primary);background:linear-gradient(180deg,#f8fbff,#fff);border-radius:8px}
+    .radio-card{border:1px solid var(--ant-border-secondary);border-radius:8px;padding:12px 14px;cursor:pointer;background:#fff;transition:all .2s}.radio-card.active{border-color:#1677ff;background:#e6f4ff;color:#1677ff}.radio-card:hover{border-color:#4096ff}
+    .evidence-main{height:360px;border-radius:10px;background:linear-gradient(135deg,#172554,#0f766e);color:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;overflow:hidden}
+    .detect-box{position:absolute;border:2px solid #ff4d4f;border-radius:6px;left:44%;top:28%;width:132px;height:118px}.detect-label{position:absolute;left:44%;top:calc(28% - 28px);background:#ff4d4f;color:#fff;border-radius:4px;padding:2px 6px;font-size:12px}
+    .thumb{height:72px;border-radius:8px;background:linear-gradient(135deg,#1e3a8a,#047857);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid transparent}.thumb.active{border-color:#1677ff}
+    .timeline{display:flex;gap:8px;align-items:flex-start}.flow-step{flex:1;background:#fff;border:1px solid var(--ant-border-secondary);border-radius:8px;padding:14px;min-height:104px}.flow-step.active{border-color:#1677ff;background:#e6f4ff}.flow-step.done{border-color:#52c41a;background:#f6ffed}.flow-step.pending{background:#fafafa;color:var(--ant-text-secondary)}
+    .tab-panel.hidden{display:none}.readonly-card{background:#f6ffed;border:1px solid #b7eb8f;border-radius:8px;padding:12px}
+    .ant-tag-lightgreen{background:#d9f7be;color:#52c41a;border-color:#b7eb8f}
+    .flow-branch{border:1px dashed var(--ant-border-secondary);border-radius:8px;padding:10px 14px;background:#fafafa;font-size:13px;color:var(--ant-text-secondary);line-height:22px}
+    @media(max-width:1280px){.overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.field-grid{grid-template-columns:1fr}.timeline{flex-direction:column}.flow-step{width:100%}}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">算法中心 + 业务场景功能</span>
+    <div class="spacer"></div>
+    <button class="nav-action" onclick="showToast('通知中心已打开')"><i class="fa-regular fa-bell mr-1"></i>6</button>
+    <button class="nav-action" onclick="showToast('已切换为演示账号')"><i class="fa-regular fa-user mr-1"></i>平台管理员 · alex</button>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">4 大核心模块</div>
+      <div class="menu-item" onclick="location.href='../admin-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>算法中心</div>
+      <div class="menu-item" onclick="location.href='../admin-grid/list.html'"><i class="fa-solid fa-sitemap"></i>业务管理</div>
+      <div class="menu-item" onclick="location.href='../admin-policy/home.html'"><i class="fa-solid fa-diagram-project"></i>策略管理</div>
+      <div class="menu-item has-sub" onclick="toggleSubMenu(this)"><i class="fa-solid fa-bell"></i>报警中心<i class="fa-solid fa-chevron-right menu-arrow"></i></div>
+      <div class="menu-sub collapsed">
+        <div class="menu-item" onclick="location.href='../admin-dashboard/index.html'">看板</div>
+        <div class="menu-item" onclick="location.href='../handle-flow/confirm.html'" style="position:relative">待确认告警<span class="menu-badge">18</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/handle.html'" style="position:relative">待处理告警<span class="menu-badge">26</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/review.html'" style="position:relative">待审核告警<span class="menu-badge">9</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/list.html'">告警列表</div>
+      </div>
+      <div class="menu-group-title mt-4">原型版本</div>
+      <div class="menu-item" onclick="location.href='../index.html'"><i class="fa-solid fa-compass"></i>返回导航中心</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><a href="list.html" id="backLink">告警列表</a><span>/</span><span class="current">告警详情</span></div>
+
+      <div class="ant-card ant-card-bordered mb-4">
+        <div class="ant-card-body">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="page-title m-0">后厨人员未戴工帽</div>
+                <span class="ant-tag ant-tag-orange" id="statusBadge">待处理</span>
+                <span class="ant-tag ant-tag-orange">重要</span>
+              </div>
+              <div class="text-secondary text-sm">
+                <code>ALM20260625-00123</code>
+                <span class="mx-2">·</span>明厨亮灶 / 西湖区监管一所 / 片区A
+                <span class="mx-2">·</span>触发时间：2026-06-25 09:30:12
+              </div>
+              <div class="text-secondary text-sm mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                <span>告警级别：<span class="font-medium" style="color:var(--ant-text)">重要</span></span>
+                <span>来源：<span class="font-medium" style="color:var(--ant-text)">业务算法配置</span></span>
+                <span>产生时快照：<span class="font-medium" style="color:var(--ant-text)">2026-06-25 09:30:12</span></span>
+              </div>
+              <div class="ant-alert ant-alert-info mt-2" style="padding:6px 12px;font-size:12px">该级别为告警产生时快照，后续业务算法级别调整不影响历史告警。</div>
+            </div>
+            <div class="flex gap-2 flex-wrap justify-end" id="topActions">
+              <button class="ant-btn" onclick="backToList()"><i class="fa-solid fa-arrow-left"></i> 返回列表</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="overview-grid mb-4">
+        <div class="overview-item"><div class="text-secondary text-xs">业务归属</div><div class="font-semibold mt-1">明厨亮灶</div></div>
+        <div class="overview-item"><div class="text-secondary text-xs">设备名称</div><div class="font-semibold mt-1">摄像头-西湖-001</div></div>
+        <div class="overview-item"><div class="text-secondary text-xs">设备在线</div><span class="ant-tag ant-tag-green mt-1">在线</span></div>
+        <div class="overview-item"><div class="text-secondary text-xs">置信度</div><div class="font-semibold mt-1">92.6%</div></div>
+        <div class="overview-item"><div class="text-secondary text-xs">当前处理人</div><div class="font-semibold mt-1" id="currentOwner">张明</div></div>
+        <div class="overview-item"><div class="text-secondary text-xs">处理时限</div><div class="font-semibold mt-1" style="color:#ff4d4f">剩余 23 分钟</div></div>
+      </div>
+
+      <div class="ant-card ant-card-bordered mb-4 process-card" id="confirmCard" style="display:none">
+        <div class="ant-card-head"><div class="ant-card-head-title">确认告警</div></div>
+        <div class="ant-card-body">
+          <div class="ant-form-item mb-4">
+            <label class="ant-form-label ant-form-label-required">判定结果</label>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="radio-card active" id="confirmReal" onclick="setConfirmType('real')"><i class="fa-solid fa-triangle-exclamation text-warning mr-1"></i> 真实告警</div>
+              <div class="radio-card" id="confirmFalse" onclick="setConfirmType('false')"><i class="fa-solid fa-ban mr-1"></i> 误报</div>
+            </div>
+          </div>
+          <div id="confirmRealBox">
+            <div class="ant-form-item">
+              <label class="ant-form-label ant-form-label-required">分配方式</label>
+              <select class="ant-select w-full" id="confirmAssignType" onchange="toggleConfirmAssign(this.value)">
+                <option value="auto">按策略自动派单</option>
+                <option value="manual">手动选择处理人</option>
+              </select>
+            </div>
+            <div class="ant-form-item" id="confirmManualBox" style="display:none">
+              <label class="ant-form-label ant-form-label-required">处理人</label>
+              <select class="ant-select w-full"><option>张明（片区监管员）</option><option>李娜（门店负责人）</option></select>
+            </div>
+            <div class="ant-form-item">
+              <label class="ant-form-label">处理时限</label>
+              <input class="ant-input readonly" value="30 分钟" readonly>
+            </div>
+          </div>
+          <div id="confirmFalseBox" style="display:none">
+            <div class="ant-form-item">
+              <label class="ant-form-label ant-form-label-required">误报原因</label>
+              <select class="ant-select w-full"><option>光线干扰</option><option>遮挡误判</option><option>目标非告警对象</option><option>其他</option></select>
+            </div>
+            <div class="ant-form-item">
+              <label class="ant-form-label ant-form-label-required">备注说明</label>
+              <textarea class="ant-input" rows="3" id="confirmFalseRemark" placeholder="请说明误报原因"></textarea>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button class="ant-btn" onclick="resetConfirmForm()">取消</button>
+            <button class="ant-btn ant-btn-primary" onclick="submitConfirm()">提交确认</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered mb-4 process-card" id="processCard">
+        <div class="ant-card-head"><div class="ant-card-head-title">处理告警</div></div>
+        <div class="ant-card-body">
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">处理结果</label>
+            <div class="grid grid-cols-3 gap-3">
+              <div class="radio-card active" id="resultSolved" onclick="setProcessResult('已解决')"><i class="fa-solid fa-check mr-1"></i> 已解决</div>
+              <div class="radio-card" id="resultFalse" onclick="setProcessResult('误报')"><i class="fa-solid fa-ban mr-1"></i> 误报</div>
+              <div class="radio-card" id="resultIgnore" onclick="setProcessResult('忽略')"><i class="fa-solid fa-eye-slash mr-1"></i> 忽略</div>
+            </div>
+          </div>
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">处理方式</label>
+            <div class="grid grid-cols-3 gap-3">
+              <div class="radio-card active" id="methodScene" onclick="setProcessMethod('现场处理')">现场处理</div>
+              <div class="radio-card" id="methodRemote" onclick="setProcessMethod('远程处理')">远程处理</div>
+              <div class="radio-card" id="methodNone" onclick="setProcessMethod('无需处理')">无需处理</div>
+            </div>
+          </div>
+          <div id="processFalseBox" style="display:none">
+            <div class="ant-form-item">
+              <label class="ant-form-label ant-form-label-required">误报原因</label>
+              <select class="ant-select w-full" id="processFalseReason"><option>光线干扰</option><option>遮挡误判</option><option>目标非告警对象</option><option>其他</option></select>
+            </div>
+          </div>
+          <div id="processIgnoreBox" style="display:none">
+            <div class="ant-form-item">
+              <label class="ant-form-label ant-form-label-required">忽略原因</label>
+              <select class="ant-select w-full" id="processIgnoreReason"><option>重复告警</option><option>低优先级</option><option>已知问题跟踪</option><option>其他</option></select>
+            </div>
+          </div>
+          <div class="ant-form-item">
+            <label class="ant-form-label" id="remarkLabel">处理备注（必填）</label>
+            <textarea id="processRemark" class="ant-input" rows="4" placeholder="请输入处理备注，最多 500 字。处理结果为“已解决”时必填。"></textarea>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button class="ant-btn" onclick="resetProcessForm()">取消</button>
+            <button class="ant-btn ant-btn-primary" onclick="submitProcess()">提交</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered mb-4 process-card" id="reviewCard" style="display:none">
+        <div class="ant-card-head"><div class="ant-card-head-title">审核处理结果</div></div>
+        <div class="ant-card-body">
+          <div class="readonly-card mb-4">
+            <div class="font-semibold mb-1">处理结果：已解决 · 现场处理</div>
+            <div class="text-secondary text-sm">已清理后厨区域并重新培训员工佩戴工帽。</div>
+            <div class="text-secondary text-sm mt-1">处理人：张明 · 提交时间：2026-06-25 09:45:00</div>
+          </div>
+          <div class="ant-form-item mb-4">
+            <label class="ant-form-label ant-form-label-required">审核结论</label>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="radio-card active" id="reviewPass" onclick="setReviewType('pass')"><i class="fa-solid fa-check mr-1"></i> 通过</div>
+              <div class="radio-card" id="reviewReject" onclick="setReviewType('reject')"><i class="fa-solid fa-xmark mr-1"></i> 不通过</div>
+            </div>
+          </div>
+          <div id="reviewPassBox">
+            <div class="ant-form-item">
+              <label class="ant-form-label">评分（可选）</label>
+              <div class="star-row" id="reviewStarRow">
+                <i class="fa-solid fa-star" onclick="setReviewStar(1)"></i>
+                <i class="fa-solid fa-star" onclick="setReviewStar(2)"></i>
+                <i class="fa-solid fa-star" onclick="setReviewStar(3)"></i>
+                <i class="fa-solid fa-star" onclick="setReviewStar(4)"></i>
+                <i class="fa-solid fa-star" onclick="setReviewStar(5)"></i>
+              </div>
+            </div>
+          </div>
+          <div id="reviewRejectBox" style="display:none">
+            <div class="ant-form-item">
+              <label class="ant-form-label ant-form-label-required">驳回原因</label>
+              <textarea class="ant-input" rows="3" id="reviewRejectReason" placeholder="请说明驳回原因，将退回原处理人"></textarea>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button class="ant-btn" onclick="resetReviewForm()">取消</button>
+            <button class="ant-btn ant-btn-primary" onclick="submitReview()">提交审核</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered mb-4" id="closedCard" style="display:none">
+        <div class="ant-card-body flex items-center gap-3">
+          <i class="fa-solid fa-circle-check text-2xl" style="color:#52c41a"></i>
+          <div>
+            <div class="font-semibold">告警已关闭</div>
+            <div class="text-secondary text-sm" id="closedDesc">该告警已处理完毕，可查看历史记录与操作日志。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body">
+          <div class="tab-bar mb-4">
+            <button class="tab-item active" id="tab-info" onclick="switchDetailTab('info')">告警信息</button>
+            <button class="tab-item" id="tab-evidence" onclick="switchDetailTab('evidence')">证据资料</button>
+            <button class="tab-item" id="tab-flow" onclick="switchDetailTab('flow')">处置流转</button>
+            <button class="tab-item" id="tab-log" onclick="switchDetailTab('log')">操作日志</button>
+          </div>
+
+          <section class="tab-panel" id="panel-info">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="ant-card ant-card-bordered">
+                <div class="ant-card-head"><div class="ant-card-head-title">基础信息</div></div>
+                <div class="ant-card-body field-grid">
+                  <div class="field-item"><span class="field-label">告警编号</span><span class="field-value"><code>ALM20260625-00123</code></span></div>
+                  <div class="field-item"><span class="field-label">告警标题</span><span class="field-value">后厨人员未戴工帽</span></div>
+                  <div class="field-item"><span class="field-label">业务归属</span><span class="field-value">明厨亮灶</span></div>
+                  <div class="field-item"><span class="field-label">设备名称</span><span class="field-value">摄像头-西湖-001</span></div>
+                  <div class="field-item"><span class="field-label">网格路径</span><span class="field-value">西湖区监管一所 / 片区A</span></div>
+                  <div class="field-item"><span class="field-label">触发策略</span><span class="field-value">明厨亮灶-A区监管策略</span></div>
+                  <div class="field-item"><span class="field-label">告警类型</span><span class="field-value">未戴工帽识别</span></div>
+                  <div class="field-item"><span class="field-label">触发时间</span><span class="field-value">2026-06-25 09:30:12</span></div>
+                </div>
+              </div>
+              <div class="ant-card ant-card-bordered">
+                <div class="ant-card-head"><div class="ant-card-head-title">算法识别详情</div></div>
+                <div class="ant-card-body">
+                  <div class="overview-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+                    <div class="overview-item"><div class="text-secondary text-xs">目标框数量</div><div class="text-xl font-semibold">2</div></div>
+                    <div class="overview-item"><div class="text-secondary text-xs">最高置信度</div><div class="text-xl font-semibold">92.6%</div></div>
+                    <div class="overview-item"><div class="text-secondary text-xs">持续时长</div><div class="text-xl font-semibold">8 秒</div></div>
+                    <div class="overview-item"><div class="text-secondary text-xs">识别阈值</div><div class="text-xl font-semibold">85%</div></div>
+                  </div>
+                  <div class="ant-alert ant-alert-info mt-4">算法在连续 8 秒内识别到 2 个未佩戴工帽目标，超过触发阈值。</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="tab-panel hidden" id="panel-evidence">
+            <div class="grid grid-cols-12 gap-4">
+              <div class="col-span-8"><div class="evidence-main"><div class="detect-label">未戴工帽 92.6%</div><div class="detect-box"></div><i class="fa-solid fa-video text-4xl mb-3"></i><div>监控抓拍画面</div><div class="text-sm opacity-75">摄像头-西湖-001 · 2026-06-25 09:30:12</div></div></div>
+              <div class="col-span-4"><div class="ant-card ant-card-bordered mb-4"><div class="ant-card-head"><div class="ant-card-head-title">证据操作</div></div><div class="ant-card-body flex gap-2 flex-wrap"><button class="ant-btn ant-btn-primary" onclick="openModal('imageModal')">查看大图</button><button class="ant-btn" onclick="showToast('证据图片已下载')">下载证据</button><button class="ant-btn" onclick="showToast('视频片段已打开')">查看视频片段</button></div></div><div class="grid grid-cols-2 gap-2"><div class="thumb active" onclick="showToast('已切换抓拍图 1')"><i class="fa-solid fa-image"></i></div><div class="thumb" onclick="showToast('已切换抓拍图 2')"><i class="fa-solid fa-image"></i></div><div class="thumb" onclick="showToast('已切换视频片段')"><i class="fa-solid fa-play"></i></div><div class="thumb" onclick="showToast('已切换现场图')"><i class="fa-solid fa-location-dot"></i></div></div></div>
+            </div>
+          </section>
+
+          <section class="tab-panel hidden" id="panel-flow">
+            <div class="timeline mb-4" id="flowSteps">
+              <div class="flow-step done"><div class="font-semibold">1. 告警产生</div><div class="text-secondary text-sm mt-2">09:30:12<br>算法引擎触发告警</div></div>
+              <div class="flow-step active" id="pendingStep"><div class="font-semibold">2. 待处理</div><div class="text-secondary text-sm mt-2">已通知当前处理人张明</div></div>
+              <div class="flow-step pending" id="closedStep"><div class="font-semibold">3. 已关闭</div><div class="text-secondary text-sm mt-2">提交处理后关闭</div></div>
+            </div>
+            <div class="flow-branch mb-3">
+              <div class="font-medium mb-1" style="color:var(--ant-text)">处置流转分支说明</div>
+              <div>主流程：待确认 → 待处理 → 待审核 → 已审核</div>
+              <div>审核关闭：待处理 → <span style="color:#52c41a">已处理</span>（处理结果为误报/忽略且无需审核时直接进入已处理终态）</div>
+              <div>审核开启：待处理 → 待审核 → 已审核</div>
+              <div class="mt-1">转派和催办只记录操作，不改变状态。</div>
+            </div>
+            <div class="ant-alert ant-alert-info">超时升级沿网格树父节点逐级攀升（每超时一次升一层），仅服务待处理超时；确认环节超时自动判定为真实告警并派单给处理人；审核环节超时自动通过。</div>
+          </section>
+
+          <section class="tab-panel hidden" id="panel-log">
+            <table class="ant-table">
+              <thead><tr><th>时间</th><th>操作人</th><th>操作类型</th><th>处理结果</th><th>处理方式</th><th>备注</th></tr></thead>
+              <tbody id="logBody">
+                <tr><td>09:30:12</td><td>系统</td><td><span class="ant-tag ant-tag-blue">触发</span></td><td>—</td><td>—</td><td>识别到未戴工帽目标，置信度 92.6%</td></tr>
+                <tr><td>09:30:14</td><td>系统</td><td><span class="ant-tag ant-tag-blue">通知</span></td><td>—</td><td>—</td><td>通知负责人张明</td></tr>
+                <tr><td>09:40:00</td><td>平台管理员</td><td><span class="ant-tag ant-tag-orange">催办</span></td><td>—</td><td>—</td><td>已发送站内信强提醒</td></tr>
+              </tbody>
+            </table>
+          </section>
+        </div>
+      </div>
+
+      <div class="ant-modal-mask" id="reassignModal"><div class="ant-modal" style="width:520px"><div class="ant-modal-header"><span>转派告警</span><span class="ant-modal-close" onclick="closeModal('reassignModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="ant-form-item"><label class="ant-form-label ant-form-label-required" id="reassignLabel">新处理人</label><select id="newOwner" class="ant-select w-full"><option>李娜（门店负责人）</option><option>王强（片区监管员）</option><option>赵伟（业务管理员）</option></select></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">转派原因</label><textarea id="reassignReason" class="ant-input" rows="3" placeholder="请说明转派原因"></textarea></div></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('reassignModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="submitReassign()">确认转派</button></div></div></div>
+      <div class="ant-modal-mask" id="urgeModal"><div class="ant-modal" style="width:420px"><div class="ant-modal-header"><span>催办处理人</span><span class="ant-modal-close" onclick="closeModal('urgeModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="ant-alert ant-alert-info">向当前处理人发送强提醒通知？同一告警对同一人 10 分钟内只能催办一次。</div></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('urgeModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="submitUrge()">发送催办</button></div></div></div>
+      <div class="ant-modal-mask" id="imageModal"><div class="ant-modal" style="width:780px"><div class="ant-modal-header"><span>证据大图查看</span><span class="ant-modal-close" onclick="closeModal('imageModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="evidence-main"><div class="detect-label">未戴工帽 92.6%</div><div class="detect-box"></div><i class="fa-solid fa-expand text-4xl mb-3"></i><div>抓拍大图预览</div></div></div><div class="ant-modal-footer"><button class="ant-btn" onclick="showToast('证据图片已下载')">下载证据</button><button class="ant-btn ant-btn-primary" onclick="closeModal('imageModal')">关闭</button></div></div></div>
+    </main>
+  </div>
+</div>
+<div class="toast-wrap"></div>
+<script>
+function toggleSubMenu(el){el.classList.toggle('expanded');var sub=el.nextElementSibling;if(sub&&sub.classList.contains('menu-sub')){sub.classList.toggle('collapsed')}}
+</script>
+
+<script>
+function showToast(msg,duration){duration=duration||2000;var wrap=document.querySelector('.toast-wrap');var el=document.createElement('div');el.className='toast-msg';el.innerHTML='<i class="fa-solid fa-circle-info" style="color:#1677ff"></i>'+msg;wrap.appendChild(el);requestAnimationFrame(function(){el.classList.add('show')});setTimeout(function(){el.classList.remove('show');setTimeout(function(){el.remove()},300)},duration)}
+function openModal(id){document.getElementById(id).classList.add('active')}
+function closeModal(id){document.getElementById(id).classList.remove('active')}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.ant-modal-mask.active').forEach(function(m){m.classList.remove('active')})});
+document.querySelectorAll('.ant-modal-mask').forEach(function(mask){mask.addEventListener('click',function(e){if(e.target===mask)mask.classList.remove('active')})});
+function switchDetailTab(key){document.querySelectorAll('.tab-item').forEach(function(t){t.classList.remove('active')});document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.add('hidden')});document.getElementById('tab-'+key).classList.add('active');document.getElementById('panel-'+key).classList.remove('hidden')}
+
+function getParam(name){var p=new URLSearchParams(location.search);return p.get(name)}
+const statusMap={
+  confirm:{label:'待确认',tagClass:'ant-tag-orange',card:'confirmCard',backLink:'confirm.html',backText:'待确认告警',flowIndex:1},
+  handle:{label:'待处理',tagClass:'ant-tag-blue',card:'processCard',backLink:'handle.html',backText:'待处理告警',flowIndex:2},
+  review:{label:'待审核',tagClass:'ant-tag-purple',card:'reviewCard',backLink:'review.html',backText:'待审核告警',flowIndex:3},
+  done:{label:'已处理',tagClass:'ant-tag-lightgreen',card:'closedCard',backLink:'list.html?status=已处理',backText:'告警列表',flowIndex:4},
+  closed:{label:'已审核',tagClass:'ant-tag-green',card:'closedCard',backLink:'list.html',backText:'告警列表',flowIndex:4},
+  all:{label:'待处理',tagClass:'ant-tag-orange',card:'processCard',backLink:'list.html',backText:'告警列表',flowIndex:2}
+};
+let currentStatus=getParam('status')||'all';
+if(!statusMap[currentStatus]) currentStatus='all';
+
+function backToList(){location.href=statusMap[currentStatus].backLink}
+function renderTopActions(){
+  var box=document.getElementById('topActions');
+  var base='<button class="ant-btn" onclick="backToList()"><i class="fa-solid fa-arrow-left"></i> 返回列表</button>';
+  if(currentStatus==='handle') box.innerHTML=base+'<button class="ant-btn" onclick="openReassign()"><i class="fa-solid fa-share"></i> 转派</button><button class="ant-btn" onclick="openUrge()"><i class="fa-solid fa-bullhorn"></i> 催办</button>';
+  else if(currentStatus==='review') box.innerHTML=base+'<button class="ant-btn ant-btn-primary" onclick="document.getElementById(\'reviewCard\').scrollIntoView({behavior:\'smooth\'})"><i class="fa-solid fa-clipboard-check"></i> 审核</button>';
+  else if(currentStatus==='confirm') box.innerHTML=base+'<button class="ant-btn ant-btn-primary" onclick="document.getElementById(\'confirmCard\').scrollIntoView({behavior:\'smooth\'})"><i class="fa-solid fa-check"></i> 确认</button>';
+  else box.innerHTML=base;
+}
+function renderFlow(){
+  var flow=document.getElementById('flowSteps');
+  var idx=statusMap[currentStatus].flowIndex;
+  // V1.6 终态拆分：末节点根据当前终态动态显示——done=已处理，closed=已审核
+  var lastStep=(currentStatus==='done')?{name:'已处理',desc:'告警已处理完毕'}
+              :(currentStatus==='closed')?{name:'已审核',desc:'告警已审核关闭'}
+              :{name:'已审核',desc:'告警已关闭'};
+  var steps=[
+    {name:'告警产生',desc:'09:30:12<br>算法引擎触发告警'},
+    {name:'待确认',desc:'等待确认人判定'},
+    {name:'待处理',desc:'已通知当前处理人张明'},
+    {name:'待审核',desc:'等待审核人评定'},
+    lastStep
+  ];
+  flow.innerHTML=steps.map(function(s,i){return '<div class="flow-step '+(i<idx?'done':i===idx?'active':'pending')+'"><div class="font-semibold">'+(i+1)+'. '+s.name+'</div><div class="text-secondary text-sm mt-2">'+s.desc+'</div></div>'}).join('');
+}
+function renderDetail(){
+  var s=statusMap[currentStatus];
+  document.getElementById('statusBadge').textContent=s.label;
+  document.getElementById('statusBadge').className='ant-tag '+s.tagClass;
+  document.getElementById('backLink').textContent=s.backText;
+  document.getElementById('backLink').href=s.backLink;
+  var closedDescMap={'done':'该告警已处理完毕（处理结果无需审核或已审核关闭），可查看历史记录与操作日志。','closed':'该告警已处理完毕，可查看历史记录与操作日志。'};
+  if(document.getElementById('closedDesc')) document.getElementById('closedDesc').textContent=closedDescMap[currentStatus]||'该告警已处理完毕，可查看历史记录与操作日志。';
+  renderTopActions();
+  renderFlow();
+  ['confirmCard','processCard','reviewCard','closedCard'].forEach(function(id){document.getElementById(id).style.display=(id===s.card?'block':'none')});
+}
+
+// 确认卡片
+function setConfirmType(v){
+  document.getElementById('confirmReal').classList.toggle('active',v==='real');
+  document.getElementById('confirmFalse').classList.toggle('active',v==='false');
+  document.getElementById('confirmRealBox').style.display=v==='real'?'block':'none';
+  document.getElementById('confirmFalseBox').style.display=v==='false'?'block':'none';
+}
+function toggleConfirmAssign(v){document.getElementById('confirmManualBox').style.display=v==='manual'?'block':'none'}
+function resetConfirmForm(){setConfirmType('real');document.getElementById('confirmFalseRemark').value='';showToast('已重置确认内容')}
+function submitConfirm(){
+  var type=document.getElementById('confirmReal').classList.contains('active')?'real':'false';
+  if(type==='false'&&!document.getElementById('confirmFalseRemark').value.trim()){showToast('请填写误报原因');return}
+  showToast('确认已提交');
+  currentStatus=type==='real'?'handle':'closed';
+  renderDetail();
+}
+
+// 处理卡片
+let processResult='已解决',processMethod='现场处理';
+function setProcessResult(v){
+  processResult=v;
+  resultSolved.classList.toggle('active',v==='已解决');
+  resultFalse.classList.toggle('active',v==='误报');
+  resultIgnore.classList.toggle('active',v==='忽略');
+  document.getElementById('processFalseBox').style.display=v==='误报'?'block':'none';
+  document.getElementById('processIgnoreBox').style.display=v==='忽略'?'block':'none';
+  remarkLabel.textContent=v==='已解决'?'处理备注（必填）':'处理备注';
+  processRemark.placeholder=v==='已解决'?'请简述修复措施':'可选，补充说明';
+}
+function setProcessMethod(v){processMethod=v;methodScene.classList.toggle('active',v==='现场处理');methodRemote.classList.toggle('active',v==='远程处理');methodNone.classList.toggle('active',v==='无需处理')}
+function resetProcessForm(){setProcessResult('已解决');setProcessMethod('现场处理');processRemark.value='';showToast('已重置处理内容')}
+function submitProcess(){
+  if(!processResult){showToast('请选择处理结果');return}
+  if(!processMethod){showToast('请选择处理方式');return}
+  if(processResult==='已解决'&&!processRemark.value.trim()){showToast('请简述修复措施');return}
+  logBody.insertAdjacentHTML('beforeend',`<tr><td>刚刚</td><td>平台管理员</td><td><span class="ant-tag ant-tag-green">处理</span></td><td>${processResult}</td><td>${processMethod}</td><td>${processRemark.value.trim()||'—'}</td></tr>`);
+  showToast('告警已处理');
+  currentStatus='review';
+  renderDetail();
+}
+
+// 审核卡片
+function setReviewType(v){
+  document.getElementById('reviewPass').classList.toggle('active',v==='pass');
+  document.getElementById('reviewReject').classList.toggle('active',v==='reject');
+  document.getElementById('reviewPassBox').style.display=v==='pass'?'block':'none';
+  document.getElementById('reviewRejectBox').style.display=v==='reject'?'block':'none';
+}
+function setReviewStar(n){document.querySelectorAll('#reviewStarRow i').forEach(function(s,i){s.classList.toggle('active',i<n)})}
+function resetReviewForm(){setReviewType('pass');setReviewStar(0);showToast('已重置审核内容')}
+function submitReview(){
+  var pass=document.getElementById('reviewPass').classList.contains('active');
+  if(!pass&&!document.getElementById('reviewRejectReason').value.trim()){showToast('请填写驳回原因');return}
+  showToast(pass?'审核已通过':'审核已驳回');
+  currentStatus='closed';
+  renderDetail();
+}
+
+// 转派/催办
+function openReassign(){
+  var labelMap={'confirm':'新确认人','handle':'新处理人','review':'新审核人'};
+  document.getElementById('reassignLabel').textContent=labelMap[currentStatus]||'新处理人';
+  openModal('reassignModal');
+}
+function submitReassign(){if(!reassignReason.value.trim()){showToast('请填写转派原因');return}currentOwner.textContent=newOwner.value.split('（')[0];logBody.insertAdjacentHTML('beforeend',`<tr><td>刚刚</td><td>平台管理员</td><td><span class="ant-tag ant-tag-blue">转派</span></td><td>—</td><td>—</td><td>转派给 ${newOwner.value}：${reassignReason.value.trim()}</td></tr>`);showToast('转派成功，新处理人已收到通知');closeModal('reassignModal')}
+function openUrge(){openModal('urgeModal')}
+function submitUrge(){logBody.insertAdjacentHTML('beforeend','<tr><td>刚刚</td><td>平台管理员</td><td><span class="ant-tag ant-tag-orange">催办</span></td><td>—</td><td>—</td><td>已发送强提醒通知</td></tr>');showToast('催办通知已发送');closeModal('urgeModal')}
+
+renderDetail();
+</script>
+</body>
+</html>

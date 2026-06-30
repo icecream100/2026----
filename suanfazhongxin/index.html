@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>算法中心 + 业务场景功能 — 原型导航</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="proto-ui.css">
+  <link rel="stylesheet" href="tailwind-fallback.css">
+  <style>
+    .page-card { background:#fff; border-radius:10px; border:1px solid var(--ant-border-secondary); box-shadow:var(--shadow-1); transition:all .2s; cursor:pointer; text-decoration:none; display:block; color:inherit; }
+    .page-card:hover { border-color:var(--ant-primary); box-shadow:0 4px 16px rgba(22,119,255,.12); transform:translateY(-2px); }
+    .section-bar { width:4px; height:18px; border-radius:2px; display:inline-block; margin-right:10px; }
+    .layer-badge { font-size:11px; font-weight:600; padding:2px 8px; border-radius:10px; }
+    .layer-l1 { background:#e6f4ff; color:#1677ff; }
+    .layer-l2 { background:#f6ffed; color:#52c41a; }
+    .layer-l3 { background:#fff7e6; color:#fa8c16; }
+    .layer-l4 { background:#fff1f0; color:#ff4d4f; }
+    .stat-card { background:#fff; border:1px solid var(--ant-border-secondary); border-radius:10px; padding:16px 20px; }
+  </style>
+</head>
+<body class="min-h-screen" style="background:#f5f5f5;">
+<header class="header" style="padding:0 32px;">
+  <div class="logo"><i class="fa-solid fa-cube"></i></div>
+  <div><div class="app-name">算法中心 + 业务场景功能</div><div style="font-size:12px;color:rgba(255,255,255,.5);">产品原型 v2 · 4大核心模块 · 14 个页面 · 2026.06.26</div></div>
+  <div class="spacer"></div>
+  <div class="flex gap-2">
+    <button onclick="filterSection('all')" id="tab-all" class="px-4 py-1 rounded text-sm cursor-pointer transition-all" style="background:#1677ff;color:#fff;border:1px solid #1677ff;">全部</button>
+    <button onclick="filterSection('config')" id="tab-config" class="px-4 py-1 rounded text-sm cursor-pointer transition-all" style="background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.3);">配置链路</button>
+    <button onclick="filterSection('alarm')" id="tab-alarm" class="px-4 py-1 rounded text-sm cursor-pointer transition-all" style="background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.3);">报警链路</button>
+  </div>
+</header>
+<main class="p-8 max-w-7xl mx-auto">
+
+  <!-- 版本概览 -->
+  <div class="ant-card ant-card-bordered mb-6">
+    <div class="ant-card-body flex items-center justify-between gap-4">
+      <div>
+        <div class="text-lg font-semibold mb-1">4 大核心模块 · 分层架构</div>
+        <div class="text-secondary text-sm">L1 算法中心 → L2 业务管理 → L3 策略管理 → L4 报警中心，逐层依赖，告警级别由 L2 业务算法配置决定，L4 产生时固化快照</div>
+      </div>
+      <button class="ant-btn ant-btn-primary" onclick="location.href='admin-algorithm/list.html'"><i class="fa-solid fa-play"></i> 开始预览</button>
+    </div>
+  </div>
+
+  <!-- 4 层架构统计 -->
+  <div class="grid grid-cols-4 gap-4 mb-8">
+    <div class="stat-card">
+      <div class="flex items-center gap-2 mb-2"><span class="layer-badge layer-l1">L1</span><span class="text-sm text-secondary">能力层</span></div>
+      <div class="text-2xl font-semibold">算法中心</div>
+      <div class="text-xs text-tertiary mt-1">1 个页面 · V1.5</div>
+    </div>
+    <div class="stat-card">
+      <div class="flex items-center gap-2 mb-2"><span class="layer-badge layer-l2">L2</span><span class="text-sm text-secondary">地基层</span></div>
+      <div class="text-2xl font-semibold">业务管理</div>
+      <div class="text-xs text-tertiary mt-1">6 个页面 · V1.6</div>
+    </div>
+    <div class="stat-card">
+      <div class="flex items-center gap-2 mb-2"><span class="layer-badge layer-l3">L3</span><span class="text-sm text-secondary">规则层</span></div>
+      <div class="text-2xl font-semibold">策略管理</div>
+      <div class="text-xs text-tertiary mt-1">1 个页面 · V1.5</div>
+    </div>
+    <div class="stat-card">
+      <div class="flex items-center gap-2 mb-2"><span class="layer-badge layer-l4">L4</span><span class="text-sm text-secondary">运行层</span></div>
+      <div class="text-2xl font-semibold">报警中心</div>
+      <div class="text-xs text-tertiary mt-1">6 个页面 · V1.6.4</div>
+    </div>
+  </div>
+
+  <!-- 配置链路 -->
+  <section data-section="config" class="mb-10">
+    <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+      <span class="section-bar" style="background:#1677ff;"></span>配置链路
+      <span class="ml-3 text-xs font-normal text-tertiary">L1 算法注册 → L2 业务配置 → L3 策略编排</span>
+    </h2>
+
+    <!-- L1 算法中心 -->
+    <div class="mb-4">
+      <div class="flex items-center gap-2 mb-3"><span class="layer-badge layer-l1">L1</span><span class="text-sm font-medium text-gray-600">算法中心</span></div>
+      <div class="grid grid-cols-3 gap-4">
+        <a href="admin-algorithm/list.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#e6f4ff;color:#1677ff;"><i class="fa-solid fa-microchip"></i></div>
+              <div><div class="font-medium text-gray-800">算法中心</div><div class="text-xs text-tertiary">算法元数据 · 默认建议级别 · 参数定义</div></div>
+            </div>
+          </div>
+          <p class="text-xs m-0 text-tertiary">列表 / 新增弹窗 / 详情抽屉 / 引用查询 / 类型管理</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- L2 业务管理 -->
+    <div class="mb-4">
+      <div class="flex items-center gap-2 mb-3"><span class="layer-badge layer-l2">L2</span><span class="text-sm font-medium text-gray-600">业务管理</span></div>
+      <div class="grid grid-cols-3 gap-4">
+        <a href="admin-grid/list.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#f6ffed;color:#52c41a;"><i class="fa-solid fa-sitemap"></i></div>
+              <div><div class="font-medium text-gray-800">业务列表</div><div class="text-xs text-tertiary">业务 CRUD · 健康度面板</div></div>
+            </div>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-grid/list.html</p>
+        </a>
+        <a href="admin-grid/workspace.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#f6ffed;color:#52c41a;"><i class="fa-solid fa-network-wired"></i></div>
+              <div><div class="font-medium text-gray-800">业务工作台</div><div class="text-xs text-tertiary">4 Tab · 设备/处置/模板/算法配置</div></div>
+            </div>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-grid/workspace.html</p>
+        </a>
+        <a href="admin-grid/algorithm-config.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#f6ffed;color:#52c41a;"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+              <div><div class="font-medium text-gray-800">业务算法配置</div><div class="text-xs text-tertiary">关联算法 · 告警级别定义</div></div>
+            </div>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-grid/algorithm-config.html（独立页）</p>
+        </a>
+        <a href="admin-grid/dispose-category.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#f6ffed;color:#52c41a;"><i class="fa-solid fa-tags"></i></div>
+              <div><div class="font-medium text-gray-800">处置类别</div><div class="text-xs text-tertiary">业务级字典维护</div></div>
+            </div>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-grid/dispose-category.html</p>
+        </a>
+        <a href="admin-grid/notify-template.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#f6ffed;color:#52c41a;"><i class="fa-solid fa-message"></i></div>
+              <div><div class="font-medium text-gray-800">通知模板</div><div class="text-xs text-tertiary">按级别维护 · 多渠道</div></div>
+            </div>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-grid/notify-template.html</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- L3 策略管理 -->
+    <div class="mb-4">
+      <div class="flex items-center gap-2 mb-3"><span class="layer-badge layer-l3">L3</span><span class="text-sm font-medium text-gray-600">策略管理</span></div>
+      <div class="grid grid-cols-3 gap-4">
+        <a href="admin-policy/home.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff7e6;color:#fa8c16;"><i class="fa-solid fa-diagram-project"></i></div>
+              <div><div class="font-medium text-gray-800">策略列表</div><div class="text-xs text-tertiary">一级入口 · 新增/编辑宽抽屉表单</div></div>
+            </div>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-policy/home.html · 策略列表 + 全屏抽屉（4分区表单）</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 报警链路 -->
+  <section data-section="alarm" class="mb-10">
+    <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+      <span class="section-bar" style="background:#ff4d4f;"></span>报警链路
+      <span class="ml-3 text-xs font-normal text-tertiary">L4 看板 · 确认 · 处理 · 审核 · 列表</span>
+    </h2>
+    <div class="grid grid-cols-3 gap-4">
+      <a href="admin-dashboard/index.html" class="page-card p-5">
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff1f0;color:#ff4d4f;"><i class="fa-solid fa-chart-line"></i></div>
+            <div><div class="font-medium text-gray-800">报警看板</div><div class="text-xs text-tertiary">7 指标卡 · 趋势 · 分布 · 处理效率</div></div>
+          </div>
+        </div>
+        <p class="text-xs m-0 text-tertiary">admin-dashboard/index.html</p>
+      </a>
+      <a href="handle-flow/confirm.html" class="page-card p-5">
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff7e6;color:#faad14;"><i class="fa-solid fa-circle-question"></i></div>
+            <div><div class="font-medium text-gray-800">待确认告警</div><div class="text-xs text-tertiary">确认人入口 · 真实/误报判定</div></div>
+          </div>
+        </div>
+        <p class="text-xs m-0 text-tertiary">handle-flow/confirm.html</p>
+      </a>
+      <a href="handle-flow/handle.html" class="page-card p-5">
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#e6f4ff;color:#1677ff;"><i class="fa-solid fa-user-check"></i></div>
+            <div><div class="font-medium text-gray-800">待处理告警</div><div class="text-xs text-tertiary">处理人入口 · 处置/转派/催办</div></div>
+          </div>
+        </div>
+        <p class="text-xs m-0 text-tertiary">handle-flow/handle.html</p>
+      </a>
+      <a href="handle-flow/review.html" class="page-card p-5">
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#f9f0ff;color:#722ed1;"><i class="fa-solid fa-clipboard-check"></i></div>
+            <div><div class="font-medium text-gray-800">待审核告警</div><div class="text-xs text-tertiary">审核人入口 · 通过/驳回</div></div>
+          </div>
+        </div>
+        <p class="text-xs m-0 text-tertiary">handle-flow/review.html</p>
+      </a>
+      <a href="handle-flow/list.html" class="page-card p-5">
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff1f0;color:#ff4d4f;"><i class="fa-solid fa-list-check"></i></div>
+            <div><div class="font-medium text-gray-800">告警列表</div><div class="text-xs text-tertiary">全量告警 · 多维筛选 · 批量操作</div></div>
+          </div>
+        </div>
+        <p class="text-xs m-0 text-tertiary">handle-flow/list.html</p>
+      </a>
+      <a href="handle-flow/detail.html?id=ALM20260622-00123" class="page-card p-5">
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#f9f0ff;color:#722ed1;"><i class="fa-solid fa-file-lines"></i></div>
+            <div><div class="font-medium text-gray-800">告警详情</div><div class="text-xs text-tertiary">证据 · 时间轴 · 级别快照</div></div>
+          </div>
+        </div>
+        <p class="text-xs m-0 text-tertiary">handle-flow/detail.html</p>
+      </a>
+    </div>
+  </section>
+
+</main>
+<script>
+function filterSection(key){
+  document.querySelectorAll('section[data-section]').forEach(function(sec){
+    sec.style.display=(key==='all'||sec.dataset.section===key)?'':'none';
+  });
+  document.querySelectorAll('header button[id^="tab-"]').forEach(function(btn){
+    var on=btn.id==='tab-'+key;
+    btn.style.background=on?'#1677ff':'transparent';
+    btn.style.color=on?'#fff':'rgba(255,255,255,.7)';
+    btn.style.borderColor=on?'#1677ff':'rgba(255,255,255,.3)';
+  });
+}
+</script>
+</body>
+</html>

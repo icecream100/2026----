@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知识条目详情 — 故障分析模型</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>
+    .desc-grid { display:grid; grid-template-columns:140px 1fr; gap:12px 16px; font-size:14px; }
+    .desc-grid .k { color:var(--ant-text-tertiary); }
+    .desc-grid .v { color:var(--ant-text); }
+    .section-card { border:1px solid var(--ant-border-secondary); border-radius:8px; padding:16px 20px; margin-bottom:16px; }
+    .section-title { font-size:15px; font-weight:600; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+    .step-line { display:flex; gap:12px; padding:8px 0; border-bottom:1px dashed var(--ant-border-secondary); }
+    .step-line:last-child { border-bottom:none; }
+    .step-num { width:24px; height:24px; border-radius:50%; background:#f6ffed; color:#52c41a; border:1px solid #b7eb8f; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; flex-shrink:0; }
+    code.dsl { background:#f5f5f5; padding:2px 6px; border-radius:3px; font-size:13px; color:#d4380d; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <div><div class="app-name">智慧运维平台</div><div style="font-size:12px;color:rgba(255,255,255,0.5);">故障分析模型 · 知识条目详情</div></div>
+    <div class="spacer"></div>
+    <span class="nav-action"><i class="fa-solid fa-user"></i> alex（P03）</span>
+  </header>
+  <div class="content-wrap">
+        <aside class="sider">
+      <div class="menu-group-title">智能运维</div>
+      <a class="menu-item" href="../index.html"><i class="fa-solid fa-gauge-high"></i> 总览</a>
+      <a class="menu-item" href="../admin-alarm/detail.html"><i class="fa-solid fa-bell"></i> 设备告警</a>
+      <div class="menu-group-title">检测算法</div>
+      <div class="menu-item"><i class="fa-solid fa-microchip"></i> 算法管理</div>
+      <a class="menu-item active" href="../admin-knowledge/list.html"><i class="fa-solid fa-robot"></i> 故障分析模型</a>
+      <div class="menu-group-title">知识运营</div>
+      <a class="menu-item active" style="padding-left:36px;" href="../admin-knowledge/list.html"><i class="fa-solid fa-book"></i> 故障知识库</a>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a> <i class="fa-solid fa-angle-right" style="font-size:11px;"></i>
+        <a href="list.html">故障知识库</a> <i class="fa-solid fa-angle-right" style="font-size:11px;"></i>
+        <span class="current">KB-NET-007</span>
+      </div>
+
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <h1 class="page-title m-0">KB-NET-007</h1>
+          <span class="ant-tag ant-tag-blue">网络丢包</span>
+          <span class="ant-tag ant-tag-green">启用</span>
+          <span class="ant-tag ant-tag-gray">来源：文档导入</span>
+        </div>
+        <div class="flex gap-2">
+          <button class="ant-btn" onclick="showToast('返回知识库列表','info');setTimeout(function(){location.href='list.html'},300)"><i class="fa-solid fa-rotate-left"></i> 返回</button>
+        </div>
+      </div>
+
+      <!-- 基础信息 -->
+      <div class="section-card">
+        <div class="section-title"><i class="fa-solid fa-circle-info" style="color:#1677ff;"></i> 基础信息</div>
+        <div class="desc-grid">
+          <div class="k">知识 ID</div><div class="v">KB-NET-007</div>
+          <div class="k">故障类型</div><div class="v"><span class="ant-tag ant-tag-blue">网络丢包</span></div>
+          <div class="k">命中次数</div><div class="v"><b style="color:#fa8c16;">128</b> 次</div>
+          <div class="k">来源文档</div><div class="v"><a style="color:#1677ff;cursor:pointer;" onclick="showToast('正在预览：海康球机2025版SOP.pdf','info')">海康球机2025版SOP.pdf</a></div>
+          <div class="k">创建人 / 时间</div><div class="v">alex · 2026-06-15 09:30</div>
+          <div class="k">更新人 / 时间</div><div class="v">alex · 2026-06-22 09:15</div>
+        </div>
+      </div>
+
+      <!-- 可能原因 -->
+      <div class="section-card">
+        <div class="section-title"><i class="fa-solid fa-magnifying-glass-chart" style="color:#722ed1;"></i> 可能原因（3 条）</div>
+        <div class="space-y-3">
+          <div class="flex items-start gap-3 p-3" style="background:#fafafa;border-radius:6px;">
+            <div style="width:24px;height:24px;border-radius:50%;background:#f9f0ff;color:#722ed1;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;">1</div>
+            <div class="flex-1">
+              <div class="font-medium">上联交换机端口丢包</div>
+              <div class="text-tertiary text-sm mt-1">端口 CRC 错误计数 5 分钟内增长 240 次</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3" style="background:#fafafa;border-radius:6px;">
+            <div style="width:24px;height:24px;border-radius:50%;background:#f9f0ff;color:#722ed1;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;">2</div>
+            <div class="flex-1">
+              <div class="font-medium">网线老化接触不良</div>
+              <div class="text-tertiary text-sm mt-1">该端口近 7 天累计中断 3 次</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3" style="background:#fafafa;border-radius:6px;">
+            <div style="width:24px;height:24px;border-radius:50%;background:#f9f0ff;color:#722ed1;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;">3</div>
+            <div class="flex-1">
+              <div class="font-medium">上联带宽拥塞</div>
+              <div class="text-tertiary text-sm mt-1">高峰时段带宽占用率 78%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 处置方案 -->
+      <div class="section-card">
+        <div class="section-title"><i class="fa-solid fa-wrench" style="color:#52c41a;"></i> 处置方案</div>
+        <div class="mb-2 text-sm font-medium">主方案</div>
+        <div class="mb-3">
+          <div class="step-line"><div class="step-num">1</div><div class="flex-1"><div>登录上联交换机，检查 GE0/0/12 端口状态与 CRC 错误计数</div><div class="text-sm" style="color:#faad14;">⚠ 只读操作，无风险</div></div></div>
+          <div class="step-line"><div class="step-num">2</div><div class="flex-1"><div>若 CRC 持续增长，更换网线或端口，并清理端口统计</div><div class="text-sm" style="color:#faad14;">⚠ 切换瞬间中断约 10 秒</div></div></div>
+          <div class="step-line"><div class="step-num">3</div><div class="flex-1"><div>复观告警，确认 5 分钟内丢包率回落至 0%</div></div></div>
+        </div>
+        <div class="mb-2 text-sm font-medium">备选方案 1</div>
+        <div class="step-line"><div class="step-num">1</div><div class="flex-1"><div>联系网络厂商远程协助排查端口硬件故障</div><div class="text-sm" style="color:#faad14;">⚠ 需协调厂商，耗时较长</div></div></div>
+        <div class="mt-3 pt-3" style="border-top:1px solid var(--ant-border-secondary);">
+          <div class="desc-grid">
+            <div class="k">预计修复时长</div><div class="v">15 分钟</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 状态 -->
+      <div class="section-card">
+        <div class="section-title"><i class="fa-solid fa-circle-check" style="color:#52c41a;"></i> 状态</div>
+        <div class="desc-grid">
+          <div class="k">启用状态</div><div class="v"><span class="ant-tag ant-tag-green">启用</span></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Toast 容器 -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+function showToast(msg, type){
+  var wrap = document.getElementById('toast-wrap');
+  var el = document.createElement('div'); el.className='toast-msg';
+  var icon = type==='success'?'<i class="fa-solid fa-circle-check" style="color:#52c41a;"></i>':(type==='error'?'<i class="fa-solid fa-circle-exclamation" style="color:#ff4d4f;"></i>':'<i class="fa-solid fa-circle-info" style="color:#1677ff;"></i>');
+  el.innerHTML = icon+'<span>'+msg+'</span>';
+  wrap.appendChild(el);
+  setTimeout(function(){ el.classList.add('show'); },10);
+  setTimeout(function(){ el.classList.remove('show'); setTimeout(function(){ el.remove(); },300); },2400);
+}
+</script>
+</body>
+</html>

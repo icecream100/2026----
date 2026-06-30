@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>业务管理 - 算法中心 + 业务场景功能</title>
+  <script src="https://cdn.tailwindcss.com"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" href="../proto-ui.css"><link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>.metric-strip{display:flex;gap:12px;flex-wrap:wrap}.metric-pill{background:#fff;border:1px solid var(--ant-border-secondary);border-radius:8px;padding:10px 14px;min-width:150px;box-shadow:var(--shadow-1)}.field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.drawer-panel{width:720px;max-width:92vw;margin-left:auto;height:100%;border-radius:0}.full-modal{width:min(1120px,94vw);max-height:88vh;overflow:auto}.tree-box{border:1px solid var(--ant-border-secondary);border-radius:8px;padding:12px;background:#fff}.tree-node-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:6px;cursor:pointer}.tree-node-row:hover,.tree-node-row.active{background:var(--ant-primary-bg);color:var(--ant-primary)}.flow-card{border:1px solid var(--ant-border-secondary);border-radius:8px;padding:14px;background:#fff}.chart-card{min-height:260px;display:flex;flex-direction:column;justify-content:center}.fake-line{height:160px;background:linear-gradient(180deg,#fff,#f5f8ff);border:1px dashed var(--ant-border);border-radius:8px;overflow:hidden}.evidence{height:260px;border-radius:10px;background:linear-gradient(135deg,#172554,#0f766e);color:white;display:flex;align-items:center;justify-content:center;flex-direction:column}.timeline{border-left:2px solid var(--ant-border-secondary);padding-left:16px}.timeline-item{position:relative;padding-bottom:18px}.timeline-item:before{content:'';position:absolute;left:-22px;top:3px;width:10px;height:10px;background:var(--ant-primary);border-radius:50%}.readonly{background:#f5f5f5;color:var(--ant-text-tertiary)}</style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">算法中心 + 业务场景功能</span>
+    <div class="spacer"></div>
+    <button class="nav-action" onclick="showToast('通知中心已打开')"><i class="fa-regular fa-bell mr-1"></i>6</button>
+    <button class="nav-action" onclick="showToast('已切换为演示账号')"><i class="fa-regular fa-user mr-1"></i>平台管理员 · alex</button>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">4 大核心模块</div>
+      <div class="menu-item" onclick="location.href='../admin-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>算法中心</div>
+      <div class="menu-item active" onclick="location.href='../admin-grid/list.html'"><i class="fa-solid fa-sitemap"></i>业务管理</div>
+      <div class="menu-item" onclick="location.href='../admin-policy/home.html'"><i class="fa-solid fa-diagram-project"></i>策略管理</div>
+      <div class="menu-item has-sub" onclick="toggleSubMenu(this)"><i class="fa-solid fa-bell"></i>报警中心<i class="fa-solid fa-chevron-right menu-arrow"></i></div>
+      <div class="menu-sub collapsed">
+        <div class="menu-item" onclick="location.href='../admin-dashboard/index.html'">看板</div>
+        <div class="menu-item" onclick="location.href='../handle-flow/confirm.html'" style="position:relative">待确认告警<span class="menu-badge">18</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/handle.html'" style="position:relative">待处理告警<span class="menu-badge">26</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/review.html'" style="position:relative">待审核告警<span class="menu-badge">9</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/list.html'">告警列表</div>
+      </div>
+      <div class="menu-group-title mt-4">原型版本</div>
+      <div class="menu-item" onclick="location.href='../index.html'"><i class="fa-solid fa-compass"></i>返回导航中心</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><span class="current">业务管理</span></div>
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <div class="page-title">业务管理</div>
+        </div>
+        <button class="ant-btn ant-btn-primary" onclick="openBizModal()"><i class="fa-solid fa-plus"></i> 新增业务</button>
+      </div>
+
+<div class="ant-card ant-card-bordered mb-4"><div class="ant-card-body"><div class="flex items-center gap-4 flex-wrap"><div class="flex items-center gap-2"><label class="text-sm text-secondary">状态</label><select id="bizStatus" class="ant-select" style="width:120px"><option value="">全部</option><option>启用</option><option>停用</option></select></div><div class="flex items-center gap-2"><label class="text-sm text-secondary">业务名称</label><input id="bizName" class="ant-input" style="width:220px" placeholder="请输入业务名称" onkeydown="if(event.key==='Enter')renderBiz(true)"></div><button class="ant-btn ant-btn-primary" onclick="renderBiz(true)"><i class="fa-solid fa-search"></i> 查询</button><button class="ant-btn" onclick="resetBiz()"><i class="fa-solid fa-rotate-right"></i> 重置</button></div></div></div>
+<div class="ant-card ant-card-bordered"><div class="ant-card-body" style="padding:0;overflow:auto"><table class="ant-table"><thead><tr><th>业务名称</th><th>业务编码</th><th>网格节点数</th><th>覆盖设备数</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead><tbody id="bizBody"></tbody></table></div></div>
+<div class="ant-modal-mask" id="bizModal"><div class="ant-modal" style="width:560px"><div class="ant-modal-header"><span id="bizModalTitle">新增业务</span><span class="ant-modal-close" onclick="closeModal('bizModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">业务名称</label><input id="bizFormName" class="ant-input" placeholder="如：明厨亮灶"></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">业务编码</label><input id="bizFormCode" class="ant-input" placeholder="BIZ_KITCHEN"></div><div class="ant-form-item"><label class="ant-form-label">描述</label><textarea class="ant-input" rows="3" placeholder="请输入业务说明"></textarea></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">状态</label><select class="ant-select w-full"><option>启用</option><option>停用</option></select></div></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('bizModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="saveBiz()">保存业务</button></div></div></div>
+<div class="ant-modal-mask" id="confirmModal"><div class="ant-modal" style="width:420px"><div class="ant-modal-header"><span>确认操作</span><span class="ant-modal-close" onclick="closeModal('confirmModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><p id="confirmText">确定执行操作？</p></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('confirmModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="runConfirm()">确认执行</button></div></div></div>
+    </main>
+  </div>
+</div>
+<div class="toast-wrap"></div>
+<script>
+function toggleSubMenu(el){el.classList.toggle('expanded');var sub=el.nextElementSibling;if(sub&&sub.classList.contains('menu-sub')){sub.classList.toggle('collapsed')}}
+</script>
+
+<script>function showToast(msg,duration){duration=duration||2000;var wrap=document.querySelector('.toast-wrap');var el=document.createElement('div');el.className='toast-msg';el.innerHTML='<i class="fa-solid fa-circle-info" style="color:#1677ff"></i>'+msg;wrap.appendChild(el);requestAnimationFrame(function(){el.classList.add('show')});setTimeout(function(){el.classList.remove('show');setTimeout(function(){el.remove()},300)},duration)}function openModal(id){document.getElementById(id).classList.add('active')}function closeModal(id){document.getElementById(id).classList.remove('active')}document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.ant-modal-mask.active').forEach(function(m){m.classList.remove('active')})});document.querySelectorAll('.ant-modal-mask').forEach(function(mask){mask.addEventListener('click',function(e){if(e.target===mask)mask.classList.remove('active')})});const biz=[['明厨亮灶','BIZ_KITCHEN',36,1280,'启用','2026-06-01 09:00'],['消防','BIZ_FIRE',28,860,'启用','2026-06-02 10:15'],['综治','BIZ_GOVERN',22,420,'启用','2026-06-03 11:20'],['环境监测','BIZ_ENV',18,312,'启用','2026-06-05 14:20'],['交通治理','BIZ_TRAFFIC',16,450,'启用','2026-06-06 16:10'],['养老机构','BIZ_ELDERLY',14,180,'启用','2026-06-08 09:45'],['校园安全','BIZ_SCHOOL',10,96,'停用','2026-06-10 12:30'],['工地监管','BIZ_SITE',20,284,'启用','2026-06-11 15:20']];let confirmCallback=null;function renderBiz(tip){const s=document.getElementById('bizStatus').value,n=document.getElementById('bizName').value.trim();const rows=biz.filter(b=>(!s||b[4]===s)&&(!n||b[0].includes(n)));document.getElementById('bizBody').innerHTML=rows.map((b,i)=>`<tr><td><a href="workspace.html?business_id=biz_${i+1}&tab=device">${b[0]}</a></td><td><code>${b[1]}</code></td><td>${b[2]}</td><td>${b[3]}</td><td><span class="ant-tag ${b[4]==='启用'?'ant-tag-green':'ant-tag-gray'}">${b[4]}</span></td><td>${b[5]}</td><td><div class="action-wrap"><button class="ant-btn ant-btn-text ant-btn-sm" onclick="openBizModal('${b[0]}')">编辑</button><button class="ant-btn ant-btn-text ant-btn-sm" onclick="location.href='workspace.html?business_id=biz_${i+1}&tab=device'">进入工作台</button><button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleBizStatus(${i})">${b[4]==='启用'?'停用':'启用'}</button><button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="askConfirm('删除业务会影响下游策略，确定继续？',function(){showToast('已提交删除校验')})">删除</button></div></td></tr>`).join('');if(tip)showToast('查询完成')}function resetBiz(){document.getElementById('bizStatus').value='';document.getElementById('bizName').value='';renderBiz();showToast('筛选条件已重置')}function openBizModal(name){document.getElementById('bizModalTitle').textContent=name?'编辑业务':'新增业务';document.getElementById('bizFormName').value=name||'';document.getElementById('bizFormCode').value=name?'BIZ_'+name:'';openModal('bizModal')}function saveBiz(){if(!document.getElementById('bizFormName').value.trim()){showToast('保存失败：业务名称不能为空');return}showToast('业务已保存');closeModal('bizModal');renderBiz()}function toggleBizStatus(rowIdx){const s=document.getElementById('bizStatus').value,n=document.getElementById('bizName').value.trim();const rows=biz.filter(b=>(!s||b[4]===s)&&(!n||b[0].includes(n)));const target=rows[rowIdx];if(!target)return;const bizIdx=biz.indexOf(target);if(target[4]==='启用'){askConfirm('停用业务「'+target[0]+'」？\n停用后：本业务所有策略自动标记"业务已停用-暂停"，不再产生新告警；已派单告警继续处置至关闭。',function(){biz[bizIdx][4]='停用';renderBiz();showToast('业务已停用，下游策略已标记暂停')});}else{askConfirm('启用业务「'+target[0]+'」？启用后本业务策略可重新启用。',function(){biz[bizIdx][4]='启用';renderBiz();showToast('业务已启用')});}}function askConfirm(text,cb){confirmCallback=cb;document.getElementById('confirmText').textContent=text;openModal('confirmModal')}function runConfirm(){if(confirmCallback)confirmCallback();closeModal('confirmModal')}renderBiz();</script>
+</body></html>

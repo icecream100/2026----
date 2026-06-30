@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>业务算法配置 - 算法中心 + 业务场景功能</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <script>
+function toggleSubMenu(el){el.classList.toggle('expanded');var sub=el.nextElementSibling;if(sub&&sub.classList.contains('menu-sub')){sub.classList.toggle('collapsed')}}
+</script>
+
+<script>if(window.self!==window.top)document.documentElement.classList.add('embedded')</script>
+  <style>
+    .stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+    .stat-card{background:#fff;border:1px solid var(--ant-border-secondary);border-radius:8px;padding:14px 16px;box-shadow:var(--shadow-1);display:flex;align-items:center;gap:12px}
+    .stat-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+    .stat-value{font-size:24px;font-weight:600;line-height:1.2}
+    .stat-label{font-size:12px;color:var(--ant-text-tertiary);margin-top:2px}
+    .tip-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+    .tip-card{background:#fafafa;border:1px solid var(--ant-border-secondary);border-radius:6px;padding:10px 12px;display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--ant-text-secondary)}
+    .tip-card .tip-key{color:var(--ant-text);font-weight:600;flex-shrink:0}
+    .tip-card i{color:var(--ant-primary);margin-top:2px}
+    .ant-switch{display:inline-flex;align-items:center;width:36px;height:20px;border-radius:10px;background:#d9d9d9;cursor:pointer;position:relative;transition:all .2s;flex-shrink:0;border:none}
+    .ant-switch.active{background:var(--ant-primary)}
+    .ant-switch::after{content:'';position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:all .2s;box-shadow:0 2px 4px rgba(0,0,0,0.2)}
+    .ant-switch.active::after{left:18px}
+    .ant-switch[disabled]{opacity:.4;cursor:not-allowed}
+    .ant-switch-lg{width:44px;height:22px}
+    .ant-switch-lg::after{width:18px;height:18px}
+    .ant-switch-lg.active::after{left:22px}
+    .row-notice{background:#fffbe6;border-left:3px solid var(--ant-warning);padding:6px 12px;font-size:12px;color:#874d00;display:flex;align-items:center;gap:6px;margin-top:4px;border-radius:0 4px 4px 0}
+    .level-select{height:26px;padding:0 8px;font-size:12px;border:1px solid var(--ant-border);border-radius:4px;background:#fff;cursor:pointer;outline:none}
+    .level-select:focus{border-color:var(--ant-primary)}
+    .ref-link{color:var(--ant-primary);cursor:pointer;font-weight:600}
+    .ref-link:hover{text-decoration:underline}
+    .algo-name-link{color:var(--ant-primary);cursor:pointer;font-weight:500}
+    .algo-name-link:hover{text-decoration:underline}
+    .ant-btn[disabled]{cursor:not-allowed}
+    .business-stopped-bar{background:#fff1f0;border:1px solid #ffa39e;border-radius:6px;padding:8px 12px;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-size:13px;color:#5c0011}
+    .demo-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ant-text-tertiary);padding:4px 8px;border:1px dashed var(--ant-border);border-radius:4px;cursor:pointer}
+    .demo-toggle:hover{color:var(--ant-primary);border-color:var(--ant-primary)}
+    .error-state{text-align:center;padding:32px 16px}
+    .error-state i{font-size:36px;color:var(--ant-text-disabled);margin-bottom:8px}
+    /* 关联算法列表项 */
+    .asso-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--ant-border-secondary);cursor:pointer;transition:background .15s;font-size:13px}
+    .asso-item:last-child{border-bottom:none}
+    .asso-item:hover{background:#f5f5f5}
+    .asso-item input[type=checkbox]{width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:var(--ant-primary)}
+    .asso-name{font-weight:500;color:var(--ant-text);flex:1}
+    .asso-level{color:var(--ant-text-tertiary);font-size:12px;display:flex;align-items:center;gap:4px;flex-shrink:0}
+    @media(max-width:1280px){.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tip-grid{grid-template-columns:1fr}}
+    /* 嵌入模式：被 workspace.html iframe 加载时隐藏自身导航 */
+    html.embedded .header,
+    html.embedded .sider,
+    html.embedded .breadcrumb,
+    html.embedded .page-embedded-only{display:none!important}
+    html.embedded .embed-only-bar{display:flex!important}
+    html.embedded .content-wrap{display:block}
+    html.embedded .main{padding:0;overflow:visible}
+    html.embedded .layout{min-height:auto}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">算法中心 + 业务场景功能</span>
+    <div class="spacer"></div>
+    <button class="nav-action" onclick="showToast('通知中心已打开')"><i class="fa-regular fa-bell mr-1"></i>6</button>
+    <button class="nav-action" onclick="showToast('已切换为演示账号')"><i class="fa-regular fa-user mr-1"></i>平台管理员 · alex</button>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">4 大核心模块</div>
+      <div class="menu-item" onclick="location.href='../admin-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>算法中心</div>
+      <div class="menu-item active" onclick="location.href='../admin-grid/list.html'"><i class="fa-solid fa-sitemap"></i>业务管理</div>
+      <div class="menu-item" onclick="location.href='../admin-policy/home.html'"><i class="fa-solid fa-diagram-project"></i>策略管理</div>
+      <div class="menu-item has-sub" onclick="toggleSubMenu(this)"><i class="fa-solid fa-bell"></i>报警中心<i class="fa-solid fa-chevron-right menu-arrow"></i></div>
+      <div class="menu-sub collapsed">
+        <div class="menu-item" onclick="location.href='../admin-dashboard/index.html'">看板</div>
+        <div class="menu-item" onclick="location.href='../handle-flow/confirm.html'" style="position:relative">待确认告警<span class="menu-badge">18</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/handle.html'" style="position:relative">待处理告警<span class="menu-badge">26</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/review.html'" style="position:relative">待审核告警<span class="menu-badge">9</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/list.html'">告警列表</div>
+      </div>
+      <div class="menu-group-title mt-4">原型版本</div>
+      <div class="menu-item" onclick="location.href='../index.html'"><i class="fa-solid fa-compass"></i>返回导航中心</div>
+    </aside>
+    <main class="main">
+      <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><a href="list.html">业务管理</a><span>/</span><span class="current">业务算法配置</span></div>
+      <div class="flex items-start justify-between mb-4 page-embedded-only">
+        <div>
+          <div class="page-title">明厨亮灶 · 业务算法配置</div>
+        </div>
+        <div class="flex gap-2 items-center">
+          <span class="demo-toggle" onclick="toggleBusinessStop()"><i class="fa-solid fa-flask"></i> <span id="demoToggleText">演示：切换业务停用态</span></span>
+          <button class="ant-btn" onclick="location.href='workspace.html'"><i class="fa-solid fa-arrow-left"></i> 返回工作台</button>
+          <button class="ant-btn ant-btn-primary" onclick="openAssociateModal()"><i class="fa-solid fa-link"></i> 关联算法</button>
+        </div>
+      </div>
+      <!-- 嵌入模式下的精简工具栏（仅显示关联算法按钮） -->
+      <div class="hidden embed-only-bar" style="display:none;margin-bottom:16px;align-items:center;justify-content:space-between">
+        <div>
+          <div class="page-title" style="font-size:18px">业务算法配置</div>
+        </div>
+        <div class="flex gap-2 items-center">
+          <button class="ant-btn ant-btn-primary" onclick="openAssociateModal()"><i class="fa-solid fa-link"></i> 关联算法</button>
+        </div>
+      </div>
+
+      <!-- 业务停用提示条（默认隐藏，演示 E26 时显示） -->
+      <div id="businessStopBar" class="business-stopped-bar hidden">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>当前业务「明厨亮灶」已停用，算法配置操作不可用。请先在业务工作台启用业务后再配置算法。</span>
+      </div>
+
+      <!-- ③ 搜索筛选区 -->
+      <div class="ant-card ant-card-bordered mb-4">
+        <div class="ant-card-body">
+          <div class="flex gap-4 flex-wrap">
+            <div class="flex items-center gap-2">
+              <span class="text-secondary text-sm">算法类型</span>
+              <select id="filterType" class="ant-select" style="width:140px">
+                <option value="">全部类型</option>
+                <option>合规检测</option><option>安全防范</option><option>环境监测</option><option>车辆统计</option><option>人员统计</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-secondary text-sm">平台算法状态</span>
+              <select id="filterPlatform" class="ant-select" style="width:110px"><option value="">全部</option><option>启用</option><option>停用</option></select>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-secondary text-sm">本业务状态</span>
+              <select id="filterBiz" class="ant-select" style="width:110px"><option value="">全部</option><option>启用</option><option>停用</option></select>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-secondary text-sm">告警级别</span>
+              <select id="filterLevel" class="ant-select" style="width:110px"><option value="">全部</option><option>紧急</option><option>重要</option><option>一般</option></select>
+            </div>
+            <div class="flex items-center gap-2">
+              <input id="filterName" class="ant-input" style="width:200px" placeholder="算法名称" onkeydown="if(event.key==='Enter')renderTable(true)">
+            </div>
+            <button class="ant-btn ant-btn-primary" onclick="renderTable(true)"><i class="fa-solid fa-search"></i> 查询</button>
+            <button class="ant-btn" onclick="resetFilter()"><i class="fa-solid fa-rotate-right"></i> 重置</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ④ 算法列表表格 -->
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head">
+          <div class="ant-card-head-title">算法列表</div>
+          <span class="text-secondary text-sm" id="tableCount">共 0 条</span>
+        </div>
+        <div class="ant-card-body" style="padding:0;overflow:auto">
+          <div id="tableWrap">
+            <table class="ant-table">
+              <thead>
+                <tr>
+                  <th>算法名称</th>
+                  <th>算法类型</th>
+                  <th>平台算法状态</th>
+                  <th>本业务状态</th>
+                  <th>默认建议级别</th>
+                  <th>本业务告警级别</th>
+                  <th>被策略引用</th>
+                  <th>更新时间</th>
+                  <th width="220">操作</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+          <!-- ⑥ 空状态 -->
+          <div id="emptyState" class="hidden">
+            <div class="empty-state">
+              <div class="empty-state-icon"><i class="fa-solid fa-microchip"></i></div>
+              <div class="empty-state-title">暂无关联算法</div>
+              <div class="empty-state-desc">当前业务尚未关联任何算法，点击右上角"关联算法"开始配置</div>
+              <button class="ant-btn ant-btn-primary" onclick="openAssociateModal()"><i class="fa-solid fa-link"></i> 关联算法</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 弹窗：关联算法（简化为可勾选列表） ====== -->
+      <div class="ant-modal-mask" id="associateModal">
+        <div class="ant-modal" style="width:560px">
+          <div class="ant-modal-header">
+            <span>关联算法</span>
+            <span class="ant-modal-close" onclick="closeModal('associateModal')"><i class="fa-solid fa-xmark"></i></span>
+          </div>
+          <div class="ant-modal-body">
+            <div class="ant-alert ant-alert-info" style="margin-bottom:12px">
+              <i class="fa-solid fa-circle-info ant-alert-icon"></i>
+              <div class="ant-alert-content"><div class="ant-alert-description">勾选要关联的算法，关联后默认启用，告警级别自动带入算法的默认建议级别（可后续在列表中编辑）。</div></div>
+            </div>
+            <div class="flex gap-2 mb-3">
+              <select id="assoType" class="ant-select" style="width:140px" onchange="renderAssociateTable()">
+                <option value="">全部类型</option>
+                <option>合规检测</option><option>安全防范</option><option>环境监测</option><option>车辆统计</option><option>人员统计</option>
+              </select>
+              <input id="assoName" class="ant-input" style="flex:1" placeholder="算法名称" oninput="renderAssociateTable()">
+            </div>
+            <div id="assoList" style="max-height:340px;overflow:auto;border:1px solid var(--ant-border-secondary);border-radius:6px"></div>
+            <div class="text-secondary text-sm mt-2" id="assoCount"></div>
+          </div>
+          <div class="ant-modal-footer">
+            <button class="ant-btn" onclick="closeModal('associateModal')">取消</button>
+            <button class="ant-btn ant-btn-primary" onclick="saveAssociate()"><i class="fa-solid fa-link"></i> 关联选中</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 弹窗：编辑本业务告警级别 ====== -->
+      <div class="ant-modal-mask" id="editLevelModal">
+        <div class="ant-modal" style="width:480px">
+          <div class="ant-modal-header">
+            <span>编辑本业务告警级别</span>
+            <span class="ant-modal-close" onclick="closeModal('editLevelModal')"><i class="fa-solid fa-xmark"></i></span>
+          </div>
+          <div class="ant-modal-body">
+            <div class="ant-form-item">
+              <label class="ant-form-label">算法名称</label>
+              <input id="editAlgoName" class="ant-input" disabled>
+            </div>
+            <div class="ant-form-item">
+              <label class="ant-form-label">默认建议级别</label>
+              <div><span id="editSuggestLevel" class="ant-tag"></span></div>
+            </div>
+            <div class="ant-form-item">
+              <label class="ant-form-label ant-form-label-required">本业务告警级别</label>
+              <select id="editBizLevel" class="ant-select w-full"><option>紧急</option><option>重要</option><option>一般</option></select>
+            </div>
+            <div id="editRefTip" class="ant-alert ant-alert-warning hidden" style="margin-bottom:0">
+              <i class="fa-solid fa-triangle-exclamation ant-alert-icon"></i>
+              <div class="ant-alert-content"><div id="editRefText" class="ant-alert-description"></div></div>
+            </div>
+          </div>
+          <div class="ant-modal-footer">
+            <button class="ant-btn" onclick="closeModal('editLevelModal')">取消</button>
+            <button class="ant-btn ant-btn-primary" onclick="saveLevel()">保存</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 弹窗：查看引用策略 ====== -->
+      <div class="ant-modal-mask" id="refModal">
+        <div class="ant-modal" style="width:720px">
+          <div class="ant-modal-header">
+            <span id="refModalTitle">查看引用策略</span>
+            <span class="ant-modal-close" onclick="closeModal('refModal')"><i class="fa-solid fa-xmark"></i></span>
+          </div>
+          <div class="ant-modal-body">
+            <div id="refContent">
+              <div class="text-secondary text-sm mb-3" id="refSummary"></div>
+              <table class="ant-table">
+                <thead><tr><th>策略名称</th><th>策略状态</th><th>覆盖网格</th><th>最近触发时间</th><th>创建人</th></tr></thead>
+                <tbody id="refBody"></tbody>
+              </table>
+            </div>
+            <div id="refError" class="error-state hidden">
+              <div><i class="fa-solid fa-triangle-exclamation"></i></div>
+              <div class="empty-state-title" style="margin-top:8px">引用策略加载失败</div>
+              <div class="empty-state-desc">网络异常，请稍后重试</div>
+              <button class="ant-btn ant-btn-primary" onclick="retryLoadRef()"><i class="fa-solid fa-rotate-right"></i> 重试</button>
+            </div>
+          </div>
+          <div class="ant-modal-footer">
+            <span class="demo-toggle" onclick="showRefError()" title="演示 E25 引用加载失败态"><i class="fa-solid fa-flask"></i> 演示：加载失败</span>
+            <span style="flex:1"></span>
+            <button class="ant-btn" onclick="closeModal('refModal')">关闭</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 弹窗：确认操作 ====== -->
+      <div class="ant-modal-mask" id="confirmModal">
+        <div class="ant-modal" style="width:420px">
+          <div class="ant-modal-header"><span>确认操作</span><span class="ant-modal-close" onclick="closeModal('confirmModal')"><i class="fa-solid fa-xmark"></i></span></div>
+          <div class="ant-modal-body"><p id="confirmText">确定执行操作？</p></div>
+          <div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('confirmModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="runConfirm()">确认执行</button></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="toast-wrap"></div>
+<script>
+/* ============ 基础工具 ============ */
+function showToast(msg,duration){duration=duration||2200;var wrap=document.querySelector('.toast-wrap');var el=document.createElement('div');el.className='toast-msg';el.innerHTML='<i class="fa-solid fa-circle-info" style="color:#1677ff"></i>'+msg;wrap.appendChild(el);requestAnimationFrame(function(){el.classList.add('show')});setTimeout(function(){el.classList.remove('show');setTimeout(function(){el.remove()},300)},duration)}
+function openModal(id){document.getElementById(id).classList.add('active')}
+function closeModal(id){document.getElementById(id).classList.remove('active')}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.ant-modal-mask.active').forEach(function(m){m.classList.remove('active')})});
+document.querySelectorAll('.ant-modal-mask').forEach(function(mask){mask.addEventListener('click',function(e){if(e.target===mask)mask.classList.remove('active')})});
+
+/* ============ 数据 ============ */
+const algorithms=[
+  {id:1,name:'厨房违规检测',type:'合规检测',platformStatus:'启用',bizStatus:'启用',suggestLevel:'重要',bizLevel:'重要',refCount:8,enabledRefCount:8,updateTime:'2026-06-25 09:30'},
+  {id:2,name:'消防通道占用识别',type:'安全防范',platformStatus:'启用',bizStatus:'启用',suggestLevel:'紧急',bizLevel:'紧急',refCount:5,enabledRefCount:5,updateTime:'2026-06-25 09:30'},
+  {id:3,name:'未戴工帽识别',type:'合规检测',platformStatus:'启用',bizStatus:'启用',suggestLevel:'重要',bizLevel:'紧急',refCount:6,enabledRefCount:4,updateTime:'2026-06-25 10:00'},
+  {id:4,name:'烟雾明火检测',type:'安全防范',platformStatus:'启用',bizStatus:'启用',suggestLevel:'紧急',bizLevel:'紧急',refCount:12,enabledRefCount:10,updateTime:'2026-06-25 08:15'},
+  {id:5,name:'垃圾满溢识别',type:'环境监测',platformStatus:'启用',bizStatus:'启用',suggestLevel:'一般',bizLevel:'一般',refCount:2,enabledRefCount:0,updateTime:'2026-06-24 16:00'},
+  {id:6,name:'车辆违停检测',type:'车辆统计',platformStatus:'启用',bizStatus:'停用',suggestLevel:'重要',bizLevel:'重要',refCount:4,enabledRefCount:0,updateTime:'2026-06-24 14:00'},
+  {id:7,name:'水浸异常检测',type:'环境监测',platformStatus:'停用',bizStatus:'启用',suggestLevel:'重要',bizLevel:'紧急',refCount:1,enabledRefCount:1,updateTime:'2026-06-23 10:00'},
+  {id:8,name:'出入口客流统计',type:'人员统计',platformStatus:'停用',bizStatus:'停用',suggestLevel:'—',bizLevel:'—',refCount:0,enabledRefCount:0,updateTime:'2026-06-20 12:00'}
+];
+/* 关联算法候选：L1 启用且尚未关联本业务 */
+const associateCandidates=[
+  {name:'越界闯入检测',type:'安全防范',suggestLevel:'紧急'},
+  {name:'人员聚集统计',type:'人员统计',suggestLevel:'重要'},
+  {name:'动物闯入识别',type:'环境监测',suggestLevel:'一般'}
+];
+/* 引用策略样例 */
+const refPolicies={
+  1:[{name:'厨房违规-后厨区域',status:'启用',grid:'西湖区监管一所',trigger:'5 分钟前',creator:'张明'},{name:'厨房违规-片区A',status:'启用',grid:'片区A',trigger:'12 分钟前',creator:'李娜'},{name:'厨房违规-夜间巡查',status:'停用',grid:'西湖区监管一所',trigger:'2 小时前',creator:'王强'}],
+  2:[{name:'消防通道-主通道监控',status:'启用',grid:'西湖区监管一所',trigger:'8 分钟前',creator:'张明'},{name:'消防通道-片区B后门',status:'启用',grid:'片区B',trigger:'30 分钟前',creator:'王强'},{name:'消防通道-夜间专用',status:'停用',grid:'片区A',trigger:'1 小时前',creator:'李娜'}],
+  3:[{name:'工帽检测-后厨',status:'启用',grid:'西湖区监管一所',trigger:'15 分钟前',creator:'张明'},{name:'工帽检测-片区A',status:'启用',grid:'片区A',trigger:'22 分钟前',creator:'李娜'}],
+  4:[{name:'烟雾明火-仓库监控',status:'启用',grid:'西湖区监管一所',trigger:'3 分钟前',creator:'张明'},{name:'烟雾明火-片区A',status:'启用',grid:'片区A',trigger:'18 分钟前',creator:'李娜'}],
+  5:[{name:'垃圾满溢-后厨区',status:'停用',grid:'西湖区监管一所',trigger:'昨天 10:00',creator:'张明'}],
+  6:[{name:'车辆违停-停车场',status:'停用',grid:'片区B',trigger:'昨天 14:00',creator:'王强'}],
+  7:[{name:'水浸检测-仓库',status:'启用',grid:'西湖区监管一所',trigger:'2 小时前',creator:'张明'}]
+};
+
+let editingId=null,confirmCallback=null,businessStopped=false,currentRefId=null;
+
+/* ============ 标签辅助 ============ */
+function tagLevel(v){return v==='紧急'?'ant-tag-red':v==='重要'?'ant-tag-orange':v==='一般'?'ant-tag-blue':'ant-tag-gray'}
+function tagStatus(v){return v==='启用'?'ant-tag-green':'ant-tag-gray'}
+function tagType(v){const m={'合规检测':'ant-tag-purple','安全防范':'ant-tag-red','环境监测':'ant-tag-green','车辆统计':'ant-tag-blue','人员统计':'ant-tag-orange'};return m[v]||'ant-tag-blue'}
+
+/* ============ 渲染表格 ============ */
+function getFiltered(){
+  return algorithms.filter(a=>
+    (!filterType.value||a.type===filterType.value)&&
+    (!filterPlatform.value||a.platformStatus===filterPlatform.value)&&
+    (!filterBiz.value||a.bizStatus===filterBiz.value)&&
+    (!filterLevel.value||a.bizLevel===filterLevel.value)&&
+    (!filterName.value.trim()||a.name.includes(filterName.value.trim()))
+  );
+}
+function renderTable(tip){
+  const rows=getFiltered();
+  tableCount.textContent='共 '+rows.length+' 条';
+  if(rows.length===0){
+    tableWrap.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    if(tip)showToast('查询完成');
+    return;
+  }
+  tableWrap.classList.remove('hidden');
+  emptyState.classList.add('hidden');
+  tableBody.innerHTML=rows.map(a=>{
+    const platformDisabled=a.platformStatus==='停用';
+    const bizEnabled=a.bizStatus==='启用';
+    const canDisable=a.enabledRefCount===0;        // E22 被启用策略引用时不能停用
+    const canUnbind=a.refCount===0;                // E23 被任意策略引用时不能解绑
+    const toggleBtn=bizEnabled?'停用':'启用';
+    const toggleDisabled=bizEnabled?!canDisable:platformDisabled;
+    const toggleTitle=bizEnabled
+      ?(canDisable?'停用该算法':'该算法已被 '+a.enabledRefCount+' 条启用策略引用，不能停用')
+      :(platformDisabled?'算法已在算法中心停用，不能启用本业务算法':'启用该算法');
+    const unbindTitle=canUnbind?'解绑该算法':'该算法已被 '+a.refCount+' 条策略引用，不能解绑';
+    const rowNotice=platformDisabled?'<div class="row-notice"><i class="fa-solid fa-circle-exclamation"></i>算法已在算法中心停用，新策略不可选择</div>':'';
+    return `<tr>
+      <td><span class="algo-name-link" onclick="showToast('跳转到算法中心详情：'+this.textContent)">${a.name}</span>${rowNotice}</td>
+      <td><span class="ant-tag ${tagType(a.type)}">${a.type}</span></td>
+      <td><span class="ant-tag ${tagStatus(a.platformStatus)}">${a.platformStatus}</span></td>
+      <td><span class="ant-tag ${tagStatus(a.bizStatus)}">${a.bizStatus}</span></td>
+      <td>${a.suggestLevel==='—'?'<span class="text-tertiary">—</span>':'<span class="ant-tag '+tagLevel(a.suggestLevel)+'">'+a.suggestLevel+'</span>'}</td>
+      <td>${a.bizLevel==='—'?'<span class="text-tertiary">—</span>':'<span class="ant-tag '+tagLevel(a.bizLevel)+'">'+a.bizLevel+'</span>'}</td>
+      <td>${a.refCount>0?'<span class="ref-link" onclick="openRefModal('+a.id+')">'+a.refCount+' <i class="fa-solid fa-eye text-xs"></i></span>':'<span class="text-tertiary">0</span>'}</td>
+      <td class="mono text-sm">${a.updateTime}</td>
+      <td><div class="action-wrap">
+        <button class="ant-btn ant-btn-text ant-btn-sm" onclick="openEditLevel(${a.id})" ${businessStopped?'disabled title="业务已停用，请先启用业务后再配置算法"':''}>编辑级别</button>
+        <button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleBiz(${a.id})" ${(toggleDisabled||businessStopped)?'disabled':''} title="${businessStopped?'业务已停用，请先启用业务后再配置算法':toggleTitle}">${toggleBtn}</button>
+        <button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="unbindAlgo(${a.id})" ${(!canUnbind||businessStopped)?'disabled':''} title="${businessStopped?'业务已停用，请先启用业务后再配置算法':unbindTitle}">解绑</button>
+        <button class="ant-btn ant-btn-text ant-btn-sm" onclick="openRefModal(${a.id})" ${businessStopped?'disabled title="业务已停用，请先启用业务后再配置算法"':''}>查看引用</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  if(tip)showToast('查询完成');
+}
+function resetFilter(){filterType.value='';filterPlatform.value='';filterBiz.value='';filterLevel.value='';filterName.value='';renderTable();showToast('筛选条件已重置')}
+
+/* ============ 关联算法弹窗（简化为可勾选列表） ============ */
+function openAssociateModal(){
+  if(businessStopped){showToast('业务已停用，请先启用业务后再配置算法');return}
+  assoType.value='';assoName.value='';
+  renderAssociateTable();
+  openModal('associateModal');
+}
+function renderAssociateTable(){
+  const kw=assoName.value.trim();
+  const rows=associateCandidates.filter(a=>(!assoType.value||a.type===assoType.value)&&(!kw||a.name.includes(kw)));
+  assoCount.textContent=rows.length?'共 '+rows.length+' 个可关联算法':'没有可关联的算法';
+  assoList.innerHTML=rows.length?rows.map((a,i)=>`<label class="asso-item" id="assoItem${i}">
+    <input type="checkbox" class="asso-check" id="assoCheck${i}" data-idx="${i}">
+    <span class="ant-tag ${tagType(a.type)}">${a.type}</span>
+    <span class="asso-name">${a.name}</span>
+    <span class="asso-level">建议级别 <span class="ant-tag ${tagLevel(a.suggestLevel)}">${a.suggestLevel}</span></span>
+  </label>`).join(''):'<div class="ant-empty" style="padding:32px"><div class="ant-empty-icon"><i class="fa-regular fa-folder-open"></i></div><div class="ant-empty-text">没有可关联的算法，所有 L1 启用算法均已关联</div></div>';
+}
+function saveAssociate(){
+  const checks=document.querySelectorAll('#assoList .asso-check:checked');
+  if(checks.length===0){showToast('请至少勾选 1 个算法进行关联');return}
+  // E19 重复关联拦截：勾选项若已关联本业务则拦截
+  const existing=algorithms.map(function(a){return a.name});
+  for(var i=0;i<checks.length;i++){
+    var nameEl=checks[i].closest('.asso-item').querySelector('.asso-name');
+    var nm=nameEl?nameEl.textContent.trim():'';
+    if(existing.indexOf(nm)>-1){showToast('该算法已关联本业务："'+nm+'"');return}
+  }
+  showToast('已成功关联 '+checks.length+' 个算法，默认启用，告警级别按建议级别生效');
+  closeModal('associateModal');
+  renderTable();
+}
+
+/* ============ 编辑告警级别弹窗 ============ */
+function openEditLevel(id){
+  if(businessStopped){showToast('业务已停用，请先启用业务后再配置算法');return}
+  const a=algorithms.find(x=>x.id===id);
+  editingId=id;
+  editAlgoName.value=a.name;
+  editSuggestLevel.textContent=a.suggestLevel;
+  editSuggestLevel.className='ant-tag '+tagLevel(a.suggestLevel);
+  editBizLevel.value=a.bizLevel==='—'?'重要':a.bizLevel;
+  if(a.refCount>0){
+    editRefTip.classList.remove('hidden');
+    editRefText.textContent='当前算法已被 '+a.refCount+' 条策略引用。修改告警级别后，仅影响后续新产生的告警，历史告警级别不变。是否确认修改？';
+  }else{
+    editRefTip.classList.add('hidden');
+  }
+  openModal('editLevelModal');
+}
+function saveLevel(){
+  const a=algorithms.find(x=>x.id===editingId);
+  if(!editBizLevel.value){showToast('保存失败：请先配置本业务告警级别');return}  // E21
+  if(a.bizLevel!==editBizLevel.value){
+    a.bizLevel=editBizLevel.value;
+    a.updateTime='2026-06-25 '+new Date().toTimeString().slice(0,5);
+    showToast('告警级别已更新为「'+editBizLevel.value+'」，仅影响后续新告警');
+  }else{
+    showToast('告警级别未变更');
+  }
+  closeModal('editLevelModal');
+  renderTable();
+}
+
+/* ============ 启停 / 解绑 ============ */
+function toggleBiz(id){
+  if(businessStopped){showToast('业务已停用，请先启用业务后再配置算法');return}
+  const a=algorithms.find(x=>x.id===id);
+  if(a.bizStatus==='启用'){
+    // E22 被启用策略引用时不能停用
+    if(a.enabledRefCount>0){
+      showToast('该算法已被 '+a.enabledRefCount+' 条启用策略引用，不能停用');
+      openRefModal(id,'该算法已被启用策略引用，不能停用');
+      return;
+    }
+    askConfirm('停用算法「'+a.name+'」？停用后新策略不可选择该算法。',function(){
+      a.bizStatus='停用';a.updateTime='2026-06-25 '+new Date().toTimeString().slice(0,5);
+      renderTable();showToast('算法已在本业务停用');
+    });
+  }else{
+    // E20 平台算法停用时不能启用
+    if(a.platformStatus==='停用'){
+      showToast('算法已在算法中心停用，不能启用本业务算法');
+      return;
+    }
+    // E21 本业务告警级别为空时不能启用
+    if(!a.bizLevel||a.bizLevel==='—'){
+      showToast('请先配置本业务告警级别');
+      return;
+    }
+    askConfirm('启用算法「'+a.name+'」？',function(){
+      a.bizStatus='启用';a.updateTime='2026-06-25 '+new Date().toTimeString().slice(0,5);
+      renderTable();showToast('算法已在本业务启用');
+    });
+  }
+}
+function unbindAlgo(id){
+  if(businessStopped){showToast('业务已停用，请先启用业务后再配置算法');return}
+  const a=algorithms.find(x=>x.id===id);
+  // E23 被任意策略引用时不能解绑
+  if(a.refCount>0){
+    showToast('该算法已被 '+a.refCount+' 条策略引用，不能解绑');
+    openRefModal(id,'该算法已被策略引用，不能解绑');
+    return;
+  }
+  askConfirm('解绑算法「'+a.name+'」？解绑后本业务告警级别配置将清除。',function(){
+    const idx=algorithms.findIndex(x=>x.id===id);
+    if(idx>-1)algorithms.splice(idx,1);
+    renderTable();showToast('算法已解绑');
+  });
+}
+
+/* ============ 查看引用策略弹窗 ============ */
+function openRefModal(id,customTitle){
+  currentRefId=id;
+  const a=algorithms.find(x=>x.id===id);
+  refModalTitle.textContent=customTitle||('查看引用策略 - '+a.name);
+  refError.classList.add('hidden');
+  refContent.classList.remove('hidden');
+  // 演示 E25：每隔几次模拟加载失败
+  if(Math.random()<0.001){  // 极低概率，主要靠手动触发
+    showRefError();return;
+  }
+  const list=refPolicies[id]||[];
+  refSummary.textContent='当前算法被 '+list.length+' 条策略引用，其中 '+(list.filter(p=>p.status==='启用').length)+' 条启用中';
+  refBody.innerHTML=list.length?list.map(p=>`<tr>
+    <td><span class="algo-name-link" onclick="showToast('跳转到策略详情：'+this.textContent)">${p.name}</span></td>
+    <td><span class="ant-tag ${tagStatus(p.status)}">${p.status}</span></td>
+    <td>${p.grid}</td>
+    <td class="mono text-sm">${p.trigger}</td>
+    <td>${p.creator}</td>
+  </tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:24px"><div class="ant-empty"><div class="ant-empty-icon"><i class="fa-regular fa-folder-open"></i></div><div class="ant-empty-text">该算法暂未被任何策略引用</div></div></td></tr>';
+  openModal('refModal');
+}
+function showRefError(){
+  refContent.classList.add('hidden');
+  refError.classList.remove('hidden');
+}
+function retryLoadRef(){
+  refError.classList.add('hidden');
+  refContent.classList.remove('hidden');
+  const list=refPolicies[currentRefId]||[];
+  refSummary.textContent='当前算法被 '+list.length+' 条策略引用，其中 '+(list.filter(p=>p.status==='启用').length)+' 条启用中';
+  refBody.innerHTML=list.length?list.map(p=>`<tr><td><span class="algo-name-link" onclick="showToast('跳转到策略详情：'+this.textContent)">${p.name}</span></td><td><span class="ant-tag ${tagStatus(p.status)}">${p.status}</span></td><td>${p.grid}</td><td class="mono text-sm">${p.trigger}</td><td>${p.creator}</td></tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:24px"><div class="ant-empty"><div class="ant-empty-icon"><i class="fa-regular fa-folder-open"></i></div><div class="ant-empty-text">该算法暂未被任何策略引用</div></div></td></tr>';
+  showToast('引用策略已重新加载');
+}
+
+/* ============ 确认弹窗 ============ */
+function askConfirm(text,cb){confirmCallback=cb;confirmText.textContent=text;openModal('confirmModal')}
+function runConfirm(){if(confirmCallback)confirmCallback();closeModal('confirmModal')}
+
+/* ============ E26 演示：业务停用态切换 ============ */
+function toggleBusinessStop(){
+  businessStopped=!businessStopped;
+  businessStopBar.classList.toggle('hidden',!businessStopped);
+  demoToggleText.textContent=businessStopped?'演示：恢复业务启用态':'演示：切换业务停用态';
+  renderTable();
+  showToast(businessStopped?'已切换为业务停用态（演示 E26），所有操作置灰':'已恢复业务启用态');
+}
+
+/* ============ E25 演示：手动触发引用加载失败 ============ */
+function simulateRefError(id){
+  currentRefId=id;
+  refModalTitle.textContent='查看引用策略 - '+(algorithms.find(x=>x.id===id)||{}).name;
+  refContent.classList.add('hidden');
+  refError.classList.remove('hidden');
+  openModal('refModal');
+}
+
+/* ============ 初始化 ============ */
+renderTable();
+/* 嵌入模式下通知父窗口调整 iframe 高度 */
+if(window.self!==window.top){function notifyParent(){try{window.parent.resizeAlgoFrame&&window.parent.resizeAlgoFrame()}catch(e){}}setTimeout(notifyParent,100);setTimeout(notifyParent,500);new MutationObserver(notifyParent).observe(document.body,{childList:true,subtree:true,attributes:true})}
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>故障分析模型 — 原型导航</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="proto-ui.css">
+  <link rel="stylesheet" href="tailwind-fallback.css">
+  <style>
+    .page-card { background:#fff; border-radius:8px; border:1px solid var(--ant-border-secondary); box-shadow:var(--shadow-1); transition:all 0.2s; cursor:pointer; text-decoration:none; display:block; color:inherit; }
+    .page-card:hover { border-color:var(--ant-primary); box-shadow:0 4px 12px rgba(22,119,255,0.15); transform:translateY(-1px); }
+    .section-bar { width:4px; height:16px; border-radius:2px; display:inline-block; margin-right:10px; }
+    .legend-tag { border-radius:10px; padding:1px 6px; font-size:11px; font-weight:500; }
+    .tag-new { background:#fff2f0; color:#ff4d4f; border:1px solid #ffccc7; }
+    .tag-change { background:#fffbe6; color:#faad14; border:1px solid #ffe58f; }
+    .tag-keep { background:#f6ffed; color:#52c41a; border:1px solid #b7eb8f; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <!-- 顶部标题栏 -->
+  <header class="header" style="padding:0 32px;">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <div>
+      <div class="app-name">故障分析模型</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.5);">产品原型 · 共 3 个页面 · 2026.06（v1.9 已移除分析记录、反馈报表）</div>
+    </div>
+    <div class="spacer"></div>
+    <!-- 端切换 Tab -->
+    <div class="flex gap-2">
+      <button onclick="filterSection('all')" id="tab-all" class="px-4 py-1 rounded text-sm cursor-pointer transition-all" style="background:#1677ff;color:#fff;border:1px solid #1677ff;">全部</button>
+      <button onclick="filterSection('platform')" id="tab-platform" class="px-4 py-1 rounded text-sm cursor-pointer transition-all" style="background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.3);">平台端</button>
+      <button onclick="filterSection('alarm')" id="tab-alarm" class="px-4 py-1 rounded text-sm cursor-pointer transition-all" style="background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.3);">设备告警</button>
+    </div>
+  </header>
+
+  <main class="p-8 max-w-7xl mx-auto">
+
+    <!-- 图例说明 -->
+    <div class="flex gap-4 mb-8 p-4 bg-white rounded-lg" style="border:1px solid #f0f0f0;">
+      <span class="flex items-center gap-2 text-sm"><span class="legend-tag tag-new">全新</span> 本次迭代新建页面</span>
+      <span class="flex items-center gap-2 text-sm"><span class="legend-tag tag-change">改造</span> 现有页面优化改造</span>
+      <span class="flex items-center gap-2 text-sm"><span class="legend-tag tag-keep">保留</span> 现有功能不变参考</span>
+    </div>
+
+    <!-- 平台端：故障分析模型 -->
+    <section data-section="platform" class="mb-10">
+      <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+        <span class="section-bar" style="background:#1677ff;"></span>故障分析模型
+        <span class="ml-3 text-xs font-normal text-tertiary">智能运维 → 检测算法 → 故障分析模型</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-4">
+
+        <!-- 故障知识库 -->
+        <a href="admin-knowledge/list.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:var(--ant-primary-bg);color:var(--ant-primary);">
+                <i class="fa-solid fa-book"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">故障知识库</div>
+                <div class="text-xs text-tertiary">PAGE-F-002</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">全新</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-knowledge/ · 2 个页面 · 列表/详情 + 文档导入/导入历史弹窗（仅文档导入）</p>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- v1.9 移除：分析记录（PAGE-F-008/009）、反馈报表（PAGE-F-010），目录保留作存档 -->
+
+    <!-- 设备告警：AI分析Tab -->
+    <section data-section="alarm" class="mb-10">
+      <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+        <span class="section-bar" style="background:#fa8c16;"></span>设备告警（改造）
+        <span class="ml-3 text-xs font-normal text-tertiary">告警详情页新增AI分析Tab</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-4">
+
+        <!-- 告警详情AI Tab -->
+        <a href="admin-alarm/detail.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff2f0;color:#ff4d4f;">
+                <i class="fa-solid fa-robot"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">告警详情（AI Tab）</div>
+                <div class="text-xs text-tertiary">PAGE-F-001</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-change">改造</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-alarm/ · 1 个页面 · 告警详情页新增第4个诊断Tab</p>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- 页面统计 -->
+    <div class="mt-8 p-4 bg-white rounded-lg" style="border:1px solid #f0f0f0;">
+      <div class="flex items-center gap-6 text-sm text-secondary">
+        <span><i class="fa-solid fa-file-code mr-1"></i> 共 4 个 HTML 页面</span>
+        <span><i class="fa-solid fa-folder mr-1"></i> 2 个模块目录</span>
+        <span><i class="fa-solid fa-layer-group mr-1"></i> 平台端 3 页 + 设备告警 1 页</span>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    function filterSection(key) {
+      document.querySelectorAll('section[data-section]').forEach(function(sec) {
+        sec.style.display = (key === 'all' || sec.dataset.section === key) ? '' : 'none';
+      });
+      document.querySelectorAll('header button[id^="tab-"]').forEach(function(btn) {
+        var on = btn.id === 'tab-' + key;
+        btn.style.background = on ? '#1677ff' : 'transparent';
+        btn.style.color = on ? '#fff' : 'rgba(255,255,255,0.7)';
+        btn.style.borderColor = on ? '#1677ff' : 'rgba(255,255,255,0.3)';
+      });
+    }
+  </script>
+</body>
+</html>
