@@ -12,28 +12,14 @@
     .toolbar { display:flex; gap:8px; flex-wrap:wrap; }
     .filter-row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
     .filter-row .ant-select { min-width:140px; }
-    .hit-count { font-weight:600; color:var(--ant-text); }
     .switch { width:36px; height:20px; border-radius:10px; background:#d9d9d9; position:relative; cursor:pointer; transition:all 0.2s; display:inline-block; }
     .switch.on { background:#52c41a; }
     .switch::after { content:''; position:absolute; width:16px; height:16px; border-radius:50%; background:#fff; top:2px; left:2px; transition:all 0.2s; }
     .switch.on::after { left:18px; }
-    .steps { display:flex; align-items:center; margin-bottom:24px; }
-    .steps .step { display:flex; align-items:center; gap:8px; color:var(--ant-text-tertiary); font-size:13px; }
-    .steps .step .num { width:24px; height:24px; border-radius:50%; background:#f0f0f0; color:var(--ant-text-tertiary); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; }
-    .steps .step.active .num { background:#1677ff; color:#fff; }
-    .steps .step.active { color:var(--ant-text); font-weight:600; }
-    .steps .step.done .num { background:#52c41a; color:#fff; }
-    .steps .line { width:48px; height:1px; background:#f0f0f0; margin:0 8px; }
     .upload-area { border:2px dashed #d9d9d9; border-radius:8px; padding:40px 20px; text-align:center; cursor:pointer; transition:all 0.2s; }
     .upload-area:hover { border-color:#1677ff; background:#e6f4ff20; }
-    .extract-card { border:1px solid var(--ant-border-secondary); border-radius:8px; padding:14px 16px; margin-bottom:10px; }
-    .extract-card .head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-    .conf-high { color:#52c41a; background:#f6ffed; border:1px solid #b7eb8f; }
-    .conf-mid { color:#fa8c16; background:#fff7e6; border:1px solid #ffd591; }
-    .conf-low { color:#ff4d4f; background:#fff1f0; border:1px solid #ffa39e; }
-    .conf-tag { display:inline-flex; align-items:center; height:20px; padding:0 8px; border-radius:4px; font-size:11px; }
-    .progress-bar { height:8px; background:#f0f0f0; border-radius:4px; overflow:hidden; }
-    .progress-bar > i { display:block; height:100%; background:#1677ff; }
+    .parsing-row { display:flex; align-items:center; gap:8px; padding:8px 12px; background:#e6f4ff; border:1px solid #91caff; border-radius:6px; font-size:12px; color:#0958d9; }
+    .parsing-spinner { width:14px; height:14px; border:2px solid #d9d9d9; border-top-color:#1677ff; border-radius:50%; animation:ai-spin 0.8s linear infinite; display:inline-block; }
   </style>
 </head>
 <body>
@@ -45,7 +31,7 @@
     <span class="nav-action"><i class="fa-solid fa-user"></i> alex（P03）</span>
   </header>
   <div class="content-wrap">
-        <aside class="sider">
+    <aside class="sider">
       <div class="menu-group-title">智能运维</div>
       <a class="menu-item" href="../index.html"><i class="fa-solid fa-gauge-high"></i> 总览</a>
       <a class="menu-item" href="../admin-alarm/detail.html"><i class="fa-solid fa-bell"></i> 设备告警</a>
@@ -64,17 +50,19 @@
       </div>
 
       <div class="flex items-center justify-between mb-4">
-        <div><h1 class="page-title m-0">故障知识库</h1><div class="page-desc">上传运维 SOP 文档，AI 自动抽取知识条目供模型匹配</div></div>
-        <a class="text-sm" style="color:#1677ff;cursor:pointer;" onclick="openImportHistory()"><i class="fa-solid fa-clock-rotate-left"></i> 导入历史</a>
+        <div>
+          <h1 class="page-title m-0">故障知识库</h1>
+          <div class="page-desc">上传运维 SOP 文档，模型分析告警时自动引用相关文档全文作为上下文</div>
+        </div>
       </div>
 
       <!-- 顶部工具栏 -->
       <div class="ant-card ant-card-bordered mb-4">
         <div class="ant-card-body" style="padding:16px;">
           <div class="toolbar">
-            <button class="ant-btn ant-btn-primary" onclick="openDocImport()"><i class="fa-solid fa-cloud-arrow-up"></i> 📤 导入文档</button>
+            <button class="ant-btn ant-btn-primary" onclick="openUploadModal()"><i class="fa-solid fa-cloud-arrow-up"></i> 上传文档</button>
           </div>
-          <div class="text-tertiary text-xs mt-2"><i class="fa-solid fa-circle-info"></i> 支持 PDF / Word / Markdown，单文件 ≤ 20MB；AI 自动抽取后预览勾选入库。</div>
+          <div class="text-tertiary text-xs mt-2"><i class="fa-solid fa-circle-info"></i> 支持 PDF / Word / Markdown，单文件 ≤ 20MB；上传即入库，无需审核。</div>
         </div>
       </div>
 
@@ -82,9 +70,9 @@
       <div class="ant-card ant-card-bordered mb-4">
         <div class="ant-card-body" style="padding:16px;">
           <div class="filter-row">
-            <select class="ant-select"><option>故障类型（全部）</option><option>网络丢包</option><option>设备离线</option><option>画面遮挡</option></select>
+            <select class="ant-select"><option>故障类型（全部）</option><option>网络丢包</option><option>设备离线</option><option>画面遮挡</option><option>编码异常</option></select>
             <select class="ant-select"><option>启用状态（全部）</option><option>启用</option><option>禁用</option></select>
-            <input class="ant-input" placeholder="关键字搜索：知识ID / 故障类型" style="flex:1;min-width:240px;">
+            <input class="ant-input" placeholder="搜索文档名" style="flex:1;min-width:240px;">
             <button class="ant-btn ant-btn-primary"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
             <button class="ant-btn">重置</button>
           </div>
@@ -97,18 +85,15 @@
           <table class="ant-table">
             <thead>
               <tr>
-                <th>知识 ID</th><th>故障类型</th><th>来源文档</th><th>命中次数 <i class="fa-solid fa-sort"></i></th><th>启用状态</th><th>更新时间 <i class="fa-solid fa-sort-down"></i></th><th>操作</th>
+                <th>文档名称</th><th>故障类型</th><th>文件大小</th><th>启用状态</th><th>上传人</th><th>上传时间 <i class="fa-solid fa-sort-down"></i></th><th>操作</th>
               </tr>
             </thead>
-            <tbody id="kb-tbody"></tbody>
+            <tbody id="doc-tbody"></tbody>
           </table>
           <div class="ant-pagination">
-            <span class="text-tertiary text-sm mr-auto">共 128 条</span>
+            <span class="text-tertiary text-sm mr-auto">共 6 条</span>
             <span class="ant-page-item"><i class="fa-solid fa-angle-left"></i></span>
             <span class="ant-page-item active">1</span>
-            <span class="ant-page-item">2</span>
-            <span class="ant-page-item">3</span>
-            <span class="ant-page-item">…</span>
             <span class="ant-page-item"><i class="fa-solid fa-angle-right"></i></span>
             <span class="text-tertiary text-sm ml-2">20 条/页</span>
           </div>
@@ -118,49 +103,51 @@
   </div>
 </div>
 
-<!-- ============ 文档导入向导（3步） ============ -->
-<div class="ant-modal-mask" id="modal-doc-import">
-  <div class="ant-modal" style="width:720px;">
+<!-- ============ 文档上传弹窗（1步） ============ -->
+<div class="ant-modal-mask" id="modal-upload">
+  <div class="ant-modal" style="width:560px;">
     <div class="ant-modal-header">
-      <span>📄 文档导入向导</span>
-      <span class="ant-modal-close" onclick="closeModal('modal-doc-import')"><i class="fa-solid fa-xmark"></i></span>
+      <span><i class="fa-solid fa-cloud-arrow-up"></i> 上传文档</span>
+      <span class="ant-modal-close" onclick="closeModal('modal-upload')"><i class="fa-solid fa-xmark"></i></span>
     </div>
     <div class="ant-modal-body">
-      <div class="steps" id="doc-steps">
-        <div class="step active"><span class="num">1</span> 上传文档</div><div class="line"></div>
-        <div class="step"><span class="num">2</span> AI 抽取</div><div class="line"></div>
-        <div class="step"><span class="num">3</span> 预览确认</div>
+      <div class="upload-area" id="upload-area" onclick="simulateSelectFile()">
+        <i class="fa-solid fa-cloud-arrow-up" style="font-size:36px;color:#1677ff;"></i>
+        <div class="mt-3 text-sm">点击或拖拽文件到此处上传</div>
+        <div class="text-tertiary text-xs mt-1">支持 .pdf / .md / .docx，单文件 ≤ 20MB</div>
       </div>
-      <div id="doc-step-content"></div>
-    </div>
-    <div class="ant-modal-footer" id="doc-footer"></div>
-  </div>
-</div>
-
-<!-- ============ 导入历史抽屉 ============ -->
-<div class="ant-modal-mask" id="modal-import-history" style="align-items:stretch;justify-content:flex-end;">
-  <div style="background:#fff;width:760px;max-width:92vw;height:100vh;display:flex;flex-direction:column;box-shadow:var(--shadow-2);">
-    <div class="ant-modal-header"><span>🕘 导入历史</span><span class="ant-modal-close" onclick="closeModal('modal-import-history')"><i class="fa-solid fa-xmark"></i></span></div>
-    <div class="ant-modal-body" style="flex:1;">
-      <table class="ant-table">
-        <thead><tr><th>批次 ID</th><th>导入类型</th><th>来源文件</th><th>导入人</th><th>导入时间</th><th>总/成功/跳过/失败</th><th>操作</th></tr></thead>
-        <tbody>
-          <tr><td>BATCH-20260622-01</td><td><span class="ant-tag ant-tag-blue">文档</span></td><td>海康球机SOP.pdf</td><td>alex</td><td>06-22 09:15</td><td>12 / 10 / 2 / 0</td><td><a class="text-sm" style="color:#1677ff;">查看本批次</a> <a class="text-sm" style="color:#1677ff;">下载原文件</a></td></tr>
-          <tr><td>BATCH-20260620-03</td><td><span class="ant-tag ant-tag-blue">文档</span></td><td>交换机端口运维手册.docx</td><td>alex</td><td>06-20 11:08</td><td>8 / 8 / 0 / 0</td><td><a class="text-sm" style="color:#1677ff;">查看本批次</a> <a class="text-sm" style="color:#1677ff;">下载原文件</a></td></tr>
-        </tbody>
-      </table>
-      <div class="ant-alert mt-4" style="background:#fffbe6;border:1px solid #ffe58f;border-radius:6px;padding:10px 14px;font-size:12px;color:#ad6800;">
-        <i class="fa-solid fa-circle-info"></i> 导入错误后可通过"按批次 ID 筛选"定位本批次条目逐条删除（v1.2 已取消一键回滚）。
+      <div id="file-preview" class="hidden mt-3 flex items-center justify-between p-3" style="background:#fafafa;border-radius:6px;">
+        <div class="flex items-center gap-2 text-sm">
+          <i class="fa-solid fa-file-pdf" style="color:#ff4d4f;"></i>
+          <span id="file-name">海康球机2025版SOP.pdf</span>
+          <span class="text-tertiary text-xs" id="file-size">4.2 MB</span>
+        </div>
+        <a class="text-tertiary cursor-pointer" onclick="clearFile()"><i class="fa-solid fa-xmark"></i></a>
+      </div>
+      <div class="mt-4">
+        <label class="ant-form-label">故障类型标签（选填）</label>
+        <div class="text-tertiary text-xs mb-2">不选则由 AI 自动标注</div>
+        <div class="flex flex-wrap gap-2" id="fault-tags">
+          <label class="cursor-pointer"><input type="checkbox" class="hidden peer" value="网络丢包"><span class="ant-tag ant-tag-blue peer-checked:ring-2 peer-checked:ring-blue-400" style="cursor:pointer;">网络丢包</span></label>
+          <label class="cursor-pointer"><input type="checkbox" class="hidden peer" value="设备离线"><span class="ant-tag ant-tag-orange" style="cursor:pointer;">设备离线</span></label>
+          <label class="cursor-pointer"><input type="checkbox" class="hidden peer" value="画面遮挡"><span class="ant-tag ant-tag-purple" style="cursor:pointer;">画面遮挡</span></label>
+          <label class="cursor-pointer"><input type="checkbox" class="hidden peer" value="编码异常"><span class="ant-tag ant-tag-purple" style="cursor:pointer;">编码异常</span></label>
+          <label class="cursor-pointer"><input type="checkbox" class="hidden peer" value="网络延迟"><span class="ant-tag ant-tag-blue" style="cursor:pointer;">网络延迟</span></label>
+          <label class="cursor-pointer"><input type="checkbox" class="hidden peer" value="带宽不足"><span class="ant-tag ant-tag-blue" style="cursor:pointer;">带宽不足</span></label>
+        </div>
       </div>
     </div>
-    <div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('modal-import-history')">关闭</button></div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeModal('modal-upload')">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="doUpload()"><i class="fa-solid fa-check"></i> 确认上传</button>
+    </div>
   </div>
 </div>
 
 <!-- ============ 删除确认弹窗 ============ -->
 <div class="ant-modal-mask" id="modal-delete">
   <div class="ant-modal" style="width:440px;">
-    <div class="ant-modal-header"><span>删除知识条目</span><span class="ant-modal-close" onclick="closeModal('modal-delete')"><i class="fa-solid fa-xmark"></i></span></div>
+    <div class="ant-modal-header"><span>删除文档</span><span class="ant-modal-close" onclick="closeModal('modal-delete')"><i class="fa-solid fa-xmark"></i></span></div>
     <div class="ant-modal-body">
       <div id="delete-msg"></div>
     </div>
@@ -172,30 +159,27 @@
 
 <script>
 /* ============ 表格数据 ============ */
-var KB_DATA = [
-  { id:'KB-NET-007', fault:'网络丢包', faultTag:'blue', source:'海康球机2025版SOP.pdf', hit:128, enabled:true, updated:'06-22 09:15' },
-  { id:'KB-NET-012', fault:'网络丢包', faultTag:'blue', source:'交换机端口运维手册.docx', hit:62, enabled:true, updated:'06-21 17:30' },
-  { id:'KB-OFF-003', fault:'设备离线', faultTag:'orange', source:'海康球机2025版SOP.pdf', hit:8, enabled:true, updated:'06-20 14:08' },
-  { id:'KB-IMG-005', fault:'画面遮挡', faultTag:'purple', source:'画面异常处理SOP.md', hit:3, enabled:true, updated:'06-19 10:22' },
-  { id:'KB-IMG-009', fault:'编码异常', faultTag:'purple', source:'画面异常处理SOP.md', hit:0, enabled:false, updated:'06-18 16:40' },
-  { id:'KB-NET-021', fault:'带宽不足', faultTag:'blue', source:'交换机端口运维手册.docx', hit:55, enabled:true, updated:'06-17 09:55' }
+var DOC_DATA = [
+  { id:'doc-001', name:'海康球机2025版SOP.pdf', size:'4.2 MB', faults:[{label:'网络丢包',tag:'blue'},{label:'设备离线',tag:'orange'}], enabled:true, uploader:'alex', uploaded:'06-22 09:15' },
+  { id:'doc-002', name:'交换机端口运维手册.docx', size:'2.8 MB', faults:[{label:'网络丢包',tag:'blue'},{label:'带宽不足',tag:'blue'}], enabled:true, uploader:'alex', uploaded:'06-21 17:30' },
+  { id:'doc-003', name:'画面异常处理SOP.md', size:'156 KB', faults:[{label:'画面遮挡',tag:'purple'},{label:'编码异常',tag:'purple'}], enabled:true, uploader:'alex', uploaded:'06-19 10:22' },
+  { id:'doc-004', name:'无线信号弱排查指南.pdf', size:'1.5 MB', faults:[{label:'设备离线',tag:'orange'}], enabled:true, uploader:'alex', uploaded:'06-18 14:08' },
+  { id:'doc-005', name:'NVR存储故障处理.docx', size:'3.1 MB', faults:[{label:'编码异常',tag:'purple'}], enabled:false, uploader:'alex', uploaded:'06-17 16:40' },
+  { id:'doc-006', name:'光纤链路中断应急流程.pdf', size:'890 KB', faults:[{label:'设备离线',tag:'orange'}], enabled:true, uploader:'alex', uploaded:'06-15 09:55' }
 ];
 
 function renderTable(){
-  var tbody = document.getElementById('kb-tbody');
-  tbody.innerHTML = KB_DATA.map(function(k){
-    var hitColor = k.hit>=50 ? '#ff4d4f' : (k.hit>=5 ? '#fa8c16' : 'var(--ant-text)');
-    var deleteBtn = k.hit>=50
-      ? '<a class="text-sm" style="color:var(--ant-text-disabled);cursor:not-allowed;" title="已被大量引用，建议禁用替代删除">删除</a>'
-      : '<a class="text-sm" style="color:#ff4d4f;cursor:pointer;" onclick="confirmDelete(\''+k.id+'\','+k.hit+')">删除</a>';
+  var tbody = document.getElementById('doc-tbody');
+  tbody.innerHTML = DOC_DATA.map(function(d){
+    var faultTags = d.faults.map(function(f){ return '<span class="ant-tag ant-tag-'+f.tag+'">'+f.label+'</span>'; }).join(' ');
     return '<tr>'+
-      '<td><a href="detail.html" style="color:#1677ff;">'+ k.id +'</a></td>'+
-      '<td><span class="ant-tag ant-tag-'+k.faultTag+'">'+ k.fault +'</span></td>'+
-      '<td>'+ k.source +'</td>'+
-      '<td><span class="hit-count" style="color:'+hitColor+';">'+ k.hit +'</span></td>'+
-      '<td><span class="switch '+(k.enabled?'on':'')+'" onclick="toggleEnable(this,\''+k.id+'\')"></span></td>'+
-      '<td>'+ k.updated +'</td>'+
-      '<td><div class="action-wrap"><a href="detail.html" class="text-sm" style="color:#1677ff;">查看</a>'+deleteBtn+'</div></td>'+
+      '<td><a class="text-sm" style="color:#1677ff;cursor:pointer;" onclick="showToast(\'下载文档：'+d.name+'\',\'info\')"><i class="fa-solid fa-file-pdf" style="color:#ff4d4f;margin-right:6px;"></i>'+ d.name +'</a></td>'+
+      '<td>'+ faultTags +'</td>'+
+      '<td class="text-tertiary text-sm">'+ d.size +'</td>'+
+      '<td><span class="switch '+(d.enabled?'on':'')+'" onclick="toggleEnable(this,\''+d.id+'\')"></span></td>'+
+      '<td class="text-sm">'+ d.uploader +'</td>'+
+      '<td class="text-sm">'+ d.uploaded +'</td>'+
+      '<td><div class="action-wrap"><a class="text-sm" style="color:#1677ff;cursor:pointer;" onclick="showToast(\'下载文档：'+d.name+'\',\'info\')">下载</a> <a class="text-sm" style="color:#ff4d4f;cursor:pointer;" onclick="confirmDelete(\''+d.id+'\')">删除</a></div></td>'+
     '</tr>';
   }).join('');
 }
@@ -203,89 +187,42 @@ function renderTable(){
 function toggleEnable(el, id){
   el.classList.toggle('on');
   var on = el.classList.contains('on');
-  showToast('已'+(on?'启用':'禁用')+'知识条目 '+id+(on?'':'('+'新发起的分析不再匹配'+')'), 'success');
+  showToast('已'+(on?'启用':'禁用')+'文档'+(on?'':'（新发起的分析不再引用此文档）'), 'success');
 }
 
 /* ============ 删除确认 ============ */
-function confirmDelete(id, hit){
-  var msg, footer;
-  if (hit >= 50){
-    msg = '<div class="text-center py-4"><i class="fa-solid fa-triangle-exclamation" style="font-size:32px;color:#ff4d4f;"></i><div class="mt-3">该知识已命中 '+hit+' 次，已被大量引用，不建议删除。</div><div class="text-tertiary text-sm mt-1">建议[禁用]替代删除</div></div>';
-    footer = '<button class="ant-btn ant-btn-primary" onclick="closeModal(\'modal-delete\')">知道了</button>';
-  } else if (hit >= 5){
-    msg = '<div class="py-2"><i class="fa-solid fa-triangle-exclamation" style="color:#faad14;"></i> 该知识已命中 '+hit+' 次，删除可能影响模型分析准确度，确认删除？</div>';
-    footer = '<button class="ant-btn" onclick="closeModal(\'modal-delete\')">取消</button><button class="ant-btn ant-btn-danger" onclick="doDelete(\''+id+'\')">确认删除</button>';
-  } else {
-    msg = '<div class="py-2">确认删除知识条目 '+id+'？</div>';
-    footer = '<button class="ant-btn" onclick="closeModal(\'modal-delete\')">取消</button><button class="ant-btn ant-btn-danger" onclick="doDelete(\''+id+'\')">确认删除</button>';
-  }
+function confirmDelete(id){
+  var doc = DOC_DATA.find(function(d){ return d.id===id; });
+  var msg = '<div class="py-2"><i class="fa-solid fa-triangle-exclamation" style="color:#faad14;"></i> 删除后模型分析将不再使用此文档，确认删除「'+doc.name+'」？</div>';
+  var footer = '<button class="ant-btn" onclick="closeModal(\'modal-delete\')">取消</button><button class="ant-btn ant-btn-danger" onclick="doDelete(\''+id+'\')">确认删除</button>';
   document.getElementById('delete-msg').innerHTML = msg;
   document.getElementById('delete-footer').innerHTML = footer;
   openModal('modal-delete');
 }
-function doDelete(id){ closeModal('modal-delete'); showToast('已删除知识条目 '+id,'success'); }
+function doDelete(id){ closeModal('modal-delete'); showToast('文档已删除','success'); }
 
-/* ============ 文档导入向导 ============ */
-var docStep = 1;
-function openDocImport(){ docStep=1; renderDocStep(); openModal('modal-doc-import'); }
-function renderDocStep(){
-  var steps = document.querySelectorAll('#doc-steps .step');
-  steps.forEach(function(s,i){ s.classList.remove('active','done'); if(i<docStep-1) s.classList.add('done'); if(i===docStep-1) s.classList.add('active'); });
-  var content = document.getElementById('doc-step-content');
-  var footer = document.getElementById('doc-footer');
-  if (docStep===1){
-    content.innerHTML =
-      '<div class="upload-area" onclick="showToast(\'已选择文件：海康球机2025版SOP.pdf（4.2MB）\',\'info\')">'+
-        '<i class="fa-solid fa-cloud-arrow-up" style="font-size:36px;color:#1677ff;"></i>'+
-        '<div class="mt-3 text-sm">点击或拖拽文件到此处上传</div>'+
-        '<div class="text-tertiary text-xs mt-1">支持 .pdf / .md / .docx，单文件 ≤ 20MB，一次仅支持导入 1 个文档</div>'+
-      '</div>'+
-      '<div class="mt-3 flex items-center justify-between p-3" style="background:#fafafa;border-radius:6px;">'+
-        '<div class="flex items-center gap-2 text-sm"><i class="fa-solid fa-file-pdf" style="color:#ff4d4f;"></i> 海康球机2025版SOP.pdf <span class="text-tertiary text-xs">4.2 MB</span></div>'+
-        '<a class="text-tertiary cursor-pointer"><i class="fa-solid fa-xmark"></i></a>'+
-      '</div>'+
-      '<div class="mt-3"><label class="ant-form-label">知识来源说明（选填，≤100字）</label><input class="ant-input" placeholder="如：海康球机 2025 版 SOP"></div>';
-    footer.innerHTML = '<button class="ant-btn" onclick="closeModal(\'modal-doc-import\')">取消</button><button class="ant-btn ant-btn-primary" onclick="docStep=2;renderDocStep()">下一步：开始抽取</button>';
-  } else if (docStep===2){
-    content.innerHTML =
-      '<div class="text-center py-8">'+
-        '<div style="width:40px;height:40px;border:4px solid #f0f0f0;border-top-color:#1677ff;border-radius:50%;animation:ai-spin 0.8s linear infinite;margin:0 auto 16px;"></div>'+
-        '<div class="text-sm">AI 正在从文档中提取故障知识，预计 30 秒 – 2 分钟</div>'+
-        '<div class="progress-bar mt-4" style="max-width:300px;margin:16px auto;"><i style="width:68%;"></i></div>'+
-        '<div class="text-tertiary text-xs">已识别 12 个潜在知识条目…</div>'+
-      '</div>';
-    footer.innerHTML = '<button class="ant-btn" onclick="closeModal(\'modal-doc-import\')">取消</button><button class="ant-btn" onclick="closeModal(\'modal-doc-import\');showToast(\'已转入后台处理，可在导入历史查看结果\',\'info\')">后台处理，稍后查看</button><button class="ant-btn ant-btn-primary" onclick="docStep=3;renderDocStep()">模拟抽取完成</button>';
-  } else if (docStep===3){
-    var cards = [
-      {conf:'high', confText:'高 92%', fault:'网络丢包', reasons:'上联交换机端口丢包 / 网线老化', steps:'检查端口CRC / 更换网线 / 复观告警', altSteps:'联系网络厂商远程排查'},
-      {conf:'mid', confText:'中 68%', fault:'网络延迟', reasons:'上联拥塞', steps:'排查带宽 / QoS 配置', altSteps:'—'},
-      {conf:'low', confText:'低 28%', fault:'带宽不足', reasons:'高峰拥塞', steps:'扩容带宽', altSteps:'—'}
-    ];
-    var cardsHtml = cards.map(function(c,idx){
-      return '<div class="extract-card">'+
-        '<div class="head">'+
-          '<div class="flex items-center gap-2"><input type="checkbox" checked '+(c.conf==='low'?'':'')+'> <span class="conf-tag conf-'+c.conf+'">'+c.confText+'</span> <span class="ant-tag ant-tag-blue">'+c.fault+'</span></div>'+
-        '</div>'+
-        '<div class="text-xs text-tertiary space-y-1">'+
-          '<div><span class="text-secondary">可能原因：</span>'+ c.reasons +'</div>'+
-          '<div><span class="text-secondary">推荐方案：</span>'+ c.steps +'</div>'+
-          '<div><span class="text-secondary">备选方案：</span>'+ c.altSteps +'</div>'+
-        '</div>'+
-      '</div>';
-    }).join('');
-    content.innerHTML =
-      '<div class="flex items-center justify-between mb-3">'+
-        '<div class="text-sm text-secondary">AI 抽取完成，共识别 <b>3</b> 条知识条目（已勾选 2 条确认入库）</div>'+
-        '<div class="flex gap-2"><button class="ant-btn ant-btn-sm" onclick="checkAll(true)">全部确认</button><button class="ant-btn ant-btn-sm" onclick="checkHighOnly()">仅确认高置信度</button></div>'+
-      '</div>'+
-      cardsHtml;
-    footer.innerHTML = '<button class="ant-btn" onclick="docStep=1;renderDocStep()">上一步</button><button class="ant-btn" onclick="closeModal(\'modal-doc-import\')">取消</button><button class="ant-btn ant-btn-primary" onclick="closeModal(\'modal-doc-import\');showToast(\'已确认入库 2 条（1 条低置信度未勾选，1 条重复自动跳过）\',\'success\')">全部确认入库</button>';
-  }
+/* ============ 上传弹窗 ============ */
+function openUploadModal(){
+  clearFile();
+  document.querySelectorAll('#fault-tags input[type=checkbox]').forEach(function(c){ c.checked=false; });
+  openModal('modal-upload');
 }
-function checkAll(on){ document.querySelectorAll('#doc-step-content input[type=checkbox]').forEach(function(c){ c.checked=on; }); }
-function checkHighOnly(){ document.querySelectorAll('#doc-step-content input[type=checkbox]').forEach(function(c,i){ c.checked = (i===0); }); }
 
-function openImportHistory(){ openModal('modal-import-history'); }
+function simulateSelectFile(){
+  document.getElementById('file-preview').classList.remove('hidden');
+  document.getElementById('upload-area').style.display = 'none';
+}
+
+function clearFile(){
+  document.getElementById('file-preview').classList.add('hidden');
+  document.getElementById('upload-area').style.display = '';
+}
+
+function doUpload(){
+  closeModal('modal-upload');
+  showToast('文档上传成功，正在解析纯文本…', 'success');
+  setTimeout(function(){ showToast('文档解析完成，已自动标注故障类型标签', 'success'); }, 1500);
+}
 
 /* ============ 通用 ============ */
 function openModal(id){ document.getElementById(id).classList.add('active'); }
