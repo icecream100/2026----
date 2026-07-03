@@ -70,7 +70,6 @@
       <div class="ant-card ant-card-bordered mb-4">
         <div class="ant-card-body" style="padding:16px;">
           <div class="filter-row">
-            <select class="ant-select"><option>故障类型（全部）</option><option>网络丢包</option><option>设备离线</option><option>画面遮挡</option><option>编码异常</option></select>
             <select class="ant-select"><option>启用状态（全部）</option><option>启用</option><option>禁用</option></select>
             <input class="ant-input" placeholder="搜索文档名" style="flex:1;min-width:240px;">
             <button class="ant-btn ant-btn-primary"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
@@ -85,7 +84,7 @@
           <table class="ant-table">
             <thead>
               <tr>
-                <th>文档名称</th><th>故障类型</th><th>文件大小</th><th>启用状态</th><th>上传人</th><th>上传时间 <i class="fa-solid fa-sort-down"></i></th><th>操作</th>
+                <th>文档名称</th><th>文件大小</th><th>启用状态</th><th>上传人</th><th>上传时间 <i class="fa-solid fa-sort-down"></i></th><th>操作</th>
               </tr>
             </thead>
             <tbody id="doc-tbody"></tbody>
@@ -124,18 +123,6 @@
         </div>
         <a class="text-tertiary cursor-pointer" onclick="clearFile()"><i class="fa-solid fa-xmark"></i></a>
       </div>
-      <div class="mt-4">
-        <label class="ant-form-label">故障类型标签（选填）</label>
-        <div class="text-tertiary text-xs mb-2">不选则由 AI 自动标注</div>
-        <div class="flex flex-wrap gap-2" id="fault-tags">
-          <label class="cursor-pointer"><input type="checkbox" class="hidden peer" value="网络丢包"><span class="ant-tag ant-tag-blue peer-checked:ring-2 peer-checked:ring-blue-400" style="cursor:pointer;">网络丢包</span></label>
-          <label class="cursor-pointer"><input type="checkbox" class="hidden peer" value="设备离线"><span class="ant-tag ant-tag-orange" style="cursor:pointer;">设备离线</span></label>
-          <label class="cursor-pointer"><input type="checkbox" class="hidden peer" value="画面遮挡"><span class="ant-tag ant-tag-purple" style="cursor:pointer;">画面遮挡</span></label>
-          <label class="cursor-pointer"><input type="checkbox" class="hidden peer" value="编码异常"><span class="ant-tag ant-tag-purple" style="cursor:pointer;">编码异常</span></label>
-          <label class="cursor-pointer"><input type="checkbox" class="hidden peer" value="网络延迟"><span class="ant-tag ant-tag-blue" style="cursor:pointer;">网络延迟</span></label>
-          <label class="cursor-pointer"><input type="checkbox" class="hidden peer" value="带宽不足"><span class="ant-tag ant-tag-blue" style="cursor:pointer;">带宽不足</span></label>
-        </div>
-      </div>
     </div>
     <div class="ant-modal-footer">
       <button class="ant-btn" onclick="closeModal('modal-upload')">取消</button>
@@ -160,21 +147,19 @@
 <script>
 /* ============ 表格数据 ============ */
 var DOC_DATA = [
-  { id:'doc-001', name:'海康球机2025版SOP.pdf', size:'4.2 MB', faults:[{label:'网络丢包',tag:'blue'},{label:'设备离线',tag:'orange'}], enabled:true, uploader:'alex', uploaded:'06-22 09:15' },
-  { id:'doc-002', name:'交换机端口运维手册.docx', size:'2.8 MB', faults:[{label:'网络丢包',tag:'blue'},{label:'带宽不足',tag:'blue'}], enabled:true, uploader:'alex', uploaded:'06-21 17:30' },
-  { id:'doc-003', name:'画面异常处理SOP.md', size:'156 KB', faults:[{label:'画面遮挡',tag:'purple'},{label:'编码异常',tag:'purple'}], enabled:true, uploader:'alex', uploaded:'06-19 10:22' },
-  { id:'doc-004', name:'无线信号弱排查指南.pdf', size:'1.5 MB', faults:[{label:'设备离线',tag:'orange'}], enabled:true, uploader:'alex', uploaded:'06-18 14:08' },
-  { id:'doc-005', name:'NVR存储故障处理.docx', size:'3.1 MB', faults:[{label:'编码异常',tag:'purple'}], enabled:false, uploader:'alex', uploaded:'06-17 16:40' },
-  { id:'doc-006', name:'光纤链路中断应急流程.pdf', size:'890 KB', faults:[{label:'设备离线',tag:'orange'}], enabled:true, uploader:'alex', uploaded:'06-15 09:55' }
+  { id:'doc-001', name:'海康球机2025版SOP.pdf', size:'4.2 MB', enabled:true, uploader:'alex', uploaded:'06-22 09:15' },
+  { id:'doc-002', name:'交换机端口运维手册.docx', size:'2.8 MB', enabled:true, uploader:'alex', uploaded:'06-21 17:30' },
+  { id:'doc-003', name:'画面异常处理SOP.md', size:'156 KB', enabled:true, uploader:'alex', uploaded:'06-19 10:22' },
+  { id:'doc-004', name:'无线信号弱排查指南.pdf', size:'1.5 MB', enabled:true, uploader:'alex', uploaded:'06-18 14:08' },
+  { id:'doc-005', name:'NVR存储故障处理.docx', size:'3.1 MB', enabled:false, uploader:'alex', uploaded:'06-17 16:40' },
+  { id:'doc-006', name:'光纤链路中断应急流程.pdf', size:'890 KB', enabled:true, uploader:'alex', uploaded:'06-15 09:55' }
 ];
 
 function renderTable(){
   var tbody = document.getElementById('doc-tbody');
   tbody.innerHTML = DOC_DATA.map(function(d){
-    var faultTags = d.faults.map(function(f){ return '<span class="ant-tag ant-tag-'+f.tag+'">'+f.label+'</span>'; }).join(' ');
     return '<tr>'+
       '<td><a class="text-sm" style="color:#1677ff;cursor:pointer;" onclick="showToast(\'下载文档：'+d.name+'\',\'info\')"><i class="fa-solid fa-file-pdf" style="color:#ff4d4f;margin-right:6px;"></i>'+ d.name +'</a></td>'+
-      '<td>'+ faultTags +'</td>'+
       '<td class="text-tertiary text-sm">'+ d.size +'</td>'+
       '<td><span class="switch '+(d.enabled?'on':'')+'" onclick="toggleEnable(this,\''+d.id+'\')"></span></td>'+
       '<td class="text-sm">'+ d.uploader +'</td>'+
@@ -204,7 +189,6 @@ function doDelete(id){ closeModal('modal-delete'); showToast('文档已删除','
 /* ============ 上传弹窗 ============ */
 function openUploadModal(){
   clearFile();
-  document.querySelectorAll('#fault-tags input[type=checkbox]').forEach(function(c){ c.checked=false; });
   openModal('modal-upload');
 }
 
@@ -221,7 +205,7 @@ function clearFile(){
 function doUpload(){
   closeModal('modal-upload');
   showToast('文档上传成功，正在解析纯文本…', 'success');
-  setTimeout(function(){ showToast('文档解析完成，已自动标注故障类型标签', 'success'); }, 1500);
+  setTimeout(function(){ showToast('文档解析完成，已入库', 'success'); }, 1500);
 }
 
 /* ============ 通用 ============ */
