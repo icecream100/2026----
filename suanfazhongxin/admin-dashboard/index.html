@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../tailwind-fallback.css">
   <style>
     .metric-strip { display:flex; gap:12px; flex-wrap:wrap; }
-    .metric-card { background:#fff; border:1px solid var(--ant-border-secondary); border-radius:8px; padding:16px; min-width:160px; flex:1; cursor:pointer; transition:box-shadow .2s, transform .1s; position:relative; overflow:hidden; }
+    .metric-card { background:#fff; border:1px solid var(--ant-border-secondary); border-radius:8px; padding:16px; min-width:140px; flex:1; cursor:pointer; transition:box-shadow .2s, transform .1s; position:relative; overflow:hidden; }
     .metric-card:hover { box-shadow:var(--shadow-2); transform:translateY(-1px); }
     .metric-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; }
     .metric-card.blue::before { background:#1677ff; }
@@ -18,20 +18,41 @@
     .metric-card.green::before { background:#52c41a; }
     .metric-card.lightgreen::before { background:#95de64; }
     .metric-card.red::before { background:#ff4d4f; }
-    .metric-card .label { color:var(--ant-text-secondary); font-size:13px; margin-bottom:6px; }
+    .metric-card.purple::before { background:#722ed1; }
+    .metric-card .label { color:var(--ant-text-secondary); font-size:13px; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
     .metric-card .value { font-size:28px; font-weight:600; line-height:1; }
     .metric-card .sub { font-size:12px; margin-top:8px; }
     .metric-card .sub.up { color:#cf1322; }
     .metric-card .sub.down { color:#389e0d; }
-    .field-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .dashboard-toolbar { background:#fff; border:1px solid var(--ant-border-secondary); border-radius:8px; padding:14px 16px; margin-bottom:16px; }
+    .update-time { color:var(--ant-text-tertiary); font-size:12px; }
     .chart-card { min-height:300px; display:flex; flex-direction:column; }
-    .chart-card .ant-card-body { flex:1; display:flex; flex-direction:column; justify-content:center; }
+    .chart-card .ant-card-body { flex:1; display:flex; flex-direction:column; }
     .fake-line { height:200px; background:linear-gradient(180deg,#fff,#f5f8ff); border:1px dashed var(--ant-border); border-radius:8px; overflow:hidden; position:relative; }
     .mini-bar { height:8px; border-radius:4px; background:#e6f4ff; overflow:hidden; }
     .mini-bar span { display:block; height:100%; background:var(--ant-primary); }
     .legend-dot { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:6px; }
-    .dashboard-toolbar { background:#fff; border:1px solid var(--ant-border-secondary); border-radius:8px; padding:14px 16px; margin-bottom:16px; }
-    .update-time { color:var(--ant-text-tertiary); font-size:12px; }
+    .rank-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #f5f5f5; }
+    .rank-row:last-child { border-bottom:none; }
+    .rank-index { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:500; background:#f5f5f5; color:#595959; }
+    .rank-index.top { background:#1677ff; color:#fff; }
+    .rank-name { flex:1; font-size:13px; color:#262626; }
+    .rank-value { font-size:13px; font-weight:500; color:#262626; min-width:48px; text-align:right; }
+    .live-list { max-height:320px; overflow-y:auto; }
+    .live-item { display:flex; gap:10px; padding:10px 0; border-bottom:1px solid #f5f5f5; cursor:pointer; }
+    .live-item:last-child { border-bottom:none; }
+    .live-item:hover { background:#fafafa; }
+    .live-thumb { width:64px; height:48px; border-radius:4px; background:linear-gradient(135deg,#172554,#0f766e); flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px; }
+    .live-info { flex:1; min-width:0; }
+    .live-title { font-size:13px; color:#262626; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .live-meta { font-size:12px; color:#8c8c8c; margin-top:2px; }
+    .level-dot { width:6px; height:6px; border-radius:50%; display:inline-block; margin-right:4px; }
+    .tag-xs { font-size:12px; padding:0 6px; border-radius:4px; line-height:18px; display:inline-block; }
+    .grid-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #f5f5f5; }
+    .grid-row:last-child { border-bottom:none; }
+    .grid-name { flex:1; font-size:13px; color:#262626; }
+    .grid-bar-wrap { width:120px; height:8px; background:#f5f5f5; border-radius:4px; overflow:hidden; }
+    .grid-bar { height:100%; background:#1677ff; border-radius:4px; }
   </style>
 </head>
 <body>
@@ -61,93 +82,93 @@
       <div class="menu-item" onclick="location.href='../index.html'"><i class="fa-solid fa-compass"></i>返回导航中心</div>
     </aside>
     <main class="main">
-      <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><span class="current">报警中心</span><span>/</span><span class="current">看板</span></div>
+      <div class="breadcrumb mb-4"><a href="../index.html">首页</a><span>/</span><span class="current">报警中心</span><span>/</span><span class="current">看板</span></div>
 
       <div class="flex items-start justify-between mb-4">
         <div>
           <div class="page-title">报警看板</div>
+          <div class="text-secondary text-sm mt-1">实时监控告警全生命周期：产生 → 确认 → 处理 → 审核</div>
         </div>
         <div class="flex items-center gap-3">
           <span class="update-time">数据更新于 <span id="updateTime">2026-06-25 10:48:00</span></span>
           <button class="ant-btn" onclick="refreshDashboard()"><i class="fa-solid fa-rotate"></i> 刷新</button>
-          <button class="ant-btn ant-btn-primary" onclick="showToast('已开始导出当前筛选条件下的告警明细')"><i class="fa-solid fa-download"></i> 导出</button>
         </div>
       </div>
 
       <!-- 全局筛选器 -->
       <div class="dashboard-toolbar">
         <div class="flex items-center gap-4 flex-wrap">
-          <div class="flex items-center gap-2"><label class="text-sm text-secondary">业务归属</label><select id="filterBusiness" class="ant-select" style="width:160px"><option value="">全部业务</option><option>明厨亮灶</option><option>消防通道</option><option>综治</option><option>养老机构</option></select></div>
-          <div class="flex items-center gap-2"><label class="text-sm text-secondary">时间范围</label><select id="filterRange" class="ant-select" style="width:140px"><option value="7">近 7 天</option><option value="30">近 30 天</option><option value="today">今天</option></select></div>
-          <button class="ant-btn ant-btn-primary" onclick="applyFilter()"><i class="fa-solid fa-filter"></i> 应用</button>
+          <div class="flex items-center gap-2"><label class="text-sm text-secondary">业务归属</label><select id="filterBusiness" class="ant-select" style="width:140px"><option value="">全部业务</option><option>明厨亮灶</option><option>消防通道</option><option>综治</option><option>养老机构</option></select></div>
+          <div class="flex items-center gap-2"><label class="text-sm text-secondary">时间范围</label><select id="filterRange" class="ant-select" style="width:120px"><option value="7">近 7 天</option><option value="30">近 30 天</option><option value="today">今天</option></select></div>
+          <button class="ant-btn ant-btn-primary" onclick="applyFilter()"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
           <button class="ant-btn" onclick="resetFilter()"><i class="fa-solid fa-rotate-right"></i> 重置</button>
         </div>
       </div>
 
       <!-- 指标卡 -->
       <div class="metric-strip mb-4">
-        <div class="metric-card blue" onclick="drillList('status','today')">
-          <div class="label">今日告警</div>
+        <div class="metric-card blue" onclick="drillList('date','today')">
+          <div class="label"><i class="fa-solid fa-bell text-primary"></i>今日新增</div>
           <div class="value">1,248</div>
           <div class="sub up"><i class="fa-solid fa-arrow-up"></i> 12.5% 较昨日</div>
         </div>
         <div class="metric-card orange" onclick="drillList('status','待确认')">
-          <div class="label">待确认</div>
-          <div class="value">86</div>
-          <div class="sub">占今日 6.9%</div>
+          <div class="label"><i class="fa-solid fa-circle-question" style="color:#faad14"></i>待确认</div>
+          <div class="value">18</div>
+          <div class="sub">平均确认耗时 4.2 分</div>
         </div>
         <div class="metric-card blue" onclick="drillList('status','待处理')">
-          <div class="label">待处理</div>
-          <div class="value">312</div>
-          <div class="sub">占今日 25.0%</div>
+          <div class="label"><i class="fa-solid fa-screwdriver-wrench text-primary"></i>待处理</div>
+          <div class="value">26</div>
+          <div class="sub">超时 6 条</div>
         </div>
-        <div class="metric-card blue" onclick="drillList('status','待审核')">
-          <div class="label">待审核</div>
-          <div class="value">794</div>
-          <div class="sub">占今日 63.6%</div>
+        <div class="metric-card purple" onclick="drillList('status','待审核')">
+          <div class="label"><i class="fa-solid fa-gavel" style="color:#722ed1"></i>待审核</div>
+          <div class="value">9</div>
+          <div class="sub">平均审核耗时 11 分</div>
         </div>
-        <div class="metric-card lightgreen" onclick="drillList('status','已处理')">
-          <div class="label">已处理</div>
-          <div class="value">28</div>
-          <div class="sub">占今日 2.2%</div>
-        </div>
-        <div class="metric-card green" onclick="drillList('status','已审核')">
-          <div class="label">已审核</div>
-          <div class="value">1,026</div>
-          <div class="sub">占今日 82.2%</div>
+        <div class="metric-card green" onclick="drillList('status','closed')">
+          <div class="label"><i class="fa-solid fa-check-circle" style="color:#52c41a"></i>今日已闭环</div>
+          <div class="value">1,054</div>
+          <div class="sub">闭环率 84.5%</div>
         </div>
         <div class="metric-card red" onclick="drillList('status','超时未处理')">
-          <div class="label">超时未处理</div>
+          <div class="label"><i class="fa-solid fa-triangle-exclamation" style="color:#ff4d4f"></i>超时告警</div>
           <div class="value" style="color:#ff4d4f">18</div>
           <div class="sub up"><i class="fa-solid fa-arrow-up"></i> 5.9% 较昨日</div>
         </div>
+        <div class="metric-card lightgreen" onclick="drillList('status','已审核')">
+          <div class="label"><i class="fa-solid fa-shield-halved" style="color:#95de64"></i>审核覆盖率</div>
+          <div class="value">87.3%</div>
+          <div class="sub">目标 ≥ 90%</div>
+        </div>
       </div>
 
-      <!-- 趋势 + 分布 -->
+      <!-- 趋势 + 级别分布 -->
       <div class="grid grid-cols-12 gap-4 mb-4">
         <div class="col-span-8 ant-card ant-card-bordered chart-card">
           <div class="ant-card-head">
             <div class="ant-card-head-title">告警趋势</div>
             <div class="flex gap-2">
-              <button class="ant-btn ant-btn-sm active" id="btn7d" onclick="switchTrend(7)">近 7 天</button>
+              <button class="ant-btn ant-btn-sm ant-btn-primary" id="btn7d" onclick="switchTrend(7)">近 7 天</button>
               <button class="ant-btn ant-btn-sm" id="btn30d" onclick="switchTrend(30)">近 30 天</button>
             </div>
           </div>
           <div class="ant-card-body">
             <div class="flex items-center gap-4 mb-2 text-xs text-secondary">
-              <span><span class="legend-dot" style="background:#1677ff"></span>今日告警</span>
-              <span><span class="legend-dot" style="background:#52c41a"></span>已完成</span>
+              <span><span class="legend-dot" style="background:#1677ff"></span>新增告警</span>
+              <span><span class="legend-dot" style="background:#52c41a"></span>已闭环</span>
               <span class="ml-auto">点击数据点下钻当日告警</span>
             </div>
             <div class="fake-line" id="trendChart">
-              <svg viewBox="0 0 720 200" preserveAspectRatio="none" style="width:100%;height:100%">
+              <svg viewBox="0 0 720 200" preserveAspectRatio="none" style="width:100%;height:100%" id="trendSvg">
                 <polyline fill="none" stroke="#1677ff" stroke-width="2.5" points="20,160 110,120 200,140 290,90 380,100 470,60 560,80 650,40 700,55"></polyline>
                 <polyline fill="none" stroke="#52c41a" stroke-width="2.5" points="20,170 110,150 200,155 290,120 380,130 470,95 560,110 650,75 700,90"></polyline>
                 <circle cx="290" cy="90" r="5" fill="#1677ff" style="cursor:pointer" onclick="drillList('date','2026-06-22')"></circle>
                 <circle cx="470" cy="60" r="5" fill="#1677ff" style="cursor:pointer" onclick="drillList('date','2026-06-24')"></circle>
                 <circle cx="650" cy="40" r="5" fill="#1677ff" style="cursor:pointer" onclick="drillList('date','2026-06-25')"></circle>
               </svg>
-              <div style="position:absolute;bottom:6px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;font-size:11px;color:#888">
+              <div style="position:absolute;bottom:6px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;font-size:11px;color:#888" id="trendXaxis">
                 <span>06-19</span><span>06-20</span><span>06-21</span><span>06-22</span><span>06-23</span><span>06-24</span><span>06-25</span>
               </div>
             </div>
@@ -156,85 +177,131 @@
         </div>
         <div class="col-span-4 ant-card ant-card-bordered chart-card">
           <div class="ant-card-head">
-            <div class="ant-card-head-title">类型分布</div>
+            <div class="ant-card-head-title">告警级别分布</div>
           </div>
           <div class="ant-card-body">
-            <div class="flex items-center justify-center" style="min-height:180px">
-              <svg viewBox="0 0 120 120" width="160" height="160">
-                <circle cx="60" cy="60" r="50" fill="none" stroke="#1677ff" stroke-width="18" stroke-dasharray="132 188" onclick="drillList('type','厨房违规检测')" style="cursor:pointer"></circle>
-                <circle cx="60" cy="60" r="50" fill="none" stroke="#ff4d4f" stroke-width="18" stroke-dasharray="88 232" stroke-dashoffset="-132" onclick="drillList('type','消防通道占用')" style="cursor:pointer"></circle>
-                <circle cx="60" cy="60" r="50" fill="none" stroke="#faad14" stroke-width="18" stroke-dasharray="56 264" stroke-dashoffset="-220" onclick="drillList('type','未戴工帽')" style="cursor:pointer"></circle>
-                <circle cx="60" cy="60" r="50" fill="none" stroke="#e6f4ff" stroke-width="18" stroke-dasharray="52 268" stroke-dashoffset="-276" onclick="drillList('type','其他')" style="cursor:pointer"></circle>
+            <div class="flex items-center justify-center" style="min-height:160px">
+              <svg viewBox="0 0 120 120" width="150" height="150">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#ff4d4f" stroke-width="16" stroke-dasharray="63 251" onclick="drillList('level','紧急')" style="cursor:pointer"></circle>
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#faad14" stroke-width="16" stroke-dasharray="88 226" stroke-dashoffset="-63" onclick="drillList('level','重要')" style="cursor:pointer"></circle>
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#1677ff" stroke-width="16" stroke-dasharray="75 239" stroke-dashoffset="-151" onclick="drillList('level','一般')" style="cursor:pointer"></circle>
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#e6f4ff" stroke-width="16" stroke-dasharray="50 264" stroke-dashoffset="-226" onclick="drillList('level','低危')" style="cursor:pointer"></circle>
                 <text x="60" y="58" text-anchor="middle" font-size="10" fill="#888">告警总数</text>
                 <text x="60" y="76" text-anchor="middle" font-size="16" font-weight="600" fill="#333">1,248</text>
               </svg>
             </div>
             <div class="mt-2 space-y-2 text-sm">
-              <div class="flex items-center justify-between"><span><span class="legend-dot" style="background:#1677ff"></span>厨房违规检测</span><span class="font-medium">42%</span></div>
-              <div class="flex items-center justify-between"><span><span class="legend-dot" style="background:#ff4d4f"></span>消防通道占用</span><span class="font-medium">28%</span></div>
-              <div class="flex items-center justify-between"><span><span class="legend-dot" style="background:#faad14"></span>未戴工帽</span><span class="font-medium">18%</span></div>
-              <div class="flex items-center justify-between"><span><span class="legend-dot" style="background:#e6f4ff"></span>其他</span><span class="font-medium">12%</span></div>
+              <div class="flex items-center justify-between"><span><span class="legend-dot" style="background:#ff4d4f"></span>紧急</span><span class="font-medium">25.0%</span></div>
+              <div class="flex items-center justify-between"><span><span class="legend-dot" style="background:#faad14"></span>重要</span><span class="font-medium">35.0%</span></div>
+              <div class="flex items-center justify-between"><span><span class="legend-dot" style="background:#1677ff"></span>一般</span><span class="font-medium">30.0%</span></div>
+              <div class="flex items-center justify-between"><span><span class="legend-dot" style="background:#e6f4ff"></span>低危</span><span class="font-medium">10.0%</span></div>
             </div>
-            <button class="ant-btn ant-btn-text mt-3" onclick="drillList('type','厨房违规检测')">查看厨房违规告警</button>
           </div>
         </div>
       </div>
 
-      <!-- 处理效率 + 热区 -->
-      <div class="grid grid-cols-2 gap-4">
-        <div class="ant-card ant-card-bordered">
-          <div class="ant-card-head"><div class="ant-card-head-title">处理效率</div></div>
-          <div class="ant-card-body grid grid-cols-5 gap-4 text-center">
-            <div>
-              <div class="text-2xl font-semibold">8.6 分</div>
-              <div class="text-secondary text-sm">平均响应</div>
-              <div class="mini-bar mt-2"><span style="width:62%"></span></div>
+      <!-- 实时告警流 + TOP排行 -->
+      <div class="grid grid-cols-12 gap-4 mb-4">
+        <div class="col-span-4 ant-card ant-card-bordered">
+          <div class="ant-card-head"><div class="ant-card-head-title">实时告警流</div><button class="ant-btn ant-btn-text ant-btn-sm" onclick="drillList('status','all')">查看全部</button></div>
+          <div class="ant-card-body live-list">
+            <div class="live-item" onclick="location.href='../handle-flow/detail-00121.html'">
+              <div class="live-thumb"><i class="fa-solid fa-fire"></i></div>
+              <div class="live-info">
+                <div class="live-title">后厨明火异常</div>
+                <div class="live-meta">明厨亮灶/片区B · 08:56:02</div>
+              </div>
+              <span class="tag-xs" style="background:#fff2f0;color:#ff4d4f">紧急</span>
             </div>
-            <div>
-              <div class="text-2xl font-semibold">43 分</div>
-              <div class="text-secondary text-sm">平均处理</div>
-              <div class="mini-bar mt-2"><span style="width:48%"></span></div>
+            <div class="live-item" onclick="location.href='../handle-flow/detail-00122.html'">
+              <div class="live-thumb"><i class="fa-solid fa-car"></i></div>
+              <div class="live-info">
+                <div class="live-title">消防通道疑似占用</div>
+                <div class="live-meta">消防/城西片区 · 09:18:45</div>
+              </div>
+              <span class="tag-xs" style="background:#fff2f0;color:#ff4d4f">紧急</span>
             </div>
-            <div>
-              <div class="text-2xl font-semibold" style="color:#ff4d4f">4.2%</div>
-              <div class="text-secondary text-sm">超时率</div>
-              <div class="mini-bar mt-2"><span style="width:92%;background:#ff4d4f"></span></div>
+            <div class="live-item" onclick="location.href='../handle-flow/detail-00123.html'">
+              <div class="live-thumb"><i class="fa-solid fa-hat-chef"></i></div>
+              <div class="live-info">
+                <div class="live-title">后厨人员未戴工帽</div>
+                <div class="live-meta">明厨亮灶/片区A · 09:30:12</div>
+              </div>
+              <span class="tag-xs" style="background:#fff7e6;color:#faad14">重要</span>
             </div>
-            <div>
-              <div class="text-2xl font-semibold" style="color:#ff4d4f">23.5%</div>
-              <div class="text-secondary text-sm">忽略率</div>
-              <div class="mini-bar mt-2"><span style="width:94%;background:#ff4d4f"></span></div>
-              <div class="text-xs mt-1" style="color:#ff4d4f">超 20% 预警</div>
+            <div class="live-item" onclick="location.href='../handle-flow/detail-00120.html'">
+              <div class="live-thumb"><i class="fa-solid fa-trash"></i></div>
+              <div class="live-info">
+                <div class="live-title">垃圾桶满溢</div>
+                <div class="live-meta">环境/西溪片区 · 08:30:11</div>
+              </div>
+              <span class="tag-xs" style="background:#e6f4ff;color:#1677ff">一般</span>
             </div>
-            <div>
-              <div class="text-2xl font-semibold">87.3%</div>
-              <div class="text-secondary text-sm">审核覆盖率</div>
-              <div class="mini-bar mt-2"><span style="width:87%"></span></div>
+            <div class="live-item" onclick="location.href='../handle-flow/list.html'">
+              <div class="live-thumb"><i class="fa-solid fa-motorcycle"></i></div>
+              <div class="live-info">
+                <div class="live-title">电动车违规停放</div>
+                <div class="live-meta">消防/城东片区 · 16:10:22</div>
+              </div>
+              <span class="tag-xs" style="background:#fff7e6;color:#faad14">重要</span>
             </div>
           </div>
         </div>
-        <div class="ant-card ant-card-bordered">
-          <div class="ant-card-head"><div class="ant-card-head-title">告警热区</div></div>
+        <div class="col-span-4 ant-card ant-card-bordered">
+          <div class="ant-card-head"><div class="ant-card-head-title">TOP5 告警类型</div></div>
           <div class="ant-card-body">
-            <div class="ant-empty">
-              <div class="ant-empty-icon"><i class="fa-solid fa-map-location-dot"></i></div>
-              <div class="ant-empty-text">热区地图依赖设备坐标数据，当前以占位态展示</div>
-              <button class="ant-btn" onclick="showToast('已查看热区数据口径')">查看口径</button>
+            <div class="rank-row"><div class="rank-index top">1</div><div class="rank-name">厨房违规检测</div><div class="rank-value">524</div></div>
+            <div class="rank-row"><div class="rank-index top">2</div><div class="rank-name">消防通道占用</div><div class="rank-value">350</div></div>
+            <div class="rank-row"><div class="rank-index top">3</div><div class="rank-name">未戴工帽</div><div class="rank-value">224</div></div>
+            <div class="rank-row"><div class="rank-index">4</div><div class="rank-name">车辆违停</div><div class="rank-value">98</div></div>
+            <div class="rank-row"><div class="rank-index">5</div><div class="rank-name">垃圾桶满溢</div><div class="rank-value">52</div></div>
+          </div>
+        </div>
+        <div class="col-span-4 ant-card ant-card-bordered">
+          <div class="ant-card-head"><div class="ant-card-head-title">TOP5 高频网格</div></div>
+          <div class="ant-card-body">
+            <div class="grid-row">
+              <div class="rank-index top">1</div>
+              <div class="grid-name">明厨亮灶/片区B</div>
+              <div class="grid-bar-wrap"><div class="grid-bar" style="width:92%"></div></div>
+              <div class="rank-value">312</div>
+            </div>
+            <div class="grid-row">
+              <div class="rank-index top">2</div>
+              <div class="grid-name">消防/城西片区</div>
+              <div class="grid-bar-wrap"><div class="grid-bar" style="width:78%"></div></div>
+              <div class="rank-value">268</div>
+            </div>
+            <div class="grid-row">
+              <div class="rank-index top">3</div>
+              <div class="grid-name">消防/城东片区</div>
+              <div class="grid-bar-wrap"><div class="grid-bar" style="width:65%"></div></div>
+              <div class="rank-value">224</div>
+            </div>
+            <div class="grid-row">
+              <div class="rank-index">4</div>
+              <div class="grid-name">环境/西溪片区</div>
+              <div class="grid-bar-wrap"><div class="grid-bar" style="width:42%"></div></div>
+              <div class="rank-value">146</div>
+            </div>
+            <div class="grid-row">
+              <div class="rank-index">5</div>
+              <div class="grid-name">交通/文一路</div>
+              <div class="grid-bar-wrap"><div class="grid-bar" style="width:28%"></div></div>
+              <div class="rank-value">98</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="mt-4 text-xs text-secondary">说明：看板与告警列表共享同一套业务数据隔离，当前以平台管理员视角展示全部业务数据。</div>
+
+      <div class="mt-4 text-xs text-secondary">说明：看板与告警列表共享同一套业务数据隔离，当前以平台管理员视角展示全部业务数据。指标卡点击可下钻到对应列表/详情。</div>
     </main>
   </div>
 </div>
 <div class="toast-wrap"></div>
 <script>
 function toggleSubMenu(el){el.classList.toggle('expanded');var sub=el.nextElementSibling;if(sub&&sub.classList.contains('menu-sub')){sub.classList.toggle('collapsed')}}
-</script>
-
-<script>
 function showToast(msg, duration) {
   duration = duration || 2000;
   var wrap = document.querySelector('.toast-wrap');
@@ -253,19 +320,39 @@ function drillList(dim, val) {
     if (val === '待确认') target = '../handle-flow/confirm.html';
     else if (val === '待处理' || val === '超时未处理') target = '../handle-flow/handle.html';
     else if (val === '待审核') target = '../handle-flow/review.html';
-    else if (val === '已处理' || val === '已审核') target = '../handle-flow/list.html';
+    else if (val === '已处理' || val === '已审核' || val === 'closed') target = '../handle-flow/list.html';
   }
   location.href = target + '?' + params.toString();
 }
+const trendData = {
+  7: {
+    new: '20,160 110,120 200,140 290,90 380,100 470,60 560,80 650,40 700,55',
+    closed: '20,170 110,150 200,155 290,120 380,130 470,95 560,110 650,75 700,90',
+    labels: ['06-19','06-20','06-21','06-22','06-23','06-24','06-25']
+  },
+  30: {
+    new: '20,170 40,160 60,140 80,150 100,130 120,110 140,120 160,90 180,100 200,80 220,70 240,60 260,80 280,50 300,60 320,40 340,55 360,45 380,50 400,35 420,40 440,30 460,45 480,35 500,40 520,25 540,35 560,30 580,40 600,20 620,30 640,25 660,35 680,30 700,20',
+    closed: '20,175 40,165 60,155 80,160 100,145 120,125 140,135 160,110 180,115 200,95 220,85 240,75 260,90 280,65 300,70 320,55 340,65 360,55 380,60 400,45 420,50 440,40 460,55 480,45 500,50 520,35 540,45 560,40 580,50 600,30 620,40 640,35 660,45 680,40 700,30',
+    labels: ['05-27','05-30','06-02','06-05','06-08','06-11','06-14','06-17','06-20','06-23','06-25']
+  }
+};
 function switchTrend(days) {
   document.getElementById('btn7d').classList.toggle('ant-btn-primary', days === 7);
+  document.getElementById('btn7d').classList.toggle('ant-btn-text', days !== 7);
   document.getElementById('btn30d').classList.toggle('ant-btn-primary', days === 30);
+  document.getElementById('btn30d').classList.toggle('ant-btn-text', days !== 30);
+  const data = trendData[days];
+  const svg = document.getElementById('trendSvg');
+  svg.querySelectorAll('polyline')[0].setAttribute('points', data.new);
+  svg.querySelectorAll('polyline')[1].setAttribute('points', data.closed);
+  const axis = document.getElementById('trendXaxis');
+  axis.innerHTML = data.labels.map(l => '<span>' + l + '</span>').join('');
   showToast('已切换为近 ' + days + ' 天趋势');
 }
 function applyFilter() {
   const biz = document.getElementById('filterBusiness').value;
   const range = document.getElementById('filterRange').value;
-  showToast('已应用筛选：业务=' + (biz || '全部') + '，时间=' + range + '天');
+  showToast('已按条件查询：业务=' + (biz || '全部') + ' 时间=' + range + '天');
 }
 function resetFilter() {
   document.getElementById('filterBusiness').value = '';

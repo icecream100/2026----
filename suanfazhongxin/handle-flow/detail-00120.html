@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>垃圾桶满溢 - 算法中心 + 业务场景功能</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <style>
+    .steps-wrap{display:flex;align-items:flex-start;padding-top:20px;margin-top:20px;border-top:1px solid var(--ant-border-secondary)}
+    .step-item{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative}
+    .step-item::before{content:'';position:absolute;top:14px;left:-50%;width:100%;height:2px;background:#e8e8e8}
+    .step-item:first-child::before{display:none}
+    .step-item.done::before,.step-item.active::before{background:#52c41a}
+    .step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;background:#fff;border:2px solid #d9d9d9;color:#8c8c8c;position:relative;z-index:1}
+    .step-item.done .step-dot{background:#52c41a;border-color:#52c41a;color:#fff}
+    .step-item.active .step-dot{background:#1677ff;border-color:#1677ff;color:#fff}
+    .step-title{margin-top:8px;font-size:14px;font-weight:500;color:#262626}
+    .step-item.pending .step-title{color:#8c8c8c}
+    .step-desc{margin-top:4px;font-size:12px;color:#8c8c8c;line-height:1.5}
+    .step-item.active .step-desc{color:#1677ff}
+    .media-card{border-radius:10px;background:linear-gradient(135deg,#0a3d62,#1c6b5f);overflow:hidden;color:#fff;margin-bottom:12px}
+    .media-window{height:340px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .media-window::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#172554,#0f766e);z-index:0}
+    .media-overlay{position:absolute;background:rgba(0,0,0,0.6);color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;line-height:1.4;z-index:2}
+    .media-overlay.top{top:12px;left:12px}
+    .media-overlay.bottom{bottom:12px;left:12px}
+    .detect-box{position:absolute;border:2px solid #ff4d4f;border-radius:6px;left:44%;top:28%;width:132px;height:118px;z-index:2}
+    .detect-label{position:absolute;left:44%;top:calc(28% - 28px);background:#ff4d4f;color:#fff;border-radius:4px;padding:2px 6px;font-size:12px;z-index:2}
+    .media-actions{display:flex;justify-content:center;gap:12px;padding:12px}
+    .compact-card .compact-head{padding:10px 16px;min-height:40px}
+    .compact-card .compact-head .ant-card-head-title{font-size:14px;font-weight:500}
+    .compact-card .compact-body{padding:12px 16px}
+    .compact-card .info-row{display:flex;gap:8px;line-height:20px;font-size:13px;padding:5px 0;border-bottom:1px dashed #f0f0f0}
+    .compact-card .info-row:last-of-type{border-bottom:none}
+    .compact-card .info-label{color:#8c8c8c;min-width:72px;flex-shrink:0}
+    .compact-card .info-value{color:#262626;font-weight:500;flex:1}
+    .compact-card .compact-divider{height:1px;background:#f0f0f0;margin:10px 0}
+    .compact-card .metric-row{display:flex;gap:12px;justify-content:space-between}
+    .compact-card .metric-cell{text-align:center;flex:1;background:#f5f5f5;border-radius:6px;padding:8px 4px}
+    .compact-card .metric-cell .metric-value{font-size:18px;font-weight:600;color:#262626;line-height:1.2}
+    .compact-card .metric-cell .metric-label{font-size:12px;color:#8c8c8c;margin-top:2px}
+    .compact-card .compact-desc{font-size:12px;color:#595959;line-height:1.5;margin-top:10px;padding:8px 10px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px}
+    .tl{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f5f5f5}.tl:last-child{border-bottom:none}.tl-dot{width:8px;height:8px;border-radius:50%;background:#1677ff;margin-top:6px;flex-shrink:0}.tl-content{flex:1}
+    .text-primary{color:#1677ff}
+    .video-player{height:380px;border-radius:8px;background:linear-gradient(135deg,#172554,#0f766e);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff}
+    .video-player .play-btn,.live-player .play-btn{width:64px;height:64px;border-radius:50%;background:rgba(22,119,255,0.9);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;transition:transform .2s}
+    .video-player .play-btn:hover{transform:scale(1.08)}
+    .video-player .clip-info{position:absolute;bottom:12px;left:12px;right:12px;display:flex;justify-content:space-between;font-size:12px;background:rgba(0,0,0,0.5);padding:8px 12px;border-radius:4px}
+    .live-player{height:380px;border-radius:8px;background:linear-gradient(135deg,#0f172a,#1e293b);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff}
+    .live-badge{position:absolute;top:12px;left:12px;background:#ff4d4f;color:#fff;font-size:12px;padding:2px 8px;border-radius:4px;display:flex;align-items:center;gap:4px}
+    .live-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:#fff;animation:pulse 1.5s infinite}
+    @keyframes pulse{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
+    .radio-inline{display:flex;gap:20px;align-items:center}
+    .radio-option{display:flex;align-items:center;gap:6px;font-size:13px;color:#262626;cursor:pointer;white-space:nowrap}
+    .radio-option input[type="radio"]{width:14px;height:14px;accent-color:#1677ff;cursor:pointer;margin:0}
+    .form-item-inline{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+    .form-item-inline .ant-form-label{margin-bottom:0;white-space:nowrap;min-width:72px;padding-top:4px}
+    .form-item-inline .radio-inline{flex:1;padding-top:4px}
+    .form-item-inline .ant-select,.form-item-inline select{padding-top:4px}
+    .star-row{display:flex;gap:4px;font-size:20px;color:#d9d9d9;cursor:pointer}
+    .star-row .active{color:#faad14}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-cube"></i></div>
+    <span class="app-name">算法中心 + 业务场景功能</span>
+    <div class="spacer"></div>
+    <button class="nav-action" onclick="showToast('通知中心已打开')"><i class="fa-regular fa-bell mr-1"></i>6</button>
+    <button class="nav-action" onclick="showToast('已切换为演示账号')"><i class="fa-regular fa-user mr-1"></i>平台管理员 · alex</button>
+  </header>
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">4 大核心模块</div>
+      <div class="menu-item" onclick="location.href='../admin-algorithm/list.html'"><i class="fa-solid fa-microchip"></i>算法中心</div>
+      <div class="menu-item" onclick="location.href='../admin-grid/list.html'"><i class="fa-solid fa-sitemap"></i>业务管理</div>
+      <div class="menu-item" onclick="location.href='../admin-policy/home.html'"><i class="fa-solid fa-diagram-project"></i>策略管理</div>
+      <div class="menu-item has-sub" onclick="toggleSubMenu(this)"><i class="fa-solid fa-bell"></i>报警中心<i class="fa-solid fa-chevron-right menu-arrow"></i></div>
+      <div class="menu-sub collapsed">
+        <div class="menu-item" onclick="location.href='../admin-dashboard/index.html'">看板</div>
+        <div class="menu-item" onclick="location.href='../handle-flow/confirm.html'" style="position:relative">告警确认<span class="menu-badge">18</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/handle.html'" style="position:relative">告警处理<span class="menu-badge">26</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/review.html'" style="position:relative">告警审核<span class="menu-badge">9</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/list.html'">告警列表</div>
+      </div>
+      <div class="menu-group-title mt-4">原型版本</div>
+      <div class="menu-item" onclick="location.href='../index.html'"><i class="fa-solid fa-compass"></i>返回导航中心</div>
+    </aside>
+    <main class="main">
+      <div class="ant-card ant-card-bordered mb-4">
+        <div class="ant-card-body">
+          <div class="breadcrumb mb-3"><a href="../index.html">首页</a><span>/</span><a href="list.html">告警列表</a><span>/</span><span class="current">详情</span></div>
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="page-title m-0">垃圾桶满溢</div>
+                <span class="ant-tag ant-tag-purple" id="statusBadge">待审核</span>
+                <span class="ant-tag ant-tag-blue">一般</span>
+              </div>
+              <div class="text-secondary text-sm">
+                <code>ALM20260625-00120</code>
+                <span class="mx-2">·</span>环境/西溪片区
+                <span class="mx-2">·</span>触发时间：2026-06-25 08:30:11
+              </div>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+              <button class="ant-btn" onclick="backToList()"><i class="fa-solid fa-arrow-left"></i> 返回列表</button>
+            </div>
+          </div>
+          <div class="steps-wrap"><div class="step-item done"><div class="step-dot">✓</div><div class="step-title">告警产生</div><div class="step-desc">2026-06-25 08:30:11</div></div><div class="step-item done"><div class="step-dot">✓</div><div class="step-title">待确认</div><div class="step-desc">已确认</div></div><div class="step-item done"><div class="step-dot">✓</div><div class="step-title">待处理</div><div class="step-desc">已处理</div></div><div class="step-item active"><div class="step-dot">●</div><div class="step-title">待审核</div><div class="step-desc">待审核</div></div><div class="step-item pending"><div class="step-dot"></div><div class="step-title">已审核</div><div class="step-desc">已审核</div></div></div>
+        </div>
+      </div>
+      <div id="timeoutBar" style="display:none;background:#fff2f0;border-left:4px solid #ff4d4f;border-radius:8px;padding:12px 16px;margin-bottom:16px"><i class="fa-solid fa-triangle-exclamation" style="color:#ff4d4f"></i> <span style="color:#ff4d4f;font-weight:500">该告警已超时，已升级至 西湖区监管一所 负责人 张明，请尽快处理</span> <span onclick="document.getElementById('timeoutBar').style.display='none'" style="cursor:pointer;color:#8c8c8c;float:right">×</span></div>
+      <div class="ant-card ant-card-bordered mb-4">
+        <div class="ant-card-body">
+          <div class="grid grid-cols-12 gap-4">
+            <div class="col-span-7">
+              <div class="media-card">
+                <div class="media-window">
+                  <div class="media-overlay top">2026-06-25 08:30:11</div>
+                  <div class="media-overlay bottom">摄像头-环卫-022 · 2026-06-25 08:30:11</div>
+                  <div class="detect-label">垃圾桶满溢 87.3%</div>
+                  <div class="detect-box"></div>
+                </div>
+                <div class="media-actions">
+                  <button class="ant-btn ant-btn-primary" onclick="openModal('videoModal')"><i class="fa-solid fa-video mr-1"></i> 查看录像</button>
+                  <button class="ant-btn" onclick="openModal('liveModal')"><i class="fa-solid fa-tower-broadcast mr-1"></i> 查看直播</button>
+                </div>
+              </div>
+            </div>
+            <div class="col-span-5" style="border-left:1px solid var(--ant-border-secondary);padding-left:16px">
+              <div class="ant-card ant-card-bordered mb-3 compact-card">
+                <div class="ant-card-head compact-head"><div class="ant-card-head-title">告警信息</div></div>
+                <div class="ant-card-body compact-body">
+                  <div class="info-row"><span class="info-label">告警编号</span><span class="info-value"><code>ALM20260625-00120</code></span></div>
+                  <div class="info-row"><span class="info-label">告警标题</span><span class="info-value">垃圾桶满溢</span></div>
+                  <div class="info-row"><span class="info-label">业务归属</span><span class="info-value">环境监测</span></div>
+                  <div class="info-row"><span class="info-label">设备名称</span><span class="info-value">摄像头-环卫-022</span></div>
+                  <div class="info-row"><span class="info-label">网格路径</span><span class="info-value">环境/西溪片区</span></div>
+                  <div class="info-row"><span class="info-label">告警类型</span><span class="info-value">垃圾满溢识别</span></div>
+                  <div class="info-row"><span class="info-label">当前状态</span><span class="info-value">待审核</span></div>
+                  <div class="info-row"><span class="info-label">当前处理人</span><span class="info-value">赵伟</span></div>
+                  <div class="compact-divider"></div>
+                  <div class="metric-row">
+                    <div class="metric-cell"><div class="metric-value">1</div><div class="metric-label">目标数量</div></div>
+                    <div class="metric-cell"><div class="metric-value">87.3%</div><div class="metric-label">最高置信度</div></div>
+                    <div class="metric-cell"><div class="metric-value">60s</div><div class="metric-label">持续时长</div></div>
+                    <div class="metric-cell"><div class="metric-value">75%</div><div class="metric-label">识别阈值</div></div>
+                  </div>
+                  <div class="compact-desc"><i class="fa-solid fa-circle-info text-primary mr-1"></i>算法检测到西溪片区垃圾桶满溢，处理完毕待审核。</div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+      </div>
+      <div class="ant-card ant-card-bordered mb-4">
+  <div class="ant-card-head"><div class="ant-card-head-title">审核处理结果</div></div>
+  <div class="ant-card-body">
+    <div class="ant-form-item form-item-inline">
+      <label class="ant-form-label ant-form-label-required">审核结论</label>
+      <div class="radio-inline">
+        <label class="radio-option"><input type="radio" name="auditType" value="pass" checked onchange="setAuditType('pass')"> 通过</label>
+        <label class="radio-option"><input type="radio" name="auditType" value="reject" onchange="setAuditType('reject')"> 不通过</label>
+      </div>
+    </div>
+    <div id="auditPassBox">
+      <div class="ant-form-item">
+        <label class="ant-form-label">评分（可选）</label>
+        <div class="star-row" id="starRow">
+          <i class="fa-solid fa-star" onclick="setStar(1)"></i>
+          <i class="fa-solid fa-star" onclick="setStar(2)"></i>
+          <i class="fa-solid fa-star" onclick="setStar(3)"></i>
+          <i class="fa-solid fa-star" onclick="setStar(4)"></i>
+          <i class="fa-solid fa-star" onclick="setStar(5)"></i>
+        </div>
+      </div>
+    </div>
+    <div id="auditRejectBox" style="display:none">
+      <div class="ant-form-item">
+        <label class="ant-form-label ant-form-label-required">驳回原因</label>
+        <textarea class="ant-input" rows="3" placeholder="请说明驳回原因，将退回原处理人"></textarea>
+      </div>
+    </div>
+    <div class="flex justify-start gap-2">
+      <button class="ant-btn ant-btn-primary" onclick="submitAudit()">提交审核</button>
+      <button class="ant-btn" onclick="backToList()">取消</button>
+    </div>
+  </div>
+</div>
+<script>
+function setAuditType(t){
+  document.querySelectorAll('input[name="auditType"]').forEach(el=>el.checked=(el.value===t));
+  document.getElementById('auditPassBox').style.display=(t==='pass')?'block':'none';
+  document.getElementById('auditRejectBox').style.display=(t==='reject')?'block':'none';
+}
+function setStar(n){
+  const stars=document.querySelectorAll('#starRow i');
+  stars.forEach((s,i)=>s.classList.toggle('active',i<n));
+}
+function submitAudit(){
+  const type=document.querySelector('input[name="auditType"]:checked').value;
+  if(type==='reject' && !document.querySelector('#auditRejectBox textarea').value.trim()){ showToast('请填写驳回原因'); return; }
+  showToast('审核已提交'); backToList();
+}
+</script>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head"><div class="ant-card-head-title">操作记录</div></div>
+        <div class="ant-card-body" id="timelineBody">
+          <div class="tl"><div class="tl-dot"></div><div class="tl-content"><div class="font-medium">2026-06-25 08:30:11 · 系统触发</div><div class="text-sm mt-1" style="color:#595959">算法检测到垃圾桶满溢，自动生成工单。</div></div></div><div class="tl"><div class="tl-dot"></div><div class="tl-content"><div class="font-medium">2026-06-25 · 分派工单</div><div class="text-sm mt-1" style="color:#595959">系统自动通知责任人：赵伟。</div></div></div><div class="tl"><div class="tl-dot"></div><div class="tl-content"><div class="font-medium">2026-06-25 · 工单处置</div><div class="text-sm mt-1" style="color:#595959">赵伟提交反馈：已现场处置，等待审核。</div></div></div>
+        </div>
+      </div>
+      <div class="ant-modal-mask" id="reassignModal"><div class="ant-modal" style="width:520px"><div class="ant-modal-header"><span>转派告警</span><span class="ant-modal-close" onclick="closeModal('reassignModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">新处理人</label><select class="ant-select w-full"><option>李娜（门店负责人）</option><option>王强（片区监管员）</option><option>赵伟（业务管理员）</option></select></div><div class="ant-form-item"><label class="ant-form-label ant-form-label-required">转派原因</label><textarea class="ant-input" id="reassignReason" rows="3" placeholder="请说明转派原因"></textarea></div></div><div class="ant-modal-footer flex justify-start gap-2"><button class="ant-btn ant-btn-primary" onclick="submitReassign()">确认转派</button><button class="ant-btn" onclick="closeModal('reassignModal')">取消</button></div></div></div>
+      <div class="ant-modal-mask" id="urgeModal"><div class="ant-modal" style="width:420px"><div class="ant-modal-header"><span>催办处理人</span><span class="ant-modal-close" onclick="closeModal('urgeModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="ant-alert ant-alert-info">向当前处理人发送强提醒通知？同一告警对同一人 10 分钟内只能催办一次。</div></div><div class="ant-modal-footer flex justify-start gap-2"><button class="ant-btn ant-btn-primary" onclick="submitUrge()">发送催办</button><button class="ant-btn" onclick="closeModal('urgeModal')">取消</button></div></div></div>
+      <div class="ant-modal-mask" id="videoModal"><div class="ant-modal" style="width:720px"><div class="ant-modal-header"><span>告警录像片段</span><span class="ant-modal-close" onclick="closeModal('videoModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="mb-3 text-secondary text-sm"><i class="fa-solid fa-video mr-1"></i>摄像头-环卫-022 · 告警时间 2026-06-25 08:30:11 · 前后各15秒共30秒</div><div class="video-player"><div class="play-btn" onclick="showToast('开始播放告警录像片段（08:30:00 - 08:30:26）')"><i class="fa-solid fa-play"></i></div><div class="clip-info"><span>片段起始：08:30:00</span><span>告警时刻：2026-06-25 08:30:11</span><span>片段结束：08:30:26</span></div></div></div><div class="ant-modal-footer flex justify-start gap-2"><button class="ant-btn ant-btn-primary" onclick="showToast('开始播放告警录像片段');closeModal('videoModal')"><i class="fa-solid fa-play mr-1"></i>播放</button><button class="ant-btn" onclick="closeModal('videoModal')">关闭</button></div></div></div>
+      <div class="ant-modal-mask" id="liveModal"><div class="ant-modal" style="width:720px"><div class="ant-modal-header"><span>实时直播</span><span class="ant-modal-close" onclick="closeModal('liveModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="mb-3 text-secondary text-sm"><i class="fa-solid fa-tower-broadcast mr-1"></i>摄像头-环卫-022 · 实时画面</div><div class="live-player"><div class="live-badge">LIVE</div><div class="play-btn" style="background:rgba(255,77,79,0.9)" onclick="showToast('正在加载实时直播流')"><i class="fa-solid fa-satellite-dish"></i></div></div></div><div class="ant-modal-footer flex justify-start gap-2"><button class="ant-btn" onclick="closeModal('liveModal')">关闭</button></div></div></div>
+    </main>
+  </div>
+</div>
+<div class="toast-wrap"></div>
+<script>
+function toggleSubMenu(el){el.classList.toggle('expanded');var sub=el.nextElementSibling;if(sub&&sub.classList.contains('menu-sub')){sub.classList.toggle('collapsed')}}
+function showToast(msg,duration){duration=duration||2000;var wrap=document.querySelector('.toast-wrap');var el=document.createElement('div');el.className='toast-msg';el.innerHTML='<i class="fa-solid fa-circle-info" style="color:#1677ff"></i>'+msg;wrap.appendChild(el);requestAnimationFrame(function(){el.classList.add('show')});setTimeout(function(){el.classList.remove('show');setTimeout(function(){el.remove()},300)},duration)}
+function openModal(id){document.getElementById(id).classList.add('active')}
+function closeModal(id){document.getElementById(id).classList.remove('active')}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.ant-modal-mask.active').forEach(function(m){m.classList.remove('active')})});
+document.querySelectorAll('.ant-modal-mask').forEach(function(mask){mask.addEventListener('click',function(e){if(e.target===mask)mask.classList.remove('active')})});
+function backToList(){location.href="list.html"}
+function openReassign(){openModal('reassignModal')}
+function submitReassign(){if(!document.getElementById('reassignReason').value.trim()){showToast('请填写转派原因');return}showToast('转派成功，新处理人已收到通知');closeModal('reassignModal')}
+function openUrge(){openModal('urgeModal')}
+function submitUrge(){showToast('催办通知已发送');closeModal('urgeModal')}
+</script>
+</body>
+</html>

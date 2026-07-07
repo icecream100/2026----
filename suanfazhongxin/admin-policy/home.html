@@ -55,7 +55,7 @@
       <!-- POL-02 / POL-10 无启用算法时提示（默认隐藏） -->
       <div id="noAlgorithmAlert" class="ant-alert ant-alert-warning mb-4 hidden">当前业务尚未启用算法，无法创建策略。请先前往业务管理配置算法。</div>
 
-<section id="panel-policy"><div class="ant-card ant-card-bordered mb-4"><div class="ant-card-body"><div class="flex gap-3 flex-wrap"><select id="businessFilter" class="ant-select" onchange="onBusinessChange()" title="业务归属筛选器：平台管理员可选全部或具体业务，业务管理员锁定本业务"><option value="">全部业务</option><option>明厨亮灶</option><option>消防</option><option>综治</option><option>环境监测</option></select><select id="statusFilter" class="ant-select"><option value="">全部状态</option><option>启用</option><option>暂停</option><option>待修复</option></select><select id="diagFilter" class="ant-select"><option value="">全部诊断</option><option>正常</option><option>配置异常</option></select><select id="gridFilter" class="ant-select" style="width:150px" title="覆盖网格节点：选择业务后展示对应业务网格树"><option value="">覆盖网格节点</option></select><input id="policyName" class="ant-input" style="width:200px" placeholder="策略名称" onkeydown="if(event.key==='Enter')renderPolicies(true)"><select id="algorithmFilter" class="ant-select"><option value="">全部算法</option><option>厨房违规检测</option><option>未戴工帽识别</option><option>烟雾明火检测</option><option>消防通道占用识别</option><option>人员聚集识别</option><option>垃圾堆积识别</option></select><button class="ant-btn ant-btn-primary" onclick="renderPolicies(true)">查询</button><button class="ant-btn" onclick="resetPolicyFilter()">重置</button></div></div></div><div class="ant-card ant-card-bordered"><div class="ant-card-body" style="padding:0;overflow:auto"><table class="ant-table"><thead><tr id="policyTableHead"><th>策略名称</th><th id="bizColHead">业务归属</th><th>覆盖设备数</th><th>关联算法</th><th>状态</th><th>诊断</th><th>创建时间</th><th>最近触发</th><th>操作</th></tr></thead><tbody id="policyBody"></tbody></table></div></div></section>
+<section id="panel-policy"><div class="ant-card ant-card-bordered mb-4"><div class="ant-card-body"><div class="flex gap-3 flex-wrap"><select id="businessFilter" class="ant-select" onchange="onBusinessChange()" title="业务归属筛选器：平台管理员可选全部或具体业务，业务管理员锁定本业务"><option value="">全部业务</option><option>明厨亮灶</option><option>消防</option><option>综治</option><option>环境监测</option></select><select id="statusFilter" class="ant-select"><option value="">全部状态</option><option>启用</option><option>暂停</option><option>待修复</option></select><input id="policyName" class="ant-input" style="width:200px" placeholder="策略名称" onkeydown="if(event.key==='Enter')renderPolicies(true)"><button class="ant-btn ant-btn-primary" onclick="renderPolicies(true)">查询</button><button class="ant-btn" onclick="resetPolicyFilter()">重置</button></div></div></div><div class="ant-card ant-card-bordered"><div class="ant-card-body" style="padding:0;overflow:auto"><table class="ant-table"><thead><tr id="policyTableHead"><th>策略名称</th><th id="bizColHead">业务归属</th><th>覆盖设备数</th><th>关联算法</th><th>状态</th><th>诊断</th><th>创建时间</th><th>最近触发</th><th>操作</th></tr></thead><tbody id="policyBody"></tbody></table></div></div></section>
 <!-- V1.5 删除：告警级别映射 Tab 内容（原 panel-level section） -->
 
 <div class="ant-modal-mask" id="strategyModal" style="align-items:stretch;justify-content:flex-end">
@@ -79,17 +79,17 @@
         <span style="font-size:13px;color:#1677ff" id="coverageSummary">已选 1 个节点 · 420 台设备</span>
       </div>
       <div style="display:flex;gap:12px;height:320px">
-        <!-- 左：设备树 -->
+        <!-- 左：网格树 -->
         <div style="width:380px;flex-shrink:0;border:1px solid #f0f0f0;border-radius:8px;background:#fafafa;display:flex;flex-direction:column;overflow:hidden">
           <div style="padding:10px 12px;border-bottom:1px solid #f0f0f0;display:flex;gap:8px">
-            <input class="ant-input" style="flex:1" placeholder="搜索设备节点" onkeydown="if(event.key==='Enter')showToast('设备节点搜索完成')">
+            <input class="ant-input" style="flex:1" placeholder="搜索网格节点" onkeydown="if(event.key==='Enter')showToast('网格节点搜索完成')">
             <button class="ant-btn ant-btn-sm" onclick="showToast('已折叠全部节点')">折叠</button>
           </div>
           <div style="flex:1;overflow-y:auto;padding:8px 12px" id="strategyTree">
-            <div class="tree-node-row active" onclick="selectStrategyNode('西湖区监管一所',1280)" style="padding:6px 8px;border-radius:6px;cursor:pointer;font-size:13px"><span><input type="checkbox" checked onchange="updateCoverageSummary()" style="margin-right:6px"><i class="fa-solid fa-caret-down" style="margin-right:4px"></i>西湖区监管一所</span><span style="font-size:12px"><span style="color:#1677ff">1280 台</span> <span style="color:#52c41a">张明</span></span></div>
-            <div class="tree-node-row" onclick="selectStrategyNode('片区A',420)" style="padding:6px 8px 6px 32px;border-radius:6px;cursor:pointer;font-size:13px;background:#e6f4ff"><span><input type="checkbox" checked onchange="updateCoverageSummary()" style="margin-right:6px">片区A</span><span style="font-size:12px;color:#1677ff">420 台</span></div>
-            <div class="tree-node-row" onclick="selectStrategyNode('片区B',386)" style="padding:6px 8px 6px 32px;border-radius:6px;cursor:pointer;font-size:13px"><span><input type="checkbox" onchange="updateCoverageSummary()" style="margin-right:6px">片区B</span><span style="font-size:12px;color:#1677ff">386 台</span></div>
-            <div class="tree-node-row" onclick="selectStrategyNode('片区C',0)" style="padding:6px 8px 6px 32px;border-radius:6px;cursor:pointer;font-size:13px"><span><input type="checkbox" onchange="updateCoverageSummary()" style="margin-right:6px">片区C</span><span style="font-size:12px"><span style="color:#faad14">0 台</span></span></div>
+            <div class="tree-node-row active" onclick="selectStrategyNode('西湖区监管一所',1280)" style="padding:6px 8px;border-radius:6px;cursor:pointer;font-size:13px"><span><input type="checkbox" checked onchange="updateCoverageSummary();checkConflict()" style="margin-right:6px"><i class="fa-solid fa-caret-down" style="margin-right:4px"></i>西湖区监管一所</span><span style="font-size:12px"><span style="color:#1677ff">1280 台</span> <span style="color:#52c41a">张明</span></span></div>
+            <div class="tree-node-row" onclick="selectStrategyNode('片区A',420)" style="padding:6px 8px 6px 32px;border-radius:6px;cursor:pointer;font-size:13px;background:#e6f4ff"><span><input type="checkbox" checked onchange="updateCoverageSummary();checkConflict()" style="margin-right:6px">片区A</span><span style="font-size:12px;color:#1677ff">420 台</span></div>
+            <div class="tree-node-row" onclick="selectStrategyNode('片区B',386)" style="padding:6px 8px 6px 32px;border-radius:6px;cursor:pointer;font-size:13px"><span><input type="checkbox" onchange="updateCoverageSummary();checkConflict()" style="margin-right:6px">片区B</span><span style="font-size:12px;color:#1677ff">386 台</span></div>
+            <div class="tree-node-row" onclick="selectStrategyNode('片区C',0)" style="padding:6px 8px 6px 32px;border-radius:6px;cursor:pointer;font-size:13px"><span><input type="checkbox" onchange="updateCoverageSummary();checkConflict()" style="margin-right:6px">片区C</span><span style="font-size:12px"><span style="color:#faad14">0 台</span></span></div>
           </div>
           <div style="padding:6px 12px;border-top:1px solid #f0f0f0;font-size:11px;color:#8c8c8c">勾选父节点自动包含子节点</div>
         </div>
@@ -128,7 +128,7 @@
         <span style="font-size:14px;font-weight:500">检测能力</span>
         <span style="font-size:12px;color:#8c8c8c">来源：L2 业务算法配置</span>
       </div>
-      <button class="ant-btn ant-btn-primary ant-btn-sm" style="margin-bottom:12px" onclick="showToast('打开算法选择器（仅展示 L2 已启用算法）')"><i class="fa-solid fa-plus"></i> 添加算法</button>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:13px;font-weight:500;min-width:56px">关联算法</span><select class="ant-select" id="algoSelect" style="width:240px" onchange="showToast('算法已选择（一策略一算法）');checkConflict()"><option>厨房违规检测（合规检测·重要）</option><option>未戴工帽识别（合规检测·紧急）</option><option>明火检测（环境监测·紧急）</option><option>越界闯入检测（安全防范·紧急）</option></select><span style="font-size:12px;color:#8c8c8c">一策略一算法，告警级别取该算法 L2 配置</span></div>
       <div id="strategyAlgoList" style="display:flex;flex-direction:column;gap:8px">
         <!-- 算法卡片1：展开态 -->
         <div style="border:1px solid #f0f0f0;border-radius:8px;overflow:hidden">
@@ -145,24 +145,6 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
               <div><label style="font-size:12px;color:#595959">灵敏度</label><div style="display:flex;align-items:center;gap:8px;margin-top:4px"><input type="range" min="0" max="100" value="80" style="flex:1" onchange="showToast('参数已更新')"><span style="font-size:13px;font-weight:500;min-width:30px">80</span></div></div>
               <div><label style="font-size:12px;color:#595959">持续时间</label><div style="margin-top:4px"><input class="ant-input" style="width:80px;display:inline-block" value="5"> <span style="font-size:12px;color:#8c8c8c">秒</span></div></div>
-            </div>
-          </div>
-        </div>
-        <!-- 算法卡片2：折叠态 -->
-        <div style="border:1px solid #f0f0f0;border-radius:8px;overflow:hidden">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer" onclick="this.parentElement.querySelector('.algo-detail').classList.toggle('hidden')">
-            <div style="display:flex;align-items:center;gap:10px">
-              <i class="fa-solid fa-chevron-right" style="font-size:11px;color:#8c8c8c"></i>
-              <span style="font-size:13px;font-weight:500">未戴工帽识别</span>
-              <span class="ant-tag ant-tag-purple" style="font-size:11px">合规检测</span>
-              <span class="ant-tag ant-tag-red" style="font-size:11px">紧急</span>
-            </div>
-            <button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="event.stopPropagation();this.closest('div[style*=\"border:1px\"]').remove();showToast('算法已移除')">移除</button>
-          </div>
-          <div class="algo-detail hidden" style="padding:12px 16px 12px 40px;border-top:1px solid #f5f5f5;background:#fafcff">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div><label style="font-size:12px;color:#595959">检测间隔</label><div style="margin-top:4px"><input class="ant-input" style="width:80px;display:inline-block" value="3"> <span style="font-size:12px;color:#8c8c8c">秒</span></div></div>
-              <div><label style="font-size:12px;color:#595959">置信度阈值</label><div style="margin-top:4px"><input type="range" min="0" max="100" value="75" style="width:120px"> <span style="font-size:13px;font-weight:500">75%</span></div></div>
             </div>
           </div>
         </div>
@@ -185,19 +167,18 @@
           <select class="ant-select" style="width:130px"><option>片区监管员</option><option>门店负责人</option><option>业务管理员</option></select>
         </div>
         <div id="confirmScopeItem" style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-          <span style="font-size:13px;color:#595959">确认范围</span>
-          <select class="ant-select" style="width:120px"><option>按管辖网格</option><option>全部</option></select>
+          <span style="font-size:12px;color:#8c8c8c">（全平台该角色用户，全派任一确认）</span>
+        </div>
+        <div id="confirmTimeoutItem" style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          <span style="font-size:13px;color:#595959">确认超时</span>
+          <input class="ant-input" value="5" style="width:50px;display:inline-block"> <span style="font-size:12px;color:#8c8c8c">分钟（超时自动放行）</span>
         </div>
       </div>
-      <!-- 派单路由：处理角色+处理模式一行，超时时间+超时升级一行 -->
+      <!-- 派单路由：处理人=网格负责人（自动取），超时时间+超时升级一行 -->
       <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px;padding:12px 16px;background:#fafafa;border-radius:8px">
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-          <span style="font-size:13px;font-weight:500;color:#262626;min-width:56px">处理角色</span>
-          <select class="ant-select" style="width:130px"><option>门店负责人</option><option>片区监管员</option></select>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-          <span style="font-size:13px;color:#595959">处理模式</span>
-          <select class="ant-select" style="width:120px"><option>指定单人</option><option>轮流分配</option><option>全部通知</option></select>
+          <span style="font-size:13px;font-weight:500;color:#262626;min-width:56px">处理人</span>
+          <span style="font-size:13px;color:#1677ff">网格负责人（运行时自动取归属网格负责人）</span>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding:12px 16px;background:#fafafa;border-radius:8px">
@@ -228,10 +209,11 @@
     </div>
   </div>
   <!-- Footer -->
-  <div class="ant-modal-footer" style="flex-shrink:0;border-radius:0"><button class="ant-btn" onclick="closeModal('strategyModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="saveStrategy()">保存</button></div>
+  <div class="ant-modal-footer" style="flex-shrink:0;border-radius:0"><button class="ant-btn" onclick="closeModal('strategyModal')">取消</button><button class="ant-btn ant-btn-primary" id="saveStrategyBtn" onclick="saveStrategy()">保存</button></div>
 </div></div>
 
 <div class="ant-modal-mask" id="strategyDrawer"><div class="ant-modal drawer-panel"><div class="ant-modal-header"><span id="drawerTitle">策略详情</span><span class="ant-modal-close" onclick="closeModal('strategyDrawer')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body" id="drawerBody"></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('strategyDrawer')">关闭</button><button class="ant-btn ant-btn-primary" onclick="openStrategyModal('edit')">编辑策略</button></div></div></div><div class="ant-modal-mask" id="confirmModal"><div class="ant-modal" style="width:420px"><div class="ant-modal-header"><span>确认操作</span><span class="ant-modal-close" onclick="closeModal('confirmModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><p id="confirmText">确定执行操作？</p></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('confirmModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="runConfirm()">确认执行</button></div></div></div>
+<div class="ant-modal-mask" id="deletePolicyModal"><div class="ant-modal" style="width:440px"><div class="ant-modal-header"><span><i class="fa-solid fa-triangle-exclamation" style="color:#ff4d4f"></i> 删除策略</span><span class="ant-modal-close" onclick="closeModal('deletePolicyModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><p id="deletePolicyText" style="margin:0 0 12px">确定删除该策略？</p><div class="ant-alert ant-alert-warning" style="margin-top:8px"><i class="fa-solid fa-circle-info"></i> <span class="text-sm">如果只是暂时不想用，可暂停策略（保留配置，随时恢复），避免误删后需重新配置。</span></div></div><div class="ant-modal-footer" style="justify-content:flex-start;gap:8px"><button class="ant-btn" onclick="closeModal('deletePolicyModal')">取消</button><button class="ant-btn" style="border-color:#faad14;color:#faad14" onclick="pauseInsteadOfDelete()">暂停代替删除</button><button class="ant-btn ant-btn-primary ant-btn-dangerous" onclick="confirmDeletePolicy()">确认删除</button></div></div></div>
 <div class="ant-modal-mask" id="softPromptModal"><div class="ant-modal" style="width:520px"><div class="ant-modal-header"><span><i class="fa-solid fa-triangle-exclamation" style="color:#faad14"></i> 软提示确认</span><span class="ant-modal-close" onclick="closeModal('softPromptModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="ant-alert ant-alert-warning mb-3">以下为警告项，确认后仍可保存。软提示项将写入策略变更日志。</div><div id="softPromptList" class="flex flex-col gap-2"></div></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('softPromptModal')">取消</button><button class="ant-btn ant-btn-primary" onclick="confirmSoftPromptSave()">确认保存</button></div></div></div>
 <!-- POL-09 策略启用校验二次确认弹窗 -->
 <div class="ant-modal-mask" id="enableConfirmModal"><div class="ant-modal" style="width:500px"><div class="ant-modal-header"><span>启用策略 - 校验清单</span><span class="ant-modal-close" onclick="closeModal('enableConfirmModal')"><i class="fa-solid fa-xmark"></i></span></div><div class="ant-modal-body"><div class="text-secondary text-sm mb-3">启用前将执行以下校验，全部通过后策略方可启用：</div><div id="enableChecklist" class="space-y-2"></div><div id="enableFailReason" class="ant-alert ant-alert-error mt-3 hidden"></div></div><div class="ant-modal-footer"><button class="ant-btn" onclick="closeModal('enableConfirmModal')">取消</button><button id="enableConfirmBtn" class="ant-btn ant-btn-primary" onclick="runEnableConfirm()">确认启用</button></div></div></div>
@@ -289,8 +271,8 @@ function renderPolicies(tip){
     if(tip)showToast('查询完成');
     return;
   }
-  var b=businessFilter.value,s=statusFilter.value,d=diagFilter.value,n=policyName.value.trim(),a=algorithmFilter.value,g=gridFilter.value;
-  var rows=policies.filter(function(p){return(!b||p.business===b)&&(!s||p.status===s)&&(!d||p.diag===d)&&(!n||p.name.includes(n))&&(!a||p.algorithm===a)&&(!g||p.grid.split('、').indexOf(g)>=0)});
+  var b=businessFilter.value,s=statusFilter.value,n=policyName.value.trim();
+  var rows=policies.filter(function(p){return(!b||p.business===b)&&(!s||p.status===s)&&(!n||p.name.includes(n))});
   /* POL-10 基础空状态 */
   if(rows.length===0){
     policyBody.innerHTML='<tr><td colspan="'+getColspan()+'" class="text-center" style="padding:48px"><div class="text-secondary"><i class="fa-regular fa-folder-open" style="font-size:36px"></i><div class="mt-3">暂无策略，点击右上角"新增策略"创建第一条策略</div><button class="ant-btn ant-btn-primary mt-3" onclick="openStrategyModal(\'new\')"><i class="fa-solid fa-plus"></i> 新增策略</button></div></td></tr>';
@@ -307,7 +289,7 @@ function renderPolicies(tip){
 }
 function getColspan(){return businessFilter.value?'8':'9'}
 
-function resetPolicyFilter(){businessFilter.value='';statusFilter.value='';diagFilter.value='';policyName.value='';algorithmFilter.value='';gridFilter.value='';onBusinessChange();showToast('筛选条件已重置')}
+function resetPolicyFilter(){businessFilter.value='';statusFilter.value='';policyName.value='';onBusinessChange();showToast('筛选条件已重置')}
 
 /* 业务归属切换联动：列表刷新、业务上下文条显隐、覆盖网格节点筛选器联动更新 */
 function onBusinessChange(){
@@ -324,16 +306,9 @@ function onBusinessChange(){
     /* 选"全部业务"：隐藏业务上下文条 */
     bizBar.style.display='none';
   }
-  refreshGridFilter(b);
   renderPolicies();
 }
-/* 覆盖网格节点筛选器：选业务后展示对应业务网格树（PRD 4.2.3），支持多选此处以下拉单选模拟 */
-function refreshGridFilter(b){
-  var nodes={};
-  policies.forEach(function(p){if(!b||p.business===b){p.grid.split('、').forEach(function(n){nodes[n]=1})}});
-  var opts='<option value="">覆盖网格节点</option>'+Object.keys(nodes).map(function(n){return '<option>'+n+'</option>'}).join('');
-  gridFilter.innerHTML=opts;
-}
+/* V1.6.10 删除覆盖网格节点筛选器，refreshGridFilter 不再需要 */
 
 /* V1.6 策略弹窗改为右侧宽抽屉 + 垂直分区表单 */
 function openStrategyModal(mode){
@@ -350,7 +325,7 @@ function openStrategyModal(mode){
   var modal=document.querySelector('#strategyModal .ant-modal-body');if(modal)modal.scrollTop=0;
   openModal('strategyModal');
 }
-/* 设备树节点点击联动右侧设备列表 */
+/* 网格树节点点击联动右侧设备列表 */
 function selectStrategyNode(name,count){
   document.querySelectorAll('#strategyTree .tree-node-row').forEach(function(r){r.style.background=''});
   if(event&&event.currentTarget)event.currentTarget.style.background='#e6f4ff';
@@ -377,11 +352,13 @@ function toggleRoute(){
   var auditRadios=document.querySelectorAll('input[name=auditSwitch]');
   var confirmOn=confirmRadios[0]&&confirmRadios[0].checked;
   var auditOn=auditRadios[0]&&auditRadios[0].checked;
-  /* 确认开关=关时，隐藏确认角色和确认范围 */
+  /* 确认开关=关时，隐藏确认角色、确认范围、确认超时 */
   var cc=document.getElementById('confirmRouteCard');
   var cs=document.getElementById('confirmScopeItem');
+  var ct=document.getElementById('confirmTimeoutItem');
   if(cc)cc.style.display=confirmOn?'flex':'none';
   if(cs)cs.style.display=confirmOn?'flex':'none';
+  if(ct)ct.style.display=confirmOn?'flex':'none';
   /* 审核开关=关时，隐藏审核角色和审核超时（审核行本身始终可见） */
   var ar=document.getElementById('auditRoleItem');
   var at=document.getElementById('auditTimeoutItem');
@@ -417,14 +394,26 @@ function collectSoftPrompts(){
   if(zeroNodes.length>0){prompts.push('W1 · '+zeroNodes.length+' 个网格节点当前未挂设备，挂入后自动生效')}
   /* W2 演示：处理角色管辖范围无人（原型无管辖数据，覆盖网格全 0 设备时触发演示） */
   var allZero=checks.length>0&&Array.from(checks).every(function(c){return!c.checked||devMap[(c.parentElement.textContent||'').match(/片区A|片区B|片区C|西湖区监管一所/)]===0});
-  if(allZero){prompts.push('W2 · 处理角色 [门店负责人] 当前在覆盖网格内无可派单用户，告警将进入未派单池')}
+  if(allZero){prompts.push('提示 · 覆盖网格无设备，告警不会产生；若网格负责人未设置，告警将进入未派单池')}
   /* W3 演示：父子节点重复挂同一人（勾选父子节点时触发演示） */
   var hasParentChild=Array.from(checks).some(function(c){return c.checked&&(c.parentElement.textContent||'').includes('西湖区监管一所')})&&Array.from(checks).some(function(c){return c.checked&&(c.parentElement.textContent||'').includes('片区A')});
-  if(hasParentChild){prompts.push('W3 · 张明 已在父节点挂载，升级时将自动跳过该层')}
+  if(hasParentChild){prompts.push('W3 · 张明 已在父节点任负责人，升级时将自动跳过该层')}
   return prompts;
 }
 function confirmSoftPromptSave(){closeModal('softPromptModal');doSaveStrategy()}
-function doSaveStrategy(){showToast('策略已保存');closeModal('strategyModal');renderPolicies()}
+/* T-15：网格×算法实时去重校验（PRD 5.5.1 H3 前置），命中冲突显示 conflictHint 并禁用保存 */
+function checkConflict(){
+  var hasA=false;
+  document.querySelectorAll('#strategyTree input[type=checkbox]').forEach(function(c){if(c.checked&&(c.parentElement.textContent||'').includes('片区A'))hasA=true});
+  var algoEl=document.getElementById('algoSelect');
+  var algo=algoEl?algoEl.value:'';
+  var conflict=hasA&&algo.indexOf('厨房违规检测')>=0;
+  var hint=document.getElementById('conflictHint');
+  var btn=document.getElementById('saveStrategyBtn');
+  if(conflict){hint.style.display='block';if(btn){btn.disabled=true;btn.classList.add('ant-btn-disabled')}}
+  else{hint.style.display='none';if(btn){btn.disabled=false;btn.classList.remove('ant-btn-disabled')}}
+}
+function doSaveStrategy(){showToast('策略已保存');closeModal('strategyModal');renderPolicies();/* T-15：新增策略保存后复用启用校验（PRD 4.6.7 Step 6），校验通过→启用，失败→保持暂停态 */askEnableConfirm()}
 
 /* POL-07 策略详情新增告警级别只读字段 */
 function openStrategyDetail(i){
@@ -448,8 +437,11 @@ function askDeletePolicy(i){
   }else{
     msg='删除策略后不影响已派单告警，已派单告警会标记"该策略已删除"继续按原派单流程。确定删除？';
   }
-  askConfirm(msg,function(){showToast('策略已删除')});
+  document.getElementById('deletePolicyText').textContent=msg;
+  openModal('deletePolicyModal');
 }
+function pauseInsteadOfDelete(){closeModal('deletePolicyModal');showToast('策略已暂停（代替删除），配置保留，可随时恢复')}
+function confirmDeletePolicy(){closeModal('deletePolicyModal');showToast('策略已删除')}
 
 /* POL-09 策略启用校验强化：启用前展示校验清单，校验失败阻断启用 */
 function askEnableConfirm(){
@@ -497,6 +489,22 @@ function toggleNoAlgorithmState(){
 }
 
 /* V1.5 删除：levels 数据、renderLevels、toggleAllLevel、batchLevel（告警级别映射 Tab 已移除） */
+/* T-15：URL business_id/from 参数解析（PRD 4.1.3 业务上下文跳转）*/
+(function(){
+  var params=new URLSearchParams(location.search);
+  var bid=params.get('business_id');
+  var from=params.get('from');
+  if(bid){
+    var opts=[].slice.call(businessFilter.options);
+    var matched=opts.find(function(o){return o.value===bid||o.text===bid});
+    if(matched){businessFilter.value=matched.value||matched.text;onBusinessChange()}
+  }
+  if(from==='biz_workbench'&&bid){
+    var bar=document.getElementById('bizContextBar');
+    bar.style.display='flex';
+    bar.innerHTML='<i class="fa-solid fa-layer-group"></i><span>业务管理 / '+bid+' / 策略管理</span><a href="javascript:void(0)" onclick="showToast(\'返回业务工作台\')" style="color:#fff;text-decoration:underline;margin-left:auto">返回业务工作台</a>';
+  }
+})();
 renderPolicies();
 </script>
 </body>

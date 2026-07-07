@@ -53,9 +53,9 @@
       <div class="menu-item has-sub expanded active" onclick="toggleSubMenu(this)"><i class="fa-solid fa-bell"></i>报警中心<i class="fa-solid fa-chevron-right menu-arrow"></i></div>
       <div class="menu-sub">
         <div class="menu-item" onclick="location.href='../admin-dashboard/index.html'">看板</div>
-        <div class="menu-item" onclick="location.href='../handle-flow/confirm.html'" style="position:relative">待确认告警<span class="menu-badge">18</span></div>
-        <div class="menu-item" onclick="location.href='../handle-flow/handle.html'" style="position:relative">待处理告警<span class="menu-badge">26</span></div>
-        <div class="menu-item" onclick="location.href='../handle-flow/review.html'" style="position:relative">待审核告警<span class="menu-badge">9</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/confirm.html'" style="position:relative">告警确认<span class="menu-badge">18</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/handle.html'" style="position:relative">告警处理<span class="menu-badge">26</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/review.html'" style="position:relative">告警审核<span class="menu-badge">9</span></div>
         <div class="menu-item active" onclick="location.href='../handle-flow/list.html'">告警列表</div>
       </div>
       <div class="menu-group-title mt-4">原型版本</div>
@@ -80,12 +80,11 @@
         <div class="ant-card-body">
           <div class="flex gap-3 flex-wrap items-center">
             <select id="alarmBusiness" class="ant-select"><option value="">全部业务</option><option>明厨亮灶</option><option>消防</option><option>综治</option><option>养老机构</option></select>
-            <select id="alarmStatus" class="ant-select"><option value="">全部状态</option><option>待确认</option><option>待处理</option><option>待审核</option><option>已处理</option><option>已审核</option></select>
             <select id="alarmLevel" class="ant-select"><option value="">全部级别</option><option>紧急</option><option>重要</option><option>一般</option></select>
+            <input type="date" class="ant-input" style="width:140px" title="开始日期"> <span style="color:#8c8c8c">至</span> <input type="date" class="ant-input" style="width:140px" title="结束日期">
             <input id="alarmKeyword" class="ant-input" style="width:240px" placeholder="告警标题/设备名称/编号" onkeydown="if(event.key==='Enter')renderAlarms(true)">
             <button class="ant-btn ant-btn-primary" onclick="renderAlarms(true)">查询</button>
             <button class="ant-btn" onclick="resetAlarm()">重置</button>
-            <button class="ant-btn" onclick="showToast('已切换为只看我的')">只看我的</button>
           </div>
         </div>
       </div>
@@ -127,31 +126,14 @@
         </div>
       </div>
       <div id="cfRealBox">
-        <div class="ant-form-item">
-          <label class="ant-form-label ant-form-label-required">分配方式</label>
-          <select class="ant-select w-full" id="cfAssignType" onchange="toggleAssign(this.value)">
-            <option value="auto">按策略自动派单</option>
-            <option value="manual">手动选择处理人</option>
-          </select>
-        </div>
-        <div class="ant-form-item" id="cfManualBox" style="display:none">
-          <label class="ant-form-label ant-form-label-required">处理人</label>
-          <select class="ant-select w-full"><option>张明（片区监管员）</option><option>李娜（门店负责人）</option></select>
-        </div>
-        <div class="ant-form-item">
-          <label class="ant-form-label">处理时限</label>
-          <input class="ant-input readonly" value="30 分钟" readonly>
-        </div>
+        <div class="ant-alert ant-alert-info mb-3" style="padding:10px 12px"><i class="fa-solid fa-circle-info" style="color:#1677ff"></i> <span style="font-size:13px">确认后将自动派单给<strong>网格负责人</strong>（归属网格节点负责人），无需选择处理人</span></div>
         <div class="ant-form-item">
           <label class="ant-form-label">处置建议</label>
           <textarea class="ant-input" rows="2" placeholder="可选，补充说明处置要求"></textarea>
         </div>
       </div>
       <div id="cfFalseBox" style="display:none">
-        <div class="ant-form-item">
-          <label class="ant-form-label ant-form-label-required">误报原因</label>
-          <select class="ant-select w-full"><option>光线干扰</option><option>遮挡误判</option><option>目标非告警对象</option><option>其他</option></select>
-        </div>
+        <div class="ant-form-item form-item-inline"><label class="ant-form-label ant-form-label-required">误报原因</label><select class="ant-select" style="width:240px;padding-top:4px"><option>光线干扰</option><option>遮挡误判</option><option>目标非告警对象</option><option>其他</option></select></div>
         <div class="ant-form-item">
           <label class="ant-form-label ant-form-label-required">备注说明</label>
           <textarea class="ant-input" rows="3" placeholder="请说明误报原因"></textarea>
@@ -178,25 +160,14 @@
           <div class="radio-card" onclick="setResultType('忽略')" id="rsIgnore"><i class="fa-solid fa-eye-slash mr-1"></i> 忽略</div>
         </div>
       </div>
-      <div class="ant-form-item">
-        <label class="ant-form-label ant-form-label-required">处理方式</label>
-        <div class="grid grid-cols-3 gap-3">
-          <div class="radio-card active" onclick="setResultMethod('现场处理')" id="rmScene">现场处理</div>
-          <div class="radio-card" onclick="setResultMethod('远程处理')" id="rmRemote">远程处理</div>
-          <div class="radio-card" onclick="setResultMethod('无需处理')" id="rmNone">无需处理</div>
-        </div>
+      <div id="rsMethodBox" style="display:block">
+        <div class="ant-form-item form-item-inline"><label class="ant-form-label ant-form-label-required">处理方式</label><select class="ant-select" id="rsMethod" style="width:240px;padding-top:4px" onchange="setResultMethod(this.value)"><option value="现场处理" selected>现场处理</option><option value="远程处理">远程处理</option><option value="无需处理">无需处理</option></select></div>
       </div>
       <div id="rsFalseBox" style="display:none">
-        <div class="ant-form-item">
-          <label class="ant-form-label ant-form-label-required">误报原因</label>
-          <select class="ant-select w-full" id="rsFalseReason"><option>光线干扰</option><option>遮挡误判</option><option>目标非告警对象</option><option>其他</option></select>
-        </div>
+        <div class="ant-form-item form-item-inline"><label class="ant-form-label ant-form-label-required">误报原因</label><select class="ant-select" id="rsFalseReason" style="width:240px;padding-top:4px"><option>光线干扰</option><option>遮挡误判</option><option>目标非告警对象</option><option>其他</option></select></div>
       </div>
       <div id="rsIgnoreBox" style="display:none">
-        <div class="ant-form-item">
-          <label class="ant-form-label ant-form-label-required">忽略原因</label>
-          <select class="ant-select w-full" id="rsIgnoreReason"><option>重复告警</option><option>低优先级</option><option>已知问题跟踪</option><option>其他</option></select>
-        </div>
+        <div class="ant-form-item form-item-inline"><label class="ant-form-label ant-form-label-required">忽略原因</label><select class="ant-select" id="rsIgnoreReason" style="width:240px;padding-top:4px"><option>重复告警</option><option>低优先级</option><option>已知问题跟踪</option><option>其他</option></select></div>
       </div>
       <div class="ant-form-item">
         <label class="ant-form-label" id="rsRemarkLabel">处理备注</label>
@@ -323,16 +294,10 @@
         </div>
       </div>
       <div id="bcRealBox">
-        <div class="ant-form-item">
-          <label class="ant-form-label">统一派单设置</label>
-          <select class="ant-select w-full"><option>按策略自动派单</option><option>手动选择处理人</option></select>
-        </div>
+        <div class="ant-alert ant-alert-info" style="padding:10px 12px"><i class="fa-solid fa-circle-info" style="color:#1677ff"></i> <span style="font-size:13px">确认后将自动派单给各告警归属网格的负责人，无需选择处理人</span></div>
       </div>
       <div id="bcFalseBox" style="display:none">
-        <div class="ant-form-item">
-          <label class="ant-form-label ant-form-label-required">统一误报原因</label>
-          <select class="ant-select w-full"><option>光线干扰</option><option>遮挡误判</option><option>目标非告警对象</option><option>其他</option></select>
-        </div>
+        <div class="ant-form-item form-item-inline"><label class="ant-form-label ant-form-label-required">统一误报原因</label><select class="ant-select" style="width:240px;padding-top:4px"><option>光线干扰</option><option>遮挡误判</option><option>目标非告警对象</option><option>其他</option></select></div>
       </div>
     </div>
     <div class="ant-modal-footer">
@@ -398,15 +363,15 @@ function statusMatch(v,s){
 }
 function statusKey(v){return {'待确认':'confirm','待处理':'handle','待审核':'review','已处理':'done','已审核':'closed'}[v]||'all';}
 function renderAlarms(tip){
-  const b=document.getElementById('alarmBusiness').value,s=document.getElementById('alarmStatus').value,l=document.getElementById('alarmLevel').value,k=document.getElementById('alarmKeyword').value.trim();
-  const rows=alarms.filter(a=>(!b||a[2]===b)&&statusMatch(a[7],s)&&(!l||a[6]===l)&&(!k||(a[0].includes(k)||a[1].includes(k)||a[3].includes(k))));
-  document.getElementById('alarmBody').innerHTML=rows.length?rows.map(a=>{const sk=statusKey(a[7]); return `<tr><td><input type="checkbox" class="row-check"></td><td><code>${a[0]}</code></td><td><a href="detail.html?id=${a[0]}&status=${sk}">${a[1]}</a></td><td><span class="ant-tag ant-tag-blue">${a[2]}</span></td><td>${a[3]}</td><td>${a[4]}</td><td>${a[5]}</td><td><span class="ant-tag ${tagLevel(a[6])}">${a[6]}</span></td><td><span class="ant-tag ${tagStatus(a[7])}">${a[7]}</span></td><td>${a[8]}</td><td>${a[9]}</td><td>${ops(a)}</td></tr>`}).join(''):`<tr><td colspan="12" class="text-center" style="padding:48px"><div class="text-secondary"><i class="fa-regular fa-folder-open" style="font-size:36px;color:#d9d9d9"></i><div class="mt-3">${k||b||l||s?'未找到符合条件的告警，请调整筛选条件':'暂无告警'}</div></div></td></tr>`;
+  const b=document.getElementById('alarmBusiness').value,l=document.getElementById('alarmLevel').value,k=document.getElementById('alarmKeyword').value.trim();
+  const rows=alarms.filter(a=>(!b||a[2]===b)&&(!l||a[6]===l)&&(!k||(a[0].includes(k)||a[1].includes(k)||a[3].includes(k))));
+  document.getElementById('alarmBody').innerHTML=rows.length?rows.map(a=>{const sk=statusKey(a[7]); return `<tr><td><input type="checkbox" class="row-check"></td><td><code>${a[0]}</code></td><td><a href="detail-${a[0].split('-')[1]}.html">${a[1]}</a></td><td><span class="ant-tag ant-tag-blue">${a[2]}</span></td><td>${a[3]}</td><td>${a[4]}</td><td>${a[5]}</td><td><span class="ant-tag ${tagLevel(a[6])}">${a[6]}</span></td><td><span class="ant-tag ${tagStatus(a[7])}">${a[7]}</span></td><td>${a[8]}</td><td>${a[9]}</td><td>${ops(a)}</td></tr>`}).join(''):`<tr><td colspan="12" class="text-center" style="padding:48px"><div class="text-secondary"><i class="fa-regular fa-folder-open" style="font-size:36px;color:#d9d9d9"></i><div class="mt-3">${k||b||l?'未找到符合条件的告警，请调整筛选条件':'暂无告警'}</div></div></td></tr>`;
   if(tip) showToast('查询完成');
 }
 function ops(a){
   const sk=statusKey(a[7]);
   const isTerminal=(a[7]==='已处理'||a[7]==='已审核');
-  let list=[`<button class="ant-btn ant-btn-text ant-btn-sm" onclick="location.href='detail.html?id=${a[0]}&status=${sk}'">查看</button>`];
+  let list=[`<button class="ant-btn ant-btn-text ant-btn-sm" onclick="location.href='detail-${a[0].split('-')[1]}.html'">查看</button>`];
   if(a[7]==='待确认') list.unshift(`<button class="ant-btn ant-btn-text ant-btn-sm" onclick="openConfirm('${a[0]}')">确认</button>`);
   if(a[7]==='待处理') list.unshift(`<button class="ant-btn ant-btn-text ant-btn-sm" onclick="openResult('${a[0]}')">处理</button>`);
   if(a[7]==='待审核') list.unshift(`<button class="ant-btn ant-btn-text ant-btn-sm" onclick="openAudit('${a[0]}')">审核</button>`);
@@ -423,7 +388,7 @@ function toggleAll(){
   document.querySelectorAll('.row-check').forEach(c=>c.checked=checked);
   showToast(checked?'已全选':'已取消全选');
 }
-function resetAlarm(){ document.getElementById('alarmBusiness').value=''; document.getElementById('alarmStatus').value=''; document.getElementById('alarmLevel').value=''; document.getElementById('alarmKeyword').value=''; renderAlarms(); showToast('筛选条件已重置'); }
+function resetAlarm(){ document.getElementById('alarmBusiness').value=''; document.getElementById('alarmLevel').value=''; document.getElementById('alarmKeyword').value=''; renderAlarms(); showToast('筛选条件已重置'); }
 
 // 确认
 function openConfirm(id){
@@ -441,8 +406,7 @@ function setConfirmType(t){
   document.getElementById('cfRealBox').style.display=t==='real'?'block':'none';
   document.getElementById('cfFalseBox').style.display=t==='false'?'block':'none';
 }
-function toggleAssign(v){ document.getElementById('cfManualBox').style.display=v==='manual'?'block':'none'; }
-function submitConfirm(){ showToast('确认已提交'); closeModal('confirmModal'); renderAlarms(); }
+function submitConfirm(){ showToast('确认已提交，已自动派单给网格负责人'); closeModal('confirmModal'); renderAlarms(); }
 
 // 处理告警
 let resultType='已解决',resultMethod='现场处理';
@@ -455,6 +419,7 @@ function setResultType(t){
   document.getElementById('rsSolved').classList.toggle('active',t==='已解决');
   document.getElementById('rsFalse').classList.toggle('active',t==='误报');
   document.getElementById('rsIgnore').classList.toggle('active',t==='忽略');
+  document.getElementById('rsMethodBox').style.display=t==='已解决'?'block':'none';
   document.getElementById('rsFalseBox').style.display=t==='误报'?'block':'none';
   document.getElementById('rsIgnoreBox').style.display=t==='忽略'?'block':'none';
   document.getElementById('rsRemarkLabel').textContent=t==='已解决'?'处理备注（必填）':'处理备注';
@@ -462,14 +427,13 @@ function setResultType(t){
 }
 function setResultMethod(t){
   resultMethod=t;
-  document.getElementById('rmScene').classList.toggle('active',t==='现场处理');
-  document.getElementById('rmRemote').classList.toggle('active',t==='远程处理');
-  document.getElementById('rmNone').classList.toggle('active',t==='无需处理');
+  const el=document.getElementById('rsMethod');
+  if(el)el.value=t;
 }
 function saveResultDraft(){ showToast('草稿已保存'); closeModal('resultModal'); }
 function submitResult(){
   if(!resultType){showToast('请选择处理结果');return}
-  if(!resultMethod){showToast('请选择处理方式');return}
+  if(resultType==='已解决'&&!document.getElementById('rsMethod').value){showToast('请选择处理方式');return}
   if(resultType==='已解决'&&!document.getElementById('rsRemark').value.trim()){showToast('请简述修复措施');return}
   showToast('处理结果已提交'); closeModal('resultModal'); renderAlarms();
 }
