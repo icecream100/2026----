@@ -190,10 +190,10 @@
       </select>
     </div>
     <div id="confirmMethodBox" class="ant-form-item form-item-inline">
-      <label class="ant-form-label">处理方式</label>
+      <label class="ant-form-label">处置方式</label>
       <select class="ant-select" id="processMethod" style="width:240px;padding-top:4px">
-        <option value="">请选择处理方式</option>
-        <option>现场处理</option>
+        <option value="">请选择处置方式</option>
+        <option>现场已整改</option>
         <option>远程通知</option>
         <option>记录备查</option>
         <option>转派处理</option>
@@ -220,7 +220,7 @@ function submitConfirm(){
   const type=document.querySelector('input[name="confirmType"]:checked').value;
   if(type==='false' && !document.querySelector('#confirmFalseBox select').value){ showToast('请选择误报原因'); return; }
   if(type==='ignore' && !document.querySelector('#confirmIgnoreBox select').value){ showToast('请选择忽略原因'); return; }
-  if(type==='real' && !document.getElementById('processMethod').value){ showToast('请选择处理方式'); return; }
+  if(type==='real' && !document.getElementById('processMethod').value){ showToast('请选择处置方式'); return; }
   showToast('确认已提交'); backToList();
 }
 </script>

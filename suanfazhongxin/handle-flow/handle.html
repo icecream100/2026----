@@ -171,11 +171,11 @@
       </div>
       <div id="rsMethodBox" style="display:block">
         <div class="ant-form-item form-item-inline">
-          <label class="ant-form-label ant-form-label-required">处理方式</label>
+          <label class="ant-form-label ant-form-label-required">处置方式</label>
           <select class="ant-select" id="rsMethod" style="width:240px;padding-top:4px" onchange="setResultMethod(this.value)">
-            <option value="现场处理" selected>现场处理</option>
-            <option value="远程处理">远程处理</option>
-            <option value="无需处理">无需处理</option>
+            <option value="现场已整改" selected>现场已整改</option>
+            <option value="限期整改">限期整改</option>
+            <option value="移交监管所">移交监管所</option>
           </select>
         </div>
       </div>
@@ -216,7 +216,7 @@
           <div class="evidence" style="width:120px;height:80px;flex-shrink:0"><i class="fa-solid fa-image"></i></div>
           <div class="flex-1">
             <div class="font-semibold" id="auTitle">垃圾桶满溢</div>
-            <div class="text-sm text-secondary">处理结果：已解决 · 现场处理</div>
+            <div class="text-sm text-secondary">处理结果：已解决 · 现场已整改</div>
             <div class="text-sm text-secondary">处理备注：已清理垃圾并通知环卫</div>
             <div class="text-sm text-secondary">处理人：赵伟 · 提交时间：2026-06-25 08:30:11</div>
           </div>
@@ -341,7 +341,7 @@
         </div>
       </div>
       <div id="bpMethodBox" style="display:block">
-        <div class="ant-form-item form-item-inline"><label class="ant-form-label ant-form-label-required">统一处理方式</label><select class="ant-select" id="bpMethod" style="width:240px;padding-top:4px" onchange="setBatchMethod(this.value)"><option value="现场处理" selected>现场处理</option><option value="远程处理">远程处理</option><option value="无需处理">无需处理</option></select></div>
+        <div class="ant-form-item form-item-inline"><label class="ant-form-label ant-form-label-required">统一处置方式</label><select class="ant-select" id="bpMethod" style="width:240px;padding-top:4px" onchange="setBatchMethod(this.value)"><option value="现场已整改" selected>现场已整改</option><option value="限期整改">限期整改</option><option value="移交监管所">移交监管所</option></select></div>
       </div>
       <div id="bpFalseBox" style="display:none">
         <div class="ant-form-item form-item-inline"><label class="ant-form-label ant-form-label-required">统一误报原因</label><select class="ant-select" style="width:240px;padding-top:4px"><option>光线干扰</option><option>遮挡误判</option><option>目标非告警对象</option><option>其他</option></select></div>
@@ -456,9 +456,9 @@ function setConfirmType(t){
 function submitConfirm(){ showToast('确认已提交，已自动派单给网格负责人'); closeModal('confirmModal'); renderAlarms(); }
 
 // 处理告警
-let resultType='已解决',resultMethod='现场处理';
+let resultType='已解决',resultMethod='现场已整改';
 function openResult(id){
-  setResultType('已解决'); setResultMethod('现场处理');
+  setResultType('已解决'); setResultMethod('现场已整改');
   openModal('resultModal');
 }
 function setResultType(t){
@@ -478,7 +478,7 @@ function setResultMethod(t){
 function saveResultDraft(){ showToast('草稿已保存'); closeModal('resultModal'); }
 function submitResult(){
   if(!resultType){showToast('请选择处理结果');return}
-  if(resultType==='已解决'&&!document.getElementById('rsMethod').value){showToast('请选择处理方式');return}
+  if(resultType==='已解决'&&!document.getElementById('rsMethod').value){showToast('请选择处置方式');return}
   if(resultType==='已解决'&&!document.getElementById('rsRemark').value.trim()){showToast('请简述修复措施');return}
   showToast('处理结果已提交'); closeModal('resultModal'); renderAlarms();
 }
@@ -514,10 +514,10 @@ function openBatch(type){
   const checked=document.querySelectorAll('.row-check:checked').length;
   if(checked===0){ showToast('请先勾选告警'); return; }
   if(type==='confirm'){ document.getElementById('bcCount').textContent=checked; setBatchConfirm('real'); openModal('batchConfirmModal'); }
-  if(type==='process'){ document.getElementById('bpCount').textContent=checked; batchProcessType='已解决'; batchProcessMethod='现场处理'; setBatchProcess('已解决'); setBatchMethod('现场处理'); document.getElementById('bpRemark').value=''; openModal('batchProcessModal'); }
+  if(type==='process'){ document.getElementById('bpCount').textContent=checked; batchProcessType='已解决'; batchProcessMethod='现场已整改'; setBatchProcess('已解决'); setBatchMethod('现场已整改'); document.getElementById('bpRemark').value=''; openModal('batchProcessModal'); }
   if(type==='urge'){ document.getElementById('buCount').textContent=checked; openModal('batchUrgeModal'); }
 }
-let batchProcessType='已解决',batchProcessMethod='现场处理';
+let batchProcessType='已解决',batchProcessMethod='现场已整改';
 function setBatchProcess(t){
   batchProcessType=t;
   document.querySelectorAll('input[name="batchProcessType"], input[name="resultType"]').forEach(function(el){el.checked=(el.value===t)});
@@ -533,7 +533,7 @@ function setBatchMethod(m){
   
 }
 function submitBatchProcess(){
-  if(batchProcessType==='已解决'&&!document.getElementById('bpMethod').value){showToast('请选择统一处理方式');return}
+  if(batchProcessType==='已解决'&&!document.getElementById('bpMethod').value){showToast('请选择统一处置方式');return}
   if(batchProcessType==='已解决'&&!document.getElementById('bpRemark').value.trim()){showToast('处理结果为“已解决”时，统一处理备注必填');return}
   const total=parseInt(document.getElementById('bpCount').textContent,10)||0;
   const skipped=total>0?1:0;const ok=total-skipped;

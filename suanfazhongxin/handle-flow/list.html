@@ -161,7 +161,7 @@
         </div>
       </div>
       <div id="rsMethodBox" style="display:block">
-        <div class="ant-form-item form-item-inline"><label class="ant-form-label ant-form-label-required">处理方式</label><select class="ant-select" id="rsMethod" style="width:240px;padding-top:4px" onchange="setResultMethod(this.value)"><option value="现场处理" selected>现场处理</option><option value="远程处理">远程处理</option><option value="无需处理">无需处理</option></select></div>
+        <div class="ant-form-item form-item-inline"><label class="ant-form-label ant-form-label-required">处置方式</label><select class="ant-select" id="rsMethod" style="width:240px;padding-top:4px" onchange="setResultMethod(this.value)"><option value="现场已整改" selected>现场已整改</option><option value="限期整改">限期整改</option><option value="移交监管所">移交监管所</option></select></div>
       </div>
       <div id="rsFalseBox" style="display:none">
         <div class="ant-form-item form-item-inline"><label class="ant-form-label ant-form-label-required">误报原因</label><select class="ant-select" id="rsFalseReason" style="width:240px;padding-top:4px"><option>光线干扰</option><option>遮挡误判</option><option>目标非告警对象</option><option>其他</option></select></div>
@@ -200,7 +200,7 @@
           <div class="evidence" style="width:120px;height:80px;flex-shrink:0"><i class="fa-solid fa-image"></i></div>
           <div class="flex-1">
             <div class="font-semibold" id="auTitle">垃圾桶满溢</div>
-            <div class="text-sm text-secondary">处理结果：已解决 · 现场处理</div>
+            <div class="text-sm text-secondary">处理结果：已解决 · 现场已整改</div>
             <div class="text-sm text-secondary">处理备注：已清理垃圾并通知环卫</div>
             <div class="text-sm text-secondary">处理人：赵伟 · 提交时间：2026-06-25 08:30:11</div>
           </div>
@@ -409,9 +409,9 @@ function setConfirmType(t){
 function submitConfirm(){ showToast('确认已提交，已自动派单给网格负责人'); closeModal('confirmModal'); renderAlarms(); }
 
 // 处理告警
-let resultType='已解决',resultMethod='现场处理';
+let resultType='已解决',resultMethod='现场已整改';
 function openResult(id){
-  setResultType('已解决'); setResultMethod('现场处理');
+  setResultType('已解决'); setResultMethod('现场已整改');
   openModal('resultModal');
 }
 function setResultType(t){
@@ -433,7 +433,7 @@ function setResultMethod(t){
 function saveResultDraft(){ showToast('草稿已保存'); closeModal('resultModal'); }
 function submitResult(){
   if(!resultType){showToast('请选择处理结果');return}
-  if(resultType==='已解决'&&!document.getElementById('rsMethod').value){showToast('请选择处理方式');return}
+  if(resultType==='已解决'&&!document.getElementById('rsMethod').value){showToast('请选择处置方式');return}
   if(resultType==='已解决'&&!document.getElementById('rsRemark').value.trim()){showToast('请简述修复措施');return}
   showToast('处理结果已提交'); closeModal('resultModal'); renderAlarms();
 }

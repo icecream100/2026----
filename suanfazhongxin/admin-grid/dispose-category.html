@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>处置类别维护 - 算法中心 + 业务场景功能</title>
+  <title>处置方式维护 - 算法中心 + 业务场景功能</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="../proto-ui.css">
@@ -31,19 +31,19 @@
       <div class="menu-item has-sub" onclick="toggleSubMenu(this)"><i class="fa-solid fa-bell"></i>报警中心<i class="fa-solid fa-chevron-right menu-arrow"></i></div>
       <div class="menu-sub collapsed">
         <div class="menu-item" onclick="location.href='../admin-dashboard/index.html'">看板</div>
-        <div class="menu-item" onclick="location.href='../handle-flow/confirm.html'" style="position:relative">待确认告警<span class="menu-badge">18</span></div>
-        <div class="menu-item" onclick="location.href='../handle-flow/handle.html'" style="position:relative">待处理告警<span class="menu-badge">26</span></div>
-        <div class="menu-item" onclick="location.href='../handle-flow/review.html'" style="position:relative">待审核告警<span class="menu-badge">9</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/confirm.html'" style="position:relative">告警确认<span class="menu-badge">18</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/handle.html'" style="position:relative">告警处理<span class="menu-badge">26</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/review.html'" style="position:relative">告警审核<span class="menu-badge">9</span></div>
         <div class="menu-item" onclick="location.href='../handle-flow/list.html'">告警列表</div>
       </div>
       <div class="menu-group-title mt-4">原型版本</div>
       <div class="menu-item" onclick="location.href='../index.html'"><i class="fa-solid fa-compass"></i>返回导航中心</div>
     </aside>
     <main class="main">
-      <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><a href="list.html">业务管理</a><span>/</span><span class="current">处置类别维护</span></div>
+      <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><a href="list.html">业务管理</a><span>/</span><span class="current">处置方式维护</span></div>
       <div class="flex items-start justify-between mb-4">
         <div>
-          <div class="page-title">处置类别维护</div>
+          <div class="page-title">处置方式维护</div>
         </div>
         <div class="flex gap-2">
           <button class="ant-btn" onclick="location.href='workspace.html'"><i class="fa-solid fa-arrow-left"></i> 返回工作台</button>
@@ -84,7 +84,7 @@
           </table>
           <div id="emptyState" class="ant-empty hidden">
             <div class="ant-empty-icon"><i class="fa-regular fa-folder-open"></i></div>
-            <div class="ant-empty-text">未找到符合条件的处置类别，请调整筛选条件</div>
+            <div class="ant-empty-text">未找到符合条件的处置方式，请调整筛选条件</div>
             <button class="ant-btn" onclick="resetCategoryFilter()">清空筛选</button>
           </div>
         </div>
@@ -126,7 +126,7 @@
             </div>
             <div class="ant-form-item">
               <label class="ant-form-label">描述</label>
-              <textarea id="formDesc" class="ant-input" rows="4" placeholder="请输入处置类别说明，最多 200 字"></textarea>
+              <textarea id="formDesc" class="ant-input" rows="4" placeholder="请输入处置方式说明，最多 200 字"></textarea>
             </div>
           </div>
           <div class="ant-modal-footer">
@@ -173,11 +173,11 @@ function updatePagination(){const max=Math.max(1,Math.ceil(filtered.length/pageS
 function changePage(p){const max=Math.max(1,Math.ceil(filtered.length/pageSize));currentPage=Math.min(Math.max(1,p),max);renderCategories()}
 function resetCategoryFilter(){catStatus.value='';catName.value='';currentPage=1;renderCategories();showToast('筛选条件已重置')}
 function openCategoryModal(id){editingId=id||null;categoryModalTitle.textContent=id?'编辑类别':'新增类别';const c=categories.find(x=>x.id===id);formName.value=c?c.name:'';formCode.value=c?c.code:'保存后后台自动生成';formCode.disabled=true;formCode.classList.add('readonly');formStatus.value=c?c.status:'启用';formDesc.value=c?c.desc:'';openModal('categoryModal')}
-function saveCategory(){if(!formName.value.trim()){showToast('保存失败：类别名称不能为空');return}showToast(editingId?'处置类别已保存':'处置类别已新增，类别编码由后台自动生成');closeModal('categoryModal');renderCategories()}
+function saveCategory(){if(!formName.value.trim()){showToast('保存失败：类别名称不能为空');return}showToast(editingId?'处置方式已保存':'处置方式已新增，类别编码由后台自动生成');closeModal('categoryModal');renderCategories()}
 function askConfirm(text,cb){confirmCallback=cb;confirmText.textContent=text;openModal('confirmModal')}
 function runConfirm(){if(confirmCallback)confirmCallback();closeModal('confirmModal')}
-function toggleCategory(id){const c=categories.find(x=>x.id===id);askConfirm(`${c.status==='启用'?'停用':'启用'}处置类别「${c.name}」？`,function(){c.status=c.status==='启用'?'停用':'启用';renderCategories();showToast('处置类别状态已更新')})}
-function deleteCategory(id){const c=categories.find(x=>x.id===id);askConfirm(`删除处置类别「${c.name}」？`,function(){if(c.refCount>0){showToast('删除失败：该类别已被引用，只能停用');return}showToast('处置类别已删除')})}
+function toggleCategory(id){const c=categories.find(x=>x.id===id);askConfirm(`${c.status==='启用'?'停用':'启用'}处置方式「${c.name}」？`,function(){c.status=c.status==='启用'?'停用':'启用';renderCategories();showToast('处置方式状态已更新')})}
+function deleteCategory(id){const c=categories.find(x=>x.id===id);askConfirm(`删除处置方式「${c.name}」？`,function(){if(c.refCount>0){showToast('删除失败：该类别已被引用，只能停用');return}showToast('处置方式已删除')})}
 renderCategories();
 </script>
 </body>

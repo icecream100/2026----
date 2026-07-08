@@ -23,9 +23,9 @@
       <div class="menu-item has-sub" onclick="toggleSubMenu(this)"><i class="fa-solid fa-bell"></i>报警中心<i class="fa-solid fa-chevron-right menu-arrow"></i></div>
       <div class="menu-sub collapsed">
         <div class="menu-item" onclick="location.href='../admin-dashboard/index.html'">看板</div>
-        <div class="menu-item" onclick="location.href='../handle-flow/confirm.html'" style="position:relative">待确认告警<span class="menu-badge">18</span></div>
-        <div class="menu-item" onclick="location.href='../handle-flow/handle.html'" style="position:relative">待处理告警<span class="menu-badge">26</span></div>
-        <div class="menu-item" onclick="location.href='../handle-flow/review.html'" style="position:relative">待审核告警<span class="menu-badge">9</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/confirm.html'" style="position:relative">告警确认<span class="menu-badge">18</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/handle.html'" style="position:relative">告警处理<span class="menu-badge">26</span></div>
+        <div class="menu-item" onclick="location.href='../handle-flow/review.html'" style="position:relative">告警审核<span class="menu-badge">9</span></div>
         <div class="menu-item" onclick="location.href='../handle-flow/list.html'">告警列表</div>
       </div>
       <div class="menu-group-title mt-4">原型版本</div>
@@ -146,6 +146,20 @@
               <div><label style="font-size:12px;color:#595959">灵敏度</label><div style="display:flex;align-items:center;gap:8px;margin-top:4px"><input type="range" min="0" max="100" value="80" style="flex:1" onchange="showToast('参数已更新')"><span style="font-size:13px;font-weight:500;min-width:30px">80</span></div></div>
               <div><label style="font-size:12px;color:#595959">持续时间</label><div style="margin-top:4px"><input class="ant-input" style="width:80px;display:inline-block" value="5"> <span style="font-size:12px;color:#8c8c8c">秒</span></div></div>
             </div>
+          </div>
+        </div>
+      </div>
+      <!-- 去重配置 -->
+      <div style="border:1px solid #f0f0f0;border-radius:8px;padding:14px 16px;background:#fafafa;margin-top:12px">
+        <div style="font-size:13px;font-weight:500;margin-bottom:12px;color:#262626">告警去重</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="ant-form-item" style="margin:0">
+            <label class="ant-form-label ant-form-label-required">去重时间</label>
+            <div><input class="ant-input" id="dedupSeconds" value="600" style="width:100px;display:inline-block"> <span style="font-size:12px;color:#8c8c8c">秒（同设备同算法多久内不重复报警）</span></div>
+          </div>
+          <div class="ant-form-item" style="margin:0">
+            <label class="ant-form-label ant-form-label-required">确认时间</label>
+            <div><input class="ant-input" id="confirmSeconds" value="10" style="width:100px;display:inline-block"> <span style="font-size:12px;color:#8c8c8c">秒（持续多久才认定是真的）</span></div>
           </div>
         </div>
       </div>
@@ -283,7 +297,7 @@ function renderPolicies(tip){
   bizColHead.style.display=showBizCol?'':'none';
   policyBody.innerHTML=rows.map(function(p){
     var realIndex=policies.indexOf(p);
-    return '<tr><td><a href="javascript:void(0)" onclick="openStrategyDetail('+realIndex+')">'+p.name+'</a></td>'+(showBizCol?'<td><span class="ant-tag ant-tag-purple">'+p.business+'</span></td>':'')+'<td>'+p.devices+'</td><td><span class="ant-tag ant-tag-blue">'+p.algorithm+'</span></td><td><span class="ant-tag '+tagStatus(p.status)+'">'+p.status+'</span></td><td>'+diagTagHtml(p)+'</td><td class="text-secondary text-sm">'+p.createTime+'</td><td>'+p.lastTrigger+'</td><td><button class="ant-btn ant-btn-text ant-btn-sm" onclick="openStrategyModal(\'edit\')">编辑</button><button class="ant-btn ant-btn-text ant-btn-sm" onclick="showToast(\'路由配置已复制到剪贴板\')">复制路由</button><button class="ant-btn ant-btn-text ant-btn-sm" onclick="askEnableConfirm()">启停</button><button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="askDeletePolicy('+realIndex+')">删除</button></td></tr>';
+    return '<tr><td><a href="javascript:void(0)" onclick="openStrategyDetail('+realIndex+')">'+p.name+'</a></td>'+(showBizCol?'<td><span class="ant-tag ant-tag-purple">'+p.business+'</span></td>':'')+'<td>'+p.devices+'</td><td><span class="ant-tag ant-tag-blue">'+p.algorithm+'</span></td><td><span class="ant-tag '+tagStatus(p.status)+'">'+p.status+'</span></td><td>'+diagTagHtml(p)+'</td><td class="text-secondary text-sm">'+p.createTime+'</td><td>'+p.lastTrigger+'</td><td><button class="ant-btn ant-btn-text ant-btn-sm" onclick="openStrategyModal(\'edit\')">编辑</button><button class="ant-btn ant-btn-text ant-btn-sm" onclick="askEnableConfirm()">启停</button><button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="askDeletePolicy('+realIndex+')">删除</button></td></tr>';
   }).join('');
   if(tip)showToast('查询完成');
 }
@@ -422,7 +436,7 @@ function openStrategyDetail(i){
   var alarmLevelDetail='';
   if(p.alarmLevel==='级别缺失'){alarmLevelDetail='<span class="ant-tag ant-tag-red">级别缺失</span>'}
   else{alarmLevelDetail=p.alarmLevel+'（来源：L2 业务算法配置）'}
-  drawerBody.innerHTML='<div class="ant-alert ant-alert-info mb-4">策略详情展示当前业务算法配置。告警详情展示告警产生时快照。</div><div class="metric-strip mb-4"><div class="metric-pill"><div class="text-secondary text-xs">覆盖设备</div><div class="text-xl font-semibold">'+p.devices+'</div></div><div class="metric-pill"><div class="text-secondary text-xs">派单模式</div><span class="ant-tag ant-tag-blue">'+p.dispatchMode+'</span></div><div class="metric-pill"><div class="text-secondary text-xs">诊断</div>'+diagTagHtml(p)+'</div></div><div class="ant-card ant-card-bordered mb-4"><div class="ant-card-head"><div class="ant-card-head-title">策略配置</div></div><div class="ant-card-body field-grid"><div>覆盖网格：'+p.grid+'</div><div>业务归属：'+p.business+'</div><div>关联算法：'+p.algorithm+'</div><div>告警级别：'+alarmLevelDetail+'</div><div>路由配置：'+p.routeSummary+'</div><div>最近触发：'+p.lastTrigger+'</div></div></div><div class="ant-card ant-card-bordered"><div class="ant-card-head"><div class="ant-card-head-title">内嵌路由</div></div><div class="ant-card-body"><div class="flow-card mb-2">确认 → 片区监管员（按管辖网格）</div><div class="flow-card mb-2">处理 → 门店负责人，超时 60 分钟沿网格树升级</div><div class="flow-card">审核 → 关闭，处理完成直接结案</div></div></div>';
+  drawerBody.innerHTML='<div class="ant-alert ant-alert-info mb-4">策略详情展示当前业务算法配置。告警详情展示告警产生时快照。</div><div class="metric-strip mb-4"><div class="metric-pill"><div class="text-secondary text-xs">覆盖设备</div><div class="text-xl font-semibold">'+p.devices+'</div></div><div class="metric-pill"><div class="text-secondary text-xs">派单模式</div><span class="ant-tag ant-tag-blue">'+p.dispatchMode+'</span></div><div class="metric-pill"><div class="text-secondary text-xs">诊断</div>'+diagTagHtml(p)+'</div></div><div class="ant-card ant-card-bordered mb-4"><div class="ant-card-head"><div class="ant-card-head-title">策略配置</div></div><div class="ant-card-body field-grid"><div>覆盖网格：'+p.grid+'</div><div>业务归属：'+p.business+'</div><div>关联算法：'+p.algorithm+'</div><div>告警级别：'+alarmLevelDetail+'</div><div>路由配置：'+p.routeSummary+'</div><div>最近触发：'+p.lastTrigger+'</div><div>去重时间：600 秒（10 分钟）</div><div>确认时间：10 秒</div></div></div><div class="ant-card ant-card-bordered"><div class="ant-card-head"><div class="ant-card-head-title">内嵌路由</div></div><div class="ant-card-body"><div class="flow-card mb-2">确认 → 片区监管员（按管辖网格）</div><div class="flow-card mb-2">处理 → 门店负责人，超时 60 分钟沿网格树升级</div><div class="flow-card">审核 → 关闭，处理完成直接结案</div></div></div>';
   openModal('strategyDrawer');
 }
 
