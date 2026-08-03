@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人流报表 - 园区人员热力图与流量统计</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <script src="../mock-store.js"></script>
+  <style>
+    .heat-snap { height:140px; background:radial-gradient(circle at 30% 45%, rgba(255,77,79,0.7) 0%, transparent 30%),radial-gradient(circle at 65% 55%, rgba(250,140,22,0.6) 0%, transparent 30%),radial-gradient(circle at 50% 25%, rgba(82,196,26,0.5) 0%, transparent 28%),#e8eef5; border-radius:4px; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-people-group"></i></div>
+    <span class="app-name">园区人员热力图与流量统计</span>
+    <div class="spacer"></div>
+    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
+    <span class="role-switch"></span><div class="flex items-center gap-2 user-block" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
+      <span style="font-size:13px;">管理员·王</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">人流分析</div>
+      <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
+      <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
+      <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-correlation/index.html"><i class="fa-solid fa-diagram-project"></i>建筑关联分析</a>
+      <a class="menu-item active" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>建筑人数监测</a>
+      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
+      <div class="menu-group-title">告警</div>
+      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
+      <div class="menu-group-title">监控</div>
+      <a class="menu-item" href="../admin-screen/index.html"><i class="fa-solid fa-display"></i>监控中心大屏</a>
+    </aside>
+
+    <main class="main">
+
+      <!-- ============ 列表视图 ============ -->
+      <div id="listView">
+        <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><span class="current">人流报表</span></div>
+        <div class="flex items-center justify-between mb-4">
+          <div class="page-title" style="margin-bottom:0;">人流报表</div>
+          <div class="flex gap-2">
+            <button class="ant-btn" id="batchExportBtn" onclick="batchExport()" disabled><i class="fa-solid fa-download"></i> 批量导出</button>
+          </div>
+        </div>
+
+
+
+        <!-- 筛选栏 -->
+        <div class="ant-card ant-card-bordered mb-4">
+          <div class="ant-card-body" style="padding:12px 16px;">
+            <div class="flex items-center gap-4 flex-wrap">
+              <div class="flex items-center gap-2">
+                <label class="text-sm text-secondary">报表类型</label>
+                <select class="ant-select" style="width:120px" id="reportType" onchange="onTypeChange()"><option>日报</option><option>周报</option><option>月报</option></select>
+              </div>
+              <div class="flex items-center gap-2">
+                <label class="text-sm text-secondary">日期范围</label>
+                <input type="date" class="ant-input" id="dateFrom" value="2026-06-25"> <span>-</span> <input type="date" class="ant-input" id="dateTo" value="2026-07-01">
+              </div>
+              <button class="ant-btn ant-btn-primary" onclick="applyDateFilter()"><i class="fa-solid fa-search"></i> 查询</button>
+              <button class="ant-btn" onclick="resetFilter()"><i class="fa-solid fa-rotate-right"></i> 重置</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 报表列表 -->
+        <div class="ant-card ant-card-bordered">
+          <div class="ant-card-head"><div class="ant-card-head-title">报表列表 · <span id="listCountLabel">共 0 份</span></div></div>
+          <div class="ant-card-body" style="padding:0">
+            <table class="ant-table">
+              <thead><tr><th width="40"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th><th>报表周期</th><th width="90">类型</th><th width="120">进入人次</th><th width="120">离开人次</th><th width="120">峰值同时在</th><th width="90">告警数</th><th width="100">状态</th><th width="260">操作</th></tr></thead>
+              <tbody id="reportTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 详情视图 ============ -->
+      <div id="detailView" style="display:none">
+        <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><a href="javascript:void(0)" onclick="showListView()">人流报表</a><span>/</span><span class="current" id="detailCrumb">报表详情</span></div>
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <button class="ant-btn" onclick="showListView()"><i class="fa-solid fa-arrow-left"></i> 返回列表</button>
+            <div class="page-title" style="margin-bottom:0;" id="detailTitle">人流日报 · 2026-07-01</div>
+          </div>
+          <div class="flex gap-2">
+            <button class="ant-btn" onclick="exportReport('pdf')"><i class="fa-solid fa-file-pdf"></i> 导出 PDF</button>
+            <button class="ant-btn ant-btn-primary" onclick="exportReport('excel')"><i class="fa-solid fa-file-excel"></i> 导出 Excel</button>
+          </div>
+        </div>
+
+        <!-- 概览摘要 -->
+        <div class="ant-card ant-card-bordered mb-4">
+          <div class="ant-card-head"><div class="ant-card-head-title">概览摘要</div>
+            <div class="ant-card-extra text-sm text-tertiary">生成时间：2026-07-02 08:00 · 数据周期：<span id="detailPeriod">2026-07-01</span></div>
+          </div>
+          <div class="ant-card-body">
+            <div class="grid grid-cols-3 gap-3 mb-3">
+              <div class="kpi-mini kpi-mini-center" style="background:#e6f4ff"><div class="v" style="color:var(--ant-primary)" id="dIn">-</div><div class="l">总进入</div></div>
+              <div class="kpi-mini kpi-mini-center" style="background:#f6ffed"><div class="v" style="color:var(--ant-success)" id="dOut">-</div><div class="l">总离开</div></div>
+              <div class="kpi-mini kpi-mini-center" style="background:#fff7e6"><div class="v" style="color:var(--ant-warning)" id="dPeak">-</div><div class="l">峰值同时在</div></div>
+            </div>
+            <div class="text-sm" style="background:#f6f8fa;padding:8px 12px;border-radius:4px;color:var(--ant-text-secondary);">
+              <i class="fa-solid fa-lightbulb mr-1" style="color:var(--ant-warning)"></i><span id="dConclusion">加载中…</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 趋势 + 排行 -->
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <div class="ant-card ant-card-bordered col-span-2">
+            <div class="ant-card-head"><div class="ant-card-head-title">分时流量趋势 · <span id="dTrendPeak">-</span></div>
+              <div class="ant-card-extra text-xs text-tertiary">单位：人 · 粒度：小时</div>
+            </div>
+            <div class="ant-card-body">
+              <div class="flex items-center gap-4 mb-3 text-xs">
+                <span><span class="status-dot" style="background:#1677ff"></span>进入人数</span>
+                <span><span class="status-dot" style="background:#52c41a"></span>离开人数</span>
+                <span><span class="status-dot" style="background:#faad14"></span>同时在场</span>
+              </div>
+              <div id="reportTrend"></div>
+              <div class="flex justify-between text-xs text-tertiary mt-1"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+            </div>
+          </div>
+          <div class="ant-card ant-card-bordered">
+            <div class="ant-card-head"><div class="ant-card-head-title">建筑排行 Top5</div></div>
+            <div class="ant-card-body" style="padding:0">
+              <table class="ant-table" style="font-size:12px">
+                <thead><tr><th>区域</th><th width="70">进入</th><th width="70">环比</th></tr></thead>
+                <tbody id="dRankBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 关联 + 热力图 + 告警 -->
+        <div class="grid grid-cols-3 gap-4">
+          <div class="ant-card ant-card-bordered">
+            <div class="ant-card-head"><div class="ant-card-head-title">建筑关联摘要 <span class="text-xs font-normal" style="color:var(--ant-warning)">实验性·仅供参考</span></div></div>
+            <div class="ant-card-body">
+              <ul class="text-sm" style="list-style:none;padding:0;margin:0">
+                <li class="mb-2"><i class="fa-solid fa-arrow-right-arrow-left mr-1 text-tertiary"></i>最繁忙路径：广场 -> 地下车库<br><span class="text-tertiary text-xs ml-4">1,520 人次</span></li>
+                <li class="mb-2"><i class="fa-solid fa-link mr-1 text-tertiary"></i>最高关联：食堂 ↔ 广场<br><span class="text-tertiary text-xs ml-4">1,748 人次</span></li>
+                <li><i class="fa-solid fa-shuffle mr-1 text-tertiary"></i>平均跨区域次数：2.3</li>
+              </ul>
+            </div>
+          </div>
+          <div class="ant-card ant-card-bordered">
+            <div class="ant-card-head"><div class="ant-card-head-title">热力图快照</div></div>
+            <div class="ant-card-body">
+              <div class="heat-snap"></div>
+              <div class="text-xs text-tertiary mt-2 text-center">当日 12:35 热力分布</div>
+            </div>
+          </div>
+          <div class="ant-card ant-card-bordered">
+            <div class="ant-card-head"><div class="ant-card-head-title">告警汇总 <span class="text-xs font-normal" style="color:var(--ant-text-tertiary)" title="超员级别：警告 T&lt;人数&lt;1.2T；紧急 人数≥1.2T（T=阈值）；人数≤T 不触发">超员级别口径 <i class="fa-solid fa-circle-question"></i></span></div></div>
+            <div class="ant-card-body" style="padding:0">
+              <table class="ant-table" style="font-size:12px">
+                <thead><tr><th>类型</th><th width="50">次数</th><th width="90">处理时效</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="ant-tag ant-tag-red">超员</span></td><td class="tnum" id="dAlertOver">-</td><td id="dAlertOverTime">-</td></tr>
+                  <tr><td><span class="ant-tag ant-tag-orange">聚集</span></td><td class="tnum" id="dAlertGather">-</td><td id="dAlertGatherTime">-</td></tr>
+                </tbody>
+              </table>
+              <div style="padding:6px 12px;font-size:11px;color:var(--ant-text-tertiary);border-top:1px solid var(--ant-border-secondary)"><i class="fa-solid fa-circle-info mr-1"></i>在场/告警人数为分组净流入（进入−离开）+每日闭园清零估算（见 3.5.1/3.5.5）。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  function showToast(msg, duration) {
+    duration = duration || 2000;
+    var wrap = document.querySelector('.toast-wrap');
+    if (!wrap) { wrap = document.createElement('div'); wrap.className = 'toast-wrap'; document.body.appendChild(wrap); }
+    var el = document.createElement('div');
+    el.className = 'toast-msg';
+    el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--ant-success);"></i>' + msg;
+    wrap.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add('show'); });
+    setTimeout(function () { el.classList.remove('show'); setTimeout(function () { el.remove(); }, 300); }, duration);
+  }
+  function exportReport(fmt){ showToast(fmt?('报表已导出为 '+fmt.toUpperCase()+'，异步生成完成后下载'):'导出任务已创建，完成后通知'); }
+
+  // 批量导出
+  function toggleSelectAll(){
+    var checked = document.getElementById('selectAll').checked;
+    document.querySelectorAll('.report-cb').forEach(function(cb){ cb.checked = checked; });
+    updateBatchBtn();
+  }
+  function onCbChange(){
+    var all = document.querySelectorAll('.report-cb');
+    var sel = document.querySelectorAll('.report-cb:checked');
+    document.getElementById('selectAll').checked = sel.length === all.length;
+    updateBatchBtn();
+  }
+  function updateBatchBtn(){
+    var sel = document.querySelectorAll('.report-cb:checked');
+    var btn = document.getElementById('batchExportBtn');
+    btn.disabled = sel.length === 0;
+    btn.textContent = sel.length > 0 ? ('批量导出 ('+sel.length+')') : '批量导出';
+  }
+  function batchExport(){
+    var sel = document.querySelectorAll('.report-cb:checked');
+    if(sel.length === 0) return;
+    var ids = []; sel.forEach(function(cb){ ids.push(cb.getAttribute('data-id')); });
+    showToast('已导出 '+ids.length+' 份报表（异步生成完成后下载）');
+  }
+
+  // 报表数据（含详情模拟数据）
+  var reports = {
+    '日报':[
+      {d:'2026-07-01',in:18302,out:15816,peak:3128,alert:11,alertOver:3,alertGather:8,alertOverTime:'4分20秒',alertGatherTime:'2分15秒',
+        trend:[12,8,5,4,3,6,28,95,180,210,240,268,312,295,260,238,256,278,242,180,120,80,50,28], trendPeak:'12:35', trendPeakV:3128,
+        mom:6.4, avg:2615,
+        ranks:[{area:'食堂就餐区',v:3856,mom:12.5},{area:'B 栋大堂',v:2402,mom:5.2},{area:'广场',v:1956,mom:-3.1},{area:'A 栋办公区',v:1536,mom:8.0},{area:'地下车库入口',v:896,mom:null}],
+        conclusion:'今日人流较昨日 +6.4%，12:35 达到峰值 3,128 人，食堂就餐区最繁忙；超员告警 3 起，平均处理 4 分 20 秒'},
+      {d:'2026-06-30',in:17204,out:14856,peak:2980,alert:8,alertOver:2,alertGather:6,alertOverTime:'3分50秒',alertGatherTime:'1分48秒',
+        trend:[10,7,4,3,3,5,25,88,168,195,225,250,290,275,245,220,238,260,228,168,112,74,45,25], trendPeak:'12:20', trendPeakV:2980,
+        mom:4.8, avg:2458,
+        ranks:[{area:'食堂就餐区',v:3620,mom:9.8},{area:'B 栋大堂',v:2280,mom:3.5},{area:'广场',v:2020,mom:-2.0},{area:'A 栋办公区',v:1420,mom:6.5},{area:'地下车库入口',v:840,mom:null}],
+        conclusion:'今日人流较昨日 +4.8%，12:20 达到峰值 2,980 人，食堂就餐区最繁忙；超员告警 2 起，平均处理 3 分 50 秒'},
+      {d:'2026-06-29',in:9856,out:8240,peak:1856,alert:2,alertOver:0,alertGather:2,alertOverTime:'-',alertGatherTime:'2分30秒',
+        trend:[8,5,3,2,2,4,18,60,120,155,180,200,245,230,198,175,190,220,188,140,95,62,38,22], trendPeak:'12:45', trendPeakV:1856,
+        mom:-42.7, avg:1408,
+        ranks:[{area:'食堂就餐区',v:2160,mom:52.3},{area:'B 栋大堂',v:1400,mom:40.5},{area:'广场',v:1180,mom:38.2},{area:'A 栋办公区',v:920,mom:35.5},{area:'地下车库入口',v:560,mom:null}],
+        conclusion:'今日人流较昨日 -42.7%（周末），12:45 达到峰值 1,856 人；无超员告警，聚集告警 2 起'},
+      {d:'2026-06-28',in:10208,out:8512,peak:2012,alert:3,alertOver:1,alertGather:2,alertOverTime:'5分10秒',alertGatherTime:'3分00秒',
+        trend:[9,6,4,3,2,5,22,70,135,170,195,220,265,250,215,190,205,235,202,155,105,68,42,24], trendPeak:'12:30', trendPeakV:2012,
+        mom:null, avg:1458,
+        ranks:[{area:'食堂就餐区',v:2380,mom:null},{area:'B 栋大堂',v:1520,mom:null},{area:'广场',v:1280,mom:null},{area:'A 栋办公区',v:980,mom:null},{area:'地下车库入口',v:620,mom:null}],
+        conclusion:'12:30 达到峰值 2,012 人，超员告警 1 起，聚集告警 2 起'},
+      {d:'2026-06-27',in:16508,out:13760,peak:2786,alert:6,alertOver:2,alertGather:4,alertOverTime:'4分05秒',alertGatherTime:'1分55秒',
+        trend:[11,7,5,3,3,6,26,90,175,205,235,260,305,288,255,230,248,272,238,175,118,78,48,26], trendPeak:'12:40', trendPeakV:2786,
+        mom:5.2, avg:2358,
+        ranks:[{area:'食堂就餐区',v:3480,mom:10.2},{area:'B 栋大堂',v:2190,mom:4.0},{area:'广场',v:1880,mom:-1.5},{area:'A 栋办公区',v:1380,mom:7.2},{area:'地下车库入口',v:860,mom:null}],
+        conclusion:'今日人流较昨日 +5.2%，12:40 达到峰值 2,786 人；超员告警 2 起，平均处理 4 分 05 秒'}
+    ],
+    '周报':[
+      {d:'2026-W26',in:82180,out:69184,peak:3128,alert:28,alertOver:9,alertGather:19,alertOverTime:'4分10秒',alertGatherTime:'2分05秒',
+        trend:[0,0,0,0,0,0,380,560,750,820,900,980,1050,1020,950,880,920,990,920,780,580,420,220,80], trendPeak:'周三 12:35', trendPeakV:3128,
+        mom:4.8, avg:11740,
+        ranks:[{area:'食堂就餐区',v:18250,mom:8.5},{area:'B 栋大堂',v:12080,mom:3.2},{area:'广场',v:9850,mom:-2.8},{area:'A 栋办公区',v:7680,mom:5.5},{area:'地下车库入口',v:4580,mom:null}],
+        conclusion:'本周总进入 82,180 人，较上周 +4.8%，周三 12:35 达到周峰值 3,128 人；超员告警 9 起、聚集告警 19 起'},
+      {d:'2026-W25',in:78420,out:66240,peak:2980,alert:24,alertOver:7,alertGather:17,alertOverTime:'3分50秒',alertGatherTime:'2分10秒',
+        trend:[0,0,0,0,0,0,350,520,710,780,860,940,1000,980,910,840,880,950,880,750,550,400,200,70], trendPeak:'周三 12:20', trendPeakV:2980,
+        mom:3.5, avg:11203,
+        ranks:[{area:'食堂就餐区',v:17420,mom:7.0},{area:'B 栋大堂',v:11560,mom:2.8},{area:'广场',v:9480,mom:-1.5},{area:'A 栋办公区',v:7320,mom:4.2},{area:'地下车库入口',v:4380,mom:null}],
+        conclusion:'本周总进入 78,420 人，较上周 +3.5%，周三 12:20 达到周峰值 2,980 人；超员告警 7 起、聚集告警 17 起'},
+      {d:'2026-W24',in:72356,out:60840,peak:2856,alert:19,alertOver:5,alertGather:14,alertOverTime:'4分20秒',alertGatherTime:'2分30秒',
+        trend:[0,0,0,0,0,0,320,480,660,720,800,880,940,920,860,800,830,900,830,710,520,380,190,60], trendPeak:'周四 12:30', trendPeakV:2856,
+        mom:null, avg:10337,
+        ranks:[{area:'食堂就餐区',v:16250,mom:null},{area:'B 栋大堂',v:10820,mom:null},{area:'广场',v:8920,mom:null},{area:'A 栋办公区',v:6850,mom:null},{area:'地下车库入口',v:4120,mom:null}],
+        conclusion:'本周总进入 72,356 人，周四 12:30 达到周峰值 2,856 人；超员告警 5 起、聚集告警 14 起'}
+    ],
+    '月报':[
+      {d:'2026-06',in:342580,out:288960,peak:3128,alert:112,alertOver:35,alertGather:77,alertOverTime:'4分15秒',alertGatherTime:'2分08秒',
+        mom:5.6, avg:11419,
+        trend:[8200,8600,8400,8700,9100,9800,11200,12800,13500,13100,12600,12200,11800,12100,12500,13000,13400,12900,11800,10200,9100,8600,8400,8200,8300,8100,7900,7800,7600,7400], trendPeak:'6 月 14 日', trendPeakV:3128,
+        ranks:[{area:'食堂就餐区',v:75480,mom:9.2},{area:'B 栋大堂',v:50240,mom:4.5},{area:'广场',v:40860,mom:-2.0},{area:'A 栋办公区',v:32180,mom:6.8},{area:'地下车库入口',v:19240,mom:null}],
+        conclusion:'本月总进入 342,580 人，较上月 +5.6%，月峰值 3,128 人；超员告警 35 起、聚集告警 77 起'},
+      {d:'2026-05',in:318420,out:267680,peak:3056,alert:98,alertOver:28,alertGather:70,alertOverTime:'4分30秒',alertGatherTime:'2分20秒',
+        mom:3.2, avg:10614,
+        trend:[7600,7900,8100,8400,8800,9500,10800,12300,13000,12700,12200,11800,11400,11700,12100,12600,13000,12500,11400,9800,8700,8200,8000,7800,7900,7700,7500,7400,7200,7100], trendPeak:'5 月 20 日', trendPeakV:3056,
+        ranks:[{area:'食堂就餐区',v:70600,mom:8.0},{area:'B 栋大堂',v:46600,mom:3.5},{area:'广场',v:38500,mom:-1.2},{area:'A 栋办公区',v:29800,mom:5.5},{area:'地下车库入口',v:17800,mom:null}],
+        conclusion:'本月总进入 318,420 人，较上月 +3.2%，月峰值 3,056 人；超员告警 28 起、聚集告警 70 起'}
+    ]
+  };
+  var curType = '日报';
+  var curDetail = null;
+  var filtered = reports['日报'];
+
+  // 渲染列表表格
+  function renderTable(){
+    curType = document.getElementById('reportType').value;
+    var list = filtered || [];
+    document.getElementById('listCountLabel').textContent = '共 '+list.length+' 份';
+    if(list.length === 0){
+      document.getElementById('reportTableBody').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--ant-text-tertiary);">该日期范围内无报表</td></tr>';
+      return;
+    }
+    var html = list.map(function(r){
+      var parts = [];
+      parts.push('<tr>');
+      parts.push('<td><input type="checkbox" class="report-cb" data-id="'+r.d+'" onchange="onCbChange()"></td>');
+      parts.push('<td><i class="fa-solid fa-file-lines mr-2 text-tertiary"></i>'+curType+' · '+r.d+'</td>');
+      parts.push('<td><span class="ant-tag ant-tag-blue">'+curType+'</span></td>');
+      parts.push('<td class="tnum">'+r.in.toLocaleString()+'</td>');
+      parts.push('<td class="tnum">'+r.out.toLocaleString()+'</td>');
+      parts.push('<td class="tnum">'+r.peak.toLocaleString()+'</td>');
+      parts.push('<td class="tnum">'+r.alert+'</td>');
+      parts.push('<td><span class="ant-tag ant-tag-green">已生成</span></td>');
+      parts.push('<td class="action-wrap">');
+      parts.push('<button class="ant-btn ant-btn-text ant-btn-sm" onclick="showDetailView(\''+r.d+'\')"><i class="fa-solid fa-eye"></i> 查看详情</button>');
+      parts.push('<button class="ant-btn ant-btn-text ant-btn-sm" onclick="exportReport(\'pdf\')">导出</button>');
+      parts.push('<button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="deleteReport(\''+r.d+'\')"><i class="fa-solid fa-trash"></i></button>');
+      parts.push('</td></tr>');
+      return parts.join('');
+    }).join('');
+    document.getElementById('reportTableBody').innerHTML = html;
+  }
+
+  // 根据 d 查找报表数据
+  function findReport(d){ return (reports[curType]||[]).filter(function(r){return r.d===d;})[0]; }
+  function deleteReport(d){
+    if(!confirm('确认删除「'+curType+' · '+d+'」？不可恢复。')) return;
+    reports[curType]=reports[curType].filter(function(r){return r.d!==d;});
+    filtered = filtered.filter(function(r){return r.d!==d;});
+    renderTable(); showToast('报表已删除');
+  }
+
+  // 切换报表类型：重置为该类型全部数据
+  function onTypeChange(){
+    curType = document.getElementById('reportType').value;
+    filtered = reports[curType] || [];
+    renderTable();
+  }
+
+  // 日期筛选：按 dateFrom/dateTo 字符串区间过滤
+  function applyDateFilter(){
+    curType = document.getElementById('reportType').value;
+    var from = document.getElementById('dateFrom').value;
+    var to = document.getElementById('dateTo').value;
+    var list = reports[curType] || [];
+    filtered = list.filter(function(r){
+      if(from && r.d < from) return false;
+      if(to && r.d > to) return false;
+      return true;
+    });
+    renderTable();
+    showToast('查询完成');
+  }
+
+  // 重置：清空日期、还原类型、重新渲染
+  function resetFilter(){
+    document.getElementById('reportType').value = '日报';
+    document.getElementById('dateFrom').value = '';
+    document.getElementById('dateTo').value = '';
+    curType = '日报';
+    filtered = reports['日报'] || [];
+    renderTable();
+    showToast('筛选条件已重置');
+  }
+
+  // 切换到详情视图
+  function showDetailView(d){
+    var rpt = findReport(d) || reports[curType][0];
+    curDetail = d;
+    document.getElementById('listView').style.display = 'none';
+    document.getElementById('detailView').style.display = '';
+    document.getElementById('detailTitle').textContent = '人流'+curType+' · '+d;
+    document.getElementById('detailCrumb').textContent = d;
+    document.getElementById('detailPeriod').textContent = d;
+    // KPI
+    document.getElementById('dIn').textContent = rpt.in.toLocaleString();
+    document.getElementById('dOut').textContent = rpt.out.toLocaleString();
+    document.getElementById('dPeak').textContent = rpt.peak.toLocaleString();
+    // 结论
+    document.getElementById('dConclusion').textContent = rpt.conclusion || '';
+    // 趋势
+    document.getElementById('dTrendPeak').textContent = '高峰 '+rpt.trendPeak;
+    renderTrend(rpt.trend);
+    // 排行
+    var pct2 = function(v){ if(v===null) return '<span class=\"text-tertiary\">-</span>'; var c=v>=0?'var(--ant-success)':'var(--ant-error)'; return '<span style=\"color:'+c+'\">'+(v>=0?'+':'')+v+'%</span>'; };
+    document.getElementById('dRankBody').innerHTML = (rpt.ranks||[]).map(function(r){
+      return '<tr><td>'+r.area+'</td><td class=\"tnum\">'+r.v.toLocaleString()+'</td><td>'+pct2(r.mom)+'</td></tr>';
+    }).join('');
+    // 告警
+    document.getElementById('dAlertOver').textContent = rpt.alertOver||0;
+    document.getElementById('dAlertOverTime').textContent = rpt.alertOverTime||'-';
+    document.getElementById('dAlertGather').textContent = rpt.alertGather||0;
+    document.getElementById('dAlertGatherTime').textContent = rpt.alertGatherTime||'-';
+    window.scrollTo(0,0);
+  }
+  // 返回列表视图
+  function showListView(){
+    document.getElementById('detailView').style.display = 'none';
+    document.getElementById('listView').style.display = '';
+    window.scrollTo(0,0);
+  }
+
+  // 趋势柱状图（传入数据数组）
+  function renderTrend(data){
+    var h=data||[];
+    var max=Math.max.apply(null,h)||1;
+    document.getElementById('reportTrend').innerHTML = '<div style="display:flex;align-items:flex-end;gap:2px;height:120px">'+h.map(function(v){return '<span style="flex:1;background:#1677ff;border-radius:2px 2px 0 0;height:'+Math.max(3,v/max*120)+'px"></span>';}).join('')+'</div>';
+  }
+
+  // Esc 返回列表
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && document.getElementById('detailView').style.display!=='none'){ showListView(); } });
+
+  renderTable();
+</script>
+</body>
+</html>

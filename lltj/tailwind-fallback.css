@@ -1,0 +1,119 @@
+/* ============================================
+   TailwindCSS 离线兜底 — Proto-UI 专用
+   ============================================
+   用途：CDN（cdn.tailwindcss.com）不可用 / 断网时，
+   保证页面里高频用到的 Tailwind 原子类仍能正常布局，不塌不乱。
+   用法：放在 Tailwind CDN 之后引用，CDN 在线时被其覆盖、不冲突；
+        CDN 挂掉时本兜底生效。
+     <script src="https://cdn.tailwindcss.com"></script>
+     <link rel="stylesheet" href="../proto-ui.css">
+     <link rel="stylesheet" href="../tailwind-fallback.css">
+   说明：只覆盖原型实际高频类，非完整 Tailwind。新增类按需补这里。
+   ============================================ */
+
+/* ===== 显示 / 盒模型 ===== */
+.flex { display: flex; }
+.grid { display: grid; }
+.hidden { display: none; }
+.inline-flex { display: inline-flex; }
+.block { display: block; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.flex-1 { flex: 1 1 0%; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-shrink-0 { flex-shrink: 0; }
+.min-w-0 { min-width: 0; }
+.min-h-screen { min-height: 100vh; min-height: 100dvh; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.max-w-7xl { max-width: 80rem; }
+.overflow-auto { overflow: auto; }
+.overflow-x-auto { overflow-x: auto; }
+
+/* ===== flex 对齐 ===== */
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.justify-start { justify-content: flex-start; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+/* ===== grid 列 ===== */
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+/* 跨列占位：趋势卡/报表趋势卡用 col-span-2（dashboard 行161、report 行124）断网时仍占两列 */
+.col-span-2 { grid-column: span 2; }
+
+/* ===== 间距：gap（基数 4px = 0.25rem，Tailwind 标准刻度） ===== */
+.gap-1 { gap: 0.25rem; } .gap-2 { gap: 0.5rem; } .gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; } .gap-5 { gap: 1.25rem; } .gap-6 { gap: 1.5rem; } .gap-8 { gap: 2rem; }
+
+/* ===== 内边距 ===== */
+.p-0 { padding: 0; } .p-2 { padding: 0.5rem; } .p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; } .p-5 { padding: 1.25rem; } .p-6 { padding: 1.5rem; } .p-8 { padding: 2rem; }
+.px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.px-8 { padding-left: 2rem; padding-right: 2rem; }
+.py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+.pb-4 { padding-bottom: 1rem; } .pt-4 { padding-top: 1rem; }
+
+/* ===== 外边距 ===== */
+.m-0 { margin: 0; }
+.mt-2 { margin-top: 0.5rem; } .mt-4 { margin-top: 1rem; } .mt-6 { margin-top: 1.5rem; }
+.mb-2 { margin-bottom: 0.5rem; } .mb-3 { margin-bottom: 0.75rem; } .mb-4 { margin-bottom: 1rem; }
+.mb-5 { margin-bottom: 1.25rem; } .mb-6 { margin-bottom: 1.5rem; } .mb-8 { margin-bottom: 2rem; } .mb-10 { margin-bottom: 2.5rem; }
+.ml-3 { margin-left: 0.75rem; } .ml-auto { margin-left: auto; }
+.mr-1 { margin-right: 0.25rem; } .mr-2 { margin-right: 0.5rem; }
+
+/* ===== 尺寸（w-/h- 数字 = ×4px） ===== */
+.w-full { width: 100%; } .h-full { height: 100%; }
+.w-8 { width: 2rem; } .h-8 { height: 2rem; }
+.w-9 { width: 2.25rem; } .h-9 { height: 2.25rem; }
+.w-12 { width: 3rem; } .h-12 { height: 3rem; }
+
+/* ===== 字体 ===== */
+.text-xs { font-size: 12px; line-height: 16px; }
+.text-sm { font-size: 13px; line-height: 20px; }
+.text-base { font-size: 14px; line-height: 22px; }
+.text-lg { font-size: 16px; line-height: 24px; }
+.text-xl { font-size: 20px; line-height: 28px; }
+/* dashboard 峰值卡 text-2xl（行148）断网时仍 24px 而非回退 14px */
+.text-2xl { font-size: 24px; line-height: 32px; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+/* ===== 颜色（高频） ===== */
+.text-white { color: #fff; }
+.text-gray-500 { color: #6b7280; }
+.text-gray-700 { color: #374151; }
+.text-gray-800 { color: #1f2937; }
+
+/* ===== 圆角 ===== */
+.rounded { border-radius: 4px; }
+.rounded-lg { border-radius: 8px; }
+.rounded-full { border-radius: 9999px; }
+
+/* ===== 杂项 ===== */
+.cursor-pointer { cursor: pointer; }
+.transition-all { transition: all 0.2s; }
+.bg-white { background: #fff; }
+
+/* ===== Font Awesome 离线兜底 =====
+   仅当 FA CDN 不可用时生效：FA 在线时其 .fa-solid::before（优先级更高）会覆盖下面的
+   content，显示真实图标；离线时 <i> 退化为一个文字占位符（em dash），保留基本可读性与
+   菜单项 16px 预留宽度（见 proto-ui.css .menu-item i）。
+   已知限制：纯 CSS 无法在字体缺失时还原图标图形，离线时图标为占位符而非原图形
+   （导航/功能图标在完全断网时仍会缺图，属可接受降级，详见修复回传说明）。 */
+i::before { content: "\2014"; }
+.menu-item i { min-width: 16px; }

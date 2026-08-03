@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人流分析总览 - 园区人员热力图与流量统计</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <script src="../mock-store.js"></script>
+  <style>
+    .spark { height:48px; display:flex; align-items:flex-end; gap:3px; }
+    .spark span { flex:1; background:var(--ant-primary); border-radius:2px 2px 0 0; opacity:0.8; }
+    .rank-bar { height:18px; border-radius:3px; background:linear-gradient(90deg,#1677ff,#69b1ff); }
+    .heat-thumb { background:
+      radial-gradient(circle at 30% 40%, rgba(255,77,79,0.7) 0%, transparent 25%),
+      radial-gradient(circle at 70% 60%, rgba(250,140,22,0.6) 0%, transparent 28%),
+      radial-gradient(circle at 50% 30%, rgba(82,196,26,0.5) 0%, transparent 22%),
+      radial-gradient(circle at 20% 70%, rgba(22,119,255,0.4) 0%, transparent 30%),
+      #f0f5ff; }
+    /* 投屏模式（深色全屏） */
+    body.screen-mode { background:#0a1929; }
+    body.screen-mode .sider { display:none; }
+    body.screen-mode .breadcrumb { display:none; }
+    body.screen-mode .main { padding:20px 32px; }
+    body.screen-mode .header { background:#0a1929 !important; border-bottom:1px solid #1f3a5f; }
+    body.screen-mode .ant-card { background:#132f4c; border-color:#1f3a5f; }
+    body.screen-mode .ant-card-head { border-bottom-color:#1f3a5f; }
+    body.screen-mode .ant-card-head-title { color:#e3f2fd; }
+    body.screen-mode .page-title { color:#fff; font-size:22px; }
+    body.screen-mode .kpi-card { background:#132f4c; }
+    body.screen-mode .kpi-value { font-size:40px; color:#fff; }
+    body.screen-mode .kpi-label { color:rgba(255,255,255,0.65); }
+    body.screen-mode .kpi-icon { opacity:0.85; }
+    body.screen-mode .text-tertiary { color:rgba(255,255,255,0.45) !important; }
+    body.screen-mode .ant-table thead th { background:#0a1929; color:rgba(255,255,255,0.65); border-color:#1f3a5f; }
+    body.screen-mode .ant-table tbody td { color:#e3f2fd; border-color:#1f3a5f; }
+    body.screen-mode .ant-table tbody tr:hover td { background:rgba(255,255,255,0.04); }
+    body.screen-mode .heat-thumb { background:
+      radial-gradient(circle at 30% 40%, rgba(255,77,79,0.8) 0%, transparent 25%),
+      radial-gradient(circle at 70% 60%, rgba(250,140,22,0.7) 0%, transparent 28%),
+      radial-gradient(circle at 50% 30%, rgba(82,196,26,0.6) 0%, transparent 22%),
+      radial-gradient(circle at 20% 70%, rgba(22,119,255,0.5) 0%, transparent 30%),
+      #0a1929; }
+    body.screen-mode .ant-select { background:#132f4c; color:#e3f2fd; border-color:#1f3a5f; }
+    body.screen-mode .exit-screen-btn { display:inline-flex !important; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-people-group"></i></div>
+    <span class="app-name">园区人员热力图与流量统计</span>
+    <div class="spacer"></div>
+    <span class="nav-action" id="navBell"><i class="fa-regular fa-bell mr-1"></i><span id="navBellCount">3</span></span>
+    <span class="role-switch"></span><div class="flex items-center gap-2 user-block" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
+      <span style="font-size:13px;">管理员·王</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">人流分析</div>
+      <a class="menu-item active" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
+      <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
+      <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-correlation/index.html"><i class="fa-solid fa-diagram-project"></i>建筑关联分析</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>建筑人数监测</a>
+      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
+      <div class="menu-group-title">告警</div>
+      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
+      <div class="menu-group-title">监控</div>
+      <a class="menu-item" href="../admin-screen/index.html"><i class="fa-solid fa-display"></i>监控中心大屏</a>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span class="current">人流分析总览</span>
+      </div>
+      <div id="visitorTip" class="ant-alert ant-alert-warning" style="display:none;gap:8px;padding:6px 12px;margin-bottom:12px;background:#fffbe6;border:1px solid #ffe58f;border-radius:6px;">
+        <i class="fa-solid fa-lock" style="color:var(--ant-warning);margin-top:2px"></i>
+        <span style="font-size:12px;color:var(--ant-text-secondary)">只读访客视图：仅可查看总览、热力图、大屏与流量趋势；不可导出、不可配置、不可访问排行/停留/关联/区域监测/报表（见 4.3 权限矩阵）。</span>
+      </div>
+
+      <div class="flex items-center justify-between mb-4">
+        <div class="page-title" style="margin-bottom:0;">人流分析总览</div>
+        <div class="flex items-center gap-3">
+          <label class="ant-checkbox"><input type="checkbox" id="autoRefresh" checked onchange="toggleRefresh()"><span>30 秒自动刷新</span></label>
+          <button class="ant-btn ant-btn-primary" onclick="refreshNow()"><i class="fa-solid fa-rotate"></i> 立即刷新</button>
+          <button class="ant-btn" onclick="enterScreenMode()"><i class="fa-solid fa-expand"></i> 投屏模式</button>
+          <button class="ant-btn ant-btn-primary exit-screen-btn" style="display:none;" onclick="exitScreenMode()"><i class="fa-solid fa-compress"></i> 退出投屏</button>
+        </div>
+      </div>
+
+      <!-- KPI 卡片 -->
+      <div class="grid grid-cols-4 gap-4 mb-4">
+        <div class="kpi-card" style="cursor:pointer" onclick="location.href='../admin-heatmap/index.html'">
+          <div class="kpi-icon" style="background:var(--ant-primary-bg);color:var(--ant-primary)"><i class="fa-solid fa-users"></i></div>
+          <div>
+            <div class="kpi-value" style="font-variant-numeric:tabular-nums;">2,486</div>
+            <div class="kpi-label">当前在场总人数 <span class="text-xs" style="color:var(--ant-text-tertiary)" title="分组净流入（进入−离开）+每日闭园清零，估算（见 3.5.1/3.5.5）">估算 <i class="fa-solid fa-circle-question"></i></span></div>
+            <div class="text-sm mt-1" style="color:var(--ant-success)"><i class="fa-solid fa-arrow-up"></i> 8.2% 较昨日</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#f6ffed;color:var(--ant-success)"><i class="fa-solid fa-arrow-right-to-bracket"></i></div>
+          <div>
+            <div class="kpi-value" style="font-variant-numeric:tabular-nums;">18,302</div>
+            <div class="kpi-label">今日累计进入</div>
+            <div class="text-sm mt-1" style="color:var(--ant-success)"><i class="fa-solid fa-arrow-up"></i> 12.5%</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#fff7e6;color:var(--ant-warning)"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>
+          <div>
+            <div class="kpi-value" style="font-variant-numeric:tabular-nums;">15,816</div>
+            <div class="kpi-label">今日累计离开</div>
+            <div class="text-sm mt-1" style="color:var(--ant-text-tertiary)">-</div>
+          </div>
+        </div>
+        <div class="kpi-card" style="cursor:pointer" onclick="location.href='../admin-alert-list/index.html'">
+          <div class="kpi-icon" style="background:#fff1f0;color:var(--ant-error)"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div>
+            <div class="kpi-value" id="kpiPendingAlert" style="font-variant-numeric:tabular-nums;">3</div>
+            <div class="kpi-label">未处理人流告警</div>
+            <div class="text-sm mt-1" style="color:var(--ant-error)"><i class="fa-solid fa-arrow-up"></i> 2</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 峰值卡 -->
+      <div class="ant-card ant-card-bordered mb-4">
+        <div class="ant-card-body" style="padding:16px 24px;">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-sm text-tertiary">峰值同时在</span>
+              <span class="ml-2 text-2xl font-semibold" style="color:var(--ant-primary);font-variant-numeric:tabular-nums;">3,128</span>
+              <span class="ml-2 text-xs text-tertiary">今日 12:35 达到峰值</span>
+            </div>
+            <div class="flex items-center gap-4 text-sm">
+              <span class="text-tertiary">净流入 <span class="font-semibold" style="color:var(--ant-text)">+2,486</span></span>
+              <span class="text-tertiary">较昨日峰值 <span style="color:var(--ant-success)">+5.6%</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <!-- 今日分时趋势 -->
+        <div class="ant-card ant-card-bordered col-span-2">
+          <div class="ant-card-head"><div class="ant-card-head-title">今日分时流量趋势</div></div>
+          <div class="ant-card-body">
+            <div class="flex items-center gap-4 mb-3 text-xs">
+              <span><span class="status-dot" style="background:#1677ff"></span>进入人数</span>
+              <span><span class="status-dot" style="background:#52c41a"></span>离开人数</span>
+              <span><span class="status-dot" style="background:#faad14"></span>同时在场</span>
+              <span class="ml-auto text-tertiary">单位：人 · 粒度：小时</span>
+            </div>
+            <div class="spark" id="trendSpark"></div>
+            <div class="flex justify-between text-xs text-tertiary mt-1">
+              <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
+            </div>
+          </div>
+        </div>
+        <!-- 热力图缩略 -->
+        <div class="ant-card ant-card-bordered" style="cursor:pointer" onclick="location.href='../admin-heatmap/index.html'">
+          <div class="ant-card-head"><div class="ant-card-head-title">园区热力图（缩略）</div></div>
+          <div class="ant-card-body">
+            <div class="heat-thumb" style="height:180px;border-radius:4px;position:relative;">
+              <div style="position:absolute;top:8px;left:8px;font-size:11px;color:var(--ant-text);background:rgba(255,255,255,0.85);padding:2px 6px;border-radius:3px;">实时 · 5 秒刷新</div>
+              <div style="position:absolute;bottom:8px;right:8px;font-size:11px;background:rgba(0,0,0,0.5);color:#fff;padding:2px 6px;border-radius:3px;">点击查看大图 →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <!-- 建筑排行 -->
+        <div class="ant-card ant-card-bordered">
+          <div class="ant-card-head">
+            <div class="ant-card-head-title">各建筑人数排行</div>
+            <div class="ant-card-extra"><a href="../admin-stats/index.html" style="font-size:13px;color:var(--ant-primary)">查看全部 -></a></div>
+          </div>
+          <div class="ant-card-body" id="rankList"></div>
+        </div>
+        <!-- 最近告警 -->
+        <div class="ant-card ant-card-bordered">
+          <div class="ant-card-head">
+            <div class="ant-card-head-title">最近人流告警</div>
+            <div class="ant-card-extra"><a href="../admin-alert-list/index.html" style="font-size:13px;color:var(--ant-primary)">查看全部 →</a></div>
+          </div>
+          <div class="ant-card-body" style="padding:0">
+            <table class="ant-table">
+              <thead><tr><th>区域</th><th width="90">类型</th><th width="120">时间</th></tr></thead>
+              <tbody id="recentAlertBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  function showToast(msg, duration) {
+    duration = duration || 2000;
+    var wrap = document.querySelector('.toast-wrap');
+    if (!wrap) { wrap = document.createElement('div'); wrap.className = 'toast-wrap'; document.body.appendChild(wrap); }
+    var el = document.createElement('div');
+    el.className = 'toast-msg';
+    el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--ant-success);"></i>' + msg;
+    wrap.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add('show'); });
+    setTimeout(function () { el.classList.remove('show'); setTimeout(function () { el.remove(); }, 300); }, duration);
+  }
+  // 趋势 sparkline
+  (function(){
+    var h = [12,8,5,4,3,6,28,95,180,210,240,268,312,295,260,238,256,278,242,180,120,80,50,28];
+    var max = Math.max.apply(null,h);
+    var html = h.map(function(v){ return '<span style="height:'+Math.max(4,v/max*48)+'px"></span>'; }).join('');
+    document.getElementById('trendSpark').innerHTML = html;
+  })();
+  // 建筑排行
+  (function(){
+    var data = [
+      {name:'食堂就餐区', count:486, pct:100},
+      {name:'B 栋大堂', count:312, pct:64},
+      {name:'广场', count:258, pct:53},
+      {name:'A 栋办公区', count:204, pct:42},
+      {name:'地下车库入口', count:128, pct:26}
+    ];
+    var html = data.map(function(d){
+      return '<div class="mb-3" style="cursor:pointer" onclick="location.href=\'../admin-heatmap/index.html\'">'
+        + '<div class="flex justify-between text-sm mb-1"><span>'+d.name+'</span><span style="font-variant-numeric:tabular-nums;font-weight:600">'+d.count+' 人</span></div>'
+        + '<div class="rank-bar" style="width:'+d.pct+'%"></div></div>';
+    }).join('');
+    document.getElementById('rankList').innerHTML = html;
+  })();
+  var _refreshTimer=null;
+  function renderAlerts(){
+    var evs=MockStore.getEvents();
+    var pending=evs.filter(function(e){return e.status==='待处理';});
+    document.getElementById('kpiPendingAlert').textContent=pending.length;
+    document.getElementById('navBellCount').textContent=pending.length;
+    var top=evs.slice(0,5);
+    var tagCls={'超员':'ant-tag-red','聚集':'ant-tag-orange'};
+    document.getElementById('recentAlertBody').innerHTML=top.map(function(e){
+      var t=e.triggerTime.substring(11,16);
+      var suffix=(e.status==='已处理'||e.status==='误报')?' · '+e.status:'';
+      var op=(e.status==='已处理'||e.status==='误报')?'opacity:0.55':'';
+      return '<tr style="'+op+'"><td>'+e.group+'</td><td><span class="ant-tag '+(tagCls[e.type]||'ant-tag-red')+'">'+e.type+'</span></td><td class="text-tertiary text-sm">'+t+suffix+'</td></tr>';
+    }).join('')||'<tr><td colspan="3" class="text-tertiary text-center" style="padding:16px">暂无告警</td></tr>';
+  }
+  function _startTimer(){ if(_refreshTimer) clearInterval(_refreshTimer); _refreshTimer=setInterval(renderAlerts,30000); }
+  function toggleRefresh(){
+    var on=document.getElementById('autoRefresh').checked;
+    if(on){ _startTimer(); showToast('已开启 30 秒自动刷新'); } else { if(_refreshTimer){clearInterval(_refreshTimer);_refreshTimer=null;} showToast('已关闭自动刷新'); }
+  }
+  function refreshNow(){ renderAlerts(); showToast('数据已刷新'); }
+  renderAlerts(); _startTimer();
+  function enterScreenMode(){ document.body.classList.add('screen-mode'); showToast('已进入投屏模式，按 Esc 退出'); }
+  function exitScreenMode(){ document.body.classList.remove('screen-mode'); }
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && document.body.classList.contains('screen-mode')){ exitScreenMode(); } });
+  if(new URLSearchParams(location.search).get('mode')==='screen'){ document.body.classList.add('screen-mode'); }
+</script>
+</body>
+</html>

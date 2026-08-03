@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分析配置 - 园区人员热力图与流量统计</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <script src="../mock-store.js"></script>
+  <style>
+    .group-item { padding:8px 10px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; border:1px solid transparent; }
+    .group-item:hover { background:rgba(0,0,0,0.03); }
+    .group-item.active { background:var(--ant-primary-bg); border-color:var(--ant-primary); }
+    .group-item.active .gname { color:var(--ant-primary); font-weight:600; }
+    .tree-toggle { width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;transition:transform .2s; }
+    .tree-toggle.open { transform:rotate(90deg); }
+    .tree-children { padding-left:20px; display:none; }
+    .tree-children.show { display:block; }
+    .tree-child { padding:6px 8px; border-radius:4px; cursor:pointer; font-size:12px; display:flex;align-items:center;justify-content:space-between; }
+    .tree-child:hover { background:rgba(0,0,0,0.03); }
+    .tree-child .st-dot { width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:6px; }
+    .config-status { font-size:11px; padding:1px 6px; border-radius:10px; }
+    .st-unconfig { background:#fafafa; color:var(--ant-text-tertiary); border:1px solid #d9d9d9; }
+    .st-algo { background:#e6f4ff; color:#1677ff; border:1px solid #91caff; }
+    .st-line { background:#f6ffed; color:#52c41a; border:1px solid #b7eb8f; }
+    .st-mapped { background:#f9f0ff; color:#722ed1; border:1px solid #d3adf7; }
+    .video-canvas { background:#1f1f1f; position:relative; border-radius:4px; overflow:hidden; }
+    .map-canvas { background:#e8eef5; position:relative; border-radius:4px; background-image:
+      linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
+      background-size:30px 30px; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-people-group"></i></div>
+    <span class="app-name">园区人员热力图与流量统计</span>
+    <div class="spacer"></div>
+    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
+    <span class="role-switch"></span><div class="flex items-center gap-2 user-block" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
+      <span style="font-size:13px;">管理员·王</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">人流分析</div>
+      <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
+      <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
+      <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-correlation/index.html"><i class="fa-solid fa-diagram-project"></i>建筑关联分析</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>建筑人数监测</a>
+      <a class="menu-item active" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
+      <div class="menu-group-title">告警</div>
+      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
+      <div class="menu-group-title">监控</div>
+      <a class="menu-item" href="../admin-screen/index.html"><i class="fa-solid fa-display"></i>监控中心大屏</a>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span class="current">分析配置</span>
+      </div>
+      <div class="page-title">分析配置</div>
+
+      <!-- Tab 切换 -->
+      <div class="tab-bar" id="tabBar">
+        <button type="button" class="tab-item active" role="tab" aria-selected="true" onclick="switchTab(this,'tab1')">① 统计设备管理</button>
+        <button type="button" class="tab-item" role="tab" aria-selected="false" onclick="switchTab(this,'tab4')">② 平面图相机标定</button>
+      </div>
+
+      <!-- Tab① 统计设备管理 -->
+      <div id="tab1" class="tab-panel">
+        <div class="grid gap-4" style="grid-template-columns:280px 1fr;">
+          <!-- 左：分组列表 -->
+          <div class="ant-card ant-card-bordered">
+            <div class="ant-card-head">
+              <div class="ant-card-head-title">园区建筑</div>
+              <div class="ant-card-extra"><button class="ant-btn ant-btn-primary ant-btn-sm" onclick="openGroupModal()"><i class="fa-solid fa-plus"></i> 新增分组</button></div>
+            </div>
+            <div class="ant-card-body" style="padding:12px">
+              <div id="groupList"></div>
+            </div>
+          </div>
+          <!-- 右：关联设备 -->
+          <div class="ant-card ant-card-bordered">
+            <div class="ant-card-head">
+              <div class="ant-card-head-title">关联设备 · <span id="curGroupName">食堂</span></div>
+              <div class="ant-card-extra"><button class="ant-btn ant-btn-primary ant-btn-sm" onclick="openDeviceModal()"><i class="fa-solid fa-link"></i> 关联新设备</button></div>
+            </div>
+            <div class="ant-card-body" style="padding:0">
+              <table class="ant-table">
+                <thead><tr><th>设备名称</th><th width="120">所在区域</th><th width="90">在线状态</th><th width="110">配置状态</th><th width="200">操作</th></tr></thead>
+                <tbody id="deviceBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab② 平面图相机标定 -->
+      <div id="tab4" class="tab-panel" style="display:none">
+        <div class="ant-alert ant-alert-info" style="display:flex;gap:8px;padding:8px 12px;margin-bottom:12px;background:#e6f4ff;border:1px solid #91caff;border-radius:6px;">
+          <i class="fa-solid fa-circle-info" style="color:var(--ant-primary);margin-top:2px"></i>
+          <span style="font-size:12px;color:var(--ant-text-secondary)">算法可输出逐人检测框坐标+追踪轨迹（见 Q-13）。本页建立<b>画面坐标->平面图坐标</b>的单应性映射：在画面与平面图上点选≥4对对应点，系统计算单应性矩阵，将检测框底部中心点（脚位置）映射到平面图，供足迹热力图使用。</span>
+        </div>
+        <div class="grid" style="grid-template-columns:280px 1fr;gap:16px;">
+          <!-- 左：摄像头列表（按分组，含标定状态徽标） -->
+          <div class="ant-card ant-card-bordered">
+            <div class="ant-card-head"><div class="ant-card-head-title">摄像头列表</div></div>
+            <div class="ant-card-body" style="padding:8px;" id="mapCamList"></div>
+          </div>
+          <!-- 右：上画面 + 下平面图 -->
+          <div class="ant-card ant-card-bordered">
+            <div class="ant-card-head">
+              <div class="ant-card-head-title">相机标定 · <span id="mapHint">选择左侧摄像头开始标定</span></div>
+              <div class="ant-card-extra">
+                <span id="calibInfo" style="font-size:12px;color:var(--ant-text-tertiary);margin-right:8px"></span>
+                <button class="ant-btn ant-btn-text ant-btn-sm" onclick="clearCalib()" title="清除该摄像头标定"><i class="fa-solid fa-eraser"></i></button>
+                <button class="ant-btn ant-btn-primary ant-btn-sm" onclick="saveCalib()"><i class="fa-solid fa-floppy-disk"></i> 保存标定</button>
+              </div>
+            </div>
+            <div class="ant-card-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div>
+                  <div style="font-size:12px;color:var(--ant-text-secondary);margin-bottom:4px"><i class="fa-solid fa-camera mr-1"></i>摄像头画面（点选标定点）</div>
+                  <div id="imgCanvas" style="position:relative;height:300px;background:#222;border:1px solid var(--ant-border-secondary);border-radius:6px;overflow:hidden;cursor:crosshair;" onclick="onImgClick(event)">
+                    <div style="position:absolute;inset:0;background:linear-gradient(135deg,#2a2a2a,#1a1a1a);"></div>
+                    <div style="position:absolute;top:20%;left:15%;width:20%;height:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);"></div>
+                    <div style="position:absolute;top:30%;right:20%;width:15%;height:40%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);"></div>
+                    <svg id="imgDetSvg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></svg>
+                    <svg id="imgPtsSvg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></svg>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:12px;color:var(--ant-text-secondary);margin-bottom:4px"><i class="fa-solid fa-map mr-1"></i>园区平面图（点选对应点）</div>
+                  <div class="map-canvas" id="mapCanvas" style="height:300px;position:relative;cursor:crosshair;" onclick="onMapClick(event)">
+                    <div style="position:absolute;top:15%;left:10%;width:25%;height:30%;background:rgba(22,119,255,0.10);border:1px dashed #1677ff;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#1677ff;">A 栋</div>
+                    <div style="position:absolute;top:15%;right:10%;width:30%;height:35%;background:rgba(250,140,22,0.10);border:1px dashed #fa8c16;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fa8c16;">食堂</div>
+                    <div style="position:absolute;bottom:10%;left:25%;width:40%;height:25%;background:rgba(82,196,26,0.10);border:1px dashed #52c41a;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#52c41a;">广场</div>
+                    <svg id="mapPtsSvg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></svg>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:8px;font-size:12px;color:var(--ant-text-tertiary)">操作：先在画面点≥4个标定点（地面共面标志），再在平面图点对应位置，形成点对；系统实时计算单应性矩阵并映射检测框底中心验证。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- 设备配置抽屉（统一使用 proto-ui.css 的 .drawer / .drawer-mask，.drawer-lg 加宽） -->
+<div class="drawer-mask" id="configDrawerMask" onclick="closeConfigDrawer()"></div>
+<div class="drawer drawer-lg" id="configDrawer">
+  <div class="drawer-header">
+    <div>
+      <span class="text-base font-semibold" id="drawerDeviceName">cam_001 食堂-入口</span>
+      <span class="text-xs text-tertiary ml-2">设备配置</span>
+    </div>
+    <span class="ant-modal-close" onclick="closeConfigDrawer()"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="drawer-body">
+          <div class="tab-bar" id="drawerTabBar">
+            <button type="button" class="tab-item active" role="tab" aria-selected="true" onclick="switchDrawerTab(this,'dtab1')">① 算法绑定</button>
+            <button type="button" class="tab-item" role="tab" aria-selected="false" onclick="switchDrawerTab(this,'dtab2')">② 画线 / 画区域</button>
+            <button type="button" class="tab-item" role="tab" aria-selected="false" onclick="switchDrawerTab(this,'dtab3')">③ 预览校验</button>
+          </div>
+
+    <!-- 抽屉 Tab① 算法绑定 -->
+    <div id="dtab1" class="tab-panel">
+      <div class="ant-card ant-card-bordered" style="max-width:560px;">
+        <div class="ant-card-body">
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">算法选择</label>
+            <select class="ant-select" style="width:100%"><option>人流检测追踪 v2.3</option><option>人流检测追踪 v2.1</option></select>
+          </div>
+          <div class="ant-form-item">
+            <label class="ant-form-label">检测阈值</label>
+            <input class="ant-input" value="0.6">
+          </div>
+          <div class="ant-form-item">
+            <label class="ant-form-label">追踪参数</label>
+            <input class="ant-input" value="默认">
+          </div>
+          <div class="flex gap-2">
+            <button class="ant-btn ant-btn-primary" onclick="showToast('算法绑定成功')">保存绑定</button>
+            <button class="ant-btn" onclick="showToast('已解绑算法任务')">解绑算法</button>
+          </div>
+          <div class="ant-alert ant-alert-info mt-4">
+            <i class="fa-solid fa-circle-info ant-alert-icon"></i>
+            <div class="ant-alert-content"><div class="ant-alert-message">绑定算法后，算法中心开始为该设备输出检测结果（检测框、追踪ID、越线事件、区域计数快照）。</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 抽屉 Tab② 画线/画区域 -->
+    <div id="dtab2" class="tab-panel" style="display:none">
+      <div class="grid gap-4" style="grid-template-columns:1fr 280px;">
+        <div class="ant-card ant-card-bordered">
+          <div class="ant-card-head">
+            <div class="ant-card-head-title">实时画面</div>
+            <div class="ant-card-extra"><span class="status-dot pulse-dot" style="background:#52c41a"></span><span class="text-sm">直播中</span></div>
+          </div>
+          <div class="ant-card-body">
+            <div class="video-canvas" id="videoCanvas2" style="height:400px;" onclick="onCanvasClick(event)" ondblclick="onCanvasDblClick(event)">
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.4);pointer-events:none;">
+                <i class="fa-solid fa-video" style="font-size:40px"></i>
+              </div>
+              <svg id="drawSvg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;" onclick="onDrawSvgClick(event)"></svg>
+              <div style="position:absolute;top:8px;left:8px;font-size:11px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 6px;border-radius:3px;">1920×1080</div>
+              <div id="drawHint" style="display:none;position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:12px;background:rgba(22,119,255,0.9);color:#fff;padding:4px 12px;border-radius:4px;white-space:nowrap;pointer-events:none;">
+                <i class="fa-solid fa-draw-polygon mr-1"></i>点击画面添加顶点（≥3），双击闭合
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ant-card ant-card-bordered">
+          <div class="ant-card-head"><div class="ant-card-head-title">配置</div></div>
+          <div class="ant-card-body">
+            <div class="divider"><span>绘制工具</span></div>
+            <button class="ant-btn w-full mb-2" onclick="startDrawLine()"><i class="fa-solid fa-minus"></i> 画计数线</button>
+            <div id="drawRegionBtns">
+              <button class="ant-btn ant-btn-primary w-full mb-3" onclick="startDrawRegion()"><i class="fa-solid fa-draw-polygon"></i> 画统计区域</button>
+            </div>
+            <div class="text-sm text-tertiary mb-2">已配置（计数线 <span id="lineCountCfg">1</span> / 统计区域 <span id="regionCountCfg">0</span>）</div>
+            <div id="configLineList"></div>
+            <div id="regionListConfig"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 抽屉 Tab③ 预览校验 -->
+    <div id="dtab3" class="tab-panel" style="display:none">
+      <div class="ant-alert ant-alert-info mb-4">
+        <i class="fa-solid fa-circle-info ant-alert-icon"></i>
+        <div class="ant-alert-content">
+          <div class="ant-alert-message">预览模式用于验证计数线方向与统计区域是否正确，预览数据不写入统计。</div>
+        </div>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head">
+          <div class="ant-card-head-title">实时预览</div>
+          <div class="ant-card-extra">
+            <span class="mr-4 text-sm">越线计数：<span class="font-semibold" style="color:var(--ant-primary)" id="previewCount">0</span></span>
+            <span class="text-sm">区域人数：<span class="font-semibold" style="color:var(--ant-success)">5</span></span>
+          </div>
+        </div>
+        <div class="ant-card-body">
+          <div class="video-canvas" style="height:400px;">
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.4);"><i class="fa-solid fa-eye" style="font-size:40px"></i></div>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
+              <div style="width:40px;height:60px;border:2px solid #52c41a;border-radius:4px;position:relative;">
+                <span style="position:absolute;top:-18px;left:0;font-size:11px;color:#52c41a;">t123 · 0.95</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-center gap-3 mt-4">
+            <button class="ant-btn ant-btn-primary" onclick="incPreview()"><i class="fa-solid fa-play"></i> 模拟越线 +1</button>
+            <button class="ant-btn" onclick="showToast('预览结束，配置正确')">完成校验</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 新增/编辑分组弹窗 -->
+<div class="ant-modal-mask" id="groupModalMask" onclick="if(event.target===this)closeModal('groupModal')">
+<div class="ant-modal" id="groupModal" style="width:440px">
+  <div class="ant-modal-header">
+    <span id="groupModalTitle">新增分组</span>
+    <span class="ant-modal-close" onclick="closeModal('groupModal')"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="ant-modal-body">
+    <div class="ant-form-item">
+      <label class="ant-form-label ant-form-label-required">分组名称</label>
+      <input id="groupNameInput" class="ant-input" maxlength="20" placeholder="如：食堂、A栋、广场">
+      <div id="groupNameError" class="text-error text-sm mt-2 hidden">分组名称不能为空</div>
+      <div class="text-xs text-tertiary mt-2">长度 1-20 字符，同园区内不可重复</div>
+    </div>
+    <div class="ant-form-item">
+      <label class="ant-form-label ant-form-label-required">统计级别</label>
+      <select id="groupLevel" class="ant-select" style="width:100%">
+        <option value="building">建筑级 — 统计本建筑独立人流</option>
+        <option value="park">园区级 — 代表园区整体出入（如大门）</option>
+      </select>
+      <div class="text-xs text-tertiary mt-2">园区级摄像头的进出人次将作为园区总人数计算依据</div>
+    </div>
+  </div>
+  <div class="ant-modal-footer">
+    <button class="ant-btn" onclick="closeModal('groupModal')">取消</button>
+    <button class="ant-btn ant-btn-primary" onclick="submitGroup()">确定</button>
+  </div>
+</div>
+</div>
+
+<!-- 关联设备弹窗 -->
+<div class="ant-modal-mask" id="deviceModalMask">
+<div class="ant-modal" id="deviceModal" style="width:680px">
+  <div class="ant-modal-header">
+    <span>关联设备 · 选择平台未关联的摄像头</span>
+    <span class="ant-modal-close" onclick="closeModal('deviceModal')"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="ant-modal-body">
+    <div class="flex items-center gap-2 mb-3">
+      <input class="ant-input" id="deviceSearch" style="width:240px" placeholder="搜索设备名称" oninput="filterDeviceModal()">
+      <select class="ant-select" style="width:160px"><option>全部区域</option><option>食堂</option><option>办公区</option></select>
+      <button class="ant-btn ant-btn-primary" onclick="filterDeviceModal()"><i class="fa-solid fa-search"></i> 查询</button>
+    </div>
+    <table class="ant-table">
+      <thead><tr><th width="40"></th><th>设备名称</th><th width="120">所在区域</th><th width="90">状态</th><th width="140">关联情况</th></tr></thead>
+      <tbody id="deviceModalBody">
+        <tr data-name="cam_004 食堂-二楼入口"><td style="text-align:center"><label class="ant-checkbox"><input type="checkbox"></label></td><td>cam_004 食堂-二楼入口</td><td>食堂</td><td><span class="ant-tag ant-tag-green">在线</span></td><td class="text-tertiary">未关联</td></tr>
+        <tr data-name="cam_005 食堂-收餐区"><td style="text-align:center"><label class="ant-checkbox"><input type="checkbox"></label></td><td>cam_005 食堂-收餐区</td><td>食堂</td><td><span class="ant-tag ant-tag-green">在线</span></td><td class="text-tertiary">未关联</td></tr>
+        <tr data-name="cam_006 B栋-大堂"><td style="text-align:center"><label class="ant-checkbox"><input type="checkbox" disabled></label></td><td>cam_006 B栋-大堂</td><td>办公区</td><td><span class="ant-tag ant-tag-green">在线</span></td><td><span class="ant-tag ant-tag-gray">已关联 B栋</span></td></tr>
+      </tbody>
+    </table>
+    <div class="ant-alert ant-alert-info" style="margin-top:12px;display:flex;gap:8px;padding:8px 12px;background:#e6f4ff;border:1px solid #91caff;border-radius:6px;">
+      <i class="fa-solid fa-circle-info" style="color:var(--ant-primary);margin-top:2px"></i>
+      <div class="ant-alert-message" style="font-size:12px;line-height:1.6">
+        分组在场人数基于净流入，不受摄像头视野重叠影响；区域当前人数为单摄像头单区域逐人计数，无跨摄像头重叠问题；热力图为足迹累积，无需视野不重叠约束（见总纲 3.5.2）。
+      </div>
+    </div>
+  </div>
+  <div class="ant-modal-footer">
+    <button class="ant-btn" onclick="closeModal('deviceModal')">取消</button>
+    <button class="ant-btn ant-btn-primary" onclick="submitDevice()">确定关联</button>
+  </div>
+</div>
+</div>
+
+<!-- 删除确认弹窗 -->
+<div class="ant-modal-mask" id="confirmModalMask">
+<div class="ant-modal" id="confirmModal" style="width:400px">
+  <div class="ant-modal-header">
+    <span><i class="fa-solid fa-circle-exclamation" style="color:var(--ant-warning);margin-right:8px"></i>确认操作</span>
+    <span class="ant-modal-close" onclick="closeModal('confirmModal')"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="ant-modal-body"><p id="confirmText"></p></div>
+  <div class="ant-modal-footer">
+    <button class="ant-btn" onclick="closeModal('confirmModal')">取消</button>
+    <button class="ant-btn ant-btn-dangerous" onclick="confirmDel()">确定</button>
+  </div>
+</div>
+</div>
+
+
+<!-- 统计区域命名弹窗 -->
+<div class="ant-modal-mask" id="regionModalMask">
+<div class="ant-modal" id="regionModal" style="width:440px">
+  <div class="ant-modal-header">
+    <span>保存统计区域</span>
+    <span class="ant-modal-close" onclick="cancelSaveRegion()"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="ant-modal-body">
+    <div class="ant-form-item">
+      <label class="ant-form-label ant-form-label-required">区域名称</label>
+      <input id="regionNameInput" class="ant-input" maxlength="30" placeholder="如：就餐区A、取餐台区">
+      <div id="regionNameError" class="text-error text-sm mt-2 hidden">区域名称不能为空</div>
+      <div class="text-xs text-tertiary mt-2">长度 1-30 字符，同一设备内不可重复</div>
+    </div>
+    <div class="text-xs text-tertiary mt-3">已绘制顶点：<span id="regionVertexCount" class="tnum">0</span> 个</div>
+  </div>
+  <div class="ant-modal-footer">
+    <button class="ant-btn" onclick="cancelSaveRegion()">取消</button>
+    <button class="ant-btn ant-btn-primary" onclick="saveRegion()">保存</button>
+  </div>
+</div>
+</div>
+
+<script>
+  function showToast(msg, duration) {
+    duration = duration || 2000;
+    var wrap = document.querySelector('.toast-wrap');
+    if (!wrap) { wrap = document.createElement('div'); wrap.className = 'toast-wrap'; document.body.appendChild(wrap); }
+    var el = document.createElement('div');
+    el.className = 'toast-msg';
+    el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--ant-success);"></i>' + msg;
+    wrap.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add('show'); });
+    setTimeout(function () { el.classList.remove('show'); setTimeout(function () { el.remove(); }, 300); }, duration);
+  }
+  function openModal(id){ document.getElementById(id).classList.add('active'); document.getElementById(id+'Mask').classList.add('active'); }
+  function closeModal(id){ document.getElementById(id).classList.remove('active'); document.getElementById(id+'Mask').classList.remove('active'); if(id==='confirmModal'){ pendingDeleteId=null; } }
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ ['groupModal','deviceModal','confirmModal','regionModal'].forEach(function(id){ closeModal(id); }); closeConfigDrawer(); } });
+  document.addEventListener('click', function(e){ if(e.target.classList.contains('ant-modal-mask')){ e.target.classList.remove('active'); var id=e.target.id.replace(/Mask$/,''); var m=document.getElementById(id); if(m) m.classList.remove('active'); } });
+
+  // 分组数据 — 树形结构
+  var groups = [
+    {id:'park', name:'园区', children:[
+      {id:'gate', name:'大门', level:'park'},
+      {id:'canteen', name:'食堂', level:'building'},
+      {id:'a-building', name:'A 栋', level:'building'},
+      {id:'b-building', name:'B 栋', level:'building'},
+      {id:'plaza', name:'广场', level:'building'},
+      {id:'garage', name:'地下车库', level:'building'}
+    ]}
+  ];
+  var curGroup = 'gate';
+
+  // 递归渲染树节点
+  function renderTree(nodes, depth){
+    var html = '';
+    nodes.forEach(function(g){
+      var hasKids = g.children && g.children.length>0;
+      var devs = devices.filter(function(d){return d.groupId===g.id;});
+      var active = g.id===curGroup;
+      var expanded = active || (hasKids && allExpanded[g.id]);
+      html += '<div>';
+      html += '<div class="group-item '+(active?'active':'')+'" onclick="'+(hasKids?'toggleTree(\''+g.id+'\')':'selectGroup(\''+g.id+'\')')+'" style="padding-left:'+(12+depth*16)+'px">';
+      html += '<div style="display:flex;align-items:center;gap:6px">';
+      if(hasKids){
+        html += '<span class="tree-toggle'+(expanded?' open':'')+'"><i class="fa-solid fa-caret-right"></i></span>';
+      } else {
+        html += '<span style="width:18px"></span>';
+      }
+      html += '<i class="fa-solid fa-'+(depth===0?'building':hasKids?'folder':'location-dot')+'" style="color:'+(active?'var(--ant-primary)':'var(--ant-text-tertiary)')+'"></i>';
+      html += '<span class="gname" style="font-size:13px">'+g.name+'</span>';
+      html += '<span class="text-xs text-tertiary">'+(hasKids?'':devs.length+'台')+'</span>';
+      if(g.level) html += '<span class="text-xs" style="color:'+(g.level==='park'?'var(--ant-primary)':'var(--ant-text-tertiary)')+';margin-left:4px">'+(g.level==='park'?'园区级':'建筑级')+'</span>';
+      html += '</div>';
+      html += '<div class="flex gap-1">';
+      html += '<button class="ant-btn ant-btn-text ant-btn-sm" onclick="event.stopPropagation();openEditGroup(\''+g.id+'\',\''+g.name+'\')"><i class="fa-solid fa-pen"></i></button>';
+      html += '</div></div>';
+      // 子分组
+      if(hasKids){
+        html += '<div class="tree-children'+(expanded?' show':'')+'">';
+        html += renderTree(g.children, depth+1);
+        html += '</div>';
+      }
+      html += '</div>';
+    });
+    return html;
+  }
+  var allExpanded = {};
+  function toggleTree(id){
+    allExpanded[id] = !allExpanded[id];
+    curGroup = id;
+    renderAll();
+  }
+  function selectGroup(id){
+    curGroup = id;
+    document.getElementById('curGroupName').textContent = id==='park'?'园区':(findGroupById(id)||{}).name||id;
+    renderAll();
+  }
+  function findGroupById(id, list){
+    list = list || groups;
+    for(var i=0;i<list.length;i++){
+      if(list[i].id===id) return list[i];
+      if(list[i].children){
+        var r = findGroupById(id, list[i].children);
+        if(r) return r;
+      }
+    }
+    return null;
+  }
+  function renderGroups(){
+    document.getElementById('groupList').innerHTML = renderTree(groups, 0);
+  }
+  function selectGroupById(id){
+    var g = findGroupById(id);
+    if(!g) return;
+    // 展开父级路径
+    expandAncestors(id);
+    curGroup = id;
+    document.getElementById('curGroupName').textContent = g.name;
+    renderGroups();
+    renderDevices();
+  }
+  function expandAncestors(id){
+    function walk(list, path){
+      for(var i=0;i<list.length;i++){
+        if(list[i].id===id){ path.forEach(function(p){allExpanded[p]=true;}); return true; }
+        if(list[i].children && walk(list[i].children, path.concat([list[i].id]))) return true;
+      }
+      return false;
+    }
+    walk(groups, []);
+  }
+  function renderAll(){ renderGroups(); renderDevices(); }
+  function openGroupModal(){ editingGroupId=null; document.getElementById('groupModalTitle').textContent='新增分组'; document.getElementById('groupNameInput').value=''; document.getElementById('groupNameError').classList.add('hidden'); openModal('groupModal'); }
+  var editingGroupId=null;
+  function openEditGroup(id,name){ editingGroupId=id; document.getElementById('groupModalTitle').textContent='编辑分组'; document.getElementById('groupNameInput').value=name; document.getElementById('groupNameError').classList.add('hidden');
+    var g=findGroupById(id); document.getElementById('groupLevel').value=g&&g.level==='park'?'park':'building';
+    openModal('groupModal'); }
+  function submitGroup(){
+    var name=document.getElementById('groupNameInput').value.trim();
+    if(!name){ document.getElementById('groupNameError').classList.remove('hidden'); return; }
+    if(editingGroupId){
+      var g=findGroupById(editingGroupId); if(g) { g.name=name; g.level=document.getElementById('groupLevel').value; }
+      showToast('修改成功');
+    }else{
+      var parent = findGroupById(curGroup);
+      var pid = parent && parent.children ? curGroup : 'park';
+      var pg = findGroupById(pid);
+      if(!pg.children) pg.children=[];
+      var newId = 'g'+Date.now();
+      pg.children.push({id:newId, name:name, level:document.getElementById('groupLevel').value});
+      curGroup = newId;
+      showToast('新增成功');
+    }
+    renderGroups(); closeModal('groupModal');
+  }
+  function openDeviceModal(){ openModal('deviceModal'); }
+  function submitDevice(){
+    closeModal('deviceModal');
+    showToast('关联成功，共 2 台');
+  }
+  var pendingDeviceName=null;
+  function openConfirmDel(text, deviceName){ document.getElementById('confirmText').textContent=text; pendingDeviceName=deviceName||null; openModal('confirmModal'); }
+  function confirmDel(){
+    if(pendingDeviceName){
+      devices=devices.filter(function(d){return d.name!==pendingDeviceName;});
+      pendingDeviceName=null; renderDevices(); showToast('已取消关联，配置已保留为未激活');
+    } else if(pendingDeleteId){
+      regionsConfig=regionsConfig.filter(function(r){return r.id!==pendingDeleteId;}); pendingDeleteId=null; renderDrawSvg(); renderRegionListConfig(); showToast('删除成功');
+    }
+    closeModal('confirmModal');
+  }
+
+  // ===== 计数线绘制（review-full-v1 M5：画计数线/编辑/禁用 从死按钮改为可用）=====
+  var configLines=[{name:'大门口-进', pts:[{x:8,y:35},{x:8,y:65}], disabled:false}];
+  var drawLineMode=false, linePts=[];
+  function renderConfigLines(){
+    document.getElementById('lineCountCfg').textContent=configLines.length;
+    document.getElementById('configLineList').innerHTML=configLines.map(function(l,i){
+      var dot=l.disabled?'#bfbfbf':'#faad14';
+      var btn=l.disabled?'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleLineDisable('+i+')">启用</button>':'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="startDrawLine('+i+')">编辑</button> <button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleLineDisable('+i+')">禁用</button>';
+      return '<div class="flex items-center justify-between text-sm mb-2"><span><span class="status-dot" style="background:'+dot+'"></span>'+l.name+(l.disabled?' <span class="ant-tag ant-tag-gray">已禁用</span>':'')+'</span><div class="flex gap-1">'+btn+'</div></div>';
+    }).join('');
+    renderLinesOnSvg();
+  }
+  function renderLinesOnSvg(){
+    var svg=document.getElementById('drawSvg'); if(!svg) return;
+    var lines=configLines.map(function(l){
+      var c=l.disabled?'#bfbfbf':'#faad14';
+      var p1=l.pts[0],p2=l.pts[1];
+      return '<line x1="'+p1.x+'%" y1="'+p1.y+'%" x2="'+p2.x+'%" y2="'+p2.y+'%" stroke="'+c+'" stroke-width="3" stroke-dasharray="6,4"/>'+
+        '<circle cx="'+p1.x+'%" cy="'+p1.y+'%" r="4" fill="'+c+'"/><circle cx="'+p2.x+'%" cy="'+p2.y+'%" r="4" fill="'+c+'"/>';
+    }).join('');
+    svg.innerHTML=lines+(drawLineMode?linePts.map(function(p){return '<circle cx="'+p.x+'%" cy="'+p.y+'%" r="4" fill="#1677ff"/>';}).join(''):'');
+  }
+  function startDrawLine(editIdx){
+    drawLineMode=true; linePts=[]; window._editLineIdx=(typeof editIdx==='number')?editIdx:null;
+    var svg=document.getElementById('drawSvg');
+    svg.style.pointerEvents='auto'; svg.style.cursor='crosshair';
+    var hint=document.getElementById('drawHint');
+    hint.style.display=''; hint.innerHTML='<i class="fa-solid fa-minus mr-1"></i>画计数线：点击画面两端点（2 点完成，自动命名）';
+    showToast('已进入画计数线模式，请在画面点击两点');
+  }
+  function onDrawSvgClick(e){
+    if(!drawLineMode) return;
+    var svg=document.getElementById('drawSvg');
+    var rect=svg.getBoundingClientRect();
+    var x=Math.round((e.clientX-rect.left)/rect.width*100);
+    var y=Math.round((e.clientY-rect.top)/rect.height*100);
+    linePts.push({x:x,y:y});
+    renderLinesOnSvg();
+    if(linePts.length>=2){
+      var idx=window._editLineIdx;
+      var name;
+      if(idx!==null&&idx!==undefined){ name=configLines[idx].name; configLines[idx].pts=linePts.slice(); configLines[idx].disabled=false; }
+      else { name='计数线'+(configLines.length+1); configLines.push({name:name, pts:linePts.slice(), disabled:false}); }
+      drawLineMode=false; linePts=[]; window._editLineIdx=null;
+      svg.style.pointerEvents='none'; svg.style.cursor='';
+      document.getElementById('drawHint').style.display='none';
+      renderConfigLines(); showToast('计数线「'+name+'」已保存');
+    }
+  }
+  function toggleLineDisable(idx){ configLines[idx].disabled=!configLines[idx].disabled; renderConfigLines(); showToast(configLines[idx].disabled?'计数线已禁用':'计数线已启用'); }
+  function filterDeviceModal(){
+    var kw=(document.getElementById('deviceSearch').value||'').trim().toLowerCase();
+    document.querySelectorAll('#deviceModalBody tr').forEach(function(tr){
+      var n=(tr.getAttribute('data-name')||'').toLowerCase();
+      tr.style.display=(!kw||n.indexOf(kw)>=0)?'':'none';
+    });
+  }
+
+  // 设备列表
+  var deviceStatusMap = {'未配置':'st-unconfig','已绑算法':'st-algo','已画线':'st-line','已映射':'st-mapped'};
+  var devices = [
+    {name:'cam_008 东门', area:'大门', groupId:'gate', online:true, status:'已绑算法'},
+    {name:'cam_009 西门', area:'大门', groupId:'gate', online:true, status:'已画线'},
+    {name:'cam_001 食堂-入口', area:'食堂', groupId:'canteen', online:true, status:'已映射'},
+    {name:'cam_002 食堂-出口', area:'食堂', groupId:'canteen', online:true, status:'已画线'},
+    {name:'cam_003 食堂-取餐台', area:'食堂', groupId:'canteen', online:true, status:'已绑算法'},
+    {name:'cam_004 食堂-二楼入口', area:'食堂', groupId:'canteen', online:false, status:'未配置'},
+    {name:'cam_005 食堂-收餐区', area:'食堂', groupId:'canteen', online:true, status:'已绑算法'},
+    {name:'cam_006 A栋-大堂', area:'A 栋', groupId:'a-building', online:true, status:'已绑算法'},
+    {name:'cam_007 A栋-电梯厅', area:'A 栋', groupId:'a-building', online:true, status:'已画线'},
+    {name:'cam_010 B栋-大堂', area:'B 栋', groupId:'b-building', online:true, status:'已绑算法'},
+    {name:'cam_011 B栋-走廊', area:'B 栋', groupId:'b-building', online:true, status:'已画线'},
+    {name:'cam_012 广场-主入口', area:'广场', groupId:'plaza', online:true, status:'已绑算法'},
+    {name:'cam_013 广场-休息区', area:'广场', groupId:'plaza', online:true, status:'未配置'},
+    {name:'cam_014 地下车库-入口', area:'地下车库', groupId:'garage', online:true, status:'已画线'}
+  ];
+  function renderDevices(){
+    var g = findGroupById(curGroup);
+    var areaName = g ? g.name : '';
+    var devs = devices.filter(function(d){return d.groupId===curGroup;});
+    document.getElementById('curGroupName').textContent = areaName;
+    document.getElementById('deviceBody').innerHTML = devs.map(function(d){
+      return '<tr>'
+        + '<td><i class="fa-solid fa-video mr-2 text-tertiary"></i>'+d.name+'</td>'
+        + '<td>'+d.area+'</td>'
+        + '<td>'+(d.online?'<span class="ant-tag ant-tag-green">在线</span>':'<span class="ant-tag ant-tag-red">离线</span>')+'</td>'
+        + '<td><span class="config-status '+deviceStatusMap[d.status]+'">'+d.status+'</span></td>'
+        + '<td class="action-wrap">'
+        + '<button class="ant-btn ant-btn-text ant-btn-sm" onclick="openConfigDrawer(\''+d.name+'\')">配置</button>'
+        + '<button class="ant-btn ant-btn-text ant-btn-sm" onclick="goMapCam(\''+d.name+'\')">映射</button>'
+        + '<button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="openConfirmDel(\'取消关联后，配置将保留但标记为未激活，重新关联后恢复。是否继续？\',\''+d.name+'\')">取消关联</button>'
+        + '</td></tr>';
+    }).join('');
+  }
+  function switchTabById(id){ ['tab1','tab4'].forEach(function(tid){ var p=document.getElementById(tid); if(p) p.style.display='none'; }); document.getElementById(id).style.display=''; document.querySelectorAll('#tabBar .tab-item').forEach(function(t){t.classList.remove('active');}); var idx={'tab1':0,'tab4':1}[id]; document.querySelectorAll('#tabBar .tab-item')[idx].classList.add('active'); if(id==='tab4') renderMapCamAll(); }
+  function switchTab(el,id){ ['tab1','tab4'].forEach(function(tid){ var p=document.getElementById(tid); if(p) p.style.display='none'; }); document.getElementById(id).style.display=''; document.querySelectorAll('#tabBar .tab-item').forEach(function(t){t.classList.remove('active');}); el.classList.add('active'); if(id==='tab4') renderMapCamAll(); }
+
+  // 预览计数
+  var previewCount=0;
+  function incPreview(){ previewCount++; document.getElementById('previewCount').textContent=previewCount; showToast('检测到越线，计数 +1'); }
+  // ===== 平面图相机标定（Tab②）=====
+  // 建立画面坐标->平面图坐标的单应性映射：点选≥4对对应点，计算矩阵，映射检测框底中心验证。
+  var mapCams = [
+    { id:'mc1', cam:'cam_001', name:'cam_001 食堂-入口', group:'食堂', calibrated:true, calibPoints:[{imgX:25,imgY:70,mapX:70,mapY:30},{imgX:60,imgY:65,mapX:80,mapY:44},{imgX:40,imgY:40,mapX:75,mapY:20},{imgX:80,imgY:55,mapX:85,mapY:50}] },
+    { id:'mc2', cam:'cam_002', name:'cam_002 食堂-出口', group:'食堂', calibrated:false, calibPoints:[] },
+    { id:'mc3', cam:'cam_003', name:'cam_003 食堂-取餐台', group:'食堂', calibrated:false, calibPoints:[] },
+    { id:'mc4', cam:'cam_004', name:'cam_004 食堂-二楼入口', group:'食堂', calibrated:false, calibPoints:[] },
+    { id:'mc5', cam:'cam_005', name:'cam_005 食堂-收餐区', group:'食堂', calibrated:false, calibPoints:[] },
+    { id:'mc6', cam:'cam_006', name:'cam_006 A栋-大堂', group:'A 栋办公区', calibrated:false, calibPoints:[] }
+  ];
+  var curMapCam = null;
+  var pendingImgPt = null;
+  var groupColorMap = {'食堂':'#fa8c16','A 栋办公区':'#1677ff','广场':'#52c41a','B 栋大堂':'#722ed1','地下车库入口':'#13c2c2'};
+  function camColor(g){ return groupColorMap[g] || '#1677ff'; }
+  var mockDetections = [{x:30,y:75},{x:55,y:68},{x:72,y:72}];
+  function affineFrom3(pts){
+    if(pts.length<3) return null;
+    var p1=pts[0],p2=pts[1],p3=pts[2];
+    var den=(p1.imgX*(p2.imgY-p3.imgY)+p2.imgX*(p3.imgY-p1.imgY)+p3.imgX*(p1.imgY-p2.imgY));
+    if(Math.abs(den)<1e-9) return null;
+    var a=((p1.mapX*(p2.imgY-p3.imgY)+p2.mapX*(p3.imgY-p1.imgY)+p3.mapX*(p1.imgY-p2.imgY)))/den;
+    var b=((p1.mapX*(p3.imgX-p2.imgX)+p2.mapX*(p1.imgX-p3.imgX)+p3.mapX*(p2.imgX-p1.imgX)))/den;
+    var c=p1.mapX-a*p1.imgX-b*p1.imgY;
+    var d=((p1.mapY*(p2.imgY-p3.imgY)+p2.mapY*(p3.imgY-p1.imgY)+p3.mapY*(p1.imgY-p2.imgY)))/den;
+    var e=((p1.mapY*(p3.imgX-p2.imgX)+p2.mapY*(p1.imgX-p3.imgX)+p3.mapY*(p2.imgX-p1.imgX)))/den;
+    var f=p1.mapY-d*p1.imgX-e*p1.imgY;
+    return {a:a,b:b,c:c,d:d,e:e,f:f};
+  }
+  function applyAffine(M,x,y){ return M?{x:M.a*x+M.b*y+M.c,y:M.d*x+M.e*y+M.f}:null; }
+  function renderMapCamList(){
+    var el=document.getElementById('mapCamList'); if(!el) return;
+    var buckets={};
+    mapCams.forEach(function(c){ (buckets[c.group]=buckets[c.group]||[]).push(c); });
+    var html='';
+    Object.keys(buckets).forEach(function(g){
+      html+='<div style="margin-bottom:4px"><div style="font-size:12px;color:var(--ant-text-secondary);padding:4px 6px;font-weight:600"><i class="fa-solid fa-folder mr-1" style="color:var(--ant-text-tertiary)"></i>'+g+'</div>';
+      buckets[g].forEach(function(c){
+        var active=c.id===curMapCam;
+        var badge=c.calibrated?'<span class="ant-tag ant-tag-green" style="font-size:10px;margin:0">已标定</span>':'<span class="ant-tag ant-tag-gray" style="font-size:10px;margin:0">未标定</span>';
+        var short=c.name.replace(c.cam+' ','');
+        var sub=c.calibrated?('标定点 '+c.calibPoints.length+' · 已计算单应性矩阵'):'点击开始标定';
+        html+='<div onclick="selectMapCam(\''+c.id+'\')" style="padding:7px 10px;border:1px solid var(--ant-border-secondary);border-radius:6px;margin:4px 0;cursor:pointer;'+(active?'background:var(--ant-primary-bg);border-color:var(--ant-primary);':'')+'"><div style="display:flex;justify-content:space-between;align-items:center;"><span class="text-sm"><i class="fa-solid fa-video mr-1 text-tertiary"></i>'+short+'</span>'+badge+'</div><div class="text-xs text-tertiary" style="margin-top:2px">'+sub+'</div></div>';
+      });
+      html+='</div>';
+    });
+    el.innerHTML=html;
+  }
+  function renderCalibPts(){
+    var c=curMapCam?mapCams.find(function(x){return x.id===curMapCam;}):null;
+    var imgSvg=document.getElementById('imgPtsSvg');
+    var mapSvg=document.getElementById('mapPtsSvg');
+    var detSvg=document.getElementById('imgDetSvg');
+    if(!imgSvg||!mapSvg) return;
+    var imgHtml='',mapHtml='',detHtml='';
+    mockDetections.forEach(function(d){
+      detHtml+='<rect x="'+(d.x-3)+'%" y="'+(d.y-8)+'%" width="6%" height="8%" fill="none" stroke="#52c41a" stroke-width="1.5"/>';
+      detHtml+='<circle cx="'+d.x+'%" cy="'+d.y+'%" r="2" fill="#52c41a"/>';
+    });
+    if(c){
+      var color=camColor(c.group);
+      c.calibPoints.forEach(function(p,i){
+        imgHtml+='<circle cx="'+p.imgX+'%" cy="'+p.imgY+'%" r="5" fill="'+color+'" stroke="#fff" stroke-width="2"/>';
+        imgHtml+='<text x="'+(p.imgX+2)+'%" y="'+(p.imgY-2)+'%" fill="'+color+'" font-size="11" font-weight="600" style="paint-order:stroke;stroke:rgba(0,0,0,0.7);stroke-width:3px;">P'+(i+1)+'</text>';
+        mapHtml+='<circle cx="'+p.mapX+'%" cy="'+p.mapY+'%" r="5" fill="'+color+'" stroke="#fff" stroke-width="2"/>';
+        mapHtml+='<text x="'+(p.mapX+2)+'%" y="'+(p.mapY-2)+'%" fill="'+color+'" font-size="11" font-weight="600" style="paint-order:stroke;stroke:rgba(0,0,0,0.7);stroke-width:3px;">P'+(i+1)+'</text>';
+      });
+      if(pendingImgPt){
+        imgHtml+='<circle cx="'+pendingImgPt.x+'%" cy="'+pendingImgPt.y+'%" r="6" fill="none" stroke="#fa541c" stroke-width="2" stroke-dasharray="3 2"/>';
+      }
+      if(c.calibPoints.length>=3){
+        var M=affineFrom3(c.calibPoints);
+        if(M){
+          mockDetections.forEach(function(d){
+            var mp=applyAffine(M,d.x,d.y);
+            if(mp){
+              mapHtml+='<circle cx="'+mp.x+'%" cy="'+mp.y+'%" r="4" fill="#fa541c" stroke="#fff" stroke-width="1.5"/>';
+            }
+          });
+        }
+      }
+    }
+    imgSvg.innerHTML=imgHtml;
+    mapSvg.innerHTML=mapHtml;
+    detSvg.innerHTML=detHtml;
+  }
+  function updateCalibInfo(){
+    var c=curMapCam?mapCams.find(function(x){return x.id===curMapCam;}):null;
+    var info=document.getElementById('calibInfo');
+    if(!info) return;
+    if(!c){ info.textContent=''; return; }
+    var n=c.calibPoints.length;
+    if(n<4){ info.textContent='已选 '+n+'/4 点对（需≥4）'; info.style.color='#874d00'; }
+    else { info.textContent='已计算单应性矩阵 · 点对 '+n; info.style.color='#389e0d'; }
+  }
+  function renderMapCamAll(){ renderMapCamList(); renderCalibPts(); updateCalibInfo(); }
+  function selectMapCam(id){
+    curMapCam=id;
+    pendingImgPt=null;
+    var c=mapCams.find(function(x){return x.id===id;});
+    var hint=document.getElementById('mapHint');
+    if(c){
+      var short=c.name.replace(c.cam+' ','');
+      if(c.calibrated){ hint.textContent='「'+short+'」已标定（可重新标定）'; }
+      else { hint.textContent='「'+short+'」标定中：先在画面点标定点，再在平面图点对应位置'; }
+    }
+    renderMapCamAll();
+  }
+  function onImgClick(e){
+    if(!curMapCam){ showToast('请先在左侧选择摄像头'); return; }
+    var rect=document.getElementById('imgCanvas').getBoundingClientRect();
+    var x=(e.clientX-rect.left)/rect.width*100, y=(e.clientY-rect.top)/rect.height*100;
+    pendingImgPt={x:x,y:y};
+    document.getElementById('mapHint').textContent='已选画面点 ('+x.toFixed(0)+','+y.toFixed(0)+')，请在平面图点对应位置';
+    renderCalibPts();
+  }
+  function onMapClick(e){
+    if(!curMapCam||!pendingImgPt){ if(!curMapCam) showToast('请先在左侧选择摄像头'); return; }
+    var c=mapCams.find(function(x){return x.id===curMapCam;});
+    var rect=document.getElementById('mapCanvas').getBoundingClientRect();
+    var x=(e.clientX-rect.left)/rect.width*100, y=(e.clientY-rect.top)/rect.height*100;
+    c.calibPoints.push({imgX:pendingImgPt.x,imgY:pendingImgPt.y,mapX:x,mapY:y});
+    pendingImgPt=null;
+    var n=c.calibPoints.length;
+    document.getElementById('mapHint').textContent='已配对 '+n+' 点对'+(n<4?'（需≥4）':'，映射验证已启用');
+    renderMapCamAll();
+  }
+  function clearCalib(){
+    var c=curMapCam?mapCams.find(function(x){return x.id===curMapCam;}):null;
+    if(!c){ return; }
+    c.calibPoints=[]; c.calibrated=false; pendingImgPt=null;
+    document.getElementById('mapHint').textContent='已清除标定，请重新点选';
+    renderMapCamAll();
+    showToast('已清除标定');
+  }
+  function saveCalib(){
+    var c=curMapCam?mapCams.find(function(x){return x.id===curMapCam;}):null;
+    if(!c){ showToast('请先在左侧选择摄像头'); return; }
+    if(c.calibPoints.length<4){ showToast('标定点不足4个（当前 '+c.calibPoints.length+'），请继续点选'); return; }
+    c.calibrated=true;
+    renderMapCamAll();
+    showToast('标定保存成功，该摄像头计入足迹热力图');
+  }
+  function goMapCam(camName){
+    switchTabById('tab4');
+    var c=mapCams.find(function(x){return x.name===camName;});
+    if(c){ selectMapCam(c.id); }
+    else { curMapCam=null; renderMapCamAll(); showToast('该摄像头尚未加入标定列表'); }
+  }
+
+  // ===== 画统计区域 =====
+  var countingLines = [{ id:'cl1', name:'大门口-进', x1:20, y1:60, x2:80, y2:55 }];
+  var regionsConfig = [{ id:'r1', name:'就餐区A', pts:[{x:15,y:40},{x:50,y:38},{x:52,y:72},{x:17,y:74}], enabled:true }];
+  var drawMode = false;
+  var drawPoints = [];
+  var drawClickTimer = null;
+  var pendingPoints = null;
+  var pendingDeleteId = null;
+  var TEXT_STROKE = 'style="paint-order:stroke;stroke:rgba(0,0,0,0.8);stroke-width:3px;stroke-linejoin:round;"';
+
+  function renderDrawSvg(){
+    var svg = document.getElementById('drawSvg');
+    if(!svg) return;
+    var html = '';
+    countingLines.forEach(function(l){
+      html += '<line x1="'+l.x1+'%" y1="'+l.y1+'%" x2="'+l.x2+'%" y2="'+l.y2+'%" stroke="#faad14" stroke-width="3" stroke-dasharray="6 4"/>';
+      html += '<text x="'+(l.x1+2)+'%" y="'+(l.y1-2)+'%" fill="#faad14" font-size="12" '+TEXT_STROKE+'>'+l.name+'</text>';
+    });
+    regionsConfig.forEach(function(r){
+      if(!r.enabled) return;
+      var pts = r.pts.map(function(p){return p.x+'%,'+p.y+'%';}).join(' ');
+      html += '<polygon points="'+pts+'" fill="#52c41a" fill-opacity="0.2" stroke="#52c41a" stroke-width="2"/>';
+      var cx = r.pts.reduce(function(s,p){return s+p.x;},0)/r.pts.length;
+      var cy = r.pts.reduce(function(s,p){return s+p.y;},0)/r.pts.length;
+      html += '<text x="'+cx+'%" y="'+(cy+4)+'%" text-anchor="middle" fill="#52c41a" font-size="12" font-weight="600" '+TEXT_STROKE+'>'+r.name+'</text>';
+    });
+    if(drawMode && drawPoints.length){
+      for(var i=0;i<drawPoints.length;i++){
+        var p = drawPoints[i];
+        if(i>0){ var prev=drawPoints[i-1]; html += '<line x1="'+prev.x+'%" y1="'+prev.y+'%" x2="'+p.x+'%" y2="'+p.y+'%" stroke="#1677ff" stroke-width="2"/>'; }
+        html += '<circle cx="'+p.x+'%" cy="'+p.y+'%" r="4" fill="#1677ff" stroke="#fff" stroke-width="1.5"/>';
+      }
+      if(drawPoints.length>=3){
+        var f=drawPoints[0], lst=drawPoints[drawPoints.length-1];
+        html += '<line x1="'+lst.x+'%" y1="'+lst.y+'%" x2="'+f.x+'%" y2="'+f.y+'%" stroke="#1677ff" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>';
+        html += '<circle cx="'+f.x+'%" cy="'+f.y+'%" r="6" fill="none" stroke="#1677ff" stroke-width="2" opacity="0.5"/>';
+      }
+    }
+    svg.innerHTML = html;
+  }
+  function renderRegionListConfig(){
+    var cntEl = document.getElementById('regionCountCfg');
+    if(cntEl) cntEl.textContent = regionsConfig.length;
+    var html = regionsConfig.map(function(r){
+      var dot = r.enabled ? '#52c41a' : '#bfbfbf';
+      var toggle = r.enabled ? '禁用' : '启用';
+      var label = r.name + (r.enabled ? '' : '（已禁用）');
+      return '<div class="flex items-center justify-between text-sm mb-2">'
+        + '<span><span class="status-dot" style="background:'+dot+'"></span>'+label+'</span>'
+        + '<div class="flex gap-1">'
+        + '<button class="ant-btn ant-btn-text ant-btn-sm" onclick="showToast(\'进入编辑模式\')">编辑</button>'
+        + '<button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleRegion(\''+r.id+'\')">'+toggle+'</button>'
+        + '<button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="deleteRegion(\''+r.id+'\')">删除</button>'
+        + '</div></div>';
+    }).join('');
+    var list = document.getElementById('regionListConfig');
+    if(list) list.innerHTML = html;
+  }
+  function setDrawBtnIdle(){
+    document.getElementById('drawRegionBtns').innerHTML = '<button class="ant-btn ant-btn-primary w-full mb-3" onclick="startDrawRegion()"><i class="fa-solid fa-draw-polygon"></i> 画统计区域</button>';
+  }
+  function setDrawBtnActive(){
+    document.getElementById('drawRegionBtns').innerHTML = '<button class="ant-btn ant-btn-primary w-full mb-2" onclick="finishDrawRegion()"><i class="fa-solid fa-check"></i> 完成绘制</button><button class="ant-btn w-full mb-3" onclick="cancelDrawRegion()"><i class="fa-solid fa-xmark"></i> 取消绘制</button>';
+  }
+  function startDrawRegion(){
+    drawMode = true; drawPoints = [];
+    document.getElementById('drawHint').style.display = 'block';
+    document.getElementById('videoCanvas2').style.cursor = 'crosshair';
+    setDrawBtnActive();
+    renderDrawSvg();
+    showToast('已进入绘制模式，点击画面添加顶点');
+  }
+  function cancelDrawRegion(){
+    drawMode = false; drawPoints = [];
+    document.getElementById('drawHint').style.display = 'none';
+    document.getElementById('videoCanvas2').style.cursor = '';
+    setDrawBtnIdle();
+    renderDrawSvg();
+  }
+  function onCanvasClick(e){
+    if(!drawMode) return;
+    if(drawClickTimer){ clearTimeout(drawClickTimer); drawClickTimer = null; }
+    var ev = e;
+    drawClickTimer = setTimeout(function(){
+      var c = document.getElementById('videoCanvas2');
+      var rect = c.getBoundingClientRect();
+      var x = (ev.clientX - rect.left) / rect.width * 100;
+      var y = (ev.clientY - rect.top) / rect.height * 100;
+      drawPoints.push({x:x, y:y});
+      renderDrawSvg();
+      drawClickTimer = null;
+    }, 220);
+  }
+  function onCanvasDblClick(e){
+    if(!drawMode) return;
+    if(drawClickTimer){ clearTimeout(drawClickTimer); drawClickTimer = null; }
+    finishDrawRegion();
+  }
+  function cross2(a,b,c){ return (b.x-a.x)*(c.y-a.y) - (b.y-a.y)*(c.x-a.x); }
+  function segIntersect(p1,p2,p3,p4){
+    var d1=cross2(p3,p4,p1), d2=cross2(p3,p4,p2), d3=cross2(p1,p2,p3), d4=cross2(p1,p2,p4);
+    return ((d1>0&&d2<0)||(d1<0&&d2>0)) && ((d3>0&&d4<0)||(d3<0&&d4>0));
+  }
+  function finishDrawRegion(){
+    if(drawPoints.length < 3){ showToast('至少需要 3 个顶点，当前 '+drawPoints.length+' 个'); return; }
+    var n=drawPoints.length;
+    for(var i=0;i<n;i++){
+      var a1=drawPoints[i], a2=drawPoints[(i+1)%n];
+      for(var j=i+2;j<n;j++){
+        if((j+1)%n===i) continue;
+        var b1=drawPoints[j], b2=drawPoints[(j+1)%n];
+        if(segIntersect(a1,a2,b1,b2)){ showToast('统计区域多边形不能自相交，请调整顶点'); return; }
+      }
+    }
+    pendingPoints = drawPoints.slice();
+    document.getElementById('regionNameInput').value = '';
+    var errEl = document.getElementById('regionNameError');
+    errEl.textContent = '区域名称不能为空';
+    errEl.classList.add('hidden');
+    document.getElementById('regionVertexCount').textContent = pendingPoints.length;
+    openModal('regionModal');
+  }
+  function cancelSaveRegion(){ closeModal('regionModal'); }
+  function saveRegion(){
+    var name = document.getElementById('regionNameInput').value.trim();
+    var errEl = document.getElementById('regionNameError');
+    if(!name){ errEl.textContent = '区域名称不能为空'; errEl.classList.remove('hidden'); return; }
+    if(regionsConfig.some(function(r){return r.name===name;})){
+      errEl.textContent = '区域名称「'+name+'」已存在'; errEl.classList.remove('hidden'); return;
+    }
+    regionsConfig.push({ id:'r'+Date.now(), name:name, pts:pendingPoints, enabled:true });
+    closeModal('regionModal');
+    drawMode = false; drawPoints = [];
+    document.getElementById('drawHint').style.display = 'none';
+    document.getElementById('videoCanvas2').style.cursor = '';
+    setDrawBtnIdle();
+    renderDrawSvg();
+    renderRegionListConfig();
+    showToast('统计区域「'+name+'」已保存');
+  }
+  function toggleRegion(id){
+    var r = regionsConfig.find(function(x){return x.id===id;});
+    if(r){ r.enabled = !r.enabled; renderDrawSvg(); renderRegionListConfig(); showToast(r.enabled?'已启用':'已禁用'); }
+  }
+  function deleteRegion(id){
+    var r = regionsConfig.find(function(x){return x.id===id;});
+    if(!r) return;
+    pendingDeleteId = id;
+    openConfirmDel('确定删除统计区域「'+r.name+'」？');
+  }
+
+  // ===== 设备配置抽屉 =====
+  function openConfigDrawer(name){
+    document.getElementById('drawerDeviceName').textContent = name || '设备配置';
+    document.getElementById('configDrawerMask').classList.add('active');
+    document.getElementById('configDrawer').classList.add('active');
+    var firstTab = document.querySelector('#drawerTabBar .tab-item');
+    if(firstTab) switchDrawerTab(firstTab, 'dtab1');
+    renderDrawSvg();
+    renderRegionListConfig();
+  }
+  function closeConfigDrawer(){
+    document.getElementById('configDrawerMask').classList.remove('active');
+    document.getElementById('configDrawer').classList.remove('active');
+    if(drawMode){ cancelDrawRegion(); }
+  }
+  function switchDrawerTab(el,id){
+    ['dtab1','dtab2','dtab3'].forEach(function(tid){ var p=document.getElementById(tid); if(p) p.style.display='none'; });
+    var cur = document.getElementById(id);
+    if(cur) cur.style.display='';
+    document.querySelectorAll('#drawerTabBar .tab-item').forEach(function(t){t.classList.remove('active');});
+    el.classList.add('active');
+    if(id==='dtab2'){ renderDrawSvg(); }
+  }
+
+  selectGroup('gate');
+  renderAll();
+  renderDrawSvg(); renderRegionListConfig(); renderConfigLines(); renderMapCamAll();
+  window.addEventListener('resize', function(){ if(document.getElementById('tab4').style.display!=='none'){ renderCalibPts(); } });
+</script>
+</body>
+</html>

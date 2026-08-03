@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>园区人员热力图与流量统计 - 原型导航</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="proto-ui.css">
+  <link rel="stylesheet" href="tailwind-fallback.css">
+  <style>
+    .page-card { background:#fff; border-radius:8px; border:1px solid var(--ant-border-secondary); box-shadow:var(--shadow-1); transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s; cursor:pointer; text-decoration:none; display:block; color:inherit; }
+    .page-card:hover { border-color:var(--ant-primary); box-shadow:0 4px 12px rgba(22,119,255,0.15); transform:translateY(-1px); }
+    .section-bar { width:4px; height:16px; border-radius:2px; display:inline-block; margin-right:10px; }
+    .legend-tag { border-radius:10px; padding:1px 6px; font-size:11px; font-weight:500; }
+    .tag-new { background:#fff2f0; color:#ff4d4f; border:1px solid #ffccc7; }
+    .tag-p1 { background:#fff7e6; color:#fa8c16; border:1px solid #ffd591; }
+    .tag-p2 { background:#f6ffed; color:#52c41a; border:1px solid #b7eb8f; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <header class="header" style="padding:0 32px;">
+    <div class="logo"><i class="fa-solid fa-people-group"></i></div>
+    <div>
+      <div class="app-name">园区人员热力图与流量统计</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.5);">产品原型 · 共 10 个页面 · 2026.07</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="flex gap-2">
+      <button onclick="filterSection('all')" id="tab-all" class="px-4 py-1 rounded text-sm cursor-pointer transition-all" style="background:#1677ff;color:#fff;border:1px solid #1677ff;">全部</button>
+      <button onclick="filterSection('mvp')" id="tab-mvp" class="px-4 py-1 rounded text-sm cursor-pointer transition-all" style="background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.3);">配置与可视化</button>
+      <button onclick="filterSection('p1')" id="tab-p1" class="px-4 py-1 rounded text-sm cursor-pointer transition-all" style="background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.3);">深度分析与报表</button>
+      <button onclick="filterSection('alert')" id="tab-alert" class="px-4 py-1 rounded text-sm cursor-pointer transition-all" style="background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.3);">告警</button>
+      <button onclick="filterSection('screen')" id="tab-screen" class="px-4 py-1 rounded text-sm cursor-pointer transition-all" style="background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.3);">监控大屏</button>
+    </div>
+  </header>
+
+  <main class="p-8 max-w-7xl mx-auto">
+
+    <div class="flex gap-4 mb-8 p-4 bg-white rounded-lg" style="border:1px solid #f0f0f0;">
+      <span class="flex items-center gap-2 text-sm"><span class="legend-tag tag-new">本次交付</span> 全部 10 个页面本次一次性交付</span>
+      <span class="flex items-center gap-2 text-sm"><span class="legend-tag tag-p2">未来迭代</span> 异常行为告警、自定义仪表盘、多主题、多园区、开放 API、移动端</span>
+    </div>
+
+    <section data-section="mvp" class="mb-10">
+      <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+        <span class="section-bar" style="background:#1677ff;"></span>核心配置与基础可视化
+        <span class="ml-3 text-xs font-normal text-tertiary">配置设备 → 看到热力图与流量统计的全链路</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-4">
+
+        <a href="admin-config/index.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:var(--ant-primary-bg);color:var(--ant-primary);">
+                <i class="fa-solid fa-sliders"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">P-001 分析配置</div>
+                <div class="text-xs text-tertiary">分组/设备/算法/画线/相机标定</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">本次交付</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-config/ · 2 主 Tab + 设备配置抽屉 · 含分组/设备/算法/画线/相机标定</p>
+        </a>
+
+        <a href="admin-dashboard/index.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:var(--ant-primary-bg);color:var(--ant-primary);">
+                <i class="fa-solid fa-gauge-high"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">P-002 人流分析总览</div>
+                <div class="text-xs text-tertiary">一屏掌握园区人流状态</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">本次交付</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-dashboard/ · KPI + 趋势 + 排行 + 热力图 + 告警 · 含投屏模式（深色全屏）</p>
+        </a>
+
+        <a href="admin-heatmap/index.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:var(--ant-primary-bg);color:var(--ant-primary);">
+                <i class="fa-solid fa-fire"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">P-003 热力图分析</div>
+                <div class="text-xs text-tertiary">足迹热力图呈现全局分布</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">本次交付</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-heatmap/ · 足迹热力图 · 含实时/历史回看、动画播放、3D、PNG 导出</p>
+        </a>
+
+        <a href="admin-stats/index.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:var(--ant-primary-bg);color:var(--ant-primary);">
+                <i class="fa-solid fa-chart-column"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">P-004 流量统计分析</div>
+                <div class="text-xs text-tertiary">多维度流量数据分析</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">本次交付</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-stats/ · 趋势/排行/停留/对比 Tab + 钻取 + 导出</p>
+        </a>
+
+        <a href="admin-region-monitor/index.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:var(--ant-primary-bg);color:var(--ant-primary);">
+                <i class="fa-solid fa-eye"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">P-008 建筑人数监测</div>
+                <div class="text-xs text-tertiary">单摄像头画面内区域实时人数</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">本次交付</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-region-monitor/ · 视频+区域叠加 · 人数列表 · 5秒刷新 · 全屏</p>
+        </a>
+
+      </div>
+    </section>
+
+    <section data-section="p1" class="mb-10">
+      <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+        <span class="section-bar" style="background:#fa8c16;"></span>深度分析与报表
+        <span class="ml-3 text-xs font-normal text-tertiary">建筑关联（实验）、报表、监控大屏</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-4">
+
+        <a href="admin-correlation/index.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff7e6;color:#fa8c16;">
+                <i class="fa-solid fa-diagram-project"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">P-005 建筑关联分析</div>
+                <div class="text-xs text-tertiary">区域间人员流动关系</div>
+              </div>
+            </div>
+            <span class="legend-tag" style="background:#fff7e6;color:#fa8c16;border:1px solid #ffd591">实验性</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-correlation/ · 桑基图 / OD矩阵 / 箭头图（实验性参考层，仅供参考）</p>
+        </a>
+
+        <a href="admin-report/index.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff7e6;color:#fa8c16;">
+                <i class="fa-solid fa-file-lines"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">P-006 人流报表</div>
+                <div class="text-xs text-tertiary">日/周/月报自动生成</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">本次交付</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-report/ · 报表列表 + 预览 + 导出 PDF/Excel</p>
+        </a>
+
+      </div>
+    </section>
+
+    <section data-section="alert" class="mb-10">
+      <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+        <span class="section-bar" style="background:#ff4d4f;"></span>告警管理
+        <span class="ml-3 text-xs font-normal text-tertiary">告警规则配置与告警事件处置</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-4">
+
+        <a href="admin-alert-rule/index.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff1f0;color:#ff4d4f;">
+                <i class="fa-solid fa-bell"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">P-009 告警规则</div>
+                <div class="text-xs text-tertiary">超员/聚集告警规则配置</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">本次交付</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-alert-rule/ · 规则列表 + 新增/编辑/启停/删除 · 异常行为置灰</p>
+        </a>
+
+        <a href="admin-alert-list/index.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#fff1f0;color:#ff4d4f;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">P-010 告警列表</div>
+                <div class="text-xs text-tertiary">告警事件确认与处置</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">本次交付</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">admin-alert-list/ · 事件列表 + 查看详情/确认/标记处理 · 处理时效统计</p>
+        </a>
+
+      </div>
+    </section>
+
+    <section data-section="screen" class="mb-10">
+      <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center">
+        <span class="section-bar" style="background:#722ed1;"></span>监控大屏入口
+        <span class="ml-3 text-xs font-normal text-tertiary">跳转至分析总览投屏模式</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-4">
+        <a href="admin-screen/index.html" class="page-card p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#f9f0ff;color:#722ed1;">
+                <i class="fa-solid fa-tv"></i>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800">P-007 监控中心大屏</div>
+                <div class="text-xs text-tertiary">投屏值守专用</div>
+              </div>
+            </div>
+            <span class="legend-tag tag-new">本次交付</span>
+          </div>
+          <p class="text-xs m-0 text-tertiary">顶部指标 + 中部热力图/排行 + 底部趋势/告警滚动</p>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    function filterSection(key) {
+      document.querySelectorAll('section[data-section]').forEach(function(sec) {
+        sec.style.display = (key === 'all' || sec.dataset.section === key) ? '' : 'none';
+      });
+      document.querySelectorAll('header button[id^="tab-"]').forEach(function(btn) {
+        var on = btn.id === 'tab-' + key;
+        btn.style.background = on ? '#1677ff' : 'transparent';
+        btn.style.color = on ? '#fff' : 'rgba(255,255,255,0.7)';
+        btn.style.borderColor = on ? '#1677ff' : 'rgba(255,255,255,0.3)';
+      });
+    }
+  </script>
+</body>
+</html>

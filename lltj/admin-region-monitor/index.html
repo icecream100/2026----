@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>建筑人数监测 - 园区人员热力图与流量统计</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <script src="../mock-store.js"></script>
+  <style>
+    .cam-card { padding:10px 12px; border-radius:8px; cursor:pointer; border:1px solid var(--ant-border-secondary); transition:all .15s; margin-bottom:4px; }
+    .cam-card:hover { border-color:var(--ant-primary); background:var(--ant-primary-bg); }
+    .cam-card.active { border-color:var(--ant-primary); background:var(--ant-primary-bg); }
+    .cam-card.offline { opacity:.55; }
+    .cam-card .cam-icon { width:32px; height:32px; border-radius:6px; background:var(--ant-primary-bg); color:var(--ant-primary); display:flex; align-items:center; justify-content:center; font-size:14px; }
+    .cam-card.offline .cam-icon { background:#f5f5f5; color:#bfbfbf; }
+    .video-canvas { background:#141414; position:relative; border-radius:8px; overflow:hidden; }
+    .video-canvas::after { content:''; position:absolute; inset:0; pointer-events:none; border-radius:8px; box-shadow:inset 0 0 60px rgba(0,0,0,.25); }
+    .region-card { padding:14px; border-radius:8px; cursor:pointer; border:1px solid var(--ant-border-secondary); transition:all .15s; margin-bottom:8px; }
+    .region-card:hover { border-color:var(--ant-primary); box-shadow:0 2px 8px rgba(22,119,255,.08); }
+    .region-card.active { border-color:var(--ant-primary); background:var(--ant-primary-bg); }
+    .rc-num { font-size:26px; font-weight:700; line-height:1; font-variant-numeric:tabular-nums; }
+    .rc-bar { height:5px; border-radius:3px; background:#f0f0f0; overflow:hidden; margin-top:8px; }
+    .rc-bar-fill { height:100%; border-radius:3px; transition:width .4s ease; }
+    .rc-trend { font-size:12px; font-weight:600; }
+    .rc-trend.up { color:#ff4d4f; }
+    .rc-trend.down { color:#52c41a; }
+    .rc-trend.flat { color:#bfbfbf; }
+    .rc-status { font-size:11px; padding:2px 8px; border-radius:8px; }
+    .rc-status.normal { background:#f6ffed; color:#52c41a; border:1px solid #b7eb8f; }
+    .rc-status.delay { background:#fffbe6; color:#d48806; border:1px solid #ffe58f; }
+    .rc-status.abnormal { background:#f5f5f5; color:#8c8c8c; border:1px solid #d9d9d9; }
+    .total-hero { background:linear-gradient(135deg,var(--ant-primary-bg),#f0f5ff); border-radius:8px; padding:18px 20px; border:1px solid #d6e4ff; }
+    .total-hero .th-num { font-size:36px; font-weight:700; color:var(--ant-primary); line-height:1; }
+    .fullscreen-mode { position:fixed; inset:0; z-index:9999; border-radius:0 !important; }
+    .fullscreen-mode .video-canvas { height:calc(100vh - 55px) !important; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-people-group"></i></div>
+    <span class="app-name">园区人员热力图与流量统计</span>
+    <div class="spacer"></div>
+    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
+    <span class="role-switch"></span><div class="flex items-center gap-2 user-block" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
+      <span style="font-size:13px;">管理员·王</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">人流分析</div>
+      <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
+      <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
+      <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-correlation/index.html"><i class="fa-solid fa-diagram-project"></i>建筑关联分析</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
+      <a class="menu-item active" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>建筑人数监测</a>
+      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
+      <div class="menu-group-title">告警</div>
+      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
+      <div class="menu-group-title">监控</div>
+      <a class="menu-item" href="../admin-screen/index.html"><i class="fa-solid fa-display"></i>监控中心大屏</a>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><span class="current">建筑人数监测</span></div>
+      <div class="flex items-center justify-between mb-4">
+        <div class="page-title" style="margin-bottom:0;">建筑人数监测</div>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-tertiary mr-2"><span id="refreshStatus">自动刷新中</span> · <span id="countdown" class="tnum">5</span>s</span>
+          <button class="ant-btn ant-btn-sm" id="refreshToggle" onclick="toggleAutoRefresh()"><i class="fa-solid fa-pause"></i> 暂停</button>
+          <button class="ant-btn ant-btn-sm" onclick="doRefresh(true)"><i class="fa-solid fa-rotate-right"></i> 刷新</button>
+          <button class="ant-btn ant-btn-sm" onclick="toggleFullscreen()"><i class="fa-solid fa-expand"></i> 全屏</button>
+        </div>
+      </div>
+
+      <!-- 三栏 -->
+      <div class="grid gap-4" style="grid-template-columns:220px 1fr 300px;">
+        <!-- 左：摄像头列表 -->
+        <div class="ant-card ant-card-bordered">
+          <div class="ant-card-head"><div class="ant-card-head-title">摄像头</div></div>
+          <div class="ant-card-body" style="padding:8px;" id="camList"></div>
+        </div>
+
+        <!-- 中：视频画面 -->
+        <div class="ant-card ant-card-bordered" id="videoCard">
+          <div class="ant-card-head">
+            <div class="ant-card-head-title">实时画面 · <span id="curCamName">cam_001 食堂-入口</span></div>
+            <div class="ant-card-extra">
+              <span class="status-dot pulse-dot" style="background:#52c41a"></span><span class="text-sm">直播中</span>
+            </div>
+          </div>
+          <div class="ant-card-body">
+            <div class="video-canvas" id="videoCanvas" style="height:440px;">
+              <div id="videoPlaceholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.12);font-size:48px;pointer-events:none;"><i class="fa-solid fa-video"></i></div>
+              <svg id="regionSvg" style="position:absolute;inset:0;width:100%;height:100%;"></svg>
+              <div style="position:absolute;top:10px;left:12px;font-size:10px;color:rgba(255,255,255,.3);font-family:monospace;">1920×1080 · LIVE</div>
+              <div id="noRegionTip" style="display:none;position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-size:12px;background:rgba(0,0,0,0.7);color:#fff;padding:6px 14px;border-radius:6px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右：区域信息 -->
+        <div>
+          <div class="total-hero mb-4">
+            <div class="text-xs text-tertiary mb-1">当前人数</div>
+            <div class="th-num" id="totalCount">--</div>
+            <div class="text-xs text-tertiary mt-1" id="camStatus">--</div>
+          </div>
+          <div class="ant-card ant-card-bordered" id="regionDetailCard">
+            <div class="ant-card-head"><div class="ant-card-head-title">统计区域</div></div>
+            <div class="ant-card-body" style="padding:8px;" id="regionList"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  var cameras = [
+    { group:'食堂', list:[
+      { id:'cam_001', name:'cam_001 食堂-入口', online:true, hasAlgo:true },
+      { id:'cam_002', name:'cam_002 食堂-出口', online:true, hasAlgo:true },
+      { id:'cam_003', name:'cam_003 食堂-取餐台', online:true, hasAlgo:true },
+      { id:'cam_004', name:'cam_004 食堂-二楼入口', online:false, hasAlgo:true }
+    ]},
+    { group:'A 栋办公区', list:[
+      { id:'cam_006', name:'cam_006 A栋-大堂', online:true, hasAlgo:false },
+      { id:'cam_007', name:'cam_007 A栋-电梯厅', online:true, hasAlgo:true }
+    ]},
+    { group:'广场', list:[
+      { id:'cam_008', name:'cam_008 广场-东侧', online:true, hasAlgo:true }
+    ]}
+  ];
+
+  var regionsByCam = {
+    cam_001: [
+      { id:'r1', name:'食堂入口', count:23, status:'normal', pts:'8,8 92,6 94,92 10,94', cx:51, cy:50 }
+    ],
+    cam_002: [
+      { id:'r1', name:'食堂出口', count:5, status:'normal', pts:'8,8 92,6 94,92 10,94', cx:51, cy:50 }
+    ],
+    cam_003: [
+      { id:'r1', name:'取餐台', count:13, status:'normal', pts:'8,8 92,6 94,92 10,94', cx:51, cy:50 }
+    ],
+    cam_007: [
+      { id:'r1', name:'电梯厅', count:10, status:'normal', pts:'8,8 92,6 94,92 10,94', cx:51, cy:50 }
+    ],
+    cam_008: [
+      { id:'r1', name:'广场东侧', count:28, status:'normal', pts:'8,8 92,6 94,92 10,94', cx:51, cy:50 }
+    ]
+  };
+
+  var curCam = 'cam_001';
+  var highlightId = null;
+  var autoRefresh = true;
+  var countdownVal = 5;
+  var countdownTimer = null;
+  var prevCounts = {};
+
+  function renderCameras(){
+    var html = '';
+    cameras.forEach(function(g){
+      var groupHasCam = false;
+      var groupHtml = '';
+      g.list.forEach(function(c){
+        // 渲染全部摄像头（含离线、未绑算法、无区域），无区域的选中时走提示分支
+        groupHasCam = true;
+        var cls = c.id===curCam ? 'cam-card active' : 'cam-card';
+        if(!c.online) cls += ' offline';
+        var tag = '';
+        if(!c.online) tag = '<span class="text-xs" style="color:#ff4d4f;">离线</span>';
+        else if(!c.hasAlgo) tag = '<span class="text-xs" style="color:#bfbfbf;">未绑算法</span>';
+        groupHtml += '<div class="'+cls+'" onclick="selectCam(\''+c.id+'\')">'
+          + '<div class="flex items-center gap-3">'
+          + '<div class="cam-icon"><i class="fa-solid fa-video"></i></div>'
+          + '<div style="flex:1;min-width:0"><div class="text-sm" style="line-height:1.4">'+c.name+'</div>'+tag+'</div>'
+          + '<span class="status-dot" style="background:'+(c.online?'#52c41a':'#ff4d4f')+'"></span>'
+          + '</div></div>';
+      });
+      if(groupHasCam){
+        html += '<div style="font-size:11px;color:var(--ant-text-tertiary);padding:8px 8px 4px;font-weight:600;">'+g.group+'</div>';
+        html += groupHtml;
+      }
+    });
+    document.getElementById('camList').innerHTML = html;
+  }
+
+  function selectCam(id){
+    curCam = id; highlightId = null; prevCounts = {};
+    renderCameras();
+    var cam = findCam(id);
+    document.getElementById('curCamName').textContent = cam ? cam.name : id;
+    renderRegions(); resetCountdown();
+  }
+  function findCam(id){
+    for(var i=0;i<cameras.length;i++){
+      var c = cameras[i].list.find(function(x){return x.id===id;});
+      if(c) return c;
+    } return null;
+  }
+
+  function renderRegions(){
+    var cam = findCam(curCam);
+    var svg = document.getElementById('regionSvg');
+    var noTip = document.getElementById('noRegionTip');
+    var ph = document.getElementById('videoPlaceholder');
+
+    if(!cam || !cam.online){
+      svg.innerHTML = ''; noTip.style.display = 'block';
+      noTip.textContent = '视频流不可用，请检查设备状态'; ph.style.display = 'flex';
+      document.getElementById('regionList').innerHTML = '<div class="text-sm text-tertiary text-center" style="padding:40px 0;">暂无数据</div>';
+      document.getElementById('totalCount').textContent = '--'; return;
+    }
+    if(!cam.hasAlgo){
+      svg.innerHTML = ''; noTip.style.display = 'block';
+      noTip.textContent = '该摄像头未绑定算法'; ph.style.display = 'flex';
+      document.getElementById('regionList').innerHTML = '<div class="text-sm text-tertiary text-center" style="padding:40px 0;">暂无数据</div>';
+      document.getElementById('totalCount').textContent = '--'; return;
+    }
+
+    var regions = regionsByCam[curCam] || [];
+    ph.style.display = regions.length ? 'none' : 'flex';
+    if(!regions.length){
+      svg.innerHTML = ''; noTip.style.display = 'block';
+      noTip.textContent = '暂无统计区域，请在「分析配置」中配置';
+      document.getElementById('regionList').innerHTML = '<div class="text-sm text-tertiary text-center" style="padding:40px 0;">暂无统计区域</div>';
+      document.getElementById('totalCount').textContent = '--'; return;
+    }
+    noTip.style.display = 'none';
+
+    var colorMap = { normal:'#52c41a', delay:'#faad14', abnormal:'#8c8c8c' };
+    var svgHtml = '';
+    regions.forEach(function(r){
+      var color = colorMap[r.status], isHl = r.id===highlightId;
+      svgHtml += '<polygon points="'+r.pts+'" fill="'+color+'" fill-opacity="'+(isHl?0.45:0.22)+'" stroke="'+color+'" stroke-width="'+(isHl?3:1.5)+'" stroke-dasharray="'+(r.status==='abnormal'?'4 3':'')+'" style="cursor:pointer" onclick="highlightRegion(\''+r.id+'\')"/>';
+      var label = r.status==='abnormal'?'--':String(r.count);
+      svgHtml += '<rect x="'+(r.cx-10)+'" y="'+(r.cy-8)+'" width="20" height="16" rx="3" fill="rgba(0,0,0,.65)"/>';
+      svgHtml += '<text x="'+r.cx+'" y="'+(r.cy+4)+'" text-anchor="middle" fill="'+color+'" font-size="12" font-weight="700" style="pointer-events:none">'+label+'</text>';
+      svgHtml += '<text x="'+r.cx+'" y="'+(r.cy-12)+'" text-anchor="middle" fill="rgba(255,255,255,.8)" font-size="9" style="pointer-events:none">'+r.name+'</text>';
+    });
+    svg.innerHTML = svgHtml;
+
+    // 右侧 — 单区域展示
+    var r = regions[0];
+    var total = r.status==='abnormal'?0:r.count;
+    document.getElementById('totalCount').textContent = total;
+    document.getElementById('camStatus').textContent = { normal:'正常检测中', delay:'数据延迟', abnormal:'检测异常' }[r.status];
+
+    var color = colorMap[r.status];
+    var trendHtml = '';
+    if(r.status!=='abnormal'){
+      var prev = prevCounts[r.id];
+      if(prev !== undefined){
+        var diff = r.count-prev;
+        if(diff>0) trendHtml = '<span class="rc-trend up" style="font-size:14px">↑'+diff+'</span>';
+        else if(diff<0) trendHtml = '<span class="rc-trend down" style="font-size:14px">↓'+Math.abs(diff)+'</span>';
+        else trendHtml = '<span class="rc-trend flat" style="font-size:14px">─</span>';
+      }
+    }
+    document.getElementById('regionList').innerHTML =
+      '<div class="region-card">'
+      +'<div class="flex items-center justify-between mb-2">'
+      +'<span style="font-size:15px;font-weight:600;">'+r.name+'</span>'
+      +'<span class="rc-status '+({ normal:'normal', delay:'delay', abnormal:'abnormal' }[r.status])+'">'+({ normal:'正常', delay:'延迟', abnormal:'异常' }[r.status])+'</span>'
+      +'</div>'
+      +'<div class="flex items-end justify-between">'
+      +'<span class="rc-num" style="color:'+color+';">'+(r.status==='abnormal'?'--':r.count)+'</span>'
+      +trendHtml
+      +'</div>'
+      +'</div>';
+  }
+
+  function highlightRegion(id){ highlightId=highlightId===id?null:id; renderRegions(); }
+
+  function doRefresh(manual){
+    var regions = regionsByCam[curCam]||[];
+    regions.forEach(function(r){prevCounts[r.id]=r.count;});
+    regions.forEach(function(r){
+      if(r.status==='abnormal') return;
+      r.count = Math.max(0,r.count+Math.floor(Math.random()*5)-2);
+    });
+    renderRegions();
+    if(manual) showToast('已刷新');
+    resetCountdown();
+  }
+  function resetCountdown(){ countdownVal=5; document.getElementById('countdown').textContent=countdownVal; }
+  function tickCountdown(){
+    if(!autoRefresh) return;
+    countdownVal--;
+    document.getElementById('countdown').textContent = countdownVal;
+    if(countdownVal<=0) doRefresh(false);
+  }
+  function toggleAutoRefresh(){
+    autoRefresh=!autoRefresh;
+    var btn=document.getElementById('refreshToggle'), st=document.getElementById('refreshStatus');
+    if(autoRefresh){ btn.innerHTML='<i class="fa-solid fa-pause"></i> 暂停'; st.textContent='自动刷新中'; resetCountdown(); }
+    else{ btn.innerHTML='<i class="fa-solid fa-play"></i> 恢复'; st.textContent='已暂停'; }
+  }
+  function toggleFullscreen(){
+    document.getElementById('videoCard').classList.toggle('fullscreen-mode');
+  }
+
+  function showToast(msg,d){
+    d=d||2000;
+    var w=document.querySelector('.toast-wrap');
+    if(!w){w=document.createElement('div');w.className='toast-wrap';document.body.appendChild(w);}
+    var e=document.createElement('div');e.className='toast-msg';
+    e.innerHTML='<i class="fa-solid fa-circle-check" style="color:var(--ant-success);"></i>'+msg;
+    w.appendChild(e);
+    requestAnimationFrame(function(){e.classList.add('show');});
+    setTimeout(function(){e.classList.remove('show');setTimeout(function(){e.remove();},300);},d);
+  }
+
+  renderCameras();
+  selectCam('cam_001');
+  countdownTimer = setInterval(tickCountdown, 1000);
+</script>
+</body>
+</html>
