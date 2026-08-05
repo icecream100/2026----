@@ -57,8 +57,7 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-correlation/index.html" title="实验性·默认隐藏，项目级功能开关开放"><i class="fa-solid fa-diagram-project"></i>建筑关联分析<span class="text-xs" style="color:#fa8c16;margin-left:2px">实验</span></a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
       <a class="menu-item active" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
       <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
@@ -99,8 +98,9 @@
         <!-- 中：分组总人数 + 各设备明细 -->
         <div class="ant-card ant-card-bordered" id="areaCard">
           <div class="ant-card-head">
-            <div class="ant-card-head-title">区域实时人数 · <span id="curAreaName">食堂就餐区</span></div>
+            <div class="ant-card-head-title">实时人数 · <span id="curAreaName">食堂就餐区</span></div>
             <div class="ant-card-extra">
+              <button class="ant-btn ant-btn-sm" onclick="openCalibrateModal()"><i class="fa-solid fa-sliders"></i> 人工校准</button>
               <span class="status-dot pulse-dot" style="background:#52c41a"></span><span class="text-sm">越线净流入聚合</span>
             </div>
           </div>
@@ -115,7 +115,6 @@
               <thead><tr><th>出入口设备</th><th width="90">进入</th><th width="90">离开</th><th width="90">净流入</th><th width="80">状态</th></tr></thead>
               <tbody id="entryBody"></tbody>
             </table>
-            <div class="text-xs text-tertiary mt-3"><i class="fa-solid fa-circle-info mr-1"></i>分组当前在场人数=分组内各设备越线净流入聚合（Σ进入−Σ离开+营业日清零），为估算值，与超员告警同源；单设备精确人数切「单设备人数」Tab（Q-11 区域快照）。部分设备离线时人数可能偏低。</div>
           </div>
         </div>
 
@@ -130,16 +129,6 @@
               </div>
               <div class="rc-bar"><div class="rc-bar-fill" id="trendBar" style="width:50%;background:var(--ant-primary);"></div></div>
               <div class="text-xs text-tertiary mt-2" id="trendDesc">等待数据...</div>
-            </div>
-          </div>
-          <div class="ant-card ant-card-bordered">
-            <div class="ant-card-head"><div class="ant-card-head-title">口径说明</div></div>
-            <div class="ant-card-body" style="padding:12px;font-size:12px;line-height:1.8;color:var(--ant-text-secondary);">
-              <div>· 数据源：分组在场人数（分组内各设备越线净流入聚合）</div>
-              <div>· 口径：估算（标"估算"，与超员告警同源）</div>
-              <div>· 漂移：营业日清零框定（见 3.5.5）</div>
-              <div>· 跨设备：支持合计分组内各设备</div>
-              <div>· 单设备精确：切"单设备人数"Tab 看 Q-11 区域快照</div>
             </div>
           </div>
         </div>
@@ -183,6 +172,24 @@
 
     </main>
   </div>
+</div>
+
+<!-- 人工校准弹窗 -->
+<div class="ant-modal-mask" id="calibrateModalMask">
+  <div class="ant-modal-wrap"><div class="ant-modal" style="width:420px;">
+    <div class="ant-modal-header"><div class="ant-modal-title">人工校准 · <span id="calAreaName"></span></div><button class="ant-modal-close" onclick="closeCalibrateModal()"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="ant-modal-body">
+      <div class="ant-alert ant-alert-warning" style="margin-bottom:12px;font-size:12px;"><i class="fa-solid fa-triangle-exclamation" style="color:var(--ant-warning);margin-right:4px"></i>校准将调整分组在场人数基准，操作不可逆；校准期间暂停超员告警判定。</div>
+      <div class="ant-form-item"><label class="ant-form-label">当前系统估算值</label><div class="text-lg font-bold" id="calCurValue" style="color:var(--ant-primary)">--</div></div>
+      <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">校准后实际人数</label><input type="number" class="ant-input" id="calNewValue" min="0" placeholder="如 450（参考 Tab2 单设备快照+现场目测）"></div>
+      <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">校准原因</label><select class="ant-select" id="calReason" style="width:100%"><option>目测偏差</option><option>单设备快照核对</option><option>定期校准</option><option>其他</option></select></div>
+      <div class="text-xs text-tertiary">差值（自动）：系统将记录原值/校准值/差值/操作人/时间/原因，可追溯审计</div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeCalibrateModal()">取消</button>
+      <button class="ant-btn ant-btn-primary" onclick="submitCalibrate()">确认校准</button>
+    </div>
+  </div></div>
 </div>
 
 <script>
@@ -361,6 +368,29 @@
     document.getElementById('viewCam').style.display=id==='viewCam'?'':'none';
     if(id==='viewCam'&&!curCam){ renderCameras(); selectCam('cam_001'); }
     resetCountdown();
+  }
+
+  // ===== 人工校准 =====
+  function openCalibrateModal(){
+    var a=findArea(curArea); if(!a){ showToast('请先选择分组'); return; }
+    document.getElementById('calAreaName').textContent=a.name;
+    document.getElementById('calCurValue').textContent=areaCount(a)+' 人';
+    document.getElementById('calNewValue').value='';
+    document.getElementById('calibrateModalMask').classList.add('active');
+  }
+  function closeCalibrateModal(){ document.getElementById('calibrateModalMask').classList.remove('active'); }
+  function submitCalibrate(){
+    var nv=parseInt(document.getElementById('calNewValue').value,10);
+    if(isNaN(nv)||nv<0){ showToast('请输入有效人数'); return; }
+    var a=findArea(curArea); if(!a){closeCalibrateModal();return;}
+    var old=areaCount(a), diff=nv-old, reason=document.getElementById('calReason').value;
+    // 校准：把净流入基准调整到 nv（差值分摊到各在线设备的 in/out，简化为调整第一个在线设备）
+    var adj=a.entries.find(function(e){return e.online;});
+    if(adj){ adj.in += diff; if(adj.in<0) adj.in=0; }
+    console.log('[校准记录]',new Date().toISOString(),'分组='+a.name,'原值='+old,'校准值='+nv,'差值='+(diff>=0?'+':'')+diff,'原因='+reason,'操作人=管理员·王');
+    renderAreas(); renderAreaDetail();
+    closeCalibrateModal();
+    showToast('已校准：'+old+' → '+nv+'（差值'+(diff>=0?'+':'')+diff+'，告警暂停期间已恢复）');
   }
 
   function showToast(msg,d){

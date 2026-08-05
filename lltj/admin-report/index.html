@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>人流报表 - 园区人员热力图与流量统计</title>
+  <title>统计报表 - 园区人员热力图与流量统计</title>
   <script src="../assets/tailwind.js"></script>
   <link rel="stylesheet" href="../assets/fa-all.min.css">
   <link rel="stylesheet" href="../proto-ui.css">
@@ -32,8 +32,7 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-correlation/index.html" title="实验性·默认隐藏，项目级功能开关开放"><i class="fa-solid fa-diagram-project"></i>建筑关联分析<span class="text-xs" style="color:#fa8c16;margin-left:2px">实验</span></a>
-      <a class="menu-item active" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
+      <a class="menu-item active" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
       <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
       <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
@@ -47,9 +46,9 @@
 
       <!-- ============ 列表视图 ============ -->
       <div id="listView">
-        <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><span class="current">人流报表</span></div>
+        <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><span class="current">统计报表</span></div>
         <div class="flex items-center justify-between mb-4">
-          <div class="page-title" style="margin-bottom:0;">人流报表</div>
+          <div class="page-title" style="margin-bottom:0;">统计报表</div>
           <div class="flex gap-2">
           </div>
         </div>
@@ -88,7 +87,7 @@
 
       <!-- ============ 详情视图 ============ -->
       <div id="detailView" style="display:none">
-        <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><a href="javascript:void(0)" onclick="showListView()">人流报表</a><span>/</span><span class="current" id="detailCrumb">报表详情</span></div>
+        <div class="breadcrumb"><a href="../index.html">首页</a><span>/</span><a href="javascript:void(0)" onclick="showListView()">统计报表</a><span>/</span><span class="current" id="detailCrumb">报表详情</span></div>
         <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
           <div class="flex items-center gap-3">
             <button class="ant-btn" onclick="showListView()"><i class="fa-solid fa-arrow-left"></i> 返回列表</button>
@@ -146,14 +145,10 @@
 
         <!-- 关联 + 热力图 + 告警 -->
         <div class="grid grid-cols-3 gap-4">
-          <div class="ant-card ant-card-bordered">
-            <div class="ant-card-head"><div class="ant-card-head-title">建筑关联摘要 <span class="text-xs font-normal" style="color:var(--ant-warning)">实验性·仅供参考</span></div></div>
+          <div class="ant-card ant-card-bordered" style="opacity:.5">
+            <div class="ant-card-head"><div class="ant-card-head-title">建筑关联摘要 <span class="text-xs font-normal" style="color:var(--ant-error)">已移出本次</span></div></div>
             <div class="ant-card-body">
-              <ul class="text-sm" style="list-style:none;padding:0;margin:0">
-                <li class="mb-2"><i class="fa-solid fa-arrow-right-arrow-left mr-1 text-tertiary"></i>最繁忙路径：广场 -> 地下车库<br><span class="text-tertiary text-xs ml-4">1,520 人次</span></li>
-                <li class="mb-2"><i class="fa-solid fa-link mr-1 text-tertiary"></i>最高关联：食堂 ↔ 广场<br><span class="text-tertiary text-xs ml-4">1,748 人次</span></li>
-                <li><i class="fa-solid fa-shuffle mr-1 text-tertiary"></i>平均跨区域次数：2.3</li>
-              </ul>
+              <div class="text-xs text-tertiary" style="text-align:center;padding:12px 0">无 ReID（关键帧无法人脸识别）<br>本次不实现（见总纲 3.3）</div>
             </div>
           </div>
           <div class="ant-card ant-card-bordered">
@@ -164,16 +159,16 @@
             </div>
           </div>
           <div class="ant-card ant-card-bordered">
-            <div class="ant-card-head"><div class="ant-card-head-title">告警汇总 <span class="text-xs font-normal" style="color:var(--ant-text-tertiary)" title="超员级别：警告 T&lt;人数&lt;1.2T；紧急 人数≥1.2T（T=阈值）；人数≤T 不触发">超员级别口径 <i class="fa-solid fa-circle-question"></i></span></div></div>
+            <div class="ant-card-head"><div class="ant-card-head-title">告警汇总 <span class="text-xs font-normal" style="color:var(--ant-text-tertiary)" title="告警级别在规则配置时指定（紧急/警告），无自动升级">超员级别口径 <i class="fa-solid fa-circle-question"></i></span></div></div>
             <div class="ant-card-body" style="padding:0">
               <table class="ant-table" style="font-size:12px">
                 <thead><tr><th>类型</th><th width="50">次数</th><th width="90">处理时效</th></tr></thead>
                 <tbody>
                   <tr><td><span class="ant-tag ant-tag-red">超员</span></td><td class="tnum" id="dAlertOver">-</td><td id="dAlertOverTime">-</td></tr>
                   <tr><td><span class="ant-tag ant-tag-orange">聚集</span></td><td class="tnum" id="dAlertGather">-</td><td id="dAlertGatherTime">-</td></tr>
+                  <tr><td><span class="ant-tag" style="background:#722ed1;color:#fff">客流异常</span></td><td class="tnum" id="dAlertAnomaly">-</td><td id="dAlertAnomalyTime">-</td></tr>
                 </tbody>
               </table>
-              <div style="padding:6px 12px;font-size:11px;color:var(--ant-text-tertiary);border-top:1px solid var(--ant-border-secondary)"><i class="fa-solid fa-circle-info mr-1"></i>在场/告警人数为分组净流入（进入−离开）+营业日清零估算（见 3.5.1/3.5.5）。</div>
             </div>
           </div>
         </div>
@@ -200,56 +195,56 @@
   // 报表数据（含详情模拟数据）
   var reports = {
     '日报':[
-      {d:'2026-07-01',in:18302,out:15816,peak:3128,alert:11,alertOver:3,alertGather:8,alertOverTime:'4分20秒',alertGatherTime:'2分15秒',
+      {d:'2026-07-01',in:18302,out:15816,peak:3128,alert:11,alertOver:3,alertGather:8,alertOverTime:'4分20秒',alertGatherTime:'2分15秒',alertAnomaly:2,alertAnomalyTime:'3分20秒',
         trend:[12,8,5,4,3,6,28,95,180,210,240,268,312,295,260,238,256,278,242,180,120,80,50,28], trendPeak:'12:35', trendPeakV:3128,
         mom:6.4, avg:2615,
         ranks:[{area:'食堂就餐区',v:3856,mom:12.5},{area:'B 栋大堂',v:2402,mom:5.2},{area:'广场',v:1956,mom:-3.1},{area:'A 栋办公区',v:1536,mom:8.0},{area:'地下车库入口',v:896,mom:null}],
         conclusion:'今日人流较昨日 +6.4%，12:35 达到峰值 3,128 人，食堂就餐区最繁忙；超员告警 3 起，平均处理 4 分 20 秒'},
-      {d:'2026-06-30',in:17204,out:14856,peak:2980,alert:8,alertOver:2,alertGather:6,alertOverTime:'3分50秒',alertGatherTime:'1分48秒',
+      {d:'2026-06-30',in:17204,out:14856,peak:2980,alert:8,alertOver:2,alertGather:6,alertOverTime:'3分50秒',alertGatherTime:'1分48秒',alertAnomaly:1,alertAnomalyTime:'4分05秒',
         trend:[10,7,4,3,3,5,25,88,168,195,225,250,290,275,245,220,238,260,228,168,112,74,45,25], trendPeak:'12:20', trendPeakV:2980,
         mom:4.8, avg:2458,
         ranks:[{area:'食堂就餐区',v:3620,mom:9.8},{area:'B 栋大堂',v:2280,mom:3.5},{area:'广场',v:2020,mom:-2.0},{area:'A 栋办公区',v:1420,mom:6.5},{area:'地下车库入口',v:840,mom:null}],
         conclusion:'今日人流较昨日 +4.8%，12:20 达到峰值 2,980 人，食堂就餐区最繁忙；超员告警 2 起，平均处理 3 分 50 秒'},
-      {d:'2026-06-29',in:9856,out:8240,peak:1856,alert:2,alertOver:0,alertGather:2,alertOverTime:'-',alertGatherTime:'2分30秒',
+      {d:'2026-06-29',in:9856,out:8240,peak:1856,alert:2,alertOver:0,alertGather:2,alertOverTime:'-',alertGatherTime:'2分30秒',alertAnomaly:1,alertAnomalyTime:'2分50秒',
         trend:[8,5,3,2,2,4,18,60,120,155,180,200,245,230,198,175,190,220,188,140,95,62,38,22], trendPeak:'12:45', trendPeakV:1856,
         mom:-42.7, avg:1408,
         ranks:[{area:'食堂就餐区',v:2160,mom:52.3},{area:'B 栋大堂',v:1400,mom:40.5},{area:'广场',v:1180,mom:38.2},{area:'A 栋办公区',v:920,mom:35.5},{area:'地下车库入口',v:560,mom:null}],
         conclusion:'今日人流较昨日 -42.7%（周末），12:45 达到峰值 1,856 人；无超员告警，聚集告警 2 起'},
-      {d:'2026-06-28',in:10208,out:8512,peak:2012,alert:3,alertOver:1,alertGather:2,alertOverTime:'5分10秒',alertGatherTime:'3分00秒',
+      {d:'2026-06-28',in:10208,out:8512,peak:2012,alert:3,alertOver:1,alertGather:2,alertOverTime:'5分10秒',alertGatherTime:'3分00秒',alertAnomaly:2,alertAnomalyTime:'3分40秒',
         trend:[9,6,4,3,2,5,22,70,135,170,195,220,265,250,215,190,205,235,202,155,105,68,42,24], trendPeak:'12:30', trendPeakV:2012,
         mom:null, avg:1458,
         ranks:[{area:'食堂就餐区',v:2380,mom:null},{area:'B 栋大堂',v:1520,mom:null},{area:'广场',v:1280,mom:null},{area:'A 栋办公区',v:980,mom:null},{area:'地下车库入口',v:620,mom:null}],
         conclusion:'12:30 达到峰值 2,012 人，超员告警 1 起，聚集告警 2 起'},
-      {d:'2026-06-27',in:16508,out:13760,peak:2786,alert:6,alertOver:2,alertGather:4,alertOverTime:'4分05秒',alertGatherTime:'1分55秒',
+      {d:'2026-06-27',in:16508,out:13760,peak:2786,alert:6,alertOver:2,alertGather:4,alertOverTime:'4分05秒',alertGatherTime:'1分55秒',alertAnomaly:3,alertAnomalyTime:'5分00秒',
         trend:[11,7,5,3,3,6,26,90,175,205,235,260,305,288,255,230,248,272,238,175,118,78,48,26], trendPeak:'12:40', trendPeakV:2786,
         mom:5.2, avg:2358,
         ranks:[{area:'食堂就餐区',v:3480,mom:10.2},{area:'B 栋大堂',v:2190,mom:4.0},{area:'广场',v:1880,mom:-1.5},{area:'A 栋办公区',v:1380,mom:7.2},{area:'地下车库入口',v:860,mom:null}],
         conclusion:'今日人流较昨日 +5.2%，12:40 达到峰值 2,786 人；超员告警 2 起，平均处理 4 分 05 秒'}
     ],
     '周报':[
-      {d:'2026-W26',in:82180,out:69184,peak:3128,alert:28,alertOver:9,alertGather:19,alertOverTime:'4分10秒',alertGatherTime:'2分05秒',
+      {d:'2026-W26',in:82180,out:69184,peak:3128,alert:28,alertOver:9,alertGather:19,alertOverTime:'4分10秒',alertGatherTime:'2分05秒',alertAnomaly:6,alertAnomalyTime:'4分10秒',
         trend:[0,0,0,0,0,0,380,560,750,820,900,980,1050,1020,950,880,920,990,920,780,580,420,220,80], trendPeak:'周三 12:35', trendPeakV:3128,
         mom:4.8, avg:11740,
         ranks:[{area:'食堂就餐区',v:18250,mom:8.5},{area:'B 栋大堂',v:12080,mom:3.2},{area:'广场',v:9850,mom:-2.8},{area:'A 栋办公区',v:7680,mom:5.5},{area:'地下车库入口',v:4580,mom:null}],
         conclusion:'本周总进入 82,180 人，较上周 +4.8%，周三 12:35 达到周峰值 3,128 人；超员告警 9 起、聚集告警 19 起'},
-      {d:'2026-W25',in:78420,out:66240,peak:2980,alert:24,alertOver:7,alertGather:17,alertOverTime:'3分50秒',alertGatherTime:'2分10秒',
+      {d:'2026-W25',in:78420,out:66240,peak:2980,alert:24,alertOver:7,alertGather:17,alertOverTime:'3分50秒',alertGatherTime:'2分10秒',alertAnomaly:5,alertAnomalyTime:'3分30秒',
         trend:[0,0,0,0,0,0,350,520,710,780,860,940,1000,980,910,840,880,950,880,750,550,400,200,70], trendPeak:'周三 12:20', trendPeakV:2980,
         mom:3.5, avg:11203,
         ranks:[{area:'食堂就餐区',v:17420,mom:7.0},{area:'B 栋大堂',v:11560,mom:2.8},{area:'广场',v:9480,mom:-1.5},{area:'A 栋办公区',v:7320,mom:4.2},{area:'地下车库入口',v:4380,mom:null}],
         conclusion:'本周总进入 78,420 人，较上周 +3.5%，周三 12:20 达到周峰值 2,980 人；超员告警 7 起、聚集告警 17 起'},
-      {d:'2026-W24',in:72356,out:60840,peak:2856,alert:19,alertOver:5,alertGather:14,alertOverTime:'4分20秒',alertGatherTime:'2分30秒',
+      {d:'2026-W24',in:72356,out:60840,peak:2856,alert:19,alertOver:5,alertGather:14,alertOverTime:'4分20秒',alertGatherTime:'2分30秒',alertAnomaly:4,alertAnomalyTime:'4分00秒',
         trend:[0,0,0,0,0,0,320,480,660,720,800,880,940,920,860,800,830,900,830,710,520,380,190,60], trendPeak:'周四 12:30', trendPeakV:2856,
         mom:null, avg:10337,
         ranks:[{area:'食堂就餐区',v:16250,mom:null},{area:'B 栋大堂',v:10820,mom:null},{area:'广场',v:8920,mom:null},{area:'A 栋办公区',v:6850,mom:null},{area:'地下车库入口',v:4120,mom:null}],
         conclusion:'本周总进入 72,356 人，周四 12:30 达到周峰值 2,856 人；超员告警 5 起、聚集告警 14 起'}
     ],
     '月报':[
-      {d:'2026-06',in:342580,out:288960,peak:3128,alert:112,alertOver:35,alertGather:77,alertOverTime:'4分15秒',alertGatherTime:'2分08秒',
+      {d:'2026-06',in:342580,out:288960,peak:3128,alert:112,alertOver:35,alertGather:77,alertOverTime:'4分15秒',alertGatherTime:'2分08秒',alertAnomaly:12,alertAnomalyTime:'4分30秒',
         mom:5.6, avg:11419,
         trend:[8200,8600,8400,8700,9100,9800,11200,12800,13500,13100,12600,12200,11800,12100,12500,13000,13400,12900,11800,10200,9100,8600,8400,8200,8300,8100,7900,7800,7600,7400], trendPeak:'6 月 14 日', trendPeakV:3128,
         ranks:[{area:'食堂就餐区',v:75480,mom:9.2},{area:'B 栋大堂',v:50240,mom:4.5},{area:'广场',v:40860,mom:-2.0},{area:'A 栋办公区',v:32180,mom:6.8},{area:'地下车库入口',v:19240,mom:null}],
         conclusion:'本月总进入 342,580 人，较上月 +5.6%，月峰值 3,128 人；超员告警 35 起、聚集告警 77 起'},
-      {d:'2026-05',in:318420,out:267680,peak:3056,alert:98,alertOver:28,alertGather:70,alertOverTime:'4分30秒',alertGatherTime:'2分20秒',
+      {d:'2026-05',in:318420,out:267680,peak:3056,alert:98,alertOver:28,alertGather:70,alertOverTime:'4分30秒',alertGatherTime:'2分20秒',alertAnomaly:10,alertAnomalyTime:'5分10秒',
         mom:3.2, avg:10614,
         trend:[7600,7900,8100,8400,8800,9500,10800,12300,13000,12700,12200,11800,11400,11700,12100,12600,13000,12500,11400,9800,8700,8200,8000,7800,7900,7700,7500,7400,7200,7100], trendPeak:'5 月 20 日', trendPeakV:3056,
         ranks:[{area:'食堂就餐区',v:70600,mom:8.0},{area:'B 栋大堂',v:46600,mom:3.5},{area:'广场',v:38500,mom:-1.2},{area:'A 栋办公区',v:29800,mom:5.5},{area:'地下车库入口',v:17800,mom:null}],
@@ -279,11 +274,11 @@
       parts.push('<td class="tnum">'+r.peak.toLocaleString()+'</td>');
       parts.push('<td class="tnum">'+r.alert+'</td>');
       parts.push('<td><span class="ant-tag ant-tag-green">已生成</span></td>');
-      parts.push('<td class="action-wrap">');
+      parts.push('<td><div class="action-wrap">');
       parts.push('<button class="ant-btn ant-btn-text ant-btn-sm" onclick="showDetailView(\''+r.d+'\')"><i class="fa-solid fa-eye"></i> 查看详情</button>');
       parts.push('<button class="ant-btn ant-btn-text ant-btn-sm" onclick="exportReport(\'pdf\')">导出</button>');
       parts.push('<button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="deleteReport(\''+r.d+'\')"><i class="fa-solid fa-trash"></i></button>');
-      parts.push('</td></tr>');
+      parts.push('</div></td></tr>');
       return parts.join('');
     }).join('');
     document.getElementById('reportTableBody').innerHTML = html;
@@ -359,6 +354,8 @@
     document.getElementById('dAlertOverTime').textContent = rpt.alertOverTime||'-';
     document.getElementById('dAlertGather').textContent = rpt.alertGather||0;
     document.getElementById('dAlertGatherTime').textContent = rpt.alertGatherTime||'-';
+    document.getElementById('dAlertAnomaly').textContent = rpt.alertAnomaly||0;
+    document.getElementById('dAlertAnomalyTime').textContent = rpt.alertAnomalyTime||'-';
     window.scrollTo(0,0);
   }
   // 返回列表视图

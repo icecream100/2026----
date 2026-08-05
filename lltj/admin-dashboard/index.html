@@ -85,8 +85,7 @@
       <a class="menu-item active" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-correlation/index.html" title="实验性·默认隐藏，项目级功能开关开放"><i class="fa-solid fa-diagram-project"></i>建筑关联分析<span class="text-xs" style="color:#fa8c16;margin-left:2px">实验</span></a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
       <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
       <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
@@ -267,7 +266,7 @@
     document.getElementById('kpiPendingAlert').textContent=pending.length;
     document.getElementById('navBellCount').textContent=pending.length;
     var top=evs.slice(0,5);
-    var tagCls={'超员':'ant-tag-red','聚集':'ant-tag-orange'};
+    var tagCls={'超员':'ant-tag-red','聚集':'ant-tag-orange','客流异常':'ant-tag-purple'};
     document.getElementById('recentAlertBody').innerHTML=top.map(function(e){
       var t=e.triggerTime.substring(11,16);
       var suffix=(e.status==='已处理'||e.status==='误报')?' · '+e.status:'';

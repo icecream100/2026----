@@ -31,7 +31,61 @@
       linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
       background-size:30px 30px; }
-  </style>
+  
+    /* ===== Ant Design Steps 步骤条 ===== */
+    .ant-steps { display:flex; align-items:flex-start; margin:0 0 20px; padding:6px 4px 0; }
+    .ant-step { display:flex; align-items:flex-start; gap:10px; cursor:pointer; flex:0 0 auto; }
+    .ant-step-indicator { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; color:#8c8c8c; border:2px solid #d9d9d9; background:#fff; transition:all .2s; }
+    .ant-step .step-check { display:none; font-size:12px; }
+    .ant-step.active .ant-step-indicator { color:#fff; background:#1677ff; border-color:#1677ff; box-shadow:0 2px 6px rgba(22,119,255,.35); }
+    .ant-step.done .ant-step-indicator { color:#fff; background:#52c41a; border-color:#52c41a; }
+    .ant-step.done .step-num { display:none; }
+    .ant-step.done .step-check { display:inline; }
+    .ant-step-main { padding-top:2px; }
+    .ant-step-title { font-size:14px; color:#8c8c8c; line-height:1.4; font-weight:500; transition:color .2s; }
+    .ant-step.active .ant-step-title { color:#1677ff; font-weight:600; }
+    .ant-step.done .ant-step-title { color:rgba(0,0,0,.65); }
+    .ant-step-desc { font-size:12px; color:rgba(0,0,0,.35); margin-top:2px; }
+    .ant-step-line { flex:1; height:2px; background:#f0f0f0; margin:15px 12px 0; transition:background .2s; }
+    .ant-step-line.done { background:#1677ff; }
+    /* ===== 统计能力卡片 ===== */
+    .cap-card { border:1px solid #d9d9d9; border-radius:10px; padding:16px; cursor:pointer; background:#fff; transition:all .2s; }
+    .cap-card:hover { border-color:#69b1ff; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+    .cap-card.selected { border-color:#1677ff; background:#f0f7ff; box-shadow:0 2px 8px rgba(22,119,255,.15); }
+    .cap-icon { width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:10px; }
+    .cap-title { font-size:15px; font-weight:600; color:rgba(0,0,0,.88); display:flex; align-items:center; gap:6px; }
+    .cap-check { margin-left:auto; width:18px; height:18px; border-radius:50%; background:#1677ff; color:#fff; display:none; align-items:center; justify-content:center; font-size:11px; }
+    .cap-card.selected .cap-check { display:flex; }
+    .cap-desc { font-size:12px; color:rgba(0,0,0,.55); line-height:1.7; margin-top:6px; }
+    .cap-tag { display:inline-block; font-size:11px; color:#1677ff; background:#e6f4ff; border-radius:4px; padding:2px 8px; margin-top:10px; }
+    .cap-tag.purple { color:#722ed1; background:#f9f0ff; }
+    .cap-tag.green { color:#389e0d; background:#f6ffed; }
+
+    .dm-tree-item { display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:13px;border:1px solid transparent; }
+    .dm-tree-item.dm-tree-root { font-weight:600;color:var(--ant-text); }
+    .dm-tree-children { margin-left:8px;border-left:1px dashed var(--ant-border-secondary);padding-left:4px; }
+    .tree-toggle { display:inline-flex;width:14px;color:var(--ant-text-tertiary);transition:transform .15s; }
+    .tree-toggle.open { transform:rotate(90deg); }
+    .dm-tree-item:hover { background:rgba(0,0,0,0.03); }
+    .dm-tree-item.active { background:var(--ant-primary-bg); border-color:var(--ant-primary); }
+    .dm-tree-name { flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .dm-tree-count { font-size:11px;color:var(--ant-text-tertiary); }
+    .dm-group-title { font-size:12px;color:var(--ant-text-secondary);font-weight:600;padding:8px 6px 4px; }
+    .dm-item { display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;font-size:13px; }
+    .dm-item:hover { background:rgba(0,0,0,0.03); }
+    .dm-item.dm-disabled { opacity:.5; }
+    .dm-name { flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .dm-sel-item { display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 8px;border:1px solid var(--ant-border-secondary);border-radius:6px;margin-bottom:6px;font-size:12px; }
+    .dm-sel-item .rm { cursor:pointer;color:#ff4d4f; }
+    .dm-radio { color:#d9d9d9; font-size:14px; }
+    .dm-radio.on { color:#1677ff; }
+    .dm-item.dm-selected { background:var(--ant-primary-bg); border:1px solid var(--ant-primary); }
+    .dm-item { border:1px solid transparent; }
+    @keyframes rowFlash { 0%,100%{background:transparent;} 30%,70%{background:var(--ant-primary-bg);} }
+    .row-flash { animation:rowFlash 1.6s ease-in-out 2; }
+    .cap-calib-focus { border-color:#1677ff !important; box-shadow:0 0 0 3px rgba(22,119,255,.18) !important; }
+
+</style>
 </head>
 <body>
 <div class="layout">
@@ -52,8 +106,7 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-correlation/index.html" title="实验性·默认隐藏，项目级功能开关开放"><i class="fa-solid fa-diagram-project"></i>建筑关联分析<span class="text-xs" style="color:#fa8c16;margin-left:2px">实验</span></a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
       <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
       <a class="menu-item active" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
@@ -69,15 +122,12 @@
       </div>
       <div class="page-title">分析配置</div>
 
-      <!-- Tab 切换 -->
-      <div class="tab-bar" id="tabBar">
-        <button type="button" class="tab-item active" role="tab" aria-selected="true" onclick="switchTab(this,'tab1')">① 统计分组</button>
-        <button type="button" class="tab-item" role="tab" aria-selected="false" onclick="switchTab(this,'tab4')">② 平面图相机标定</button>
-      </div>
+      <!-- 配置健康度条 -->
+      <div id="healthBar"></div>
 
       <!-- Tab① 统计分组 -->
       <div id="tab1" class="tab-panel">
-        <div class="grid gap-4" style="grid-template-columns:280px 1fr;">
+        <div class="grid gap-4" style="grid-template-columns:340px 1fr;">
           <!-- 左：分组列表 -->
           <div class="ant-card ant-card-bordered">
             <div class="ant-card-head">
@@ -104,22 +154,109 @@
         </div>
       </div>
 
-      <!-- Tab② 平面图相机标定 -->
-      <div id="tab4" class="tab-panel" style="display:none">
-        <div class="ant-alert ant-alert-info" style="display:flex;gap:8px;padding:8px 12px;margin-bottom:12px;background:#e6f4ff;border:1px solid #91caff;border-radius:6px;">
-          <i class="fa-solid fa-circle-info" style="color:var(--ant-primary);margin-top:2px"></i>
-          <span style="font-size:12px;color:var(--ant-text-secondary)">算法可输出逐人检测框坐标+追踪轨迹（见 Q-13）。本页建立<b>画面坐标->平面图坐标</b>的单应性映射：在画面与平面图上点选≥4对对应点，系统计算单应性矩阵，将检测框底部中心点（脚位置）映射到平面图，供足迹热力图使用。</span>
-        </div>
-        <div class="grid" style="grid-template-columns:280px 1fr;gap:16px;">
-          <!-- 左：摄像头列表（按分组，含标定状态徽标） -->
-          <div class="ant-card ant-card-bordered">
-            <div class="ant-card-head"><div class="ant-card-head-title">摄像头列表</div></div>
-            <div class="ant-card-body" style="padding:8px;" id="mapCamList"></div>
+    </main>
+  </div>
+</div>
+
+<!-- 设备配置向导（居中弹窗，Ant Design Modal 风格） -->
+<div class="ant-modal-mask" id="configDrawerMask" onclick="if(event.target===this)closeConfigDrawer()">
+<div class="ant-modal" id="configDrawer" style="width:960px;max-width:94vw;">
+  <div class="ant-modal-header">
+    <span class="text-base font-semibold" id="drawerDeviceName">cam_001 食堂-入口</span>
+    <span class="ant-modal-close" onclick="closeConfigDrawer()"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="ant-modal-body">
+    <!-- 单步配置：顶部选能力 + 下方绘制配置（含实时预览） -->
+    <div id="dtab1" class="tab-panel">
+      <div class="flex items-center gap-3 flex-wrap mb-3">
+        <span class="text-sm" style="font-weight:600;color:var(--ant-text)">统计能力（单选）</span>
+        <label class="ant-radio"><input type="radio" name="capSel" value="capLine" onchange="selectCap('capLine')"><span>出入计数</span></label>
+        <label class="ant-radio"><input type="radio" name="capSel" value="capRegion" onchange="selectCap('capRegion')"><span>区域统计</span></label>
+        <label class="ant-radio"><input type="radio" name="capSel" value="capNone" onchange="selectCap('capNone')"><span>仅标定（只参与热力图）</span></label>
+        <span class="text-xs text-tertiary" style="margin-left:auto"><i class="fa-solid fa-circle-info mr-1"></i>一设备一算法</span>
+      </div>
+    </div>
+
+    <!-- 绘制配置（单步同屏，含实时预览） -->
+    <div id="dtab2" class="tab-panel">
+<div class="grid gap-4" style="grid-template-columns:1fr 300px;">
+        <div class="ant-card ant-card-bordered">
+          <div class="ant-card-head">
+            <div class="ant-card-head-title">最新关键帧</div>
+            <div class="ant-card-extra"><span class="text-sm" style="color:var(--ant-text-tertiary)">更新于 <span id="frameUpdatedAt">--:--:--</span></span></div>
           </div>
-          <!-- 右：上画面 + 下平面图 -->
+          <div class="ant-card-body">
+            <div class="video-canvas" id="videoCanvas2" style="height:400px;" onclick="onCanvasClick(event)" ondblclick="onCanvasDblClick(event)">
+              <div style="position:absolute;inset:0;background:#1a1a1a;"></div>
+              <svg id="drawSvg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;" onclick="onDrawSvgClick(event)"></svg>
+              <div style="position:absolute;top:8px;left:8px;font-size:11px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 6px;border-radius:3px;">关键帧 · 在图上画线/区域</div>
+              <div id="drawHint" style="display:none;position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:12px;background:rgba(22,119,255,0.9);color:#fff;padding:4px 12px;border-radius:4px;white-space:nowrap;pointer-events:none;">
+                <i class="fa-solid fa-draw-polygon mr-1"></i>点击画面添加顶点（≥3），双击闭合
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ant-card ant-card-bordered">
+          <div class="ant-card-head"><div class="ant-card-head-title">配置</div></div>
+          <div class="ant-card-body">
+            <div id="lineTools">
+              <div class="divider"><span>绘制工具 · 出入计数</span></div>
+              <button class="ant-btn w-full mb-2" onclick="startDrawLine()"><i class="fa-solid fa-minus"></i> 画计数线</button>
+              <div id="lineDirPanel" style="display:none;border:1px dashed #1677ff;border-radius:8px;padding:10px;margin-bottom:10px;background:#f0f7ff;">
+                <div class="text-sm font-semibold mb-2" style="color:#1677ff"><i class="fa-solid fa-arrows-left-right mr-1"></i>设置进方向</div>
+                <div class="flex gap-2 mb-2" id="lineDirBtns"></div>
+                <div class="text-xs text-tertiary mb-2" id="lineDirTip">当前：A→B 为进（反方向自动计"出"）</div>
+                <div class="flex gap-2">
+                  <button class="ant-btn ant-btn-primary ant-btn-sm" onclick="confirmLine()">确认保存</button>
+                  <button class="ant-btn ant-btn-sm" onclick="cancelLine()">取消</button>
+                </div>
+              </div>
+              <div class="text-sm text-tertiary mb-2">已配置计数线 <span id="lineCountCfg">0</span></div>
+              <div id="configLineList"></div>
+              <div class="preview-bar" style="margin-top:10px;background:#f0f5ff;border:1px solid #d6e4ff;border-radius:6px;padding:8px 10px;font-size:12px;">
+                <span class="text-secondary"><i class="fa-solid fa-eye mr-1"></i>实时预览：越线 <b id="previewCount" style="color:var(--ant-primary)">0</b> 次（方向按进方向计）</span>
+                <button class="ant-btn ant-btn-text ant-btn-sm" onclick="incPreview()" style="float:right"><i class="fa-solid fa-play"></i> 模拟越线 +1</button>
+              </div>
+            </div>
+            <div id="regionTools">
+              <div class="divider"><span>绘制工具 · 区域统计</span></div>
+              <div id="drawRegionBtns">
+                <button class="ant-btn ant-btn-primary w-full mb-3" onclick="startDrawRegion()"><i class="fa-solid fa-draw-polygon"></i> 画统计区域</button>
+              </div>
+              <div class="text-sm text-tertiary mb-2">已配置统计区域 <span id="regionCountCfg">0</span></div>
+              <div id="regionListConfig"></div>
+              <div class="preview-bar" style="margin-top:10px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:8px 10px;font-size:12px;">
+                <span style="color:var(--ant-text-secondary)"><i class="fa-solid fa-eye mr-1"></i>实时预览：区域人数 <b id="previewRegion" style="color:#52c41a">0</b> 人（估算）</span>
+              </div>
+            </div>
+            <div id="calibOnlyTip" style="display:none;background:#f9f0ff;border:1px solid #d3adf7;border-radius:6px;padding:10px;font-size:12px;color:var(--ant-text-secondary);line-height:1.7;">
+              <i class="fa-solid fa-circle-info mr-1" style="color:#722ed1"></i>该设备仅参与热力图（需在设备行「标定」完成相机标定），无需绘制计数线/统计区域，可直接点击「完成并保存」。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ant-modal-footer" id="configFooter">
+    <button class="ant-btn" onclick="closeConfigDrawer()">取消</button>
+    <button class="ant-btn ant-btn-primary" onclick="saveAndClose()"><i class="fa-solid fa-check mr-1"></i>完成并保存</button>
+  </div>
+</div>
+</div>
+
+<!-- 相机标定弹窗（独立入口：设备行「标定」按钮） -->
+<div class="ant-modal-mask" id="calibModalMask" onclick="if(event.target===this)closeCalibModal()">
+  <div class="ant-modal" id="calibModal" style="width:960px;max-width:94vw;">
+    <div class="ant-modal-header">
+      <span class="text-base font-semibold">相机标定 · <span id="calibDeviceName" style="color:var(--ant-primary)">cam_001 食堂-入口</span></span>
+      <span class="ant-modal-close" onclick="closeCalibModal()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body">
+        <div class="grid" style="grid-template-columns:1fr;gap:16px;">
+          <!-- 单设备标定：摄像头画面 + 园区平面图 -->
           <div class="ant-card ant-card-bordered">
             <div class="ant-card-head">
-              <div class="ant-card-head-title">相机标定 · <span id="mapHint">选择左侧摄像头开始标定</span></div>
+              <div class="ant-card-head-title"><span id="mapHint">开始标定</span></div>
               <div class="ant-card-extra">
                 <span id="calibInfo" style="font-size:12px;color:var(--ant-text-tertiary);margin-right:8px"></span>
                 <button class="ant-btn ant-btn-text ant-btn-sm" onclick="clearCalib()" title="清除该摄像头标定"><i class="fa-solid fa-eraser"></i></button>
@@ -141,15 +278,14 @@
                 <div>
                   <div class="flex items-center justify-between" style="margin-bottom:4px">
                     <div style="font-size:12px;color:var(--ant-text-secondary)"><i class="fa-solid fa-map mr-1"></i>园区平面图（点选对应点）</div>
-                    <div class="flex gap-1">
-                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showToast('已打开底图上传，支持 PNG/SVG（需标注区域地块边界，见 Q-09）')"><i class="fa-solid fa-upload"></i> 上传底图</button>
-                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showToast('当前底图：plan-default.png（1920×1080，由设计提供）')"><i class="fa-solid fa-image"></i> 底图信息</button>
+                    <div class="flex gap-1 items-center">
+                      <select class="ant-input" id="calibMapSel" style="width:180px;font-size:12px;height:26px;" onchange="onCalibMapChange(this)" title="该摄像头坐标映射归属的底图（一摄像头一底图）"></select>
+                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="openMapLib()"><i class="fa-solid fa-folder-open"></i> 底图库</button>
+                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showMapInfo()"><i class="fa-solid fa-image"></i> 底图信息</button>
                     </div>
                   </div>
                   <div class="map-canvas" id="mapCanvas" style="height:300px;position:relative;cursor:crosshair;" onclick="onMapClick(event)">
-                    <div style="position:absolute;top:15%;left:10%;width:25%;height:30%;background:rgba(22,119,255,0.10);border:1px dashed #1677ff;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#1677ff;">A 栋</div>
-                    <div style="position:absolute;top:15%;right:10%;width:30%;height:35%;background:rgba(250,140,22,0.10);border:1px dashed #fa8c16;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fa8c16;">食堂</div>
-                    <div style="position:absolute;bottom:10%;left:25%;width:40%;height:25%;background:rgba(82,196,26,0.10);border:1px dashed #52c41a;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#52c41a;">广场</div>
+                    <div id="mapLabels"></div>
                     <svg id="mapPtsSvg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></svg>
                   </div>
                 </div>
@@ -158,126 +294,6 @@
             </div>
           </div>
         </div>
-      </div>
-      </div>
-
-    </main>
-  </div>
-</div>
-
-<!-- 设备配置抽屉（统一使用 proto-ui.css 的 .drawer / .drawer-mask，.drawer-lg 加宽） -->
-<div class="drawer-mask" id="configDrawerMask" onclick="closeConfigDrawer()"></div>
-<div class="drawer drawer-lg" id="configDrawer">
-  <div class="drawer-header">
-    <div>
-      <span class="text-base font-semibold" id="drawerDeviceName">cam_001 食堂-入口</span>
-      <span class="text-xs text-tertiary ml-2">设备配置</span>
-    </div>
-    <span class="ant-modal-close" onclick="closeConfigDrawer()"><i class="fa-solid fa-xmark"></i></span>
-  </div>
-  <div class="drawer-body">
-          <div class="tab-bar" id="drawerTabBar">
-            <button type="button" class="tab-item active" role="tab" aria-selected="true" onclick="switchDrawerTab(this,'dtab1')">① 算法绑定</button>
-            <button type="button" class="tab-item" role="tab" aria-selected="false" onclick="switchDrawerTab(this,'dtab2')">② 画线 / 画区域</button>
-            <button type="button" class="tab-item" role="tab" aria-selected="false" onclick="switchDrawerTab(this,'dtab3')">③ 预览校验</button>
-          </div>
-
-    <!-- 抽屉 Tab① 算法绑定 -->
-    <div id="dtab1" class="tab-panel">
-      <div class="ant-card ant-card-bordered" style="max-width:560px;">
-        <div class="ant-card-body">
-          <div class="ant-form-item">
-            <label class="ant-form-label ant-form-label-required">算法选择</label>
-            <select class="ant-select" style="width:100%"><option>人流检测追踪 v2.3</option><option>人流检测追踪 v2.1</option></select>
-          </div>
-          <div class="ant-form-item">
-            <label class="ant-form-label">检测阈值</label>
-            <input class="ant-input" value="0.6">
-          </div>
-          <div class="ant-form-item">
-            <label class="ant-form-label">追踪参数</label>
-            <input class="ant-input" value="默认">
-          </div>
-          <div class="flex gap-2">
-            <button class="ant-btn ant-btn-primary" onclick="showToast('算法绑定成功')">保存绑定</button>
-            <button class="ant-btn" onclick="showToast('已解绑算法任务')">解绑算法</button>
-          </div>
-          <div class="ant-alert ant-alert-info mt-4">
-            <i class="fa-solid fa-circle-info ant-alert-icon"></i>
-            <div class="ant-alert-content"><div class="ant-alert-message">绑定算法后，算法中心开始为该设备输出检测结果（检测框、追踪ID、越线事件、区域计数快照）。</div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 抽屉 Tab② 画线/画区域 -->
-    <div id="dtab2" class="tab-panel" style="display:none">
-      <div class="grid gap-4" style="grid-template-columns:1fr 280px;">
-        <div class="ant-card ant-card-bordered">
-          <div class="ant-card-head">
-            <div class="ant-card-head-title">实时画面</div>
-            <div class="ant-card-extra"><span class="status-dot pulse-dot" style="background:#52c41a"></span><span class="text-sm">直播中</span></div>
-          </div>
-          <div class="ant-card-body">
-            <div class="video-canvas" id="videoCanvas2" style="height:400px;" onclick="onCanvasClick(event)" ondblclick="onCanvasDblClick(event)">
-              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.4);pointer-events:none;">
-                <i class="fa-solid fa-video" style="font-size:40px"></i>
-              </div>
-              <svg id="drawSvg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;" onclick="onDrawSvgClick(event)"></svg>
-              <div style="position:absolute;top:8px;left:8px;font-size:11px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 6px;border-radius:3px;">1920×1080</div>
-              <div id="drawHint" style="display:none;position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:12px;background:rgba(22,119,255,0.9);color:#fff;padding:4px 12px;border-radius:4px;white-space:nowrap;pointer-events:none;">
-                <i class="fa-solid fa-draw-polygon mr-1"></i>点击画面添加顶点（≥3），双击闭合
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="ant-card ant-card-bordered">
-          <div class="ant-card-head"><div class="ant-card-head-title">配置</div></div>
-          <div class="ant-card-body">
-            <div class="divider"><span>绘制工具</span></div>
-            <button class="ant-btn w-full mb-2" onclick="startDrawLine()"><i class="fa-solid fa-minus"></i> 画计数线</button>
-            <div id="drawRegionBtns">
-              <button class="ant-btn ant-btn-primary w-full mb-3" onclick="startDrawRegion()"><i class="fa-solid fa-draw-polygon"></i> 画统计区域</button>
-            </div>
-            <div class="text-sm text-tertiary mb-2">已配置（计数线 <span id="lineCountCfg">1</span> / 统计区域 <span id="regionCountCfg">0</span>）</div>
-            <div id="configLineList"></div>
-            <div id="regionListConfig"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 抽屉 Tab③ 预览校验 -->
-    <div id="dtab3" class="tab-panel" style="display:none">
-      <div class="ant-alert ant-alert-info mb-4">
-        <i class="fa-solid fa-circle-info ant-alert-icon"></i>
-        <div class="ant-alert-content">
-          <div class="ant-alert-message">预览模式用于验证计数线方向与统计区域是否正确，预览数据不写入统计。</div>
-        </div>
-      </div>
-      <div class="ant-card ant-card-bordered">
-        <div class="ant-card-head">
-          <div class="ant-card-head-title">实时预览</div>
-          <div class="ant-card-extra">
-            <span class="mr-4 text-sm">越线计数：<span class="font-semibold" style="color:var(--ant-primary)" id="previewCount">0</span></span>
-            <span class="text-sm">区域人数：<span class="font-semibold" style="color:var(--ant-success)">5</span></span>
-          </div>
-        </div>
-        <div class="ant-card-body">
-          <div class="video-canvas" style="height:400px;">
-            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.4);"><i class="fa-solid fa-eye" style="font-size:40px"></i></div>
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
-              <div style="width:40px;height:60px;border:2px solid #52c41a;border-radius:4px;position:relative;">
-                <span style="position:absolute;top:-18px;left:0;font-size:11px;color:#52c41a;">t123 · 0.95</span>
-              </div>
-            </div>
-          </div>
-          <div class="flex justify-center gap-3 mt-4">
-            <button class="ant-btn ant-btn-primary" onclick="incPreview()"><i class="fa-solid fa-play"></i> 模拟越线 +1</button>
-            <button class="ant-btn" onclick="showToast('预览结束，配置正确')">完成校验</button>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -328,29 +344,27 @@
 
 <!-- 关联设备弹窗 -->
 <div class="ant-modal-mask" id="deviceModalMask">
-<div class="ant-modal" id="deviceModal" style="width:680px">
+<div class="ant-modal" id="deviceModal" style="width:880px">
   <div class="ant-modal-header">
-    <span>关联设备 · 选择平台未关联的摄像头</span>
+    <span>关联设备 · 选择平台摄像头（关联到「<span id="deviceModalGroupName">当前分组</span>」）</span>
     <span class="ant-modal-close" onclick="closeModal('deviceModal')"><i class="fa-solid fa-xmark"></i></span>
   </div>
   <div class="ant-modal-body">
-    <div class="flex items-center gap-2 mb-3">
-      <input class="ant-input" id="deviceSearch" style="width:240px" placeholder="搜索设备名称" oninput="filterDeviceModal()">
-      <select class="ant-select" style="width:160px"><option>全部区域</option><option>食堂</option><option>办公区</option></select>
-      <button class="ant-btn ant-btn-primary" onclick="filterDeviceModal()"><i class="fa-solid fa-search"></i> 查询</button>
-    </div>
-    <table class="ant-table">
-      <thead><tr><th width="40"></th><th>设备名称</th><th width="120">所在区域</th><th width="90">状态</th><th width="140">关联情况</th></tr></thead>
-      <tbody id="deviceModalBody">
-        <tr data-name="cam_004 食堂-二楼入口"><td style="text-align:center"><label class="ant-checkbox"><input type="checkbox"></label></td><td>cam_004 食堂-二楼入口</td><td>食堂</td><td><span class="ant-tag ant-tag-green">在线</span></td><td class="text-tertiary">未关联</td></tr>
-        <tr data-name="cam_005 食堂-收餐区"><td style="text-align:center"><label class="ant-checkbox"><input type="checkbox"></label></td><td>cam_005 食堂-收餐区</td><td>食堂</td><td><span class="ant-tag ant-tag-green">在线</span></td><td class="text-tertiary">未关联</td></tr>
-        <tr data-name="cam_006 B栋-大堂"><td style="text-align:center"><label class="ant-checkbox"><input type="checkbox" disabled></label></td><td>cam_006 B栋-大堂</td><td>办公区</td><td><span class="ant-tag ant-tag-green">在线</span></td><td><span class="ant-tag ant-tag-gray">已关联 B栋</span></td></tr>
-      </tbody>
-    </table>
-    <div class="ant-alert ant-alert-info" style="margin-top:12px;display:flex;gap:8px;padding:8px 12px;background:#e6f4ff;border:1px solid #91caff;border-radius:6px;">
-      <i class="fa-solid fa-circle-info" style="color:var(--ant-primary);margin-top:2px"></i>
-      <div class="ant-alert-message" style="font-size:12px;line-height:1.6">
-        分组在场人数基于净流入，不受摄像头视野重叠影响；区域当前人数为单摄像头单区域逐人计数，无跨摄像头重叠问题；热力图为足迹累积，无需视野不重叠约束（见总纲 3.5.2）。
+    <div style="display:grid;grid-template-columns:170px 1fr 230px;gap:12px;">
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head"><div class="ant-card-head-title">设备目录</div></div>
+        <div class="ant-card-body" style="padding:8px 10px;max-height:340px;overflow-y:auto;" id="deviceTree"></div>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head">
+          <div class="ant-card-head-title">设备列表 <span class="text-xs text-tertiary" id="deviceAreaLabel"></span></div>
+          <div class="ant-card-extra"><input class="ant-input" id="deviceSearch" style="width:170px;height:26px;font-size:12px" placeholder="搜索设备名称" oninput="renderDeviceModal()"></div>
+        </div>
+        <div class="ant-card-body" style="padding:8px 10px;max-height:340px;overflow-y:auto;" id="deviceListBody"></div>
+      </div>
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-head"><div class="ant-card-head-title">已选设备 <span class="text-xs text-tertiary" id="deviceSelCount">0</span></div></div>
+        <div class="ant-card-body" style="padding:8px 10px;max-height:340px;overflow-y:auto;" id="deviceSelList"></div>
       </div>
     </div>
   </div>
@@ -400,6 +414,52 @@
 </div>
 </div>
 
+<!-- 园区平面图库弹窗（P-001-T2，多底图管理） -->
+<div class="ant-modal-mask" id="mapLibModalMask" onclick="if(event.target===this)closeMapLib()">
+  <div class="ant-modal" id="mapLibModal" style="width:760px;max-width:94vw;">
+    <div class="ant-modal-header">
+      <span class="text-base font-semibold">园区平面图库</span>
+      <span class="ant-modal-close" onclick="closeMapLib()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-sm text-secondary">共 <b id="mapLibTotal">3</b> 张 · 默认底图：<span id="mapLibDefault">1F 园区总图</span></span>
+        <button class="ant-btn ant-btn-primary ant-btn-sm" onclick="openMapUpload()"><i class="fa-solid fa-upload"></i> 上传底图</button>
+      </div>
+      <div id="mapLibList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 上传/替换底图弹窗 -->
+<div class="ant-modal-mask" id="mapUploadModalMask" onclick="if(event.target===this)closeMapUpload()">
+  <div class="ant-modal" id="mapUploadModal" style="width:500px">
+    <div class="ant-modal-header">
+      <span class="text-base font-semibold" id="mapUploadTitle"><i class="fa-solid fa-upload" style="color:var(--ant-primary);margin-right:8px"></i>上传底图</span>
+      <span class="ant-modal-close" onclick="closeMapUpload()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="ant-modal-body">
+      <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">底图名称</label>
+        <input class="ant-input" id="mapNameInput" placeholder="如：1F 园区总图 / 2F 食堂楼" maxlength="30" oninput="document.getElementById('mapNameError').classList.add('hidden')">
+        <div id="mapNameError" class="text-error text-sm mt-1 hidden">底图名称不能为空</div>
+      </div>
+      <div class="ant-form-item" style="margin-bottom:12px"><label class="ant-form-label ant-form-label-required">底图文件</label>
+        <input type="file" id="mapFileInput" accept=".png,.svg,image/png,image/svg+xml" onchange="onMapFileSelect(this)">
+        <div class="text-xs text-tertiary mt-1">支持 PNG / SVG，大小不超过 20MB，需标注区域地块边界（见 Q-09）</div>
+        <div id="mapFileInfo" class="text-xs mt-1" style="color:var(--ant-text-secondary)"></div>
+        <div id="mapFileError" class="text-error text-sm mt-1 hidden">请选择 PNG / SVG 底图文件</div>
+      </div>
+      <div class="ant-form-item" style="margin-bottom:0">
+        <label class="ant-checkbox"><input type="checkbox" id="mapIsDefault"><span>设为园区默认底图（底图库首张自动为默认）</span></label>
+      </div>
+    </div>
+    <div class="ant-modal-footer">
+      <button class="ant-btn" onclick="closeMapUpload()">取消</button>
+      <button class="ant-btn ant-btn-primary" id="mapUploadSubmitBtn" onclick="submitMapUpload()">确定上传</button>
+    </div>
+  </div>
+</div>
+
 <script>
   function showToast(msg, duration) {
     duration = duration || 2000;
@@ -413,8 +473,8 @@
     setTimeout(function () { el.classList.remove('show'); setTimeout(function () { el.remove(); }, 300); }, duration);
   }
   function openModal(id){ document.getElementById(id).classList.add('active'); document.getElementById(id+'Mask').classList.add('active'); }
-  function closeModal(id){ document.getElementById(id).classList.remove('active'); document.getElementById(id+'Mask').classList.remove('active'); if(id==='confirmModal'){ pendingDeleteId=null; } }
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ ['groupModal','deviceModal','confirmModal','regionModal'].forEach(function(id){ closeModal(id); }); closeConfigDrawer(); } });
+  function closeModal(id){ document.getElementById(id).classList.remove('active'); document.getElementById(id+'Mask').classList.remove('active'); if(id==='confirmModal'){ pendingDeleteId=null; pendingGroupId=null; } }
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ ['groupModal','deviceModal','confirmModal','regionModal'].forEach(function(id){ closeModal(id); }); closeConfigDrawer(); closeCalibModal(); closeMapLib(); } });
   document.addEventListener('click', function(e){ if(e.target.classList.contains('ant-modal-mask')){ e.target.classList.remove('active'); var id=e.target.id.replace(/Mask$/,''); var m=document.getElementById(id); if(m) m.classList.remove('active'); } });
 
   // 分组数据 — 树形结构
@@ -453,6 +513,7 @@
       html += '</div>';
       html += '<div class="flex gap-1">';
       html += '<button class="ant-btn ant-btn-text ant-btn-sm" onclick="event.stopPropagation();openEditGroup(\''+g.id+'\',\''+g.name+'\')"><i class="fa-solid fa-pen"></i></button>';
+      if(!hasKids) html += '<button class="ant-btn ant-btn-text ant-btn-sm" onclick="event.stopPropagation();openConfirmDelGroup(\''+g.id+'\',\''+g.name+'\')" title="删除分组"><i class="fa-solid fa-trash" style="color:#ff4d4f"></i></button>';
       html += '</div></div>';
       // 子分组
       if(hasKids){
@@ -510,6 +571,50 @@
     walk(groups, []);
   }
   function renderAll(){ renderGroups(); renderDevices(); }
+  // ===== 配置健康度条（P0：动态计算 + 可定位） =====
+  function healthData(){
+    var leaves=0, parkCnt=0;
+    function walk(nodes){ nodes.forEach(function(g){
+      if(g.children && g.children.length){ walk(g.children); }
+      else { leaves++; if(g.level==='park') parkCnt++; }
+    }); }
+    walk(groups);
+    var lineCnt=0, regionCnt=0, lineNeed=0, regionNeed=0;
+    Object.keys(deviceConfigs).forEach(function(k){
+      if(!devices.some(function(d){return d.name===k;})) return;
+      var c = deviceConfigs[k];
+      lineCnt += c.lines.length; regionCnt += c.regions.length;
+      if(c.capState.capLine) lineNeed++;
+      if(c.capState.capRegion) regionNeed++;
+    });
+    var cfgCnt = devices.filter(function(d){return deviceStatus(d.name)==='已配置';}).length;
+    var calibDone = mapCams.filter(function(c){return c.calibrated;}).length;
+    return {
+      leaves:leaves, park:parkCnt, cfg:cfgCnt, assoc:devices.length,
+      line:lineCnt, lineNeed:lineNeed, region:regionCnt, regionNeed:regionNeed,
+      calib:calibDone, calibNeed:devices.length
+    };
+  }
+  function renderHealth(){
+    var el = document.getElementById('healthBar'); if(!el) return;
+    var hd = healthData();
+    function item(label, inner){
+      return '<span class="text-xs" style="color:var(--ant-text-secondary)">'+label+' <b style="color:var(--ant-primary)">'+inner+'</b></span>';
+    }
+    el.innerHTML = '<div style="background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;padding:10px 14px;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;">'
+      + '<span class="text-sm font-semibold" style="color:var(--ant-text)"><i class="fa-solid fa-clipboard-check mr-1" style="color:var(--ant-primary)"></i>配置健康度</span>'
+      + item('统计分组', hd.leaves+'（园区级 '+hd.park+'）')
+      + item('设备算法', hd.cfg+'/'+hd.assoc)
+      + item('出入计数', hd.line+'/'+hd.lineNeed)
+      + item('区域统计', hd.region+'/'+hd.regionNeed)
+      + item('热力图参与', hd.calib+'/'+hd.calibNeed)
+      + '<span class="text-xs" style="margin-left:auto;display:flex;align-items:center;gap:12px">'
+        + '<a class="ant-btn ant-btn-link ant-btn-sm" href="javascript:;" onclick="openMapLib()" title="园区平面图库管理"><i class="fa-solid fa-map mr-1" style="color:var(--ant-primary)"></i>园区平面图库 <span class="text-xs" id="mapLibCount" style="color:var(--ant-text-tertiary)"></span></a>'
+        + '</span>'
+      + '</div>';
+    var mlc = document.getElementById('mapLibCount');
+    if(mlc) mlc.textContent = mockMaps.length + ' 张';
+  }
   function openGroupModal(){ editingGroupId=null; document.getElementById('groupModalTitle').textContent='新增分组'; document.getElementById('groupNameInput').value=''; document.getElementById('groupNameError').classList.add('hidden'); openModal('groupModal'); }
   var editingGroupId=null;
   function openEditGroup(id,name){ editingGroupId=id; document.getElementById('groupModalTitle').textContent='编辑分组'; document.getElementById('groupNameInput').value=name; document.getElementById('groupNameError').classList.add('hidden');
@@ -533,45 +638,77 @@
     }
     renderGroups(); closeModal('groupModal');
   }
-  function openDeviceModal(){ openModal('deviceModal'); }
-  function submitDevice(){
-    closeModal('deviceModal');
-    showToast('关联成功，共 2 台');
-  }
   var pendingDeviceName=null;
+  var pendingGroupId=null;
   function openConfirmDel(text, deviceName){ document.getElementById('confirmText').textContent=text; pendingDeviceName=deviceName||null; openModal('confirmModal'); }
+  function openConfirmDelGroup(id, name){
+    var cnt=devices.filter(function(d){return d.groupId===id;}).length;
+    pendingGroupId=id;
+    document.getElementById('confirmText').textContent = cnt>0
+      ? '该分组下有 '+cnt+' 台设备，删除后设备关联关系将解除（配置保留为未激活）。是否确认删除分组「'+name+'」？'
+      : '确认删除分组「'+name+'」？';
+    openModal('confirmModal');
+  }
+  function removeGroupById(id, list){
+    list = list || groups;
+    for(var i=0;i<list.length;i++){
+      if(list[i].id===id){ list.splice(i,1); return true; }
+      if(list[i].children && removeGroupById(id, list[i].children)) return true;
+    }
+    return false;
+  }
   function confirmDel(){
     if(pendingDeviceName){
       devices=devices.filter(function(d){return d.name!==pendingDeviceName;});
-      pendingDeviceName=null; renderDevices(); showToast('已取消关联，配置已保留为未激活');
+      pendingDeviceName=null; renderDevices(); renderHealth(); showToast('已取消关联，配置已保留为未激活');
+    } else if(pendingGroupId){
+      var gid=pendingGroupId;
+      removeGroupById(gid);
+      devices=devices.filter(function(d){return d.groupId!==gid;});
+      if(curGroup===gid){ curGroup='park'; }
+      pendingGroupId=null; renderGroups(); renderDevices(); renderHealth(); showToast('分组已删除，其下设备关联已解除');
     } else if(pendingDeleteId){
-      regionsConfig=regionsConfig.filter(function(r){return r.id!==pendingDeleteId;}); pendingDeleteId=null; renderDrawSvg(); renderRegionListConfig(); showToast('删除成功');
+      regionsConfig=regionsConfig.filter(function(r){return r.id!==pendingDeleteId;}); pendingDeleteId=null; renderDrawCanvas(); renderRegionListConfig(); showToast('删除成功');
     }
     closeModal('confirmModal');
   }
 
   // ===== 计数线绘制（review-full-v1 M5：画计数线/编辑/禁用 从死按钮改为可用）=====
-  var configLines=[{name:'大门口-进', pts:[{x:8,y:35},{x:8,y:65}], disabled:false}];
+  var configLines=[{name:'大门口-进', pts:[{x:8,y:35},{x:8,y:65}], disabled:false, direction:'a', normal:'左'}];
+  var pendingLine=null;
+  function oppositeDir(w){ return {'上':'下','下':'上','左':'右','右':'左','左上':'右下','右下':'左上','右上':'左下','左下':'右上'}[w]||'上'; }
+  function lineOrientation(p1,p2){
+    var dx=p2.x-p1.x, dy=p2.y-p1.y, nx=-dy, ny=dx, len=Math.sqrt(nx*nx+ny*ny)||1; nx/=len; ny/=len;
+    var a=((Math.atan2(ny,nx)*180/Math.PI)%360+360)%360;
+    var steps=[0,45,90,135,180,225,270,315], ww=['右','右下','下','左下','左','左上','上','右上'];
+    var best=0, bestd=999; for(var i=0;i<8;i++){ var d=Math.abs(a-steps[i]); if(d>180)d=360-d; if(d<bestd){bestd=d;best=i;} }
+    return {normal:ww[best], nv:{x:nx,y:ny}};
+  }
   var drawLineMode=false, linePts=[];
+  function dirText(l){ var o=oppositeDir(l.normal||'上'); return l.direction==='b' ? (l.normal+'→'+o+' 为进') : (o+'→'+l.normal+' 为进'); }
   function renderConfigLines(){
     document.getElementById('lineCountCfg').textContent=configLines.length;
     document.getElementById('configLineList').innerHTML=configLines.map(function(l,i){
       var dot=l.disabled?'#bfbfbf':'#faad14';
-      var btn=l.disabled?'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleLineDisable('+i+')">启用</button>':'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="startDrawLine('+i+')">编辑</button> <button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleLineDisable('+i+')">禁用</button>';
-      return '<div class="flex items-center justify-between text-sm mb-2"><span><span class="status-dot" style="background:'+dot+'"></span>'+l.name+(l.disabled?' <span class="ant-tag ant-tag-gray">已禁用</span>':'')+'</span><div class="flex gap-1">'+btn+'</div></div>';
+      var btn=l.disabled?'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleLineDisable('+i+')">启用</button>':'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="startDrawLine('+i+')">编辑</button> <button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleLineDir('+i+')" title="切换进方向">方向⇄</button> <button class="ant-btn ant-btn-text ant-btn-sm" onclick="toggleLineDisable('+i+')">禁用</button> <button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="deleteLine('+i+')">删除</button>';
+      return '<div class="flex items-center justify-between text-sm mb-2"><span><span class="status-dot" style="background:'+dot+'"></span>'+l.name+' <span class="text-xs text-tertiary">（'+dirText(l)+'）</span>'+(l.disabled?' <span class="ant-tag ant-tag-gray">已禁用</span>':'')+'</span><div class="flex gap-1">'+btn+'</div></div>';
     }).join('');
     renderLinesOnSvg();
   }
-  function renderLinesOnSvg(){
-    var svg=document.getElementById('drawSvg'); if(!svg) return;
-    var lines=configLines.map(function(l){
-      var c=l.disabled?'#bfbfbf':'#faad14';
-      var p1=l.pts[0],p2=l.pts[1];
-      return '<line x1="'+p1.x+'%" y1="'+p1.y+'%" x2="'+p2.x+'%" y2="'+p2.y+'%" stroke="'+c+'" stroke-width="3" stroke-dasharray="6,4"/>'+
-        '<circle cx="'+p1.x+'%" cy="'+p1.y+'%" r="4" fill="'+c+'"/><circle cx="'+p2.x+'%" cy="'+p2.y+'%" r="4" fill="'+c+'"/>';
-    }).join('');
-    svg.innerHTML=lines+(drawLineMode?linePts.map(function(p){return '<circle cx="'+p.x+'%" cy="'+p.y+'%" r="4" fill="#1677ff"/>';}).join(''):'');
+  function toggleLineDir(idx){
+    configLines[idx].direction = configLines[idx].direction==='b' ? 'a' : 'b';
+    renderConfigLines(); showToast(dirText(configLines[idx])+'（反方向自动计出）');
   }
+  function arrowPoly(p1,p2,nv,rev){
+    var mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2;
+    var L=4, W=2.2, d=rev?-1:1;
+    var ux=nv.x*d, uy=nv.y*d;
+    var tipx=mx+ux*L, tipy=my+uy*L;
+    var bx=mx-ux*L, by=my-uy*L;
+    var px=-uy, py=ux;
+    return (bx+px*W)+','+(by+py*W)+' '+tipx+','+tipy+' '+(bx-px*W)+','+(by-py*W);
+  }
+
   function startDrawLine(editIdx){
     drawLineMode=true; linePts=[]; window._editLineIdx=(typeof editIdx==='number')?editIdx:null;
     var svg=document.getElementById('drawSvg');
@@ -589,76 +726,244 @@
     linePts.push({x:x,y:y});
     renderLinesOnSvg();
     if(linePts.length>=2){
-      var idx=window._editLineIdx;
-      var name;
-      if(idx!==null&&idx!==undefined){ name=configLines[idx].name; configLines[idx].pts=linePts.slice(); configLines[idx].disabled=false; }
-      else { name='计数线'+(configLines.length+1); configLines.push({name:name, pts:linePts.slice(), disabled:false}); }
-      drawLineMode=false; linePts=[]; window._editLineIdx=null;
+      // 画完 2 点：进入「设置进方向」确认（不立即保存）
+      pendingLine={ pts:linePts.slice(), direction:'a' };
+      drawLineMode=false; linePts=[]; window._editLineIdx=window._editLineIdx||null;
       svg.style.pointerEvents='none'; svg.style.cursor='';
-      document.getElementById('drawHint').style.display='none';
-      renderConfigLines(); showToast('计数线「'+name+'」已保存');
+      var hint=document.getElementById('drawHint');
+      hint.style.display=''; hint.innerHTML='<i class="fa-solid fa-arrows-left-right mr-1"></i>请设置进方向后确认保存';
+      renderLinesOnSvg();
+      renderLineDirPanel();
     }
   }
-  function toggleLineDisable(idx){ configLines[idx].disabled=!configLines[idx].disabled; renderConfigLines(); showToast(configLines[idx].disabled?'计数线已禁用':'计数线已启用'); }
-  function filterDeviceModal(){
-    var kw=(document.getElementById('deviceSearch').value||'').trim().toLowerCase();
-    document.querySelectorAll('#deviceModalBody tr').forEach(function(tr){
-      var n=(tr.getAttribute('data-name')||'').toLowerCase();
-      tr.style.display=(!kw||n.indexOf(kw)>=0)?'':'none';
-    });
+  function renderLineDirPanel(){
+    var panel=document.getElementById('lineDirPanel');
+    panel.style.display='';
+    var o=lineOrientation(pendingLine.pts[0],pendingLine.pts[1]);
+    var n=o.normal, r=oppositeDir(n);
+    var optA=r+'→'+n+' 为进', optB=n+'→'+r+' 为进';
+    document.getElementById('lineDirBtns').innerHTML=
+      '<button class="ant-btn ant-btn-sm'+(pendingLine.direction==='a'?' ant-btn-primary':'')+'" onclick="setLineDir(\'a\')">'+optA+'</button>'+
+      '<button class="ant-btn ant-btn-sm'+(pendingLine.direction==='b'?' ant-btn-primary':'')+'" onclick="setLineDir(\'b\')">'+optB+'</button>';
+    document.getElementById('lineDirTip').textContent='当前：'+(pendingLine.direction==='a'?optA:optB)+'（反方向自动计"出"，净流入=进−出；箭头指向进方向）';
+    renderLinesOnSvg();
   }
-
+  function setLineDir(d){
+    if(!pendingLine) return;
+    pendingLine.direction=d;
+    renderLineDirPanel();
+  }
+  function confirmLine(){
+    if(!pendingLine) return;
+    var idx=window._editLineIdx;
+    var name;
+    if(idx!==null&&idx!==undefined){ name=configLines[idx].name; configLines[idx].pts=pendingLine.pts.slice(); configLines[idx].direction=pendingLine.direction; configLines[idx].disabled=false; }
+    else { var o=lineOrientation(pendingLine.pts[0],pendingLine.pts[1]); name='计数线'+(configLines.length+1); configLines.push({name:name, pts:pendingLine.pts.slice(), direction:pendingLine.direction, normal:o.normal, disabled:false}); }
+    pendingLine=null; window._editLineIdx=null;
+    document.getElementById('lineDirPanel').style.display='none';
+    document.getElementById('drawHint').style.display='none';
+    renderConfigLines(); showToast('计数线「'+name+'」已保存（'+dirText(configLines[idx!==null&&idx!==undefined?idx:configLines.length-1])+'）');
+  }
+  function cancelLine(){
+    pendingLine=null; window._editLineIdx=null;
+    document.getElementById('lineDirPanel').style.display='none';
+    document.getElementById('drawHint').style.display='none';
+    renderLinesOnSvg(); showToast('已取消画线');
+  }
+  function toggleLineDisable(idx){ configLines[idx].disabled=!configLines[idx].disabled; renderConfigLines(); showToast(configLines[idx].disabled?'计数线已禁用（不参与计数）':'计数线已启用'); }
+  function deleteLine(idx){
+    var l=configLines[idx]; if(!l) return;
+    if(!confirm('确认删除计数线「'+l.name+'」？删除后该线不再参与计数（净流入/超员告警受影响）。')) return;
+    configLines.splice(idx,1);
+    renderConfigLines(); renderLinesOnSvg();
+    showToast('计数线「'+l.name+'」已删除');
+    if(configLines.length===0){ showToast('已无计数线，出入计数能力回到「待绘制」'); }
+  }
   // 设备列表
-  var deviceStatusMap = {'未配置':'st-unconfig','已绑算法':'st-algo','已画线':'st-line','已映射':'st-mapped'};
+  var deviceStatusMap = {'未配置':'st-unconfig','已配置':'st-algo','未激活':'st-unconfig'};
   var devices = [
-    {name:'cam_008 东门', area:'大门', groupId:'gate', online:true, status:'已绑算法'},
-    {name:'cam_009 西门', area:'大门', groupId:'gate', online:true, status:'已画线'},
-    {name:'cam_001 食堂-入口', area:'食堂', groupId:'canteen', online:true, status:'已映射'},
-    {name:'cam_002 食堂-出口', area:'食堂', groupId:'canteen', online:true, status:'已画线'},
-    {name:'cam_003 食堂-取餐台', area:'食堂', groupId:'canteen', online:true, status:'已绑算法'},
+    {name:'cam_008 东门', area:'大门', groupId:'gate', online:true, status:'已配置'},
+    {name:'cam_009 西门', area:'大门', groupId:'gate', online:true, status:'已配置'},
+    {name:'cam_001 食堂-入口', area:'食堂', groupId:'canteen', online:true, status:'已配置'},
+    {name:'cam_002 食堂-出口', area:'食堂', groupId:'canteen', online:true, status:'已配置'},
+    {name:'cam_003 食堂-取餐台', area:'食堂', groupId:'canteen', online:true, status:'已配置'},
     {name:'cam_004 食堂-二楼入口', area:'食堂', groupId:'canteen', online:false, status:'未配置'},
-    {name:'cam_005 食堂-收餐区', area:'食堂', groupId:'canteen', online:true, status:'已绑算法'},
-    {name:'cam_006 A栋-大堂', area:'A 栋', groupId:'a-building', online:true, status:'已绑算法'},
-    {name:'cam_007 A栋-电梯厅', area:'A 栋', groupId:'a-building', online:true, status:'已画线'},
-    {name:'cam_010 B栋-大堂', area:'B 栋', groupId:'b-building', online:true, status:'已绑算法'},
-    {name:'cam_011 B栋-走廊', area:'B 栋', groupId:'b-building', online:true, status:'已画线'},
-    {name:'cam_012 广场-主入口', area:'广场', groupId:'plaza', online:true, status:'已绑算法'},
+    {name:'cam_005 食堂-收餐区', area:'食堂', groupId:'canteen', online:true, status:'已配置'},
+    {name:'cam_006 A栋-大堂', area:'A 栋', groupId:'a-building', online:true, status:'已配置'},
+    {name:'cam_007 A栋-电梯厅', area:'A 栋', groupId:'a-building', online:true, status:'已配置'},
+    {name:'cam_010 B栋-大堂', area:'B 栋', groupId:'b-building', online:true, status:'已配置'},
+    {name:'cam_011 B栋-走廊', area:'B 栋', groupId:'b-building', online:true, status:'已配置'},
+    {name:'cam_012 广场-主入口', area:'广场', groupId:'plaza', online:true, status:'已配置'},
     {name:'cam_013 广场-休息区', area:'广场', groupId:'plaza', online:true, status:'未配置'},
-    {name:'cam_014 地下车库-入口', area:'地下车库', groupId:'garage', online:true, status:'已画线'}
+    {name:'cam_014 地下车库-入口', area:'地下车库', groupId:'garage', online:true, status:'已配置'}
   ];
+  // 平台摄像头目录（全部，含未关联）
+  var platformDevices = [
+    {name:'cam_008 东门', area:'大门', online:true},
+    {name:'cam_009 西门', area:'大门', online:true},
+    {name:'cam_015 北门', area:'大门', online:true},
+    {name:'cam_001 食堂-入口', area:'食堂', online:true},
+    {name:'cam_002 食堂-出口', area:'食堂', online:true},
+    {name:'cam_003 食堂-取餐台', area:'食堂', online:true},
+    {name:'cam_004 食堂-二楼入口', area:'食堂', online:false},
+    {name:'cam_005 食堂-收餐区', area:'食堂', online:true},
+    {name:'cam_016 食堂-外卖窗', area:'食堂', online:true},
+    {name:'cam_006 A栋-大堂', area:'A 栋', online:true},
+    {name:'cam_007 A栋-电梯厅', area:'A 栋', online:true},
+    {name:'cam_017 A栋-会议室', area:'A 栋', online:true},
+    {name:'cam_010 B栋-大堂', area:'B 栋', online:true},
+    {name:'cam_011 B栋-走廊', area:'B 栋', online:true},
+    {name:'cam_012 广场-主入口', area:'广场', online:true},
+    {name:'cam_013 广场-休息区', area:'广场', online:true},
+    {name:'cam_018 广场-旗杆区', area:'广场', online:true},
+    {name:'cam_014 地下车库-入口', area:'地下车库', online:true}
+  ];
+  // 设备配置（按设备名隔离，P0 闭环：保存/状态/健康度联动）
+  var deviceConfigs = {
+    'cam_008 东门':   {capState:{capLine:true, capRegion:false}, lines:[{name:'东门-进出线', pts:[{x:15,y:25},{x:15,y:75}], direction:'a', normal:'左', disabled:false}], regions:[], mapId:'m1'},
+    'cam_009 西门':   {capState:{capLine:true, capRegion:false}, lines:[{name:'西门-进出线', pts:[{x:18,y:30},{x:18,y:78}], direction:'a', normal:'左', disabled:false}], regions:[], mapId:'m1'},
+    'cam_001 食堂-入口': {capState:{capLine:true, capRegion:true}, lines:[{name:'入口-进出线', pts:[{x:20,y:30},{x:20,y:70}], direction:'a', normal:'左', disabled:false}], regions:[{id:'r_s1', name:'入口取餐区', pts:[{x:15,y:40},{x:45,y:38},{x:48,y:70},{x:18,y:72}], enabled:true}], mapId:'m1'},
+    'cam_002 食堂-出口': {capState:{capLine:true, capRegion:false}, lines:[{name:'出口-进出线', pts:[{x:25,y:35},{x:25,y:75}], direction:'a', normal:'左', disabled:false}], regions:[], mapId:'m1'},
+    'cam_003 食堂-取餐台': {capState:{capLine:false, capRegion:true}, lines:[], regions:[{id:'r_s2', name:'取餐区', pts:[{x:30,y:35},{x:60,y:33},{x:62,y:65},{x:32,y:68}], enabled:true}], mapId:'m1'}
+  };
+  var selectedDevice = null; // 关联弹窗单选（研发建议：一台摄像头仅归属一个分组，单选更稳妥）
+  function deviceStatus(name){
+    var d = devices.find(function(x){return x.name===name;});
+    if(!d) return '未配置';
+    var cfg = deviceConfigs[name];
+    var calib = mapCams.find(function(c){return c.name===name;});
+    var has = (cfg && (cfg.lines.length>0 || cfg.regions.length>0)) || (calib && calib.calibrated);
+    return has ? '已配置' : '未配置';
+  }
   function renderDevices(){
     var g = findGroupById(curGroup);
     var areaName = g ? g.name : '';
     var devs = devices.filter(function(d){return d.groupId===curGroup;});
     document.getElementById('curGroupName').textContent = areaName;
     document.getElementById('deviceBody').innerHTML = devs.map(function(d){
-      return '<tr>'
+      var st = deviceStatus(d.name);
+      return '<tr data-name="'+d.name+'">'
         + '<td><i class="fa-solid fa-video mr-2 text-tertiary"></i>'+d.name+'</td>'
         + '<td>'+d.area+'</td>'
         + '<td>'+(d.online?'<span class="ant-tag ant-tag-green">在线</span>':'<span class="ant-tag ant-tag-red">离线</span>')+'</td>'
-        + '<td><span class="config-status '+deviceStatusMap[d.status]+'">'+d.status+'</span></td>'
-        + '<td class="action-wrap">'
+        + '<td><span class="config-status '+deviceStatusMap[st]+'">'+st+'</span></td>'
+        + '<td><div class="action-wrap">'
         + '<button class="ant-btn ant-btn-text ant-btn-sm" onclick="openConfigDrawer(\''+d.name+'\')">配置</button>'
-        + '<button class="ant-btn ant-btn-text ant-btn-sm" onclick="goMapCam(\''+d.name+'\')">映射</button>'
+        + '<button class="ant-btn ant-btn-text ant-btn-sm" onclick="openCalib(\''+d.name+'\')"><i class="fa-solid fa-draw-polygon mr-1"></i>标定</button>'
         + '<button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="openConfirmDel(\'取消关联后，配置将保留但标记为未激活，重新关联后恢复。是否继续？\',\''+d.name+'\')">取消关联</button>'
-        + '</td></tr>';
+        + '</div></td></tr>';
     }).join('');
   }
-  function switchTabById(id){ ['tab1','tab4'].forEach(function(tid){ var p=document.getElementById(tid); if(p) p.style.display='none'; }); document.getElementById(id).style.display=''; document.querySelectorAll('#tabBar .tab-item').forEach(function(t){t.classList.remove('active');}); var idx={'tab1':0,'tab4':1}[id]; document.querySelectorAll('#tabBar .tab-item')[idx].classList.add('active'); if(id==='tab4') renderMapCamAll(); }
-  function switchTab(el,id){ ['tab1','tab4'].forEach(function(tid){ var p=document.getElementById(tid); if(p) p.style.display='none'; }); document.getElementById(id).style.display=''; document.querySelectorAll('#tabBar .tab-item').forEach(function(t){t.classList.remove('active');}); el.classList.add('active'); if(id==='tab4') renderMapCamAll(); }
-
-  // 预览计数
+  // ===== 关联设备弹窗：三列（设备目录 → 设备列表 → 已选设备）+ 搜索 =====
+  var curArea = null;
+  function openDeviceModal(){
+    selectedDevice = null;
+    curArea = null;
+    var gn = (findGroupById(curGroup)||{}).name || curGroup;
+    document.getElementById('deviceModalGroupName').textContent = gn;
+    renderDeviceModal();
+    openModal('deviceModal');
+  }
+  function renderDeviceModal(){
+    renderDeviceTree();
+    renderDeviceList();
+    renderDeviceSelList();
+  }
+  function areaList(){ var a=[]; platformDevices.forEach(function(p){ if(a.indexOf(p.area)<0) a.push(p.area); }); return a; }
+  var areaTreeOpen = true;
+  function renderDeviceTree(){
+    var el = document.getElementById('deviceTree'); if(!el) return;
+    var total = platformDevices.length;
+    var html = '<div class="dm-tree-item dm-tree-root'+(areaTreeOpen?' open':'')+'" onclick="toggleAreaTree()">'
+      + '<span class="tree-toggle'+(areaTreeOpen?' open':'')+'"><i class="fa-solid fa-caret-right"></i></span>'
+      + '<i class="fa-solid fa-city" style="color:var(--ant-primary);margin-right:2px"></i>'
+      + '<span class="dm-tree-name">园区</span>'
+      + '<span class="dm-tree-count">'+total+' 台</span>'
+      + '</div>';
+    if(areaTreeOpen){
+      html += '<div class="dm-tree-children">' + areaList().map(function(a){
+        var unassoc = platformDevices.filter(function(p){ return p.area===a && !devices.some(function(d){return d.name===p.name;}); }).length;
+        var active = a===curArea;
+        return '<div class="dm-tree-item'+(active?' active':'')+'" onclick="selectArea(\''+a+'\')" style="padding-left:24px">'
+          + '<span style="width:14px"></span>'
+          + '<i class="fa-solid fa-location-dot" style="color:'+(active?'var(--ant-primary)':'var(--ant-text-tertiary)')+';margin-right:2px"></i>'
+          + '<span class="dm-tree-name">'+a+'</span>'
+          + '<span class="dm-tree-count">'+unassoc+' 台</span>'
+          + '</div>';
+      }).join('') + '</div>';
+    }
+    el.innerHTML = html;
+  }
+  function toggleAreaTree(){ areaTreeOpen = !areaTreeOpen; renderDeviceTree(); }
+  function selectArea(a){ curArea = a; renderDeviceTree(); renderDeviceList(); }
+  function renderDeviceList(){
+    var el = document.getElementById('deviceListBody'); if(!el) return;
+    var kw = (document.getElementById('deviceSearch').value||'').trim().toLowerCase();
+    var label = document.getElementById('deviceAreaLabel');
+    var devs;
+    if(kw){
+      devs = platformDevices.filter(function(p){ return p.name.toLowerCase().indexOf(kw)>=0; });
+      if(label) label.textContent = '· 搜索结果';
+    } else {
+      if(!curArea){ curArea = areaList()[0]; }
+      devs = platformDevices.filter(function(p){ return p.area===curArea; });
+      if(label) label.textContent = '· '+curArea;
+    }
+    el.innerHTML = devs.length ? devs.map(function(p){
+      var assoc = devices.find(function(d){ return d.name===p.name; });
+      var isSel = selectedDevice === p.name;
+      var box = assoc
+        ? '<span class="ant-tag ant-tag-gray" style="font-size:10px;margin:0">已关联</span>'
+        : '<span class="dm-radio'+(isSel?' on':'')+'"><i class="fa-solid fa-circle-check"></i></span>';
+      return '<div class="dm-item'+(assoc?' dm-disabled':'')+(isSel?' dm-selected':'')+'" onclick="'+(assoc?'':'selectDevice(\''+p.name+'\')')+'" title="'+(assoc?'该设备已关联，不可重复关联':'点击选择该设备')+'">'+box
+        + '<span class="dm-name">'+p.name+'</span>'
+        + (p.online?'<span class="ant-tag ant-tag-green" style="font-size:10px;margin:0">在线</span>':'<span class="ant-tag ant-tag-red" style="font-size:10px;margin:0">离线</span>')
+        + '</div>';
+    }).join('') : '<div class="text-tertiary text-center py-8 text-xs">该区域暂无设备</div>';
+  }
+  function selectDevice(name){
+    selectedDevice = (selectedDevice===name) ? null : name;
+    renderDeviceList();
+    renderDeviceSelList();
+  }
+  function renderDeviceSelList(){
+    var list = document.getElementById('deviceSelList'); if(!list) return;
+    var cnt = document.getElementById('deviceSelCount'); if(cnt) cnt.textContent = selectedDevice ? 1 : 0;
+    list.innerHTML = selectedDevice
+      ? '<div class="dm-sel-item"><span>'+selectedDevice+'</span><span class="rm" title="移除" onclick="clearDeviceSel()"><i class="fa-solid fa-xmark"></i></span></div>'
+        + '<div class="text-xs text-tertiary mt-2" style="line-height:1.6"><i class="fa-solid fa-circle-info mr-1"></i>将关联到当前分组，一台设备仅归属一个分组</div>'
+      : '<div class="text-tertiary text-center py-6 text-xs">请在左侧选择 1 台设备</div>';
+  }
+  function clearDeviceSel(){ selectedDevice = null; renderDeviceModal(); }
+  function submitDevice(){
+    if(!selectedDevice){ showToast('请先选择要关联的设备'); return; }
+    var p = platformDevices.find(function(x){ return x.name===selectedDevice; });
+    if(p && !devices.some(function(d){ return d.name===selectedDevice; })){
+      devices.push({name:selectedDevice, area:p.area, groupId:curGroup, online:p.online});
+    }
+    closeModal('deviceModal');
+    renderDevices(); renderHealth();
+    showToast('已关联「'+selectedDevice+'」（曾保存的配置自动恢复为已配置）');
+  }
+  // 预览计数（并入 Step2 实时预览）
   var previewCount=0;
   function incPreview(){ previewCount++; document.getElementById('previewCount').textContent=previewCount; showToast('检测到越线，计数 +1'); }
-  // ===== 平面图相机标定（Tab②）=====
+  // ===== 相机标定（热力图参与能力）=====
   // 建立画面坐标->平面图坐标的单应性映射：点选≥4对对应点，计算矩阵，映射检测框底中心验证。
+  // 园区平面图库（P-001-T2）：多底图，单底图为特例（热力图切换器自动隐藏）
+  var mockMaps = [
+    { id:'m1', name:'1F 园区总图', file:'plan-1f.png', w:1920, h:1080, isDefault:true, deviceCount:3, updatedAt:'2026-08-01', zones:[{style:'top:15%;left:10%;width:25%;height:30%;',color:'#1677ff',text:'A 栋'},{style:'top:15%;right:10%;width:30%;height:35%;',color:'#fa8c16',text:'食堂'},{style:'bottom:10%;left:25%;width:40%;height:25%;',color:'#52c41a',text:'广场'}] },
+    { id:'m2', name:'2F 食堂楼', file:'plan-2f.png', w:1600, h:1000, isDefault:false, deviceCount:2, updatedAt:'2026-08-03', zones:[{style:'top:12%;left:8%;width:34%;height:38%;',color:'#fa8c16',text:'2F 就餐区'},{style:'top:12%;right:10%;width:28%;height:40%;',color:'#722ed1',text:'2F 包间'},{style:'top:60%;left:30%;width:40%;height:24%;',color:'#13c2c2',text:'2F 取餐台'}] },
+    { id:'m3', name:'A 栋办公区', file:'plan-a.png', w:1280, h:900, isDefault:false, deviceCount:1, updatedAt:'2026-07-28', zones:[{style:'top:15%;left:12%;width:28%;height:34%;',color:'#1677ff',text:'A 栋大堂'},{style:'top:15%;right:12%;width:30%;height:36%;',color:'#52c41a',text:'A 栋办公区'},{style:'top:58%;left:30%;width:30%;height:22%;',color:'#fa8c16',text:'A 栋电梯厅'}] }
+  ];
+  var curMapId = 'm1'; // 当前标定使用的底图（默认园区默认底图）
   var mapCams = [
-    { id:'mc1', cam:'cam_001', name:'cam_001 食堂-入口', group:'食堂', calibrated:true, calibPoints:[{imgX:25,imgY:70,mapX:70,mapY:30},{imgX:60,imgY:65,mapX:80,mapY:44},{imgX:40,imgY:40,mapX:75,mapY:20},{imgX:80,imgY:55,mapX:85,mapY:50}] },
-    { id:'mc2', cam:'cam_002', name:'cam_002 食堂-出口', group:'食堂', calibrated:false, calibPoints:[] },
-    { id:'mc3', cam:'cam_003', name:'cam_003 食堂-取餐台', group:'食堂', calibrated:false, calibPoints:[] },
-    { id:'mc4', cam:'cam_004', name:'cam_004 食堂-二楼入口', group:'食堂', calibrated:false, calibPoints:[] },
-    { id:'mc5', cam:'cam_005', name:'cam_005 食堂-收餐区', group:'食堂', calibrated:false, calibPoints:[] },
-    { id:'mc6', cam:'cam_006', name:'cam_006 A栋-大堂', group:'A 栋办公区', calibrated:false, calibPoints:[] }
+    { id:'mc1', cam:'cam_001', name:'cam_001 食堂-入口', group:'食堂', mapId:'m1', calibrated:true, calibPoints:[{imgX:25,imgY:70,mapX:70,mapY:30},{imgX:60,imgY:65,mapX:80,mapY:44},{imgX:40,imgY:40,mapX:75,mapY:20},{imgX:80,imgY:55,mapX:85,mapY:50}] },
+    { id:'mc2', cam:'cam_002', name:'cam_002 食堂-出口', group:'食堂', mapId:'m1', calibrated:false, calibPoints:[] },
+    { id:'mc3', cam:'cam_003', name:'cam_003 食堂-取餐台', group:'食堂', mapId:'m1', calibrated:false, calibPoints:[] },
+    { id:'mc4', cam:'cam_004', name:'cam_004 食堂-二楼入口', group:'食堂', mapId:'m2', calibrated:false, calibPoints:[] },
+    { id:'mc5', cam:'cam_005', name:'cam_005 食堂-收餐区', group:'食堂', mapId:'m1', calibrated:false, calibPoints:[] },
+    { id:'mc6', cam:'cam_006', name:'cam_006 A栋-大堂', group:'A 栋办公区', mapId:'m3', calibrated:false, calibPoints:[] }
   ];
   var curMapCam = null;
   var pendingImgPt = null;
@@ -679,24 +984,6 @@
     return {a:a,b:b,c:c,d:d,e:e,f:f};
   }
   function applyAffine(M,x,y){ return M?{x:M.a*x+M.b*y+M.c,y:M.d*x+M.e*y+M.f}:null; }
-  function renderMapCamList(){
-    var el=document.getElementById('mapCamList'); if(!el) return;
-    var buckets={};
-    mapCams.forEach(function(c){ (buckets[c.group]=buckets[c.group]||[]).push(c); });
-    var html='';
-    Object.keys(buckets).forEach(function(g){
-      html+='<div style="margin-bottom:4px"><div style="font-size:12px;color:var(--ant-text-secondary);padding:4px 6px;font-weight:600"><i class="fa-solid fa-folder mr-1" style="color:var(--ant-text-tertiary)"></i>'+g+'</div>';
-      buckets[g].forEach(function(c){
-        var active=c.id===curMapCam;
-        var badge=c.calibrated?'<span class="ant-tag ant-tag-green" style="font-size:10px;margin:0">已标定</span>':'<span class="ant-tag ant-tag-gray" style="font-size:10px;margin:0">未标定</span>';
-        var short=c.name.replace(c.cam+' ','');
-        var sub=c.calibrated?('标定点 '+c.calibPoints.length+' · 已计算单应性矩阵'):'点击开始标定';
-        html+='<div onclick="selectMapCam(\''+c.id+'\')" style="padding:7px 10px;border:1px solid var(--ant-border-secondary);border-radius:6px;margin:4px 0;cursor:pointer;'+(active?'background:var(--ant-primary-bg);border-color:var(--ant-primary);':'')+'"><div style="display:flex;justify-content:space-between;align-items:center;"><span class="text-sm"><i class="fa-solid fa-video mr-1 text-tertiary"></i>'+short+'</span>'+badge+'</div><div class="text-xs text-tertiary" style="margin-top:2px">'+sub+'</div></div>';
-      });
-      html+='</div>';
-    });
-    el.innerHTML=html;
-  }
   function renderCalibPts(){
     var c=curMapCam?mapCams.find(function(x){return x.id===curMapCam;}):null;
     var imgSvg=document.getElementById('imgPtsSvg');
@@ -744,21 +1031,21 @@
     if(n<4){ info.textContent='已选 '+n+'/4 点对（需≥4）'; info.style.color='#874d00'; }
     else { info.textContent='已计算单应性矩阵 · 点对 '+n; info.style.color='#389e0d'; }
   }
-  function renderMapCamAll(){ renderMapCamList(); renderCalibPts(); updateCalibInfo(); }
-  function selectMapCam(id){
-    curMapCam=id;
+  function setCalibCam(c){
+    // 单设备标定：从设备行「标定」按钮直达，弹窗直接聚焦该设备
+    curMapCam=c.id;
     pendingImgPt=null;
-    var c=mapCams.find(function(x){return x.id===id;});
     var hint=document.getElementById('mapHint');
-    if(c){
-      var short=c.name.replace(c.cam+' ','');
-      if(c.calibrated){ hint.textContent='「'+short+'」已标定（可重新标定）'; }
-      else { hint.textContent='「'+short+'」标定中：先在画面点标定点，再在平面图点对应位置'; }
-    }
-    renderMapCamAll();
+    var short=c.name.replace(c.cam+' ','');
+    if(c.calibrated){ hint.textContent='「'+short+'」已标定（可重新标定，当前点对 '+c.calibPoints.length+'）'; }
+    else { hint.textContent='「'+short+'」标定中：先在画面点≥4 个标定点，再在平面图点对应位置'; }
+    renderCalibPts();
+    updateCalibInfo();
+    renderCalibMapSel();
+    renderMapCanvas();
   }
   function onImgClick(e){
-    if(!curMapCam){ showToast('请先在左侧选择摄像头'); return; }
+    if(!curMapCam){ showToast('请先选择要标定的摄像头'); return; }
     var rect=document.getElementById('imgCanvas').getBoundingClientRect();
     var x=(e.clientX-rect.left)/rect.width*100, y=(e.clientY-rect.top)/rect.height*100;
     pendingImgPt={x:x,y:y};
@@ -774,14 +1061,188 @@
     pendingImgPt=null;
     var n=c.calibPoints.length;
     document.getElementById('mapHint').textContent='已配对 '+n+' 点对'+(n<4?'（需≥4）':'，映射验证已启用');
-    renderMapCamAll();
+    renderCalibPts();
+    updateCalibInfo();
   }
+  // ===== 园区平面图库（P-001-T2）与标定底图选择 =====
+  function currentMap(){ return mockMaps.find(function(m){return m.id===curMapId;}) || mockMaps[0]; }
+  function renderMapCanvas(){
+    var labels=document.getElementById('mapLabels'); if(!labels) return;
+    var m=currentMap(); if(!m) return;
+    labels.innerHTML=m.zones.map(function(z){
+      return '<div style="position:absolute;'+z.style+'background:rgba(0,0,0,0.05);border:1px dashed '+z.color+';border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:'+z.color+';">'+z.text+'</div>';
+    }).join('');
+  }
+  function renderCalibMapSel(){
+    var sel=document.getElementById('calibMapSel'); if(!sel) return;
+    var c=curMapCam?mapCams.find(function(x){return x.id===curMapCam;}):null;
+    var bindId=(c&&c.mapId)?c.mapId:curMapId;
+    sel.innerHTML=mockMaps.map(function(m){
+      return '<option value="'+m.id+'"'+(m.id===bindId?' selected':'')+'>'+m.name+(m.isDefault?'（默认）':'')+'</option>';
+    }).join('');
+    curMapId=bindId;
+    renderMapCanvas();
+  }
+  function onCalibMapChange(sel){
+    curMapId=sel.value;
+    var c=curMapCam?mapCams.find(function(x){return x.id===curMapCam;}):null;
+    if(c){ c.mapId=curMapId; }
+    renderMapCanvas();
+    var m=currentMap();
+    showToast('已切换底图：'+m.name+'（该摄像头映射归属 '+m.name+'，一摄像头一底图）');
+  }
+  function showMapInfo(){
+    var m=currentMap();
+    showToast('当前底图：'+m.name+'（'+m.file+'，'+m.w+'×'+m.h+'，绑定设备 '+(m.deviceCount||0)+'）');
+  }
+  function openMapLib(){
+    document.getElementById('mapLibModalMask').classList.add('active');
+    document.getElementById('mapLibModal').classList.add('active');
+    renderMapLib();
+  }
+  function closeMapLib(){
+    document.getElementById('mapLibModalMask').classList.remove('active');
+    document.getElementById('mapLibModal').classList.remove('active');
+  }
+  function renderMapLib(){
+    var el=document.getElementById('mapLibList'); if(!el) return;
+    var total=document.getElementById('mapLibTotal'); if(total) total.textContent=mockMaps.length;
+    var def=document.getElementById('mapLibDefault');
+    if(def) def.textContent=(mockMaps.find(function(m){return m.isDefault;})||{name:'-'}).name;
+    var cnt=document.getElementById('mapLibCount'); if(cnt) cnt.textContent=mockMaps.length+' 张';
+    if(!mockMaps.length){
+      el.innerHTML='<div style="padding:30px 0;text-align:center;color:var(--ant-text-tertiary);font-size:13px;"><i class="fa-regular fa-map mb-2" style="font-size:28px;display:block"></i>暂无底图，请点击「上传底图」</div>';
+      return;
+    }
+    el.innerHTML=mockMaps.map(function(m){
+      var defTag=m.isDefault?'<span class="ant-tag ant-tag-blue" style="font-size:10px;margin-left:6px">默认</span>':'';
+      var setBtn=m.isDefault?'<span class="text-xs text-tertiary">默认底图</span>':'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="setDefaultMap(\''+m.id+'\')">设为默认</button>';
+      return '<div style="border:1px solid var(--ant-border-secondary);border-radius:8px;padding:10px 12px;margin-bottom:8px;">'
+        +'<div class="flex items-center justify-between">'
+        +'<span class="text-sm font-medium"><i class="fa-solid fa-map mr-1" style="color:var(--ant-primary)"></i>'+m.name+defTag+'</span>'
+        +'<span class="text-xs text-tertiary">'+m.file+' · '+m.w+'×'+m.h+'</span></div>'
+        +'<div class="flex items-center justify-between mt-1">'
+        +'<span class="text-xs text-tertiary">绑定设备 '+m.deviceCount+' · 更新 '+m.updatedAt+'</span>'
+        +'<span class="flex gap-1 items-center">'+setBtn
+        +'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="openMapUploadFor(\''+m.id+'\')" title="替换底图文件"><i class="fa-solid fa-rotate"></i></button>'
+        +'<button class="ant-btn ant-btn-text ant-btn-sm" style="color:#ff4d4f" onclick="deleteMap(\''+m.id+'\')" title="删除底图"><i class="fa-solid fa-trash"></i></button>'
+        +'</span></div></div>';
+    }).join('');
+  }
+  var mapEditId = null; // null=新增；非空=替换
+  function openMapUpload(){
+    mapEditId = null;
+    document.getElementById('mapUploadTitle').textContent = '上传底图';
+    document.getElementById('mapUploadSubmitBtn').textContent = '确定上传';
+    document.getElementById('mapNameInput').value = '';
+    document.getElementById('mapNameInput').readOnly = false;
+    document.getElementById('mapFileInput').value = '';
+    document.getElementById('mapFileInfo').textContent = '';
+    document.getElementById('mapIsDefault').checked = false;
+    document.getElementById('mapNameError').classList.add('hidden');
+    document.getElementById('mapFileError').classList.add('hidden');
+    document.getElementById('mapUploadModalMask').classList.add('active');
+    document.getElementById('mapUploadModal').classList.add('active');
+  }
+  function openMapUploadFor(id){
+    var m = mockMaps.find(function(x){return x.id===id;}); if(!m) return;
+    mapEditId = id;
+    document.getElementById('mapUploadTitle').textContent = '替换底图';
+    document.getElementById('mapUploadSubmitBtn').textContent = '确定替换';
+    document.getElementById('mapNameInput').value = m.name;
+    document.getElementById('mapNameInput').readOnly = true;
+    document.getElementById('mapFileInput').value = '';
+    document.getElementById('mapFileInfo').textContent = '当前：'+m.file+'（'+m.w+'×'+m.h+'）';
+    document.getElementById('mapIsDefault').checked = m.isDefault;
+    document.getElementById('mapNameError').classList.add('hidden');
+    document.getElementById('mapFileError').classList.add('hidden');
+    document.getElementById('mapUploadModalMask').classList.add('active');
+    document.getElementById('mapUploadModal').classList.add('active');
+  }
+  function closeMapUpload(){
+    document.getElementById('mapUploadModalMask').classList.remove('active');
+    document.getElementById('mapUploadModal').classList.remove('active');
+    mapEditId = null;
+  }
+  function onMapFileSelect(input){
+    var f = input.files && input.files[0];
+    var info = document.getElementById('mapFileInfo'), err = document.getElementById('mapFileError');
+    err.classList.add('hidden');
+    if(!f){ info.textContent=''; return; }
+    var ext = (f.name.split('.').pop()||'').toLowerCase();
+    if(ext!=='png' && ext!=='svg'){ err.classList.remove('hidden'); input.value=''; info.textContent=''; return; }
+    var mb = (f.size/1024/1024).toFixed(2);
+    // 模拟解析分辨率（真实实现由后端解析图片）
+    var w = ext==='svg' ? 1600 : 1920, h = ext==='svg' ? 1000 : 1080;
+    info.textContent = f.name+' · '+w+'×'+h+' · '+mb+'MB';
+  }
+  function submitMapUpload(){
+    var name = document.getElementById('mapNameInput').value.trim();
+    var nameErr = document.getElementById('mapNameError');
+    if(!name){ nameErr.textContent='底图名称不能为空'; nameErr.classList.remove('hidden'); return; }
+    if(mockMaps.some(function(m){ return m.name===name && m.id!==mapEditId; })){ nameErr.textContent='底图名称「'+name+'」已存在'; nameErr.classList.remove('hidden'); return; }
+    var fileInput = document.getElementById('mapFileInput');
+    var f = fileInput.files && fileInput.files[0];
+    if(!f && !mapEditId){ document.getElementById('mapFileError').classList.remove('hidden'); return; }
+    var now = '2026-08-05';
+    if(mapEditId){
+      // 替换：保留底图 ID 与设备绑定
+      var m = mockMaps.find(function(x){return x.id===mapEditId;});
+      if(f){
+        var ext=(f.name.split('.').pop()||'').toLowerCase();
+        m.file = f.name;
+        m.w = ext==='svg'?1600:1920; m.h = ext==='svg'?1000:1080;
+      }
+      m.updatedAt = now;
+      closeMapUpload(); renderMapLib(); renderCalibMapSel();
+      showToast('已替换底图「'+m.name+'」（保留设备绑定；坐标/比例变化需重新验证标定）');
+      return;
+    }
+    // 新增
+    var isFirst = mockMaps.length===0;
+    var isDefault = isFirst || document.getElementById('mapIsDefault').checked;
+    if(isDefault) mockMaps.forEach(function(m){ m.isDefault=false; });
+    var ext=(f.name.split('.').pop()||'').toLowerCase();
+    mockMaps.push({
+      id:'m'+Date.now(),
+      name:name,
+      file:f.name,
+      w: ext==='svg'?1600:1920,
+      h: ext==='svg'?1000:1080,
+      isDefault:isDefault,
+      updatedAt:now,
+      deviceCount:0,
+      zones:[{style:'top:18%;left:14%;width:30%;height:34%;',color:'#13c2c2',text:name},{style:'top:18%;right:14%;width:26%;height:36%;',color:'#722ed1',text:name+'·区域2'}]
+    });
+    closeMapUpload(); renderMapLib(); renderCalibMapSel();
+    showToast('底图「'+name+'」上传成功'+(isDefault?'，已设为默认':''));
+  }
+  function setDefaultMap(id){
+    mockMaps.forEach(function(m){ m.isDefault=(m.id===id); });
+    renderMapLib(); renderCalibMapSel();
+    showToast('已设为默认底图');
+  }
+  function deleteMap(id){
+    var m=mockMaps.find(function(x){return x.id===id;}); if(!m) return;
+    if(mockMaps.length<=1){ showToast('底图库不可为空，请先上传新底图或取消删除'); return; }
+    var ok = m.deviceCount>0
+      ? confirm('该底图下绑定 '+m.deviceCount+' 台摄像头（含已标定），删除后其标定映射将失效，是否继续？')
+      : confirm('确认删除底图「'+m.name+'」？');
+    if(!ok) return;
+    mockMaps=mockMaps.filter(function(x){return x.id!==id;});
+    if(curMapId===id){ curMapId=(mockMaps.find(function(x){return x.isDefault;})||mockMaps[0]).id; }
+    mapCams.forEach(function(c){ if(c.mapId===id){ c.mapId=curMapId; c.calibrated=false; c.calibPoints=[]; } });
+    renderMapLib(); renderCalibMapSel();
+    showToast('已删除底图「'+m.name+'」，相关摄像头标定已置为未标定');
+  }
+
   function clearCalib(){
     var c=curMapCam?mapCams.find(function(x){return x.id===curMapCam;}):null;
     if(!c){ return; }
     c.calibPoints=[]; c.calibrated=false; pendingImgPt=null;
     document.getElementById('mapHint').textContent='已清除标定，请重新点选';
-    renderMapCamAll();
+    renderCalibPts();
+    updateCalibInfo();
     showToast('已清除标定');
   }
   function saveCalib(){
@@ -789,19 +1250,14 @@
     if(!c){ showToast('请先在左侧选择摄像头'); return; }
     if(c.calibPoints.length<4){ showToast('标定点不足4个（当前 '+c.calibPoints.length+'），请继续点选'); return; }
     c.calibrated=true;
-    renderMapCamAll();
+    renderCalibPts();
+    updateCalibInfo();
     showToast('标定保存成功，该摄像头计入足迹热力图');
-  }
-  function goMapCam(camName){
-    switchTabById('tab4');
-    var c=mapCams.find(function(x){return x.name===camName;});
-    if(c){ selectMapCam(c.id); }
-    else { curMapCam=null; renderMapCamAll(); showToast('该摄像头尚未加入标定列表'); }
   }
 
   // ===== 画统计区域 =====
-  var countingLines = [{ id:'cl1', name:'大门口-进', x1:20, y1:60, x2:80, y2:55 }];
-  var regionsConfig = [{ id:'r1', name:'就餐区A', pts:[{x:15,y:40},{x:50,y:38},{x:52,y:72},{x:17,y:74}], enabled:true }];
+  // regionsConfig = 当前编辑设备缓冲区（打开向导时从 deviceConfigs 载入）
+  var regionsConfig = [];
   var drawMode = false;
   var drawPoints = [];
   var drawClickTimer = null;
@@ -809,36 +1265,51 @@
   var pendingDeleteId = null;
   var TEXT_STROKE = 'style="paint-order:stroke;stroke:rgba(0,0,0,0.8);stroke-width:3px;stroke-linejoin:round;"';
 
-  function renderDrawSvg(){
-    var svg = document.getElementById('drawSvg');
-    if(!svg) return;
-    var html = '';
-    countingLines.forEach(function(l){
-      html += '<line x1="'+l.x1+'%" y1="'+l.y1+'%" x2="'+l.x2+'%" y2="'+l.y2+'%" stroke="#faad14" stroke-width="3" stroke-dasharray="6 4"/>';
-      html += '<text x="'+(l.x1+2)+'%" y="'+(l.y1-2)+'%" fill="#faad14" font-size="12" '+TEXT_STROKE+'>'+l.name+'</text>';
+  function renderDrawCanvas(){
+    var svg = document.getElementById('drawSvg'); if(!svg) return;
+    var out = '';
+    // 计数线（按当前编辑设备 configLines）
+    configLines.forEach(function(l){
+      var c = l.disabled ? '#bfbfbf' : '#faad14';
+      var p1 = l.pts[0], p2 = l.pts[1], o = lineOrientation(p1,p2);
+      out += '<line x1="'+p1.x+'%" y1="'+p1.y+'%" x2="'+p2.x+'%" y2="'+p2.y+'%" stroke="'+c+'" stroke-width="3" stroke-dasharray="6,4"/>'
+        + '<polygon points="'+arrowPoly(p1,p2,o.nv,l.direction==='b')+'" fill="'+c+'"/>'
+        + '<circle cx="'+p1.x+'%" cy="'+p1.y+'%" r="4" fill="'+c+'"/><circle cx="'+p2.x+'%" cy="'+p2.y+'%" r="4" fill="'+c+'"/>';
     });
+    // 统计区域
     regionsConfig.forEach(function(r){
       if(!r.enabled) return;
       var pts = r.pts.map(function(p){return p.x+'%,'+p.y+'%';}).join(' ');
-      html += '<polygon points="'+pts+'" fill="#52c41a" fill-opacity="0.2" stroke="#52c41a" stroke-width="2"/>';
+      out += '<polygon points="'+pts+'" fill="#52c41a" fill-opacity="0.2" stroke="#52c41a" stroke-width="2"/>';
       var cx = r.pts.reduce(function(s,p){return s+p.x;},0)/r.pts.length;
       var cy = r.pts.reduce(function(s,p){return s+p.y;},0)/r.pts.length;
-      html += '<text x="'+cx+'%" y="'+(cy+4)+'%" text-anchor="middle" fill="#52c41a" font-size="12" font-weight="600" '+TEXT_STROKE+'>'+r.name+'</text>';
+      out += '<text x="'+cx+'%" y="'+(cy+4)+'%" text-anchor="middle" fill="#52c41a" font-size="12" font-weight="600" '+TEXT_STROKE+'>'+r.name+'</text>';
     });
+    // 画线中
+    if(drawLineMode){ linePts.forEach(function(p){ out += '<circle cx="'+p.x+'%" cy="'+p.y+'%" r="4" fill="#1677ff"/>'; }); }
+    if(pendingLine){
+      var p1 = pendingLine.pts[0], p2 = pendingLine.pts[1], o = lineOrientation(p1,p2);
+      out += '<line x1="'+p1.x+'%" y1="'+p1.y+'%" x2="'+p2.x+'%" y2="'+p2.y+'%" stroke="#1677ff" stroke-width="3"/>'
+        + '<polygon points="'+arrowPoly(p1,p2,o.nv,pendingLine.direction==='b')+'" fill="#1677ff"/>'
+        + '<circle cx="'+p1.x+'%" cy="'+p1.y+'%" r="4" fill="#1677ff"/><circle cx="'+p2.x+'%" cy="'+p2.y+'%" r="4" fill="#1677ff"/>';
+    }
+    // 画区域中
     if(drawMode && drawPoints.length){
       for(var i=0;i<drawPoints.length;i++){
         var p = drawPoints[i];
-        if(i>0){ var prev=drawPoints[i-1]; html += '<line x1="'+prev.x+'%" y1="'+prev.y+'%" x2="'+p.x+'%" y2="'+p.y+'%" stroke="#1677ff" stroke-width="2"/>'; }
-        html += '<circle cx="'+p.x+'%" cy="'+p.y+'%" r="4" fill="#1677ff" stroke="#fff" stroke-width="1.5"/>';
+        if(i>0){ var prev=drawPoints[i-1]; out += '<line x1="'+prev.x+'%" y1="'+prev.y+'%" x2="'+p.x+'%" y2="'+p.y+'%" stroke="#1677ff" stroke-width="2"/>'; }
+        out += '<circle cx="'+p.x+'%" cy="'+p.y+'%" r="4" fill="#1677ff" stroke="#fff" stroke-width="1.5"/>';
       }
       if(drawPoints.length>=3){
         var f=drawPoints[0], lst=drawPoints[drawPoints.length-1];
-        html += '<line x1="'+lst.x+'%" y1="'+lst.y+'%" x2="'+f.x+'%" y2="'+f.y+'%" stroke="#1677ff" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>';
-        html += '<circle cx="'+f.x+'%" cy="'+f.y+'%" r="6" fill="none" stroke="#1677ff" stroke-width="2" opacity="0.5"/>';
+        out += '<line x1="'+lst.x+'%" y1="'+lst.y+'%" x2="'+f.x+'%" y2="'+f.y+'%" stroke="#1677ff" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>';
+        out += '<circle cx="'+f.x+'%" cy="'+f.y+'%" r="6" fill="none" stroke="#1677ff" stroke-width="2" opacity="0.5"/>';
       }
     }
-    svg.innerHTML = html;
+    svg.innerHTML = out;
   }
+  function renderDrawSvg(){ renderDrawCanvas(); }
+  function renderLinesOnSvg(){ renderDrawCanvas(); }
   function renderRegionListConfig(){
     var cntEl = document.getElementById('regionCountCfg');
     if(cntEl) cntEl.textContent = regionsConfig.length;
@@ -951,33 +1422,117 @@
   }
 
   // ===== 设备配置抽屉 =====
+  var curCfgName = null;
+  function frameBgSvg(camName){
+    var seed = (camName||'').length*7 + 3;
+    var hue = (seed*37)%360;
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">'
+      +'<rect width="960" height="540" fill="hsl('+hue+',28%,20%)"/>'
+      +'<rect x="80" y="90" width="360" height="300" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.25)"/>'
+      +'<rect x="520" y="150" width="280" height="240" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.18)"/>'
+      +'<rect x="300" y="330" width="30" height="110" fill="rgba(0,0,0,0.35)"/>'
+      +'<circle cx="315" cy="310" r="18" fill="#ffd666"/>'
+      +'<text x="30" y="510" fill="rgba(255,255,255,0.7)" font-size="22">CAM '+camName+' · 最新关键帧</text>'
+      +'</svg>';
+    return 'url("data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)+'")';
+  }
   function openConfigDrawer(name){
+    curCfgName = name || null;
     document.getElementById('drawerDeviceName').textContent = name || '设备配置';
+    // 画布=最新关键帧（非直播流）
+    var vc = document.getElementById('videoCanvas2');
+    if(vc) vc.style.backgroundImage = frameBgSvg(name||'cam');
+    var fa = document.getElementById('frameUpdatedAt');
+    if(fa){
+      var d=new Date(), p=function(n){return (n<10?'0':'')+n;};
+      fa.textContent = p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+    }
+    // 载入该设备已保存配置（P0 闭环：配置按设备隔离）
+    var defMap = mockMaps.find(function(m){return m.isDefault;}) || mockMaps[0];
+    var cfg = deviceConfigs[name] || {capState:{capLine:false, capRegion:false}, lines:[], regions:[], mapId:defMap?defMap.id:null};
+    capState = {capLine: !!cfg.capState.capLine, capRegion: !!cfg.capState.capRegion};
+    configLines = cfg.lines.slice();
+    regionsConfig = JSON.parse(JSON.stringify(cfg.regions||[]));
     document.getElementById('configDrawerMask').classList.add('active');
     document.getElementById('configDrawer').classList.add('active');
-    var firstTab = document.querySelector('#drawerTabBar .tab-item');
-    if(firstTab) switchDrawerTab(firstTab, 'dtab1');
-    renderDrawSvg();
+    renderCapState();
+    renderConfigLines();
     renderRegionListConfig();
+    renderStep2ByCap();
+    renderDrawCanvas();
+  }
+  function saveDeviceConfig(){
+    if(!curCfgName) return;
+    deviceConfigs[curCfgName] = {
+      capState: {capLine: !!capState.capLine, capRegion: !!capState.capRegion},
+      lines: configLines.slice(),
+      regions: JSON.parse(JSON.stringify(regionsConfig||[])),
+      mapId: curMapId
+    };
+    renderDevices(); renderHealth();
   }
   function closeConfigDrawer(){
     document.getElementById('configDrawerMask').classList.remove('active');
     document.getElementById('configDrawer').classList.remove('active');
     if(drawMode){ cancelDrawRegion(); }
   }
-  function switchDrawerTab(el,id){
-    ['dtab1','dtab2','dtab3'].forEach(function(tid){ var p=document.getElementById(tid); if(p) p.style.display='none'; });
-    var cur = document.getElementById(id);
-    if(cur) cur.style.display='';
-    document.querySelectorAll('#drawerTabBar .tab-item').forEach(function(t){t.classList.remove('active');});
-    el.classList.add('active');
-    if(id==='dtab2'){ renderDrawSvg(); }
+  // 单步向导：完成并保存（真正保存该设备配置并联动状态/健康度）
+  function saveAndClose(){
+    saveDeviceConfig();
+    showToast('配置已保存并生效（设备状态/健康度已更新）');
+    closeConfigDrawer();
   }
-
+  function openCalib(camName){
+    // 相机标定独立弹窗（不经过设备配置向导）：单设备直达，弹窗即该设备
+    document.getElementById('calibModalMask').classList.add('active');
+    document.getElementById('calibModal').classList.add('active');
+    var dn=document.getElementById('calibDeviceName'); if(dn) dn.textContent=camName;
+    var c=mapCams.find(function(x){return x.name===camName;});
+    if(!c){
+      // 任意已关联设备均可标定：不在预设列表则动态加入（默认绑定当前底图）
+      c={ id:'mcx_'+camName.replace(/\s+/g,'_'), cam:camName, name:camName, group:'', mapId:curMapId, calibrated:false, calibPoints:[] };
+      mapCams.push(c);
+    }
+    setCalibCam(c);
+  }
+  function closeCalibModal(){
+    document.getElementById('calibModalMask').classList.remove('active');
+    document.getElementById('calibModal').classList.remove('active');
+  }
   selectGroup('gate');
   renderAll();
-  renderDrawSvg(); renderRegionListConfig(); renderConfigLines(); renderMapCamAll();
-  window.addEventListener('resize', function(){ if(document.getElementById('tab4').style.display!=='none'){ renderCalibPts(); } });
+  renderHealth();
+  renderDrawCanvas(); renderRegionListConfig(); renderConfigLines();
+  renderMapLib(); renderCalibMapSel(); renderMapCanvas();
+  window.addEventListener('resize', function(){ var p=document.getElementById('calibModal'); if(p&&p.classList.contains('active')){ renderCalibPts(); } });
+
+  // ===== 统计能力单选（Step1，研发建议：一设备一算法，要么出入计数要么区域统计） =====
+  var capState = {capLine:true, capRegion:false};
+  function selectCap(id){
+    // 单选：三态（出入计数/区域统计/仅标定=都不选）
+    if(id==='capNone'){ capState.capLine=false; capState.capRegion=false; }
+    else {
+      var pick = !capState[id];
+      capState.capLine = (id==='capLine') ? pick : false;
+      capState.capRegion = (id==='capRegion') ? pick : false;
+    }
+    renderCapState();
+  }
+  function renderCapState(){
+    var none = !capState.capLine && !capState.capRegion;
+    document.querySelectorAll('input[name="capSel"]').forEach(function(r){
+      r.checked = (r.value==='capLine' && capState.capLine) || (r.value==='capRegion' && capState.capRegion) || (r.value==='capNone' && none);
+    });
+    renderStep2ByCap();
+  }
+  function renderStep2ByCap(){
+    var line = !!capState.capLine, region = !!capState.capRegion;
+    var lt = document.getElementById('lineTools'), rt = document.getElementById('regionTools'), ct = document.getElementById('calibOnlyTip');
+    if(lt) lt.style.display = line ? '' : 'none';
+    if(rt) rt.style.display = region ? '' : 'none';
+    if(ct) ct.style.display = (!line && !region) ? '' : 'none';
+  }
+  renderCapState();
 </script>
 </body>
 </html>

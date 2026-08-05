@@ -59,8 +59,7 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item active" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-correlation/index.html" title="实验性·默认隐藏，项目级功能开关开放"><i class="fa-solid fa-diagram-project"></i>建筑关联分析<span class="text-xs" style="color:#fa8c16;margin-left:2px">实验</span></a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
       <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
       <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
@@ -78,6 +77,10 @@
       <div class="ant-card ant-card-bordered mb-4">
         <div class="ant-card-body" style="padding:12px 16px;">
           <div class="flex items-center gap-4 flex-wrap">
+            <div class="flex items-center gap-2" id="mapSelWrap">
+              <label class="text-sm text-secondary">底图</label>
+              <select class="ant-input" id="mapSel" style="width:170px;" onchange="onMapChange(this)" title="多底图切换（底图库>1 张时展示，=1 张自动隐藏）"></select>
+            </div>
             <div class="flex items-center gap-2">
               <label class="text-sm text-secondary">日期</label>
               <input type="date" id="dateSel" class="ant-input" value="2026-07-01" onchange="onDateChange()">
@@ -112,10 +115,8 @@
           </div>
           <div class="ant-card-body">
             <div class="map-base" style="height:440px;position:relative;border-radius:4px;">
-              <!-- 建筑示意 -->
-              <div style="position:absolute;top:15%;left:8%;width:24%;height:32%;background:rgba(22,119,255,0.12);border:1px solid rgba(22,119,255,0.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(22,119,255,0.8);">A 栋</div>
-              <div style="position:absolute;top:15%;right:8%;width:30%;height:38%;background:rgba(250,140,22,0.12);border:1px solid rgba(250,140,22,0.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(250,140,22,0.9);">食堂</div>
-              <div style="position:absolute;bottom:8%;left:22%;width:42%;height:26%;background:rgba(82,196,26,0.12);border:1px solid rgba(82,196,26,0.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(82,196,26,0.9);">广场</div>
+              <!-- 建筑/区域示意（按底图切换） -->
+              <div id="mapZones"></div>
               <!-- 足迹热力图层（逐人脚位置映射累积密度，网格聚合着色）-->
               <svg id="heatRegionSvg" style="position:absolute;inset:0;width:100%;height:100%;border-radius:4px;opacity:0.78;"></svg>
               <!-- 区域中心点 + 聚集点（可选）-->
@@ -164,7 +165,6 @@
                 </div>
                 <div>
                   <div class="text-sm mb-1">聚集点检测 <span class="st-tag st-normal">已就绪</span></div>
-                  <div class="text-xs text-tertiary mb-2">DBSCAN 聚类逐人映射位置点，识别聚集点（AC-2.6，逐人坐标已就绪）。</div>
                   <button class="ant-btn ant-btn-sm ant-btn-primary w-full" onclick="toggleCluster(this)">开启检测</button>
                 </div>
               </div>
@@ -199,7 +199,7 @@
     if(refreshLabel){ refreshLabel.textContent = live ? '实时 · 5 秒刷新 · 当前拥挤度（已去重）' : '历史回看 · 已定格 · 足迹热度（经过频率）'; }
     if(refreshDot){ refreshDot.style.background = live ? '#52c41a' : '#bfbfbf'; refreshDot.classList.toggle('pulse-dot', live); }
     var rankTitle=document.getElementById('rankTitle');
-    if(rankTitle){ rankTitle.textContent = live ? '实时建筑热度榜' : '该日建筑热度榜'; }
+    if(rankTitle){ rankTitle.textContent = live ? ('实时建筑热度榜 · '+mapName()) : ('该日建筑热度榜 · '+mapName()); }
     var sumLbl=document.getElementById('sumLbl');
     if(sumLbl){ sumLbl.textContent = live ? '在场' : '峰值'; }
     if(!live && playing){ togglePlay(); } // 历史态停止刷新动画，避免与定格态冲突
@@ -207,7 +207,7 @@
   }
   function viewTitle(live){
     var d=document.getElementById('dateSel'); var day=d?d.value:TODAY;
-    return (live?'实时热力图 · ':'历史回看 · ')+day+(live?' 全天':'（逐人位置快照重算密度）');
+    return (live?'实时热力图 · ':'历史回看 · ')+mapName()+' · '+day+(live?' 全天':'（逐人位置快照重算密度）');
   }
   // 日期变更：今日→实时态，历史日期→历史回看态；随后刷新标题
   function onDateChange(){
@@ -272,15 +272,79 @@
     document.getElementById('timeLabel').textContent=(h<10?'0':'')+h+':'+(m<10?'0':'')+m;
   }
   document.addEventListener('keydown', function(e){ if(e.key==='Escape'){} });
-  // ===== 建筑热度数据（含阈值/环比，供热度榜 + KPI + 区域中心点）=====
-  var heatRegions = [
-    { id:'r1', name:'cam_001 取餐台区', group:'食堂', cam:'cam_001', count:486, threshold:400, mom:12, offline:false, mapX:0.75, mapY:0.22, trend:[30,42,55,70,88,100] },
-    { id:'r2', name:'cam_002 就餐区', group:'食堂', cam:'cam_002', count:312, threshold:350, mom:6,  offline:false, mapX:0.80, mapY:0.42, trend:[20,35,48,60,72,80] },
-    { id:'r3', name:'cam_008 主通道', group:'广场', cam:'cam_008', count:258, threshold:300, mom:-4, offline:false, mapX:0.45, mapY:0.80, trend:[40,52,60,58,64,66] },
-    { id:'r4', name:'cam_007 候梯区', group:'A 栋', cam:'cam_007', count:96,  threshold:120, mom:3,  offline:false, mapX:0.20, mapY:0.58, trend:[10,18,22,28,25,24] },
-    { id:'r5', name:'cam_006 大堂',   group:'A 栋', cam:'cam_006', count:0,   threshold:150, mom:0,  offline:true,  mapX:0.20, mapY:0.30, trend:[] }
-  ];
-  var curRegion=null;
+  // ===== 多底图数据（底图库：>1 张展示切换器、=1 张隐藏；仅渲染绑定该底图的已标定摄像头）=====
+  var MAP_DATA = {
+    m1: {
+      name:'1F 园区总图', isDefault:true,
+      zones:[
+        {style:'top:15%;left:8%;width:24%;height:32%;', bg:'rgba(22,119,255,0.12)', color:'rgba(22,119,255,0.4)', textColor:'rgba(22,119,255,0.8)', text:'A 栋'},
+        {style:'top:15%;right:8%;width:30%;height:38%;', bg:'rgba(250,140,22,0.12)', color:'rgba(250,140,22,0.4)', textColor:'rgba(250,140,22,0.9)', text:'食堂'},
+        {style:'bottom:8%;left:22%;width:42%;height:26%;', bg:'rgba(82,196,26,0.12)', color:'rgba(82,196,26,0.4)', textColor:'rgba(82,196,26,0.9)', text:'广场'}
+      ],
+      regions:[
+        { id:'r1', name:'cam_001 取餐台区', group:'食堂', cam:'cam_001', count:486, threshold:400, mom:12, offline:false, mapX:0.75, mapY:0.22, trend:[30,42,55,70,88,100] },
+        { id:'r2', name:'cam_002 就餐区', group:'食堂', cam:'cam_002', count:312, threshold:350, mom:6,  offline:false, mapX:0.80, mapY:0.42, trend:[20,35,48,60,72,80] },
+        { id:'r3', name:'cam_008 主通道', group:'广场', cam:'cam_008', count:258, threshold:300, mom:-4, offline:false, mapX:0.45, mapY:0.80, trend:[40,52,60,58,64,66] },
+        { id:'r4', name:'cam_007 候梯区', group:'A 栋', cam:'cam_007', count:96,  threshold:120, mom:3,  offline:false, mapX:0.20, mapY:0.58, trend:[10,18,22,28,25,24] },
+        { id:'r5', name:'cam_006 大堂',   group:'A 栋', cam:'cam_006', count:0,   threshold:150, mom:0,  offline:true,  mapX:0.20, mapY:0.30, trend:[] }
+      ],
+      footprints:[
+        {x:72,y:25},{x:75,y:28},{x:78,y:30},{x:73,y:32},{x:76,y:35},{x:80,y:38},{x:74,y:40},{x:77,y:42},{x:79,y:45},{x:82,y:48},
+        {x:71,y:30},{x:74,y:33},{x:76,y:38},{x:78,y:42},{x:80,y:25},{x:75,y:45},{x:77,y:28},{x:79,y:35},{x:81,y:40},{x:73,y:38},
+        {x:76,y:30},{x:78,y:25},{x:74,y:45},{x:80,y:42},{x:72,y:40},{x:77,y:32},{x:79,y:28},{x:75,y:42},{x:81,y:35},{x:73,y:35},
+        {x:40,y:75},{x:45,y:78},{x:42,y:80},{x:48,y:82},{x:44,y:85},{x:46,y:78},{x:43,y:82},{x:47,y:80},{x:41,y:78},{x:44,y:82},
+        {x:18,y:55},{x:20,y:58},{x:22,y:60},{x:19,y:62},{x:21,y:56},{x:20,y:60},{x:18,y:58}
+      ],
+      clusters:[{x:76,y:35,r:7,n:24},{x:44,y:80,r:5,n:9}]
+    },
+    m2: {
+      name:'2F 食堂楼', isDefault:false,
+      zones:[
+        {style:'top:12%;left:8%;width:34%;height:38%;', bg:'rgba(250,140,22,0.12)', color:'rgba(250,140,22,0.4)', textColor:'rgba(250,140,22,0.9)', text:'2F 就餐区'},
+        {style:'top:12%;right:10%;width:28%;height:40%;', bg:'rgba(114,46,209,0.12)', color:'rgba(114,46,209,0.4)', textColor:'rgba(114,46,209,0.85)', text:'2F 包间'},
+        {style:'top:60%;left:30%;width:40%;height:24%;', bg:'rgba(19,194,194,0.12)', color:'rgba(19,194,194,0.4)', textColor:'rgba(19,194,194,0.85)', text:'2F 取餐台'}
+      ],
+      regions:[
+        { id:'r6', name:'cam_011 2F 就餐区', group:'2F 食堂楼', cam:'cam_011', count:205, threshold:220, mom:8,  offline:false, mapX:0.26, mapY:0.30, trend:[15,28,40,55,60,66] },
+        { id:'r7', name:'cam_012 2F 取餐台', group:'2F 食堂楼', cam:'cam_012', count:148, threshold:160, mom:5,  offline:false, mapX:0.50, mapY:0.72, trend:[20,30,42,50,55,58] },
+        { id:'r8', name:'cam_013 2F 包间',   group:'2F 食堂楼', cam:'cam_013', count:62,  threshold:120, mom:-2, offline:false, mapX:0.78, mapY:0.30, trend:[8,12,18,22,20,19] }
+      ],
+      footprints:[
+        {x:28,y:28},{x:30,y:32},{x:26,y:36},{x:32,y:30},{x:24,y:38},{x:34,y:34},{x:30,y:26},{x:28,y:40},
+        {x:50,y:70},{x:52,y:74},{x:48,y:76},{x:54,y:72},{x:46,y:78},{x:50,y:68},
+        {x:78,y:28},{x:80,y:32},{x:76,y:36},{x:82,y:30},{x:78,y:26}
+      ],
+      clusters:[{x:50,y:72,r:6,n:6}]
+    },
+    m3: {
+      name:'A 栋办公区', isDefault:false,
+      zones:[
+        {style:'top:15%;left:12%;width:28%;height:34%;', bg:'rgba(22,119,255,0.12)', color:'rgba(22,119,255,0.4)', textColor:'rgba(22,119,255,0.8)', text:'A 栋大堂'},
+        {style:'top:15%;right:12%;width:30%;height:36%;', bg:'rgba(82,196,26,0.12)', color:'rgba(82,196,26,0.4)', textColor:'rgba(82,196,26,0.9)', text:'A 栋办公区'},
+        {style:'top:58%;left:30%;width:30%;height:22%;', bg:'rgba(250,140,22,0.12)', color:'rgba(250,140,22,0.4)', textColor:'rgba(250,140,22,0.9)', text:'A 栋电梯厅'}
+      ],
+      regions:[
+        { id:'r9',  name:'cam_006 A 栋大堂', group:'A 栋', cam:'cam_006', count:96,  threshold:150, mom:3,  offline:false, mapX:0.28, mapY:0.30, trend:[10,18,22,28,25,24] },
+        { id:'r10', name:'cam_007 办公区',   group:'A 栋', cam:'cam_007', count:188, threshold:220, mom:6,  offline:false, mapX:0.70, mapY:0.34, trend:[30,42,55,62,58,60] },
+        { id:'r11', name:'cam_009 电梯厅',   group:'A 栋', cam:'cam_009', count:34,  threshold:80,  mom:-6, offline:false, mapX:0.45, mapY:0.68, trend:[5,9,14,16,12,11] }
+      ],
+      footprints:[
+        {x:30,y:28},{x:32,y:32},{x:28,y:36},{x:34,y:30},{x:26,y:34},{x:30,y:24},
+        {x:68,y:32},{x:70,y:36},{x:72,y:40},{x:66,y:38},{x:74,y:34},{x:68,y:28},{x:70,y:44},{x:72,y:30},
+        {x:45,y:66},{x:47,y:70},{x:43,y:72},{x:49,y:68},{x:45,y:64}
+      ],
+      clusters:[{x:70,y:36,r:5,n:5}]
+    }
+  };
+  var curMapId = 'm1';
+  function curMap(){ return MAP_DATA[curMapId]; }
+  function mapName(){ return curMap() ? curMap().name : ''; }
+  // 全局引用随底图切换重绑定（renderHeatmap/renderRank/renderKpi 复用，不改渲染函数）
+  var heatRegions = MAP_DATA.m1.regions;
+  var mockFootprints = MAP_DATA.m1.footprints;
+  var mockClusters = MAP_DATA.m1.clusters;
+  var curRegion = null;
+  var clusterOn = false;
 
   function ratioOf(r){ return r.threshold>0 ? r.count/r.threshold : 0; }
   function statusOf(r){ if(r.offline) return 'offline'; var x=ratioOf(r); if(x>=1) return 'over'; if(x>=0.8) return 'near'; return 'normal'; }
@@ -294,16 +358,47 @@
     return '#1677ff';
   }
 
-  // ===== 足迹热力图（逐人脚位置映射累积密度，网格聚合着色）=====
-  var mockFootprints = [
-    {x:72,y:25},{x:75,y:28},{x:78,y:30},{x:73,y:32},{x:76,y:35},{x:80,y:38},{x:74,y:40},{x:77,y:42},{x:79,y:45},{x:82,y:48},
-    {x:71,y:30},{x:74,y:33},{x:76,y:38},{x:78,y:42},{x:80,y:25},{x:75,y:45},{x:77,y:28},{x:79,y:35},{x:81,y:40},{x:73,y:38},
-    {x:76,y:30},{x:78,y:25},{x:74,y:45},{x:80,y:42},{x:72,y:40},{x:77,y:32},{x:79,y:28},{x:75,y:42},{x:81,y:35},{x:73,y:35},
-    {x:40,y:75},{x:45,y:78},{x:42,y:80},{x:48,y:82},{x:44,y:85},{x:46,y:78},{x:43,y:82},{x:47,y:80},{x:41,y:78},{x:44,y:82},
-    {x:18,y:55},{x:20,y:58},{x:22,y:60},{x:19,y:62},{x:21,y:56},{x:20,y:60},{x:18,y:58}
-  ];
-  var clusterOn = false;
-  var mockClusters = [{x:76,y:35,r:7,n:24},{x:44,y:80,r:5,n:9}];
+  // ===== 底图切换器（底图库>1 张展示、=1 张隐藏；仅渲染绑定该底图的已标定摄像头）=====
+  function renderZones(){
+    var el=document.getElementById('mapZones'); if(!el) return;
+    var m=curMap(); if(!m) return;
+    el.innerHTML=m.zones.map(function(z){
+      return '<div style="position:absolute;'+z.style+'background:'+z.bg+';border:1px solid '+z.color+';border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:'+z.textColor+';">'+z.text+'</div>';
+    }).join('');
+  }
+  function renderMapSel(){
+    var sel=document.getElementById('mapSel'); if(!sel) return;
+    sel.innerHTML=Object.keys(MAP_DATA).map(function(id){
+      var m=MAP_DATA[id];
+      return '<option value="'+id+'"'+(id===curMapId?' selected':'')+'>'+m.name+(m.isDefault?'（默认）':'')+'</option>';
+    }).join('');
+    var wrap=document.getElementById('mapSelWrap');
+    if(wrap){ wrap.style.display=(Object.keys(MAP_DATA).length>1)?'':'none'; } // 单底图降级：隐藏切换器
+  }
+  function switchMap(id){
+    if(!MAP_DATA[id]) return;
+    curMapId=id;
+    heatRegions=curMap().regions;
+    mockFootprints=curMap().footprints;
+    mockClusters=curMap().clusters||[];
+    curRegion=null;
+    renderMapSel();
+    renderZones();
+    renderHeatmap();
+    renderRank();
+    renderKpi();
+    var live=applyLiveState();
+    var ht=document.getElementById('heatTitle'); if(ht) ht.textContent=viewTitle(live);
+    showToast('已切换底图：'+curMap().name+'（仅渲染绑定该底图的已标定摄像头）');
+  }
+  function onMapChange(sel){
+    if(window.MockStore && MockStore.getRole()==='visitor'){
+      showToast('只读访客不可切换底图（锁定默认底图）');
+      sel.value=curMapId;
+      return;
+    }
+    switchMap(sel.value);
+  }
   function densityColor(n,max){
     if(n===0) return 'transparent';
     var r=n/max;
@@ -407,8 +502,22 @@
   function selectRegion(id){ curRegion=(curRegion===id?null:id); renderHeatmap(); renderRank(); }
   function toggleAdv(){ var p=document.getElementById('advPanel'), c=document.getElementById('advCaret'); var open=p.style.display==='none'; p.style.display=open?'block':'none'; c.style.transform=open?'rotate(90deg)':'rotate(0)'; }
 
-  function renderAll(){ renderHeatmap(); renderRank(); renderKpi(); }
-  document.addEventListener('DOMContentLoaded', renderAll);
+  function renderAll(){ renderZones(); renderMapSel(); renderHeatmap(); renderRank(); renderKpi(); }
+  // 角色联动：只读访客锁定默认底图（不可切换）
+  document.addEventListener('DOMContentLoaded', function(){
+    renderAll();
+    var origApply = MockStore.applyRole.bind(MockStore);
+    MockStore.applyRole = function(){
+      origApply();
+      var sel=document.getElementById('mapSel');
+      if(sel){
+        var isV = MockStore.getRole()==='visitor';
+        sel.disabled = isV;
+        sel.title = isV ? '只读访客不可切换底图（锁定默认底图）' : '多底图切换（底图库>1 张时展示，=1 张自动隐藏）';
+      }
+    };
+    MockStore.applyRole();
+  });
 </script>
 </body>
 </html>

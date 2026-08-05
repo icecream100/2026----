@@ -29,8 +29,7 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-correlation/index.html" title="实验性·默认隐藏，项目级功能开关开放"><i class="fa-solid fa-diagram-project"></i>建筑关联分析<span class="text-xs" style="color:#fa8c16;margin-left:2px">实验</span></a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
       <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
       <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
@@ -67,8 +66,10 @@
         <div class="flex gap-4">
           <label class="ant-radio"><input type="radio" name="alertType" value="overcrowd" checked onchange="switchType()"><span>超员</span></label>
           <label class="ant-radio"><input type="radio" name="alertType" value="gather" onchange="switchType()"><span>聚集</span></label>
+          <label class="ant-radio"><input type="radio" name="alertType" value="flowAnomaly" onchange="switchType()"><span>客流异常</span></label>
           <label class="ant-radio" style="opacity:.45;cursor:not-allowed"><input type="radio" disabled><span>异常行为（未来迭代）</span></label>
         </div>
+        <div class="text-xs" id="typeHint" style="margin-top:6px;color:var(--ant-text-tertiary);line-height:1.6"></div>
       </div>
       <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">统计分组</label>
         <select class="ant-select" id="groupSel" style="width:100%"><option>食堂就餐区</option><option>B 栋大堂</option><option>广场</option><option>A 栋办公区</option><option>地下车库入口</option></select>
@@ -78,6 +79,9 @@
       </div>
       <div class="ant-form-item" id="radiusRow" style="display:none"><label class="ant-form-label ant-form-label-required">聚集半径（米）</label>
         <input type="number" class="ant-input" id="radiusInput" placeholder="如 5" min="0.1" step="0.1">
+      </div>
+      <div class="ant-form-item" id="dirRow" style="display:none"><label class="ant-form-label ant-form-label-required">判定方向</label>
+        <select class="ant-select" id="dirSel" style="width:100%"><option value="both">双向（突增+突减）</option><option value="up">仅突增</option><option value="down">仅突减</option></select>
       </div>
       <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">持续时间</label>
         <select class="ant-select" id="durSel" style="width:100%"><option value="10">10 秒</option><option value="30" selected>30 秒</option><option value="60">1 分钟</option><option value="300">5 分钟</option><option value="600">10 分钟</option><option value="0">自定义（秒）</option></select>
@@ -111,7 +115,7 @@ var rules = MockStore.getRules();
 function renderRules(){
   var ll='';
   rules.forEach(function(r){
-    var thr=r.type==='聚集'?r.threshold+'人 / '+r.radius+'m':r.threshold+' 人';
+    var thr=r.type==='聚集'?r.threshold+'人 / '+r.radius+'m':(r.type==='客流异常'?'±'+r.threshold+'%（上周同时段）':r.threshold+' 人');
     var dur=r.duration<60?r.duration+'秒':Math.floor(r.duration/60)+'分'+(r.duration%60?(r.duration%60)+'秒':'');
     ll+='<tr>'
       +'<td>'+r.type+'</td>'
@@ -121,10 +125,10 @@ function renderRules(){
       +'<td><div class="toggle-sw'+(r.active?' on':'')+'" onclick="toggleRule('+r.id+')" title="'+(r.active?'启用中·点击禁用':'已禁用·点击启用')+'"></div></td>'
       +'<td class="tnum">'+(r.hit7d||0)+' 次</td>'
       +'<td class="text-xs text-tertiary">'+r.lastHit+'</td>'
-      +'<td class="action-wrap">'
+      +'<td><div class="action-wrap">'
       +'<button class="ant-btn ant-btn-text ant-btn-sm" onclick="editRule('+r.id+')"><i class="fa-solid fa-pen"></i> 编辑</button>'
       +'<button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="deleteRule('+r.id+')"><i class="fa-solid fa-trash"></i></button>'
-      +'</td></tr>';
+      +'</div></td></tr>';
   });
   document.getElementById('ruleBody').innerHTML=ll;
   document.getElementById('ruleCount').textContent=rules.length+' 条';
@@ -149,9 +153,10 @@ var editingId=null;
 function openModal(){editingId=null;resetForm();document.getElementById('modalTitle').textContent='新增告警规则';document.getElementById('ruleModalMask').classList.add('active');}
 function editRule(id){editingId=id;var r=rules.find(function(x){return x.id===id;});resetForm();
   document.getElementById('modalTitle').textContent='编辑告警规则 · '+r.group;
-  document.querySelector('input[name="alertType"][value="'+(r.type==='超员'?'overcrowd':'gather')+'"]').checked=true;switchType();
+  document.querySelector('input[name="alertType"][value="'+(r.type==='超员'?'overcrowd':r.type==='聚集'?'gather':'flowAnomaly')+'"]').checked=true;switchType();
   document.getElementById('groupSel').value=r.group;document.getElementById('thrInput').value=r.threshold;
   if(r.radius) document.getElementById('radiusInput').value=r.radius;
+  if(r.direction) document.getElementById('dirSel').value=r.direction;
   var durVal=r.duration==10?'10':r.duration==30?'30':r.duration==60?'60':r.duration==300?'300':r.duration==600?'600':'0';
   document.getElementById('durSel').value=durVal; if(durVal==='0'){document.getElementById('durCustom').style.display='';document.getElementById('durCustom').value=r.duration;}
   document.getElementById('levelSel').value=r.level;
@@ -165,10 +170,20 @@ function resetForm(){
   document.getElementById('levelSel').value='警告';updateSummary();
 }
 function switchType(){
-  var g=document.querySelector('input[name="alertType"]:checked').value==='gather';
-  document.getElementById('thrLabel').textContent=g?'聚集人数阈值':'人数阈值';
+  var v=document.querySelector('input[name="alertType"]:checked').value;
+  var g=v==='gather', fa=v==='flowAnomaly';
+  document.getElementById('thrLabel').textContent=fa?'偏差阈值（%，相对上周同时段均值）':(g?'聚集人数阈值':'人数阈值');
   document.getElementById('radiusRow').style.display=g?'':'none';
-  document.getElementById('levelSel').value=g?'警告':document.getElementById('levelSel').value;
+  document.getElementById('dirRow').style.display=fa?'':'none';
+  document.getElementById('levelSel').value=(g||fa)?'警告':document.getElementById('levelSel').value;
+  var hint=document.getElementById('typeHint');
+  if(hint){
+    hint.innerHTML = fa
+      ? '<i class="fa-solid fa-circle-info mr-1"></i>客流异常：与上周同时段对比，识别人数突增/突减'
+      : g
+      ? '<i class="fa-solid fa-circle-info mr-1"></i>聚集：区域内人群扎堆（半径 '+document.getElementById('radiusInput').value+' 米内 ≥ 阈值人数，逐人精确）'
+      : '<i class="fa-solid fa-circle-info mr-1"></i>超员：按分组总人数（净流入估算）判断是否超容量';
+  }
   updateSummary();
 }
 document.getElementById('durSel').onchange=function(){
@@ -177,31 +192,40 @@ document.getElementById('durSel').onchange=function(){
 };
 
 function updateSummary(){
-  var t=document.querySelector('input[name="alertType"]:checked').value==='gather'?'聚集':'超员';
+  var v=document.querySelector('input[name="alertType"]:checked').value;
+  var t=v==='gather'?'聚集':(v==='flowAnomaly'?'客流异常':'超员');
   var g=document.getElementById('groupSel').value;
   var thr=document.getElementById('thrInput').value||'?';
   var dur=document.getElementById('durSel').value;
   var durTxt=dur==='0'?(document.getElementById('durCustom').value||'?')+'秒':(dur<60?dur+'秒':Math.floor(dur/60)+'分钟');
   var lv=document.getElementById('levelSel').value;
-  document.getElementById('ruleSummary').innerHTML='<i class="fa-solid fa-circle-info mr-1"></i>当 <b>'+g+'</b> '+(t==='聚集'?'聚集人数':'人数')+' <b>≥ '+thr+'</b> 且持续 <b>'+durTxt+'</b> → <b>'+lv+'告警</b>，站内信通知';
+  var dirSel=document.getElementById('dirSel').value;
+  var dirTxt=dirSel==='up'?'突增':dirSel==='down'?'突减':'突增/突减';
+  var summary;
+  if(t==='客流异常'){ summary='当 <b>'+g+'</b> 人数相对上周同时段偏差 <b>≥ '+thr+'%</b>（'+dirTxt+'）且持续 <b>'+durTxt+'</b> → <b>'+lv+'告警</b>，站内信通知'; }
+  else { summary='当 <b>'+g+'</b> '+(t==='聚集'?'聚集人数':'人数')+' <b>≥ '+thr+'</b> 且持续 <b>'+durTxt+'</b> → <b>'+lv+'告警</b>，站内信通知'; }
+  document.getElementById('ruleSummary').innerHTML='<i class="fa-solid fa-circle-info mr-1"></i>'+summary;
 }
 
 function submitRule(){
-  var t=document.querySelector('input[name="alertType"]:checked').value==='gather'?'聚集':'超员';
+  var v=document.querySelector('input[name="alertType"]:checked').value;
+  var t=v==='gather'?'聚集':(v==='flowAnomaly'?'客流异常':'超员');
   var g=document.getElementById('groupSel').value;
   var thr=parseInt(document.getElementById('thrInput').value);
-  if(!thr||thr<=0){showToast('请输入有效的人数阈值');return;}
+  if(!thr||thr<=0){showToast(t==='客流异常'?'请输入有效的偏差阈值（%）':'请输入有效的人数阈值');return;}
+  if(t==='客流异常'&&(thr<5||thr>200)){showToast('偏差阈值需在 5%-200% 之间');return;}
   var dur=parseInt(document.getElementById('durSel').value);
   if(dur===0){dur=parseInt(document.getElementById('durCustom').value);if(!dur||dur<=0){showToast('请输入有效的持续时间');return;}}
   var rad=t==='聚集'?parseFloat(document.getElementById('radiusInput').value):null;
   if(t==='聚集'&&(!rad||rad<=0)){showToast('请输入有效的聚集半径');return;}
+  var dir=t==='客流异常'?document.getElementById('dirSel').value:null;
   var lv=document.getElementById('levelSel').value;
 
   if(editingId){
     var r=rules.find(function(x){return x.id===editingId;});
-    if(r){r.type=t;r.group=g;r.threshold=thr;r.radius=rad;r.duration=dur;r.level=lv;r.notify='站内信';}
+    if(r){r.type=t;r.group=g;r.threshold=thr;r.radius=rad;r.direction=dir;r.duration=dur;r.level=lv;r.notify='站内信';}
   }else{
-    rules.push({id:Date.now(),type:t,group:g,threshold:thr,radius:rad,duration:dur,level:lv,active:true,hit7d:0,lastHit:'-',notify:'站内信'});
+    rules.push({id:Date.now(),type:t,group:g,threshold:thr,radius:rad,direction:dir,duration:dur,level:lv,active:true,hit7d:0,lastHit:'-',notify:'站内信'});
   }
   MockStore.saveRules(rules);
   closeModal();renderRules();showToast(editingId?'规则已保存':'规则已创建，默认启用');

@@ -173,11 +173,13 @@ a.menu-item:hover { color: #fff; }
   font-size: 15px; font-weight: 600;
 }
 .ant-card-body { padding: 24px; }
+.ant-card-extra { display: flex; align-items: center; gap: 8px; }
 
 /* ========== 按钮 ========== */
 .ant-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   height: 32px; padding: 0 15px; font-size: 14px;
+  white-space: nowrap;
   border: 1px solid var(--ant-border); border-radius: var(--radius-base);
   background: var(--ant-bg-container); color: var(--ant-text); cursor: pointer;
   transition: color 0.2s var(--ease-in-out), border-color 0.2s var(--ease-in-out), background 0.2s var(--ease-in-out);
@@ -222,7 +224,7 @@ a.menu-item:hover { color: #fff; }
   color: var(--ant-text);
 }
 .ant-table tbody tr:hover td { background: rgba(0,0,0,0.02); }
-.action-wrap { display: inline-flex; align-items: center; gap: 8px; }
+.action-wrap { display: inline-flex; align-items: center; gap: 8px; flex-wrap: nowrap; white-space: nowrap; }
 
 /* ========== 标签 ========== */
 .ant-tag {
