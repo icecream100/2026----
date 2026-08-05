@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>分析配置 - 园区人员热力图与流量统计</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="../assets/tailwind.js"></script>
+  <link rel="stylesheet" href="../assets/fa-all.min.css">
   <link rel="stylesheet" href="../proto-ui.css">
   <link rel="stylesheet" href="../tailwind-fallback.css">
   <script src="../mock-store.js"></script>
@@ -52,9 +52,9 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-correlation/index.html"><i class="fa-solid fa-diagram-project"></i>建筑关联分析</a>
+      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-correlation/index.html" title="实验性·默认隐藏，项目级功能开关开放"><i class="fa-solid fa-diagram-project"></i>建筑关联分析<span class="text-xs" style="color:#fa8c16;margin-left:2px">实验</span></a>
       <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>建筑人数监测</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
       <a class="menu-item active" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
       <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
@@ -71,17 +71,17 @@
 
       <!-- Tab 切换 -->
       <div class="tab-bar" id="tabBar">
-        <button type="button" class="tab-item active" role="tab" aria-selected="true" onclick="switchTab(this,'tab1')">① 统计设备管理</button>
+        <button type="button" class="tab-item active" role="tab" aria-selected="true" onclick="switchTab(this,'tab1')">① 统计分组</button>
         <button type="button" class="tab-item" role="tab" aria-selected="false" onclick="switchTab(this,'tab4')">② 平面图相机标定</button>
       </div>
 
-      <!-- Tab① 统计设备管理 -->
+      <!-- Tab① 统计分组 -->
       <div id="tab1" class="tab-panel">
         <div class="grid gap-4" style="grid-template-columns:280px 1fr;">
           <!-- 左：分组列表 -->
           <div class="ant-card ant-card-bordered">
             <div class="ant-card-head">
-              <div class="ant-card-head-title">园区建筑</div>
+              <div class="ant-card-head-title">统计分组</div>
               <div class="ant-card-extra"><button class="ant-btn ant-btn-primary ant-btn-sm" onclick="openGroupModal()"><i class="fa-solid fa-plus"></i> 新增分组</button></div>
             </div>
             <div class="ant-card-body" style="padding:12px">
@@ -139,7 +139,13 @@
                   </div>
                 </div>
                 <div>
-                  <div style="font-size:12px;color:var(--ant-text-secondary);margin-bottom:4px"><i class="fa-solid fa-map mr-1"></i>园区平面图（点选对应点）</div>
+                  <div class="flex items-center justify-between" style="margin-bottom:4px">
+                    <div style="font-size:12px;color:var(--ant-text-secondary)"><i class="fa-solid fa-map mr-1"></i>园区平面图（点选对应点）</div>
+                    <div class="flex gap-1">
+                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showToast('已打开底图上传，支持 PNG/SVG（需标注区域地块边界，见 Q-09）')"><i class="fa-solid fa-upload"></i> 上传底图</button>
+                      <button class="ant-btn ant-btn-text ant-btn-sm" onclick="showToast('当前底图：plan-default.png（1920×1080，由设计提供）')"><i class="fa-solid fa-image"></i> 底图信息</button>
+                    </div>
+                  </div>
                   <div class="map-canvas" id="mapCanvas" style="height:300px;position:relative;cursor:crosshair;" onclick="onMapClick(event)">
                     <div style="position:absolute;top:15%;left:10%;width:25%;height:30%;background:rgba(22,119,255,0.10);border:1px dashed #1677ff;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#1677ff;">A 栋</div>
                     <div style="position:absolute;top:15%;right:10%;width:30%;height:35%;background:rgba(250,140,22,0.10);border:1px dashed #fa8c16;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fa8c16;">食堂</div>
@@ -297,6 +303,20 @@
         <option value="park">园区级 — 代表园区整体出入（如大门）</option>
       </select>
       <div class="text-xs text-tertiary mt-2">园区级摄像头的进出人次将作为园区总人数计算依据</div>
+    </div>
+    <div class="ant-form-item">
+      <label class="ant-form-label">营业日切换时间</label>
+      <input id="groupDayStart" class="ant-input" maxlength="5" placeholder="如 00:00（24h园区可设 06:00）" value="00:00">
+      <div class="text-xs text-tertiary mt-2">到点重置净流入计数器（漂移纠正，见 3.5.5）；24h园区可设其他时刻</div>
+    </div>
+    <div class="ant-form-item">
+      <label class="ant-form-label">清零方式</label>
+      <select id="groupResetMode" class="ant-select" style="width:100%">
+        <option value="timer">定时清零（到营业日切换时间清零，默认）</option>
+        <option value="none">不清零（24h园区基准人数延续+定期校准）</option>
+        <option value="manual">人工校准（运营手动触发重置/调整）</option>
+      </select>
+      <div class="text-xs text-tertiary mt-2">校准期间暂停超员判定，校准记录原值/调整值/操作人/原因</div>
     </div>
   </div>
   <div class="ant-modal-footer">

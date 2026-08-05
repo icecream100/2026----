@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>流量统计分析 - 园区人员热力图与流量统计</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="../assets/tailwind.js"></script>
+  <link rel="stylesheet" href="../assets/fa-all.min.css">
   <link rel="stylesheet" href="../proto-ui.css">
   <link rel="stylesheet" href="../tailwind-fallback.css">
   <script src="../mock-store.js"></script>
@@ -37,9 +37,9 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item active" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-correlation/index.html"><i class="fa-solid fa-diagram-project"></i>建筑关联分析</a>
+      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-correlation/index.html" title="实验性·默认隐藏，项目级功能开关开放"><i class="fa-solid fa-diagram-project"></i>建筑关联分析<span class="text-xs" style="color:#fa8c16;margin-left:2px">实验</span></a>
       <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>建筑人数监测</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
       <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
       <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
@@ -137,6 +137,7 @@
 
       <!-- 高峰预测 -->
       <div id="t-predict" class="tab-panel" style="display:none">
+        <div class="ant-alert ant-alert-warning" style="margin-bottom:12px;padding:6px 12px;font-size:12px;"><i class="fa-solid fa-circle-info" style="color:var(--ant-warning);margin-right:4px"></i>高峰预测为<b>预测/参考</b>数据（基于越线时序建模，验收用 MAPE/置信区间覆盖率，不标精确），仅供运营参考，不作为精确决策依据。</div>
         <div class="flex items-center gap-4 mb-4">
           <div class="ant-form-item" style="margin-bottom:0"><label class="ant-form-label">预测范围</label><select class="ant-select" id="predictRange" style="width:120px" onchange="renderPredict()"><option>未来 7 天</option><option>未来 3 天</option><option>未来 14 天</option></select></div>
           <div class="ant-form-item" style="margin-bottom:0"><label class="ant-form-label">区域</label><select class="ant-select" id="predictArea" style="width:160px" onchange="renderPredict()"><option value="all">全部区域</option><option value="食堂就餐区">食堂就餐区</option><option value="A 栋办公区">A 栋办公区</option><option value="广场">广场</option></select></div>
@@ -324,7 +325,7 @@
     // 图例（点击隐藏/显示）
     if(legendEl){
       legendEl.innerHTML=series.map(function(s,i){
-        var tip = s.name==='同时在场峰值' ? ' title="基于净流入+每日闭园清零，估算（见 3.5.1/3.5.5）"' : '';
+        var tip = s.name==='同时在场峰值' ? ' title="基于净流入+营业日清零，估算（见 3.5.1/3.5.5）"' : '';
         return '<span class="lg-item'+(s.hidden?' off':'')+'" data-i="'+i+'" role="button" tabindex="0" aria-pressed="'+(!s.hidden)+'"'+tip+'><span class="lg-swatch" style="background:'+s.color+'"></span>'+s.name+'</span>';
       }).join('');
       legendEl.querySelectorAll('.lg-item').forEach(function(it){

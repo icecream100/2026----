@@ -611,3 +611,27 @@ textarea.ant-input { height: auto; padding: 8px 11px; resize: vertical; }
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================
+   响应式断点（1366/1024/缩放125%）— review-full 原型侧
+   ============================================ */
+@media (max-width: 1366px) {
+  .grid.grid-cols-4, .grid[class*="grid-cols-4"] { gap: 12px; }
+  .kpi-card .kpi-value { font-size: 22px; }
+  .page-title { font-size: 18px; }
+}
+@media (max-width: 1024px) {
+  .layout .content-wrap { grid-template-columns: 180px 1fr !important; }
+  .grid.grid-cols-4, .grid[class*="grid-cols-4"] { grid-template-columns: repeat(2, 1fr) !important; }
+  .grid.grid-cols-3, .grid[class*="grid-cols-3"] { grid-template-columns: 1fr !important; }
+  .grid.grid-cols-2 { grid-template-columns: 1fr !important; }
+  .kpi-card { padding: 12px; }
+  .main { padding: 12px !important; }
+  .ant-card-body { padding: 12px; }
+}
+@media (min-resolution: 1.25dppx) {
+  body { font-size: 13px; }
+  .text-sm { font-size: 12px; }
+  .ant-table { font-size: 12px; }
+  .ant-table th, .ant-table td { padding: 8px 6px; }
+}

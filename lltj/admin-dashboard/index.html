@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>人流分析总览 - 园区人员热力图与流量统计</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="../assets/tailwind.js"></script>
+  <link rel="stylesheet" href="../assets/fa-all.min.css">
   <link rel="stylesheet" href="../proto-ui.css">
   <link rel="stylesheet" href="../tailwind-fallback.css">
   <script src="../mock-store.js"></script>
@@ -19,32 +19,51 @@
       radial-gradient(circle at 50% 30%, rgba(82,196,26,0.5) 0%, transparent 22%),
       radial-gradient(circle at 20% 70%, rgba(22,119,255,0.4) 0%, transparent 30%),
       #f0f5ff; }
-    /* 投屏模式（深色全屏） */
-    body.screen-mode { background:#0a1929; }
+    /* 投屏模式（深色全屏，高对比度：投影/大屏亮度低，文字需纯白+高透明+亮边框） */
+    /* 直接覆盖文字色 CSS 变量，所有用 var(--ant-text-*) 的文字自动变白（彻底解决黑色字体看不清） */
+    body.screen-mode {
+      --ant-text: #ffffff;
+      --ant-text-secondary: rgba(255,255,255,0.90);
+      --ant-text-tertiary: rgba(255,255,255,0.78);
+      --ant-text-disabled: rgba(255,255,255,0.40);
+      background:#0a1929;
+    }
     body.screen-mode .sider { display:none; }
     body.screen-mode .breadcrumb { display:none; }
     body.screen-mode .main { padding:20px 32px; }
-    body.screen-mode .header { background:#0a1929 !important; border-bottom:1px solid #1f3a5f; }
-    body.screen-mode .ant-card { background:#132f4c; border-color:#1f3a5f; }
-    body.screen-mode .ant-card-head { border-bottom-color:#1f3a5f; }
-    body.screen-mode .ant-card-head-title { color:#e3f2fd; }
-    body.screen-mode .page-title { color:#fff; font-size:22px; }
-    body.screen-mode .kpi-card { background:#132f4c; }
-    body.screen-mode .kpi-value { font-size:40px; color:#fff; }
-    body.screen-mode .kpi-label { color:rgba(255,255,255,0.65); }
-    body.screen-mode .kpi-icon { opacity:0.85; }
-    body.screen-mode .text-tertiary { color:rgba(255,255,255,0.45) !important; }
-    body.screen-mode .ant-table thead th { background:#0a1929; color:rgba(255,255,255,0.65); border-color:#1f3a5f; }
-    body.screen-mode .ant-table tbody td { color:#e3f2fd; border-color:#1f3a5f; }
-    body.screen-mode .ant-table tbody tr:hover td { background:rgba(255,255,255,0.04); }
+    body.screen-mode .header { background:#0a1929 !important; border-bottom:1px solid #2d5a8f; }
+    body.screen-mode .ant-card { background:#15375c; border-color:#3a6ba8; box-shadow:0 2px 8px rgba(0,0,0,.3); }
+    body.screen-mode .ant-card-head { border-bottom-color:#3a6ba8; }
+    body.screen-mode .ant-card-head-title { color:#ffffff; font-size:16px; font-weight:600; }
+    body.screen-mode .page-title { color:#fff; font-size:22px; font-weight:600; }
+    body.screen-mode .kpi-card { background:#15375c; border-color:#3a6ba8; }
+    body.screen-mode .kpi-value { font-size:44px; color:#fff; font-weight:700; text-shadow:0 1px 3px rgba(0,0,0,.4); }
+    body.screen-mode .kpi-label { color:rgba(255,255,255,0.92); font-weight:500; font-size:14px; }
+    body.screen-mode .kpi-icon { opacity:1; }
+    body.screen-mode .text-tertiary { color:rgba(255,255,255,0.78) !important; }
+    body.screen-mode .text-secondary { color:rgba(255,255,255,0.88) !important; }
+    body.screen-mode .ant-table thead th { background:#0d2340; color:#ffffff; border-color:#3a6ba8; font-weight:600; }
+    body.screen-mode .ant-table tbody td { color:#eaf3ff; border-color:#3a6ba8; }
+    body.screen-mode .ant-table tbody tr:hover td { background:rgba(255,255,255,0.07); }
+    body.screen-mode .ant-tag { border-color:#3a6ba8; }
     body.screen-mode .heat-thumb { background:
       radial-gradient(circle at 30% 40%, rgba(255,77,79,0.8) 0%, transparent 25%),
       radial-gradient(circle at 70% 60%, rgba(250,140,22,0.7) 0%, transparent 28%),
       radial-gradient(circle at 50% 30%, rgba(82,196,26,0.6) 0%, transparent 22%),
       radial-gradient(circle at 20% 70%, rgba(22,119,255,0.5) 0%, transparent 30%),
       #0a1929; }
-    body.screen-mode .ant-select { background:#132f4c; color:#e3f2fd; border-color:#1f3a5f; }
+    body.screen-mode .ant-select { background:#15375c; color:#fff; border-color:#3a6ba8; }
     body.screen-mode .exit-screen-btn { display:inline-flex !important; }
+    /* 兜底：未用变量的黑色/深色文字统一提亮（保留语义色 success/warning/error/primary 与告警红/正常绿） */
+    body.screen-mode p, body.screen-mode span, body.screen-mode div, body.screen-mode td, body.screen-mode th, body.screen-mode label, body.screen-mode .num { color:#ffffff; }
+    body.screen-mode .text-error, body.screen-mode .rc-trend.up { color:#ff7a7a !important; }
+    body.screen-mode .text-success, body.screen-mode .rc-trend.down { color:#7ddb7d !important; }
+    body.screen-mode .text-warning { color:#ffd666 !important; }
+    body.screen-mode .text-tertiary { color:rgba(255,255,255,0.78) !important; }
+    body.screen-mode .text-secondary { color:rgba(255,255,255,0.90) !important; }
+    /* 排行条/趋势等强调元素在投屏下提亮 */
+    body.screen-mode .rank-bar { background:linear-gradient(90deg,#4096ff,#85c1ff); }
+    body.screen-mode .text-muted, body.screen-mode .num-sub { color:rgba(255,255,255,0.75) !important; }
   </style>
 </head>
 <body>
@@ -66,9 +85,9 @@
       <a class="menu-item active" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-correlation/index.html"><i class="fa-solid fa-diagram-project"></i>建筑关联分析</a>
+      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-correlation/index.html" title="实验性·默认隐藏，项目级功能开关开放"><i class="fa-solid fa-diagram-project"></i>建筑关联分析<span class="text-xs" style="color:#fa8c16;margin-left:2px">实验</span></a>
       <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>建筑人数监测</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
       <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
       <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
@@ -102,7 +121,7 @@
           <div class="kpi-icon" style="background:var(--ant-primary-bg);color:var(--ant-primary)"><i class="fa-solid fa-users"></i></div>
           <div>
             <div class="kpi-value" style="font-variant-numeric:tabular-nums;">2,486</div>
-            <div class="kpi-label">当前在场总人数 <span class="text-xs" style="color:var(--ant-text-tertiary)" title="分组净流入（进入−离开）+每日闭园清零，估算（见 3.5.1/3.5.5）">估算 <i class="fa-solid fa-circle-question"></i></span></div>
+            <div class="kpi-label">当前在场总人数 <span class="text-xs" style="color:var(--ant-text-tertiary)" title="分组净流入（进入−离开）+营业日清零，估算（见 3.5.1/3.5.5）">估算 <i class="fa-solid fa-circle-question"></i></span></div>
             <div class="text-sm mt-1" style="color:var(--ant-success)"><i class="fa-solid fa-arrow-up"></i> 8.2% 较昨日</div>
           </div>
         </div>

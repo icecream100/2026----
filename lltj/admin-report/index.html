@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>人流报表 - 园区人员热力图与流量统计</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="../assets/tailwind.js"></script>
+  <link rel="stylesheet" href="../assets/fa-all.min.css">
   <link rel="stylesheet" href="../proto-ui.css">
   <link rel="stylesheet" href="../tailwind-fallback.css">
   <script src="../mock-store.js"></script>
@@ -32,9 +32,9 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-correlation/index.html"><i class="fa-solid fa-diagram-project"></i>建筑关联分析</a>
+      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-correlation/index.html" title="实验性·默认隐藏，项目级功能开关开放"><i class="fa-solid fa-diagram-project"></i>建筑关联分析<span class="text-xs" style="color:#fa8c16;margin-left:2px">实验</span></a>
       <a class="menu-item active" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>建筑人数监测</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
       <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
       <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
@@ -51,7 +51,6 @@
         <div class="flex items-center justify-between mb-4">
           <div class="page-title" style="margin-bottom:0;">人流报表</div>
           <div class="flex gap-2">
-            <button class="ant-btn" id="batchExportBtn" onclick="batchExport()" disabled><i class="fa-solid fa-download"></i> 批量导出</button>
           </div>
         </div>
 
@@ -80,7 +79,7 @@
           <div class="ant-card-head"><div class="ant-card-head-title">报表列表 · <span id="listCountLabel">共 0 份</span></div></div>
           <div class="ant-card-body" style="padding:0">
             <table class="ant-table">
-              <thead><tr><th width="40"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th><th>报表周期</th><th width="90">类型</th><th width="120">进入人次</th><th width="120">离开人次</th><th width="120">峰值同时在</th><th width="90">告警数</th><th width="100">状态</th><th width="260">操作</th></tr></thead>
+              <thead><tr><th>报表周期</th><th width="90">类型</th><th width="120">进入人次</th><th width="120">离开人次</th><th width="120">峰值同时在</th><th width="90">告警数</th><th width="100">状态</th><th width="260">操作</th></tr></thead>
               <tbody id="reportTableBody"></tbody>
             </table>
           </div>
@@ -174,7 +173,7 @@
                   <tr><td><span class="ant-tag ant-tag-orange">聚集</span></td><td class="tnum" id="dAlertGather">-</td><td id="dAlertGatherTime">-</td></tr>
                 </tbody>
               </table>
-              <div style="padding:6px 12px;font-size:11px;color:var(--ant-text-tertiary);border-top:1px solid var(--ant-border-secondary)"><i class="fa-solid fa-circle-info mr-1"></i>在场/告警人数为分组净流入（进入−离开）+每日闭园清零估算（见 3.5.1/3.5.5）。</div>
+              <div style="padding:6px 12px;font-size:11px;color:var(--ant-text-tertiary);border-top:1px solid var(--ant-border-secondary)"><i class="fa-solid fa-circle-info mr-1"></i>在场/告警人数为分组净流入（进入−离开）+营业日清零估算（见 3.5.1/3.5.5）。</div>
             </div>
           </div>
         </div>
@@ -197,31 +196,6 @@
     setTimeout(function () { el.classList.remove('show'); setTimeout(function () { el.remove(); }, 300); }, duration);
   }
   function exportReport(fmt){ showToast(fmt?('报表已导出为 '+fmt.toUpperCase()+'，异步生成完成后下载'):'导出任务已创建，完成后通知'); }
-
-  // 批量导出
-  function toggleSelectAll(){
-    var checked = document.getElementById('selectAll').checked;
-    document.querySelectorAll('.report-cb').forEach(function(cb){ cb.checked = checked; });
-    updateBatchBtn();
-  }
-  function onCbChange(){
-    var all = document.querySelectorAll('.report-cb');
-    var sel = document.querySelectorAll('.report-cb:checked');
-    document.getElementById('selectAll').checked = sel.length === all.length;
-    updateBatchBtn();
-  }
-  function updateBatchBtn(){
-    var sel = document.querySelectorAll('.report-cb:checked');
-    var btn = document.getElementById('batchExportBtn');
-    btn.disabled = sel.length === 0;
-    btn.textContent = sel.length > 0 ? ('批量导出 ('+sel.length+')') : '批量导出';
-  }
-  function batchExport(){
-    var sel = document.querySelectorAll('.report-cb:checked');
-    if(sel.length === 0) return;
-    var ids = []; sel.forEach(function(cb){ ids.push(cb.getAttribute('data-id')); });
-    showToast('已导出 '+ids.length+' 份报表（异步生成完成后下载）');
-  }
 
   // 报表数据（含详情模拟数据）
   var reports = {
@@ -298,7 +272,6 @@
     var html = list.map(function(r){
       var parts = [];
       parts.push('<tr>');
-      parts.push('<td><input type="checkbox" class="report-cb" data-id="'+r.d+'" onchange="onCbChange()"></td>');
       parts.push('<td><i class="fa-solid fa-file-lines mr-2 text-tertiary"></i>'+curType+' · '+r.d+'</td>');
       parts.push('<td><span class="ant-tag ant-tag-blue">'+curType+'</span></td>');
       parts.push('<td class="tnum">'+r.in.toLocaleString()+'</td>');

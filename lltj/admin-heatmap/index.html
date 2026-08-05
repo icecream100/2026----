@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>热力图分析 - 园区人员热力图与流量统计</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="../assets/tailwind.js"></script>
+  <link rel="stylesheet" href="../assets/fa-all.min.css">
   <link rel="stylesheet" href="../proto-ui.css">
   <link rel="stylesheet" href="../tailwind-fallback.css">
   <script src="../mock-store.js"></script>
@@ -59,9 +59,9 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item active" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-correlation/index.html"><i class="fa-solid fa-diagram-project"></i>建筑关联分析</a>
+      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-correlation/index.html" title="实验性·默认隐藏，项目级功能开关开放"><i class="fa-solid fa-diagram-project"></i>建筑关联分析<span class="text-xs" style="color:#fa8c16;margin-left:2px">实验</span></a>
       <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>人流报表</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>建筑人数监测</a>
+      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
       <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
       <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
@@ -106,7 +106,7 @@
           <div class="ant-card-head">
             <div class="ant-card-head-title" id="heatTitle">实时热力图 · 2026-07-01 全天</div>
             <div class="ant-card-extra">
-              <span id="heatSummary" class="text-sm mr-3" style="color:var(--ant-text-secondary)" title="在场/峰值基于分组净流入+每日闭园清零，估算（见 3.5.1/3.5.5）"><span id="sumLbl">在场</span> <b id="sumTotal" style="color:var(--ant-text)">-</b> · 超员 <b id="sumOver" style="color:#ff4d4f">0</b></span><span id="refreshDot" class="status-dot pulse-dot" style="background:#52c41a"></span><span id="refreshLabel" class="text-sm mr-3">实时 · 5 秒刷新</span>
+              <span id="heatSummary" class="text-sm mr-3" style="color:var(--ant-text-secondary)" title="在场/峰值基于分组净流入+营业日清零，估算（见 3.5.1/3.5.5）"><span id="sumLbl">在场</span> <b id="sumTotal" style="color:var(--ant-text)">-</b> · 超员 <b id="sumOver" style="color:#ff4d4f">0</b></span><span id="refreshDot" class="status-dot pulse-dot" style="background:#52c41a"></span><span id="refreshLabel" class="text-sm mr-3">实时 · 5 秒刷新</span>
               <button class="ant-btn ant-btn-sm" onclick="togglePlay()" id="playBtn"><i class="fa-solid fa-play"></i> 播放</button>
             </div>
           </div>
@@ -196,7 +196,7 @@
   function applyLiveState(){
     var live = isLiveDate();
     var refreshLabel=document.getElementById('refreshLabel'), refreshDot=document.getElementById('refreshDot');
-    if(refreshLabel){ refreshLabel.textContent = live ? '实时 · 5 秒刷新' : '历史回看 · 已定格'; }
+    if(refreshLabel){ refreshLabel.textContent = live ? '实时 · 5 秒刷新 · 当前拥挤度（已去重）' : '历史回看 · 已定格 · 足迹热度（经过频率）'; }
     if(refreshDot){ refreshDot.style.background = live ? '#52c41a' : '#bfbfbf'; refreshDot.classList.toggle('pulse-dot', live); }
     var rankTitle=document.getElementById('rankTitle');
     if(rankTitle){ rankTitle.textContent = live ? '实时建筑热度榜' : '该日建筑热度榜'; }
