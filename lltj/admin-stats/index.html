@@ -24,11 +24,6 @@
     <div class="logo"><i class="fa-solid fa-people-group"></i></div>
     <span class="app-name">园区人员热力图与流量统计</span>
     <div class="spacer"></div>
-    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
-    <span class="role-switch"></span><div class="flex items-center gap-2 user-block" style="color:rgba(255,255,255,0.85);">
-      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
-      <span style="font-size:13px;">管理员·王</span>
-    </div>
   </header>
 
   <div class="content-wrap">
@@ -37,12 +32,12 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item active" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
+      <a class="menu-item" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
+      <a class="menu-item" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
+      <a class="menu-item" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
+      <a class="menu-item" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
+      <a class="menu-item" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
       <div class="menu-group-title">监控</div>
       <a class="menu-item" href="../admin-screen/index.html"><i class="fa-solid fa-display"></i>监控中心大屏</a>
     </aside>
@@ -67,11 +62,10 @@
               <span id="customDateWrap" style="display:none">
                 <input type="date" class="ant-input" value="2026-07-01" style="width:130px" onchange="onTrendFilterChange()"> <span>-</span> <input type="date" class="ant-input" value="2026-07-07" style="width:130px" onchange="onTrendFilterChange()">
               </span>
-              <select class="ant-select ant-select-sm ml-2" id="trendCmp" style="width:120px" onchange="onTrendCompareChange()"><option value="none">不对比</option><option value="yesterday">vs 昨日同期</option><option value="lastweek">vs 上周同期</option></select>
+              <select class="ant-select ant-select-sm ml-2" id="trendCmp" style="width:120px" onchange="onTrendCompareChange()"><option value="none">不对比</option><option value="period">对比同期</option></select>
               <span class="mx-2" style="color:var(--ant-border-secondary)">|</span>
               <label class="ant-checkbox"><input type="checkbox" checked onchange="toggleTrend(0,this.checked)"><span>进入人数</span></label>
               <label class="ant-checkbox ml-3"><input type="checkbox" checked onchange="toggleTrend(1,this.checked)"><span>离开人数</span></label>
-              <label class="ant-checkbox ml-3"><input type="checkbox" onchange="toggleTrend(2,this.checked)"><span>净流入</span></label>
               <label class="ant-checkbox ml-3"><input type="checkbox" checked onchange="toggleTrend(3,this.checked)"><span>同时在场峰值</span></label>
               <span class="mx-2" style="color:var(--ant-border-secondary)">|</span>
               <button class="ant-btn ant-btn-primary ant-btn-sm" onclick="queryTrend()"><i class="fa-solid fa-magnifying-glass mr-1"></i>查询</button>
@@ -81,7 +75,6 @@
           <div class="ant-card-body">
             <div class="chart-legend mb-2" id="trendLegend"></div>
             <div class="chart-line" id="trendChart"></div>
-            <div id="trendDiffBar" class="mt-3" style="display:none;background:#fafafa;border-radius:6px;padding:8px 12px;font-size:13px;"></div>
             <!-- 趋势数据表格 -->
             <div class="mt-4" id="trendTableWrap">
               <table class="ant-table" style="font-size:12px">
@@ -105,7 +98,7 @@
         <div class="ant-card ant-card-bordered" id="rankAreaView">
           <div class="ant-card-body" style="padding:0">
             <table class="ant-table">
-              <thead><tr><th width="60">排名</th><th>区域</th><th>进入人数</th><th>离开人数</th><th>峰值同时在</th><th>同比</th><th>环比</th><th width="80">操作</th></tr></thead>
+              <thead><tr><th width="60">排名</th><th>区域</th><th>进入人数</th><th>离开人数</th><th>峰值同时在</th><th>同比</th><th width="80">操作</th></tr></thead>
               <tbody id="rankBody"></tbody>
             </table>
           </div>
@@ -211,40 +204,40 @@
   var trendSeries=[
     {name:'进入人数', color:'#1677ff', hidden:false, data:[12,8,5,4,3,6,28,95,180,210,240,268,312,295,260,238,256,278,242,180,120,80,50,28]},
     {name:'离开人数', color:'#52c41a', hidden:false, data:[10,7,4,3,3,5,22,80,165,195,228,250,298,280,255,232,248,270,238,178,115,75,48,26]},
-    {name:'净流入',   color:'#faad14', hidden:true,  data:[2,1,1,1,0,1,6,15,15,15,12,18,14,15,5,6,8,8,4,2,5,5,2,2]},
+
     {name:'同时在场峰值', color:'#722ed1', hidden:false, data:[22,18,12,9,8,12,45,140,260,320,360,400,430,410,380,350,368,395,360,280,190,130,90,55]}
   ];
-  // 对比数据（昨日同期，数值略低于今日）
+  // 对比数据（同期对比：今日->昨日、本周->上周、本月->上月，数值略低于当期）
   var trendCmpData = [
     {name:'进入人数', color:'#1677ff', data:[10,7,4,3,3,5,25,88,168,195,225,250,290,275,245,220,238,260,228,168,112,74,45,25]},
     {name:'离开人数', color:'#52c41a', data:[9,6,4,2,2,4,20,75,155,182,215,235,280,262,240,218,232,255,225,168,108,70,44,24]},
-    {name:'净流入',   color:'#faad14', data:[2,1,1,1,0,1,5,13,14,13,11,16,13,14,5,5,7,7,4,2,4,4,2,2]},
+
     {name:'同时在场峰值', color:'#722ed1', data:[20,16,11,8,7,11,42,130,245,300,340,378,408,388,360,330,348,375,340,262,178,122,84,51]}
   ];
-  var trendCmpActive = 'none'; // none | yesterday | lastweek
+  var trendCmpActive = 'none'; // none | period（对比同期：今日->昨日、本周->上周、本月->上月、自定义->上一相同长度周期）
   // 周（7 天）/ 月（30 天）聚合数据，避免与今日 24 小时数据混用（review-full-v1 M4）
   var trendWeekSeries=[
     {name:'进入人数', color:'#1677ff', hidden:false, data:[1850,1920,2100,2050,1980,1680,1450]},
     {name:'离开人数', color:'#52c41a', hidden:false, data:[1820,1880,2050,2010,1950,1660,1430]},
-    {name:'净流入',   color:'#faad14', hidden:true,  data:[30,40,50,40,30,20,20]},
+
     {name:'同时在场峰值', color:'#722ed1', hidden:false, data:[430,455,520,498,470,380,290]}
   ];
   var trendWeekCmp=[
     {name:'进入人数', color:'#1677ff', data:[1680,1750,1900,1860,1800,1520,1310]},
     {name:'离开人数', color:'#52c41a', data:[1650,1720,1880,1840,1780,1500,1290]},
-    {name:'净流入',   color:'#faad14', data:[30,30,20,20,20,20,20]},
+
     {name:'同时在场峰值', color:'#722ed1', data:[410,430,490,470,445,360,275]}
   ];
   var trendMonthSeries=[
     {name:'进入人数', color:'#1677ff', hidden:false, data:[8200,8600,8400,8700,9100,9800,11200,12800,13500,13100,12600,12200,11800,12100,12500,13000,13400,12900,11800,10200,9100,8600,8400,8200,8300,8100,7900,7800,7600,7400]},
     {name:'离开人数', color:'#52c41a', hidden:false, data:[8000,8400,8200,8500,8900,9600,11000,12600,13300,12900,12400,12000,11600,11900,12300,12800,13200,12700,11600,10000,8900,8400,8200,8000,8100,7900,7700,7600,7400,7200]},
-    {name:'净流入',   color:'#faad14', hidden:true,  data:[200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200]},
+
     {name:'同时在场峰值', color:'#722ed1', hidden:false, data:[280,290,295,300,310,318,328,320,315,300,285,275,270,272,280,290,300,295,280,260,250,245,240,238,240,235,230,228,225,222]}
   ];
   var trendMonthCmp=[
     {name:'进入人数', color:'#1677ff', data:[7600,7900,8100,8400,8800,9500,10800,12300,13000,12700,12200,11800,11400,11700,12100,12600,13000,12500,11400,9800,8700,8200,8000,7800,7900,7700,7500,7400,7200,7100]},
     {name:'离开人数', color:'#52c41a', data:[7400,7700,7900,8200,8600,9300,10600,12100,12800,12500,12000,11600,11200,11500,11900,12400,12800,12300,11200,9600,8500,8000,7800,7600,7700,7500,7300,7200,7000,6900]},
-    {name:'净流入',   color:'#faad14', data:[200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200]},
+
     {name:'同时在场峰值', color:'#722ed1', data:[265,275,280,285,295,302,296,305,300,285,270,260,255,257,265,275,285,280,265,245,235,230,225,223,225,220,215,213,210,208]}
   ];
   function renderTrend(){
@@ -259,14 +252,13 @@
       : (rng==='本周' ? [{i:0,t:'周一'},{i:6,t:'周日'}] : [{i:0,t:'1日'},{i:7,t:'8日'},{i:14,t:'15日'},{i:21,t:'22日'},{i:29,t:'30日'}]);
     var series = baseSrc.map(function(s){ return {name:s.name,color:s.color,hidden:s.hidden,data:s.data}; });
     if(trendCmpActive !== 'none'){
-      var suffix = trendCmpActive === 'yesterday' ? ' 昨日' : ' 上周';
+      var suffix = rng==='今日' ? ' 昨日' : rng==='本周' ? ' 上周' : rng==='本月' ? ' 上月' : ' 上一周期';
       cmpSrc.forEach(function(s,i){
         var a = baseSrc[i];
         series.push({name:a.name + suffix, color:a.color, hidden:a.hidden, data:s.data, cmp:true});
       });
     }
     lineChart(document.getElementById('trendChart'), series, xLabels, document.getElementById('trendLegend'));
-    renderTrendDiff();
     renderTrendTable(series, gran, n);
   }
   function toggleTrend(i,on){
@@ -277,25 +269,6 @@
   function onTrendCompareChange(){
     trendCmpActive = document.getElementById('trendCmp').value;
     renderTrend();
-  }
-  function renderTrendDiff(){
-    var bar = document.getElementById('trendDiffBar');
-    if(trendCmpActive === 'none'){ bar.style.display='none'; return; }
-    bar.style.display='';
-    var label = trendCmpActive === 'yesterday' ? '较昨日同期' : '较上周同期';
-    var rng = document.getElementById('trendRange').value;
-    var base = rng==='本周'?trendWeekSeries : rng==='本月'?trendMonthSeries : trendSeries;
-    var cmpD = rng==='本周'?trendWeekCmp : rng==='本月'?trendMonthCmp : trendCmpData;
-    var items = base.filter(function(s){return !s.hidden;}).map(function(s,i){
-      var today = s.data.reduce(function(a,b){return a+b;},0);
-      var cmp  = cmpD[i].data.reduce(function(a,b){return a+b;},0);
-      var diff = today - cmp;
-      var pct = cmp>0 ? Math.round(diff/cmp*1000)/10 : 0;
-      var color = diff>=0 ? '#ff4d4f' : '#52c41a';
-      var arrow = diff>=0 ? '↑' : '↓';
-      return '<span style="margin-right:16px">'+s.name+' <b style="color:'+color+'">'+arrow+' '+(diff>=0?'+':'')+pct+'%</b></span>';
-    });
-    bar.innerHTML = '<span style="color:var(--ant-text-secondary);margin-right:8px">'+label+'：</span>' + items.join('');
   }
   function renderTrendTable(series, gran, n){
     var vis = series.filter(function(s){return !s.hidden;});
@@ -356,11 +329,11 @@
   function getAreas(){ return document.getElementById('rankTime').value==='今日'?areasToday:areasWeek; }
 
   function renderRank(){
-    // 简化：只按时间范围，固定进入人数降序，同比/环比同时展示
+    // 简化：只按时间范围，固定进入人数降序，展示同比
     var areas = getAreas();
     var rows = areas.slice().sort(function(a,b){ return b.in-a.in; });
     document.getElementById('rankBody').innerHTML=rows.map(function(d,i){
-      return '<tr><td>'+(i+1)+'</td><td>'+d.name+'</td><td>'+fmt(d.in)+'</td><td>'+fmt(d.out)+'</td><td>'+d.peak+'</td><td>'+pct(d.yoy)+'</td><td>'+pct(d.mom)+'</td><td><button class="ant-btn ant-btn-text ant-btn-sm" onclick="drillTo(\''+d.name+'\')">查看详情</button></td></tr>';
+      return '<tr><td>'+(i+1)+'</td><td>'+d.name+'</td><td>'+fmt(d.in)+'</td><td>'+fmt(d.out)+'</td><td>'+d.peak+'</td><td>'+pct(d.yoy)+'</td><td><button class="ant-btn ant-btn-text ant-btn-sm" onclick="drillTo(\''+d.name+'\')">查看详情</button></td></tr>';
     }).join('');
   }
 

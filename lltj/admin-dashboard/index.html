@@ -53,7 +53,6 @@
       radial-gradient(circle at 20% 70%, rgba(22,119,255,0.5) 0%, transparent 30%),
       #0a1929; }
     body.screen-mode .ant-select { background:#15375c; color:#fff; border-color:#3a6ba8; }
-    body.screen-mode .exit-screen-btn { display:inline-flex !important; }
     /* 兜底：未用变量的黑色/深色文字统一提亮（保留语义色 success/warning/error/primary 与告警红/正常绿） */
     body.screen-mode p, body.screen-mode span, body.screen-mode div, body.screen-mode td, body.screen-mode th, body.screen-mode label, body.screen-mode .num { color:#ffffff; }
     body.screen-mode .text-error, body.screen-mode .rc-trend.up { color:#ff7a7a !important; }
@@ -72,11 +71,6 @@
     <div class="logo"><i class="fa-solid fa-people-group"></i></div>
     <span class="app-name">园区人员热力图与流量统计</span>
     <div class="spacer"></div>
-    <span class="nav-action" id="navBell"><i class="fa-regular fa-bell mr-1"></i><span id="navBellCount">3</span></span>
-    <span class="role-switch"></span><div class="flex items-center gap-2 user-block" style="color:rgba(255,255,255,0.85);">
-      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
-      <span style="font-size:13px;">管理员·王</span>
-    </div>
   </header>
 
   <div class="content-wrap">
@@ -85,12 +79,12 @@
       <a class="menu-item active" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
+      <a class="menu-item" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
+      <a class="menu-item" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
+      <a class="menu-item" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
+      <a class="menu-item" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
+      <a class="menu-item" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
       <div class="menu-group-title">监控</div>
       <a class="menu-item" href="../admin-screen/index.html"><i class="fa-solid fa-display"></i>监控中心大屏</a>
     </aside>
@@ -101,16 +95,13 @@
       </div>
       <div id="visitorTip" class="ant-alert ant-alert-warning" style="display:none;gap:8px;padding:6px 12px;margin-bottom:12px;background:#fffbe6;border:1px solid #ffe58f;border-radius:6px;">
         <i class="fa-solid fa-lock" style="color:var(--ant-warning);margin-top:2px"></i>
-        <span style="font-size:12px;color:var(--ant-text-secondary)">只读访客视图：仅可查看总览、热力图、大屏与流量趋势；不可导出、不可配置、不可访问排行/停留/关联/区域监测/报表（见 4.3 权限矩阵）。</span>
+        <span style="font-size:12px;color:var(--ant-text-secondary)">只读访客视图：仅可查看总览、热力图、大屏与流量趋势；不可导出、不可配置、不可访问排行/区域监测/报表（见 4.3 权限矩阵）。</span>
       </div>
 
       <div class="flex items-center justify-between mb-4">
         <div class="page-title" style="margin-bottom:0;">人流分析总览</div>
         <div class="flex items-center gap-3">
-          <label class="ant-checkbox"><input type="checkbox" id="autoRefresh" checked onchange="toggleRefresh()"><span>30 秒自动刷新</span></label>
-          <button class="ant-btn ant-btn-primary" onclick="refreshNow()"><i class="fa-solid fa-rotate"></i> 立即刷新</button>
-          <button class="ant-btn" onclick="enterScreenMode()"><i class="fa-solid fa-expand"></i> 投屏模式</button>
-          <button class="ant-btn ant-btn-primary exit-screen-btn" style="display:none;" onclick="exitScreenMode()"><i class="fa-solid fa-compress"></i> 退出投屏</button>
+          <button class="ant-btn" id="screenModeBtn" onclick="enterScreenMode()"><i class="fa-solid fa-expand"></i> 投屏模式</button>
         </div>
       </div>
 
@@ -173,10 +164,8 @@
           <div class="ant-card-head"><div class="ant-card-head-title">今日分时流量趋势</div></div>
           <div class="ant-card-body">
             <div class="flex items-center gap-4 mb-3 text-xs">
-              <span><span class="status-dot" style="background:#1677ff"></span>进入人数</span>
-              <span><span class="status-dot" style="background:#52c41a"></span>离开人数</span>
               <span><span class="status-dot" style="background:#faad14"></span>同时在场</span>
-              <span class="ml-auto text-tertiary">单位：人 · 粒度：小时</span>
+              <span class="ml-auto text-tertiary">单位：人 · 粒度：小时 · 未到时段展示 0</span>
             </div>
             <div class="spark" id="trendSpark"></div>
             <div class="flex justify-between text-xs text-tertiary mt-1">
@@ -189,7 +178,7 @@
           <div class="ant-card-head"><div class="ant-card-head-title">园区热力图（缩略）</div></div>
           <div class="ant-card-body">
             <div class="heat-thumb" style="height:180px;border-radius:4px;position:relative;">
-              <div style="position:absolute;top:8px;left:8px;font-size:11px;color:var(--ant-text);background:rgba(255,255,255,0.85);padding:2px 6px;border-radius:3px;">实时 · 5 秒刷新</div>
+              <div style="position:absolute;top:8px;left:8px;font-size:11px;color:var(--ant-text);background:rgba(255,255,255,0.85);padding:2px 6px;border-radius:3px;">实时 · 30 秒刷新</div>
               <div style="position:absolute;bottom:8px;right:8px;font-size:11px;background:rgba(0,0,0,0.5);color:#fff;padding:2px 6px;border-radius:3px;">点击查看大图 →</div>
             </div>
           </div>
@@ -213,7 +202,7 @@
           </div>
           <div class="ant-card-body" style="padding:0">
             <table class="ant-table">
-              <thead><tr><th>区域</th><th width="90">类型</th><th width="120">时间</th></tr></thead>
+              <thead><tr><th>统计对象</th><th width="90">类型</th><th width="120">时间</th></tr></thead>
               <tbody id="recentAlertBody"></tbody>
             </table>
           </div>
@@ -264,25 +253,27 @@
     var evs=MockStore.getEvents();
     var pending=evs.filter(function(e){return e.status==='待处理';});
     document.getElementById('kpiPendingAlert').textContent=pending.length;
-    document.getElementById('navBellCount').textContent=pending.length;
     var top=evs.slice(0,5);
     var tagCls={'超员':'ant-tag-red','聚集':'ant-tag-orange','客流异常':'ant-tag-purple'};
     document.getElementById('recentAlertBody').innerHTML=top.map(function(e){
       var t=e.triggerTime.substring(11,16);
       var suffix=(e.status==='已处理'||e.status==='误报')?' · '+e.status:'';
       var op=(e.status==='已处理'||e.status==='误报')?'opacity:0.55':'';
-      return '<tr style="'+op+'"><td>'+e.group+'</td><td><span class="ant-tag '+(tagCls[e.type]||'ant-tag-red')+'">'+e.type+'</span></td><td class="text-tertiary text-sm">'+t+suffix+'</td></tr>';
+      var obj = (e.type==='聚集') ? (e.area||e.group) : e.group; // 评审：超员/客流异常统计建筑，聚集统计区域
+      return '<tr style="'+op+'"><td>'+obj+'</td><td><span class="ant-tag '+(tagCls[e.type]||'ant-tag-red')+'">'+e.type+'</span></td><td class="text-tertiary text-sm">'+t+suffix+'</td></tr>';
     }).join('')||'<tr><td colspan="3" class="text-tertiary text-center" style="padding:16px">暂无告警</td></tr>';
   }
   function _startTimer(){ if(_refreshTimer) clearInterval(_refreshTimer); _refreshTimer=setInterval(renderAlerts,30000); }
-  function toggleRefresh(){
-    var on=document.getElementById('autoRefresh').checked;
-    if(on){ _startTimer(); showToast('已开启 30 秒自动刷新'); } else { if(_refreshTimer){clearInterval(_refreshTimer);_refreshTimer=null;} showToast('已关闭自动刷新'); }
-  }
-  function refreshNow(){ renderAlerts(); showToast('数据已刷新'); }
   renderAlerts(); _startTimer();
-  function enterScreenMode(){ document.body.classList.add('screen-mode'); showToast('已进入投屏模式，按 Esc 退出'); }
-  function exitScreenMode(){ document.body.classList.remove('screen-mode'); }
+  function enterScreenMode(){
+    document.body.classList.add('screen-mode');
+    var b=document.getElementById('screenModeBtn'); if(b) b.style.display='none'; // 评审：大屏内去掉投屏按钮
+    showToast('已进入投屏模式，按 Esc 退出');
+  }
+  function exitScreenMode(){
+    document.body.classList.remove('screen-mode');
+    var b=document.getElementById('screenModeBtn'); if(b) b.style.display='';
+  }
   document.addEventListener('keydown', function(e){ if(e.key==='Escape' && document.body.classList.contains('screen-mode')){ exitScreenMode(); } });
   if(new URLSearchParams(location.search).get('mode')==='screen'){ document.body.classList.add('screen-mode'); }
 </script>

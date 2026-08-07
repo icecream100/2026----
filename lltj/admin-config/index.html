@@ -93,11 +93,6 @@
     <div class="logo"><i class="fa-solid fa-people-group"></i></div>
     <span class="app-name">园区人员热力图与流量统计</span>
     <div class="spacer"></div>
-    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
-    <span class="role-switch"></span><div class="flex items-center gap-2 user-block" style="color:rgba(255,255,255,0.85);">
-      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
-      <span style="font-size:13px;">管理员·王</span>
-    </div>
   </header>
 
   <div class="content-wrap">
@@ -106,12 +101,12 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
-      <a class="menu-item active" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
+      <a class="menu-item" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
+      <a class="menu-item" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
+      <a class="menu-item active" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
+      <a class="menu-item" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
+      <a class="menu-item" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
       <div class="menu-group-title">监控</div>
       <a class="menu-item" href="../admin-screen/index.html"><i class="fa-solid fa-display"></i>监控中心大屏</a>
     </aside>
@@ -172,7 +167,6 @@
         <span class="text-sm" style="font-weight:600;color:var(--ant-text)">统计能力（单选）</span>
         <label class="ant-radio"><input type="radio" name="capSel" value="capLine" onchange="selectCap('capLine')"><span>出入计数</span></label>
         <label class="ant-radio"><input type="radio" name="capSel" value="capRegion" onchange="selectCap('capRegion')"><span>区域统计</span></label>
-        <label class="ant-radio"><input type="radio" name="capSel" value="capNone" onchange="selectCap('capNone')"><span>仅标定（只参与热力图）</span></label>
         <span class="text-xs text-tertiary" style="margin-left:auto"><i class="fa-solid fa-circle-info mr-1"></i>一设备一算法</span>
       </div>
     </div>
@@ -183,7 +177,7 @@
         <div class="ant-card ant-card-bordered">
           <div class="ant-card-head">
             <div class="ant-card-head-title">最新关键帧</div>
-            <div class="ant-card-extra"><span class="text-sm" style="color:var(--ant-text-tertiary)">更新于 <span id="frameUpdatedAt">--:--:--</span></span></div>
+            <div class="ant-card-extra"><button class="ant-btn ant-btn-sm" onclick="refreshFrame()"><i class="fa-solid fa-camera"></i> 刷新（截取当前帧）</button></div>
           </div>
           <div class="ant-card-body">
             <div class="video-canvas" id="videoCanvas2" style="height:400px;" onclick="onCanvasClick(event)" ondblclick="onCanvasDblClick(event)">
@@ -213,10 +207,6 @@
               </div>
               <div class="text-sm text-tertiary mb-2">已配置计数线 <span id="lineCountCfg">0</span></div>
               <div id="configLineList"></div>
-              <div class="preview-bar" style="margin-top:10px;background:#f0f5ff;border:1px solid #d6e4ff;border-radius:6px;padding:8px 10px;font-size:12px;">
-                <span class="text-secondary"><i class="fa-solid fa-eye mr-1"></i>实时预览：越线 <b id="previewCount" style="color:var(--ant-primary)">0</b> 次（方向按进方向计）</span>
-                <button class="ant-btn ant-btn-text ant-btn-sm" onclick="incPreview()" style="float:right"><i class="fa-solid fa-play"></i> 模拟越线 +1</button>
-              </div>
             </div>
             <div id="regionTools">
               <div class="divider"><span>绘制工具 · 区域统计</span></div>
@@ -225,12 +215,6 @@
               </div>
               <div class="text-sm text-tertiary mb-2">已配置统计区域 <span id="regionCountCfg">0</span></div>
               <div id="regionListConfig"></div>
-              <div class="preview-bar" style="margin-top:10px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:8px 10px;font-size:12px;">
-                <span style="color:var(--ant-text-secondary)"><i class="fa-solid fa-eye mr-1"></i>实时预览：区域人数 <b id="previewRegion" style="color:#52c41a">0</b> 人（估算）</span>
-              </div>
-            </div>
-            <div id="calibOnlyTip" style="display:none;background:#f9f0ff;border:1px solid #d3adf7;border-radius:6px;padding:10px;font-size:12px;color:var(--ant-text-secondary);line-height:1.7;">
-              <i class="fa-solid fa-circle-info mr-1" style="color:#722ed1"></i>该设备仅参与热力图（需在设备行「标定」完成相机标定），无需绘制计数线/统计区域，可直接点击「完成并保存」。
             </div>
           </div>
         </div>
@@ -571,49 +555,16 @@
     walk(groups, []);
   }
   function renderAll(){ renderGroups(); renderDevices(); }
-  // ===== 配置健康度条（P0：动态计算 + 可定位） =====
-  function healthData(){
-    var leaves=0, parkCnt=0;
-    function walk(nodes){ nodes.forEach(function(g){
-      if(g.children && g.children.length){ walk(g.children); }
-      else { leaves++; if(g.level==='park') parkCnt++; }
-    }); }
-    walk(groups);
-    var lineCnt=0, regionCnt=0, lineNeed=0, regionNeed=0;
-    Object.keys(deviceConfigs).forEach(function(k){
-      if(!devices.some(function(d){return d.name===k;})) return;
-      var c = deviceConfigs[k];
-      lineCnt += c.lines.length; regionCnt += c.regions.length;
-      if(c.capState.capLine) lineNeed++;
-      if(c.capState.capRegion) regionNeed++;
-    });
-    var cfgCnt = devices.filter(function(d){return deviceStatus(d.name)==='已配置';}).length;
-    var calibDone = mapCams.filter(function(c){return c.calibrated;}).length;
-    return {
-      leaves:leaves, park:parkCnt, cfg:cfgCnt, assoc:devices.length,
-      line:lineCnt, lineNeed:lineNeed, region:regionCnt, regionNeed:regionNeed,
-      calib:calibDone, calibNeed:devices.length
-    };
-  }
+  // ===== 配置健康度条（评审：只保留园区平面图库配置） =====
   function renderHealth(){
     var el = document.getElementById('healthBar'); if(!el) return;
-    var hd = healthData();
-    function item(label, inner){
-      return '<span class="text-xs" style="color:var(--ant-text-secondary)">'+label+' <b style="color:var(--ant-primary)">'+inner+'</b></span>';
-    }
     el.innerHTML = '<div style="background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;padding:10px 14px;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;">'
       + '<span class="text-sm font-semibold" style="color:var(--ant-text)"><i class="fa-solid fa-clipboard-check mr-1" style="color:var(--ant-primary)"></i>配置健康度</span>'
-      + item('统计分组', hd.leaves+'（园区级 '+hd.park+'）')
-      + item('设备算法', hd.cfg+'/'+hd.assoc)
-      + item('出入计数', hd.line+'/'+hd.lineNeed)
-      + item('区域统计', hd.region+'/'+hd.regionNeed)
-      + item('热力图参与', hd.calib+'/'+hd.calibNeed)
-      + '<span class="text-xs" style="margin-left:auto;display:flex;align-items:center;gap:12px">'
-        + '<a class="ant-btn ant-btn-link ant-btn-sm" href="javascript:;" onclick="openMapLib()" title="园区平面图库管理"><i class="fa-solid fa-map mr-1" style="color:var(--ant-primary)"></i>园区平面图库 <span class="text-xs" id="mapLibCount" style="color:var(--ant-text-tertiary)"></span></a>'
-        + '</span>'
+      + '<span class="text-xs" style="color:var(--ant-text-secondary)">园区平面图库 <b style="color:var(--ant-primary)" id="mapLibCount">0</b> 张</span>'
+      + '<span class="text-xs" style="margin-left:auto"><a class="ant-btn ant-btn-link ant-btn-sm" href="javascript:;" onclick="openMapLib()"><i class="fa-solid fa-map mr-1" style="color:var(--ant-primary)"></i>园区平面图库</a></span>'
       + '</div>';
     var mlc = document.getElementById('mapLibCount');
-    if(mlc) mlc.textContent = mockMaps.length + ' 张';
+    if(mlc) mlc.textContent = mockMaps.length;
   }
   function openGroupModal(){ editingGroupId=null; document.getElementById('groupModalTitle').textContent='新增分组'; document.getElementById('groupNameInput').value=''; document.getElementById('groupNameError').classList.add('hidden'); openModal('groupModal'); }
   var editingGroupId=null;
@@ -710,6 +661,7 @@
   }
 
   function startDrawLine(editIdx){
+    if(typeof editIdx!=='number' && configLines.length>=1){ showToast('每台设备最多 1 条计数线（请先编辑或删除现有线）'); return; }
     drawLineMode=true; linePts=[]; window._editLineIdx=(typeof editIdx==='number')?editIdx:null;
     var svg=document.getElementById('drawSvg');
     svg.style.pointerEvents='auto'; svg.style.cursor='crosshair';
@@ -945,9 +897,6 @@
     renderDevices(); renderHealth();
     showToast('已关联「'+selectedDevice+'」（曾保存的配置自动恢复为已配置）');
   }
-  // 预览计数（并入 Step2 实时预览）
-  var previewCount=0;
-  function incPreview(){ previewCount++; document.getElementById('previewCount').textContent=previewCount; showToast('检测到越线，计数 +1'); }
   // ===== 相机标定（热力图参与能力）=====
   // 建立画面坐标->平面图坐标的单应性映射：点选≥4对对应点，计算矩阵，映射检测框底中心验证。
   // 园区平面图库（P-001-T2）：多底图，单底图为特例（热力图切换器自动隐藏）
@@ -1109,7 +1058,7 @@
     var total=document.getElementById('mapLibTotal'); if(total) total.textContent=mockMaps.length;
     var def=document.getElementById('mapLibDefault');
     if(def) def.textContent=(mockMaps.find(function(m){return m.isDefault;})||{name:'-'}).name;
-    var cnt=document.getElementById('mapLibCount'); if(cnt) cnt.textContent=mockMaps.length+' 张';
+    var cnt=document.getElementById('mapLibCount'); if(cnt) cnt.textContent=mockMaps.length;
     if(!mockMaps.length){
       el.innerHTML='<div style="padding:30px 0;text-align:center;color:var(--ant-text-tertiary);font-size:13px;"><i class="fa-regular fa-map mb-2" style="font-size:28px;display:block"></i>暂无底图，请点击「上传底图」</div>';
       return;
@@ -1335,6 +1284,7 @@
     document.getElementById('drawRegionBtns').innerHTML = '<button class="ant-btn ant-btn-primary w-full mb-2" onclick="finishDrawRegion()"><i class="fa-solid fa-check"></i> 完成绘制</button><button class="ant-btn w-full mb-3" onclick="cancelDrawRegion()"><i class="fa-solid fa-xmark"></i> 取消绘制</button>';
   }
   function startDrawRegion(){
+    if(regionsConfig.length>=1){ showToast('每台设备最多 1 个统计区域（请先编辑或删除现有区域）'); return; }
     drawMode = true; drawPoints = [];
     document.getElementById('drawHint').style.display = 'block';
     document.getElementById('videoCanvas2').style.cursor = 'crosshair';
@@ -1442,11 +1392,6 @@
     // 画布=最新关键帧（非直播流）
     var vc = document.getElementById('videoCanvas2');
     if(vc) vc.style.backgroundImage = frameBgSvg(name||'cam');
-    var fa = document.getElementById('frameUpdatedAt');
-    if(fa){
-      var d=new Date(), p=function(n){return (n<10?'0':'')+n;};
-      fa.textContent = p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
-    }
     // 载入该设备已保存配置（P0 闭环：配置按设备隔离）
     var defMap = mockMaps.find(function(m){return m.isDefault;}) || mockMaps[0];
     var cfg = deviceConfigs[name] || {capState:{capLine:false, capRegion:false}, lines:[], regions:[], mapId:defMap?defMap.id:null};
@@ -1460,6 +1405,13 @@
     renderRegionListConfig();
     renderStep2ByCap();
     renderDrawCanvas();
+  }
+  function refreshFrame(){
+    // 评审：刷新 = 重新截取当前帧（重新生成关键帧背景）
+    var name = curCfgName || 'cam';
+    var vc = document.getElementById('videoCanvas2');
+    if(vc) vc.style.backgroundImage = frameBgSvg(name);
+    showToast('已重新截取当前帧');
   }
   function saveDeviceConfig(){
     if(!curCfgName) return;
@@ -1509,28 +1461,22 @@
   // ===== 统计能力单选（Step1，研发建议：一设备一算法，要么出入计数要么区域统计） =====
   var capState = {capLine:true, capRegion:false};
   function selectCap(id){
-    // 单选：三态（出入计数/区域统计/仅标定=都不选）
-    if(id==='capNone'){ capState.capLine=false; capState.capRegion=false; }
-    else {
-      var pick = !capState[id];
-      capState.capLine = (id==='capLine') ? pick : false;
-      capState.capRegion = (id==='capRegion') ? pick : false;
-    }
+    // 单选：出入计数/区域统计 二选一（评审：去掉仅标定）
+    capState.capLine = (id==='capLine');
+    capState.capRegion = (id==='capRegion');
     renderCapState();
   }
   function renderCapState(){
-    var none = !capState.capLine && !capState.capRegion;
     document.querySelectorAll('input[name="capSel"]').forEach(function(r){
-      r.checked = (r.value==='capLine' && capState.capLine) || (r.value==='capRegion' && capState.capRegion) || (r.value==='capNone' && none);
+      r.checked = (r.value==='capLine' && capState.capLine) || (r.value==='capRegion' && capState.capRegion);
     });
     renderStep2ByCap();
   }
   function renderStep2ByCap(){
     var line = !!capState.capLine, region = !!capState.capRegion;
-    var lt = document.getElementById('lineTools'), rt = document.getElementById('regionTools'), ct = document.getElementById('calibOnlyTip');
+    var lt = document.getElementById('lineTools'), rt = document.getElementById('regionTools');
     if(lt) lt.style.display = line ? '' : 'none';
     if(rt) rt.style.display = region ? '' : 'none';
-    if(ct) ct.style.display = (!line && !region) ? '' : 'none';
   }
   renderCapState();
 </script>

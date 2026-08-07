@@ -20,8 +20,6 @@
 <div class="layout">
   <header class="header">
     <div class="logo"><i class="fa-solid fa-people-group"></i></div><span class="app-name">园区人员热力图与流量统计</span><div class="spacer"></div>
-    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
-    <span class="role-switch"></span><div class="flex items-center gap-2 user-block" style="color:rgba(255,255,255,.85);"><div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div><span style="font-size:13px;">管理员·王</span></div>
   </header>
   <div class="content-wrap">
     <aside class="sider">
@@ -29,12 +27,12 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
+      <a class="menu-item" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
+      <a class="menu-item" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
+      <a class="menu-item" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
-      <a class="menu-item active" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
+      <a class="menu-item active" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
+      <a class="menu-item" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
       <div class="menu-group-title">监控</div>
       <a class="menu-item" href="../admin-screen/index.html"><i class="fa-solid fa-display"></i>监控中心大屏</a>
     </aside>
@@ -49,7 +47,7 @@
         <div class="ant-card-head"><div class="ant-card-head-title">规则列表 · <span id="ruleCount">0 条</span></div></div>
         <div class="ant-card-body" style="padding:0">
           <table class="ant-table">
-            <thead><tr><th width="70">类型</th><th>统计分组</th><th>阈值</th><th width="70">持续</th><th width="60">级别</th><th width="130">通知方式</th><th width="70">状态</th><th width="100">近7天触发</th><th width="130">最近触发</th><th width="160">操作</th></tr></thead>
+            <thead><tr><th width="70">类型</th><th>统计对象</th><th>阈值</th><th width="70">持续</th><th width="60">级别</th><th width="130">通知方式</th><th width="70">状态</th><th width="100">近7天触发</th><th width="130">最近触发</th><th width="160">操作</th></tr></thead>
             <tbody id="ruleBody"></tbody>
           </table>
         </div>
@@ -71,21 +69,22 @@
         </div>
         <div class="text-xs" id="typeHint" style="margin-top:6px;color:var(--ant-text-tertiary);line-height:1.6"></div>
       </div>
-      <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">统计分组</label>
-        <select class="ant-select" id="groupSel" style="width:100%"><option>食堂就餐区</option><option>B 栋大堂</option><option>广场</option><option>A 栋办公区</option><option>地下车库入口</option></select>
+      <div class="ant-form-item" id="groupRow"><label class="ant-form-label ant-form-label-required">统计分组</label>
+        <select class="ant-select" id="groupSel" style="width:100%"><option>大门（园区级）</option><option>食堂就餐区</option><option>B 栋大堂</option><option>广场</option><option>A 栋办公区</option><option>地下车库入口</option></select>
+      </div>
+      <div class="ant-form-item" id="regionRow" style="display:none"><label class="ant-form-label ant-form-label-required">统计区域（已配置区域统计算法）</label>
+        <select class="ant-select" id="regionSel" style="width:100%">
+          <option>食堂·就餐区</option><option>食堂·入口取餐区</option><option>广场·主入口区域</option><option>A 栋·大堂区域</option><option>B 栋·大堂区域</option><option>地下车库·入口区域</option>
+        </select>
       </div>
       <div class="ant-form-item"><label class="ant-form-label ant-form-label-required" id="thrLabel">人数阈值</label>
         <input type="number" class="ant-input" id="thrInput" placeholder="正整数" min="1">
       </div>
-      <div class="ant-form-item" id="radiusRow" style="display:none"><label class="ant-form-label ant-form-label-required">聚集半径（米）</label>
-        <input type="number" class="ant-input" id="radiusInput" placeholder="如 5" min="0.1" step="0.1">
-      </div>
       <div class="ant-form-item" id="dirRow" style="display:none"><label class="ant-form-label ant-form-label-required">判定方向</label>
         <select class="ant-select" id="dirSel" style="width:100%"><option value="both">双向（突增+突减）</option><option value="up">仅突增</option><option value="down">仅突减</option></select>
       </div>
-      <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">持续时间</label>
-        <select class="ant-select" id="durSel" style="width:100%"><option value="10">10 秒</option><option value="30" selected>30 秒</option><option value="60">1 分钟</option><option value="300">5 分钟</option><option value="600">10 分钟</option><option value="0">自定义（秒）</option></select>
-        <input type="number" class="ant-input mt-2" id="durCustom" placeholder="自定义秒数" style="display:none" min="1">
+      <div class="ant-form-item" id="durRow"><label class="ant-form-label ant-form-label-required">持续时间</label>
+        <select class="ant-select" id="durSel" style="width:100%"><option value="10">10 秒</option><option value="30" selected>30 秒</option><option value="60">1 分钟</option><option value="300">5 分钟</option><option value="600">10 分钟</option></select>
       </div>
       <div class="ant-form-item"><label class="ant-form-label ant-form-label-required">告警级别</label>
         <select class="ant-select" id="levelSel"><option>警告</option><option>紧急</option></select>
@@ -115,11 +114,11 @@ var rules = MockStore.getRules();
 function renderRules(){
   var ll='';
   rules.forEach(function(r){
-    var thr=r.type==='聚集'?r.threshold+'人 / '+r.radius+'m':(r.type==='客流异常'?'±'+r.threshold+'%（上周同时段）':r.threshold+' 人');
+    var thr=r.type==='聚集'?r.threshold+' 人':(r.type==='客流异常'?'±'+r.threshold+'%（上周同时段）':r.threshold+' 人');
     var dur=r.duration<60?r.duration+'秒':Math.floor(r.duration/60)+'分'+(r.duration%60?(r.duration%60)+'秒':'');
     ll+='<tr>'
       +'<td>'+r.type+'</td>'
-      +'<td>'+r.group+'</td><td class="tnum">'+thr+'</td><td class="tnum">'+dur+'</td>'
+      +'<td>'+(r.type==='聚集'?(r.region||r.group):r.group)+'</td><td class="tnum">'+thr+'</td><td class="tnum">'+dur+'</td>'
       +'<td>'+r.level+'</td>'
       +'<td><span class="text-xs">站内信</span></td>'
       +'<td><div class="toggle-sw'+(r.active?' on':'')+'" onclick="toggleRule('+r.id+')" title="'+(r.active?'启用中·点击禁用':'已禁用·点击启用')+'"></div></td>'
@@ -154,50 +153,53 @@ function openModal(){editingId=null;resetForm();document.getElementById('modalTi
 function editRule(id){editingId=id;var r=rules.find(function(x){return x.id===id;});resetForm();
   document.getElementById('modalTitle').textContent='编辑告警规则 · '+r.group;
   document.querySelector('input[name="alertType"][value="'+(r.type==='超员'?'overcrowd':r.type==='聚集'?'gather':'flowAnomaly')+'"]').checked=true;switchType();
-  document.getElementById('groupSel').value=r.group;document.getElementById('thrInput').value=r.threshold;
-  if(r.radius) document.getElementById('radiusInput').value=r.radius;
+  if(r.type==='聚集'){ document.getElementById('regionSel').value=r.region||r.group; }
+  else { document.getElementById('groupSel').value=r.group; }
+  document.getElementById('thrInput').value=r.threshold;
   if(r.direction) document.getElementById('dirSel').value=r.direction;
   var durVal=r.duration==10?'10':r.duration==30?'30':r.duration==60?'60':r.duration==300?'300':r.duration==600?'600':'0';
-  document.getElementById('durSel').value=durVal; if(durVal==='0'){document.getElementById('durCustom').style.display='';document.getElementById('durCustom').value=r.duration;}
+  document.getElementById('durSel').value=durVal;
   document.getElementById('levelSel').value=r.level;
   document.getElementById('ruleModalMask').classList.add('active');updateSummary();
 }
 function closeModal(){document.getElementById('ruleModalMask').classList.remove('active');editingId=null;}
 function resetForm(){
   document.querySelector('input[name="alertType"][value="overcrowd"]').checked=true;switchType();
-  document.getElementById('thrInput').value='';document.getElementById('radiusInput').value='';
-  document.getElementById('durSel').value='30';document.getElementById('durCustom').style.display='none';
+  document.getElementById('thrInput').value='';
+  document.getElementById('durSel').value='30';
   document.getElementById('levelSel').value='警告';updateSummary();
 }
 function switchType(){
   var v=document.querySelector('input[name="alertType"]:checked').value;
   var g=v==='gather', fa=v==='flowAnomaly';
   document.getElementById('thrLabel').textContent=fa?'偏差阈值（%，相对上周同时段均值）':(g?'聚集人数阈值':'人数阈值');
-  document.getElementById('radiusRow').style.display=g?'':'none';
   document.getElementById('dirRow').style.display=fa?'':'none';
+  document.getElementById('durRow').style.display=fa?'none':'';
+  // 评审：超员/客流异常选统计分组（园区/建筑），聚集选统计区域
+  document.getElementById('groupRow').style.display=g?'none':'';
+  document.getElementById('regionRow').style.display=g?'':'none';
   document.getElementById('levelSel').value=(g||fa)?'警告':document.getElementById('levelSel').value;
   var hint=document.getElementById('typeHint');
   if(hint){
     hint.innerHTML = fa
       ? '<i class="fa-solid fa-circle-info mr-1"></i>客流异常：与上周同时段对比，识别人数突增/突减'
       : g
-      ? '<i class="fa-solid fa-circle-info mr-1"></i>聚集：区域内人群扎堆（半径 '+document.getElementById('radiusInput').value+' 米内 ≥ 阈值人数，逐人精确）'
-      : '<i class="fa-solid fa-circle-info mr-1"></i>超员：按分组总人数（净流入估算）判断是否超容量';
+      ? '<i class="fa-solid fa-circle-info mr-1"></i>聚集：对选中的统计区域判定区域人数（逐人精确）≥ 阈值，人群扎堆'
+      : '<i class="fa-solid fa-circle-info mr-1"></i>超员：按统计分组（园区/建筑）总人数（净流入估算）判断是否超容量';
   }
   updateSummary();
 }
 document.getElementById('durSel').onchange=function(){
-  document.getElementById('durCustom').style.display=this.value==='0'?'':'none';
   updateSummary();
 };
 
 function updateSummary(){
   var v=document.querySelector('input[name="alertType"]:checked').value;
   var t=v==='gather'?'聚集':(v==='flowAnomaly'?'客流异常':'超员');
-  var g=document.getElementById('groupSel').value;
+  var g=(t==='聚集')?document.getElementById('regionSel').value:document.getElementById('groupSel').value;
   var thr=document.getElementById('thrInput').value||'?';
   var dur=document.getElementById('durSel').value;
-  var durTxt=dur==='0'?(document.getElementById('durCustom').value||'?')+'秒':(dur<60?dur+'秒':Math.floor(dur/60)+'分钟');
+  var durTxt=t==='客流异常'?'15 分钟':(dur<60?dur+'秒':Math.floor(dur/60)+'分钟'); // 客流异常窗口时长固定15分钟（评审：去持续）
   var lv=document.getElementById('levelSel').value;
   var dirSel=document.getElementById('dirSel').value;
   var dirTxt=dirSel==='up'?'突增':dirSel==='down'?'突减':'突增/突减';
@@ -214,18 +216,15 @@ function submitRule(){
   var thr=parseInt(document.getElementById('thrInput').value);
   if(!thr||thr<=0){showToast(t==='客流异常'?'请输入有效的偏差阈值（%）':'请输入有效的人数阈值');return;}
   if(t==='客流异常'&&(thr<5||thr>200)){showToast('偏差阈值需在 5%-200% 之间');return;}
-  var dur=parseInt(document.getElementById('durSel').value);
-  if(dur===0){dur=parseInt(document.getElementById('durCustom').value);if(!dur||dur<=0){showToast('请输入有效的持续时间');return;}}
-  var rad=t==='聚集'?parseFloat(document.getElementById('radiusInput').value):null;
-  if(t==='聚集'&&(!rad||rad<=0)){showToast('请输入有效的聚集半径');return;}
+  var dur=(t==='客流异常')?null:parseInt(document.getElementById('durSel').value);
   var dir=t==='客流异常'?document.getElementById('dirSel').value:null;
   var lv=document.getElementById('levelSel').value;
 
   if(editingId){
     var r=rules.find(function(x){return x.id===editingId;});
-    if(r){r.type=t;r.group=g;r.threshold=thr;r.radius=rad;r.direction=dir;r.duration=dur;r.level=lv;r.notify='站内信';}
+    if(r){r.type=t;r.group=g;r.threshold=thr;r.direction=dir;r.duration=dur;r.level=lv;r.notify='站内信';}
   }else{
-    rules.push({id:Date.now(),type:t,group:g,threshold:thr,radius:rad,direction:dir,duration:dur,level:lv,active:true,hit7d:0,lastHit:'-',notify:'站内信'});
+    rules.push({id:Date.now(),type:t,group:g,threshold:thr,direction:dir,duration:dur,level:lv,active:true,hit7d:0,lastHit:'-',notify:'站内信'});
   }
   MockStore.saveRules(rules);
   closeModal();renderRules();showToast(editingId?'规则已保存':'规则已创建，默认启用');

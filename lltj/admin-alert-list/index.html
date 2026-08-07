@@ -35,8 +35,6 @@
 <div class="layout">
   <header class="header">
     <div class="logo"><i class="fa-solid fa-people-group"></i></div><span class="app-name">园区人员热力图与流量统计</span><div class="spacer"></div>
-    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
-    <span class="role-switch"></span><div class="flex items-center gap-2 user-block" style="color:rgba(255,255,255,.85);"><div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div><span style="font-size:13px;">管理员·王</span></div>
   </header>
   <div class="content-wrap">
     <aside class="sider">
@@ -44,12 +42,12 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
+      <a class="menu-item" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
+      <a class="menu-item" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
+      <a class="menu-item" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
-      <a class="menu-item active" data-role-hide="visitor" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
+      <a class="menu-item" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
+      <a class="menu-item active" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
       <div class="menu-group-title">监控</div>
       <a class="menu-item" href="../admin-screen/index.html"><i class="fa-solid fa-display"></i>监控中心大屏</a>
     </aside>
@@ -62,8 +60,7 @@
         <div class="batch-bar" id="batchBar">
           <span class="text-sm">已选 <b id="batchCount">0</b> 条</span>
           <div class="flex gap-2">
-            <button class="ant-btn ant-btn-primary ant-btn-sm" onclick="batchConfirm()">一键确认</button>
-            <button class="ant-btn ant-btn-sm" onclick="batchResolve()">批量标记已处理</button>
+            <button class="ant-btn ant-btn-primary ant-btn-sm" onclick="batchResolve()">批量标记已处理</button>
             <button class="ant-btn ant-btn-sm" onclick="clearBatch()">取消选择</button>
           </div>
         </div>
@@ -74,7 +71,7 @@
             <div class="flex items-center gap-3 flex-wrap">
               <label class="text-sm text-secondary">类型</label><select class="ant-select" id="fType" style="width:110px"><option>全部</option><option>超员</option><option>聚集</option><option>客流异常</option></select>
               <label class="text-sm text-secondary">分组</label><select class="ant-select" id="fGroup" style="width:130px"><option>全部</option><option>食堂就餐区</option><option>B 栋大堂</option><option>广场</option><option>A 栋办公区</option></select>
-              <label class="text-sm text-secondary">状态</label><select class="ant-select" id="fStatus" style="width:100px"><option>全部</option><option>待处理</option><option>处理中</option><option>已恢复</option><option>已关闭</option><option>误报</option></select>
+              <label class="text-sm text-secondary">状态</label><select class="ant-select" id="fStatus" style="width:110px"><option>全部</option><option>待处理</option><option>处理中</option><option>已关闭</option><option>误报</option><option>无需处理</option></select>
               <label class="text-sm text-secondary">时间</label><input type="date" class="ant-input" value="2026-07-14" style="width:130px"> <span>-</span> <input type="date" class="ant-input" value="2026-07-16" style="width:130px">
               <button class="ant-btn ant-btn-primary" onclick="applyFilter()"><i class="fa-solid fa-search"></i> 查询</button>
               <button class="ant-btn" onclick="resetFilter()"><i class="fa-solid fa-rotate-right"></i> 重置</button>
@@ -87,7 +84,7 @@
           <div class="ant-card-head"><div class="ant-card-head-title">告警事件 · <span id="eventCountLabel">0 条</span></div></div>
           <div class="ant-card-body" style="padding:0">
             <table class="ant-table">
-              <thead><tr><th width="36"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th><th width="160">触发时间</th><th>统计分组</th><th width="70">类型</th><th width="70">级别</th><th width="90">触众人数</th><th width="80">状态</th><th width="90">时效</th><th width="180">操作</th></tr></thead>
+              <thead><tr><th width="36"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th><th width="160">触发时间</th><th>统计分组</th><th width="70">类型</th><th width="70">级别</th><th width="90">触发时人数</th><th width="80">状态</th><th width="180">操作</th></tr></thead>
               <tbody id="eventTableBody"></tbody>
             </table>
           </div>
@@ -106,7 +103,7 @@
         </div>
         <div class="ant-card ant-card-bordered mb-4">
           <div class="ant-card-head"><div class="ant-card-head-title">现场画面<span class="text-xs text-tertiary" style="font-weight:400;margin-left:8px">触发帧 + 最新帧对比（点击放大）</span></div></div>
-          <div class="ant-card-body" style="padding:14px 16px;">
+          <div class="ant-card-body" style="padding:14px 16px;display:none" id="detailFramesCard">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" id="detailFrames"></div>
           </div>
         </div>
@@ -204,33 +201,29 @@ function updateBatch(){
   else bar.classList.remove('show');
 }
 function clearBatch(){ document.querySelectorAll('.evt-cb').forEach(function(cb){cb.checked=false;}); document.getElementById('selectAll').checked=false; updateBatch(); }
-function batchConfirm(){
-  var cnt=Object.keys(selectedIds).length; if(!cnt) return;
-  events.forEach(function(e){if(selectedIds[e.id]&&e.status==='待处理'){e.status='处理中';e.confirmUser='管理员·王';e.confirmTime='2026-07-16 12:50:00';}});
-  MockStore.saveEvents(events); clearBatch(); applyFilterSilent(); renderEventTable(); showToast('已批量确认 '+cnt+' 条');
-}
 function batchResolve(){
   var cnt=Object.keys(selectedIds).length; if(!cnt) return;
-  events.forEach(function(e){if(selectedIds[e.id]&&e.status==='处理中'){e.status='已关闭';e.handleResult='已关闭';e.handleUser='管理员·王';e.handleTime='2026-07-16 12:55:00';e.sla='3分40秒';}});
+  // 评审：批量标记已处理 = 所有选中事件状态改为已关闭
+  events.forEach(function(e){if(selectedIds[e.id]){e.status='已关闭';e.handleResult='已关闭';e.handleUser='管理员·王';e.handleTime='2026-07-16 12:55:00';e.sla='3分40秒';}});
   MockStore.saveEvents(events); clearBatch(); applyFilterSilent(); renderEventTable(); showToast('已批量标记 '+cnt+' 条');
 }
 
 function actionButtons(e){
-  // 哥拍板：未处理（待处理/处理中/已恢复）只留操作按钮（确认/标记处理），已处理（已关闭/误报）才显示查看
+  // 哥拍板：未处理（待处理/处理中）只留操作按钮（确认/标记处理），已处理（已关闭/误报/无需处理）才显示查看
   if(e.status==='待处理') return '<button class="ant-btn ant-btn-primary ant-btn-sm" onclick="confirmAlert(\''+e.id+'\')">确认</button>';
-  if(e.status==='处理中'||e.status==='已恢复') return '<button class="ant-btn ant-btn-primary ant-btn-sm" onclick="openMarkModal(\''+e.id+'\')">标记处理</button>';
+  if(e.status==='处理中') return '<button class="ant-btn ant-btn-primary ant-btn-sm" onclick="openMarkModal(\''+e.id+'\')">标记处理</button>';
   return '<button class="ant-btn ant-btn-text ant-btn-sm" onclick="showDetail(\''+e.id+'\')"><i class="fa-solid fa-eye"></i> 查看</button>';
 }
 function detailActionHtml(e){
   // 详情页底部操作：未处理可直接确认/标记处理；已处理无操作，仅提示（避免详情里再出现「查看」）
   if(e.status==='待处理') return '<button class="ant-btn ant-btn-primary ant-btn-sm" onclick="confirmAlert(\''+e.id+'\')">确认</button>';
-  if(e.status==='处理中'||e.status==='已恢复') return '<button class="ant-btn ant-btn-primary ant-btn-sm" onclick="openMarkModal(\''+e.id+'\')">标记处理</button>';
+  if(e.status==='处理中') return '<button class="ant-btn ant-btn-primary ant-btn-sm" onclick="openMarkModal(\''+e.id+'\')">标记处理</button>';
   return '<span class="text-sm text-tertiary"><i class="fa-solid fa-circle-check mr-1" style="color:#52c41a"></i>该事件已处理完毕</span>';
 }
 
 function renderEventTable(){
   document.getElementById('eventCountLabel').textContent='共 '+filtered.length+' 条';
-  if(!filtered.length){ document.getElementById('eventTableBody').innerHTML='<tr><td colspan="9" class="ant-empty"><div class="ant-empty-icon"><i class="fa-solid fa-inbox"></i></div><div class="ant-empty-text">暂无告警</div></td></tr>';return;}
+  if(!filtered.length){ document.getElementById('eventTableBody').innerHTML='<tr><td colspan="8" class="ant-empty"><div class="ant-empty-icon"><i class="fa-solid fa-inbox"></i></div><div class="ant-empty-text">暂无告警</div></td></tr>';return;}
   document.getElementById('eventTableBody').innerHTML=filtered.map(function(e){
     return '<tr>'
       +'<td><input type="checkbox" class="evt-cb" data-id="'+e.id+'" onchange="updateBatch()"'+(selectedIds[e.id]?' checked':'')+'></td>'
@@ -239,7 +232,6 @@ function renderEventTable(){
       +'<td>'+e.level+'</td>'
       +'<td class="tnum">'+e.triggerCount+'人</td>'
       +'<td>'+e.status+'</td>'
-      +'<td>'+(e.sla?'<span class="tnum">'+e.sla+'</span>':'<span class="text-tertiary">-</span>')+'</td>'
       +'<td><div class="action-wrap">'+actionButtons(e)+'</div></td></tr>';
   }).join('');
 }
@@ -274,9 +266,8 @@ function keyframeImg(e, kind){
   return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
 }
 function latestFrameMeta(e){
-  // 已处理（已关闭/误报）=处理时帧；已恢复=恢复时帧；待处理/处理中=最新帧（当前帧）
-  if(e.status==='已关闭'||e.status==='误报') return {tag:'处理时帧', color:'#722ed1'};
-  if(e.status==='已恢复') return {tag:'恢复时帧', color:'#52c41a'};
+  // 已处理（已关闭/误报/无需处理）=处理时帧；待处理/处理中=最新帧（当前帧）
+  if(e.status==='已关闭'||e.status==='误报'||e.status==='无需处理') return {tag:'处理时帧', color:'#722ed1'};
   return {tag:'最新帧', color:'#1677ff'};
 }
 function frameCard(e, kind){
@@ -319,8 +310,8 @@ function closeFrameZoom(){ var ov=document.getElementById('frameZoom'); if(ov) o
 function alertInfoHtml(e){
   var thrTxt=e.type==='客流异常'?(e.threshold?'偏差 ±'+e.threshold+'%（上周同时段）':'偏差 -'):(e.threshold?e.threshold+' 人':'-');
   var curTxt=e.curCount!==null&&e.curCount!==undefined?e.curCount+' 人':'-';
-  var color=e.type==='超员'?'#ff4d4f':e.type==='聚集'?'#fa8c16':'#722ed1';
-  var statusCls={'待处理':'ant-tag-red','处理中':'ant-tag-blue','已恢复':'ant-tag-orange','已关闭':'ant-tag-green','误报':'ant-tag-gray'}[e.status]||'ant-tag-gray';
+  var color=e.level==='紧急'?'#ff4d4f':'#fa8c16'; // 按告警级别分色：紧急=红、警告=橙（评审：原按类型分色改为按级别）
+  var statusCls={'待处理':'ant-tag-red','处理中':'ant-tag-blue','已关闭':'ant-tag-green','误报':'ant-tag-gray','无需处理':'ant-tag-gray'}[e.status]||'ant-tag-gray';
   return '<div style="border:1px solid #f0f0f0;border-radius:10px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.04)">'
     +'<div style="background:linear-gradient(90deg,'+color+','+color+'cc);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:8px">'
       +'<span style="font-weight:600;font-size:14px">'+e.type+'</span>'
@@ -338,12 +329,12 @@ function alertInfoHtml(e){
         +'<div><div class="text-xs text-tertiary">当前人数</div><div style="font-weight:600;margin-top:2px">'+curTxt+'</div></div>'
         +'<div><div class="text-xs text-tertiary">阈值</div><div style="font-weight:600;margin-top:2px">'+thrTxt+'</div></div>'
       +'</div>'
-      +'<div style="border-top:1px solid #f5f5f5;margin-top:12px;padding-top:12px">'
+      +(e.type==='聚集' ? '<div style="border-top:1px solid #f5f5f5;margin-top:12px;padding-top:12px">'
         +'<div class="text-xs text-tertiary" style="margin-bottom:8px"><i class="fa-solid fa-image mr-1"></i>现场关键帧（触发帧 + 最新帧，点击放大）</div>'
         +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
           +frameCard(e,'trigger')+frameCard(e,'latest')
         +'</div>'
-      +'</div>'
+      +'</div>' : '')
     +'</div>'
   +'</div>';
 }
@@ -369,7 +360,7 @@ function selectHandleCard(el,val){
 }
 function openMarkModal(id){
   var e=events.find(function(x){return x.id===id;});
-  if(!e||(e.status!=='处理中'&&e.status!=='已恢复')){showToast('当前状态不可标记');return;}
+  if(!e||e.status!=='处理中'){showToast('当前状态不可标记');return;}
   currentMarkId=id;document.querySelectorAll('input[name="handleResult"]').forEach(function(r){r.checked=false;});
   document.querySelectorAll('.handle-card').forEach(function(c){c.classList.remove('selected');});
   document.getElementById('handleRemark').value='';document.getElementById('remarkCount').textContent='0';
@@ -402,11 +393,13 @@ function showDetail(id){
   var tl='<div class="tl-item"><div class="tl-dot"></div><div class="text-sm"><b>'+e.triggerTime+'</b> 触发告警</div><div class="text-xs text-tertiary">'+e.group+' · '+e.triggerCount+' 人 · 阈值 '+thrTxt+'</div></div>';
   if(e.confirmTime) tl+='<div class="tl-item"><div class="tl-dot"></div><div class="text-sm"><b>'+e.confirmTime+'</b> '+e.confirmUser+' 确认告警</div><div class="text-xs text-tertiary">状态 → 处理中</div></div>';
   if(e.handleTime) tl+='<div class="tl-item"><div class="tl-dot'+(e.status==='误报'?' gray':'')+'"></div><div class="text-sm"><b>'+e.handleTime+'</b> '+e.handleUser+' 标记'+e.handleResult+'</div><div class="text-xs text-tertiary">处置状态 → '+(e.handleResult||'')+(e.sla?' · 时效 '+e.sla:'')+'</div><div class="text-xs text-tertiary" style="margin-top:2px">'+(e.handleRemark||'')+'</div></div>';
-  if(e.recoverTime) tl+='<div class="tl-item"><div class="tl-dot '+(e.status==='已恢复'?'':'gray')+'"></div><div class="text-sm"><b>'+e.recoverTime+'</b> 系统自动恢复</div><div class="text-xs text-tertiary">告警状态 → 已恢复'+(e.status==='已恢复'?'（待运营补标记处置，不计处理时效）':'')+'</div></div>';
+  if(e.recoverTime) tl+='<div class="tl-item"><div class="tl-dot"></div><div class="text-sm"><b>'+e.recoverTime+'</b> 系统自动恢复</div></div>';
   document.getElementById('timeline').innerHTML=tl;
 
   var frames=document.getElementById('detailFrames');
-  if(frames) frames.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+frameCard(e,'trigger')+frameCard(e,'latest')+'</div>';
+  if(frames) frames.innerHTML = e.type==='聚集' ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+frameCard(e,'trigger')+frameCard(e,'latest')+'</div>' : '';
+  var fc=document.getElementById('detailFramesCard');
+  if(fc) fc.style.display = e.type==='聚集' ? '' : 'none';
   document.getElementById('detailActions').innerHTML=detailActionHtml(e);
   window.scrollTo(0,0);
 }

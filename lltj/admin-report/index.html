@@ -19,11 +19,6 @@
     <div class="logo"><i class="fa-solid fa-people-group"></i></div>
     <span class="app-name">园区人员热力图与流量统计</span>
     <div class="spacer"></div>
-    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
-    <span class="role-switch"></span><div class="flex items-center gap-2 user-block" style="color:rgba(255,255,255,0.85);">
-      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
-      <span style="font-size:13px;">管理员·王</span>
-    </div>
   </header>
 
   <div class="content-wrap">
@@ -32,12 +27,12 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item active" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
+      <a class="menu-item active" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
+      <a class="menu-item" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
+      <a class="menu-item" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
+      <a class="menu-item" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
+      <a class="menu-item" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
       <div class="menu-group-title">监控</div>
       <a class="menu-item" href="../admin-screen/index.html"><i class="fa-solid fa-display"></i>监控中心大屏</a>
     </aside>
@@ -63,12 +58,6 @@
                 <label class="text-sm text-secondary">报表类型</label>
                 <select class="ant-select" style="width:120px" id="reportType" onchange="onTypeChange()"><option>日报</option><option>周报</option><option>月报</option></select>
               </div>
-              <div class="flex items-center gap-2">
-                <label class="text-sm text-secondary">日期范围</label>
-                <input type="date" class="ant-input" id="dateFrom" value="2026-06-25"> <span>-</span> <input type="date" class="ant-input" id="dateTo" value="2026-07-01">
-              </div>
-              <button class="ant-btn ant-btn-primary" onclick="applyDateFilter()"><i class="fa-solid fa-search"></i> 查询</button>
-              <button class="ant-btn" onclick="resetFilter()"><i class="fa-solid fa-rotate-right"></i> 重置</button>
             </div>
           </div>
         </div>
@@ -95,15 +84,12 @@
           </div>
           <div class="flex gap-2">
             <button class="ant-btn" onclick="exportReport('pdf')"><i class="fa-solid fa-file-pdf"></i> 导出 PDF</button>
-            <button class="ant-btn ant-btn-primary" onclick="exportReport('excel')"><i class="fa-solid fa-file-excel"></i> 导出 Excel</button>
           </div>
         </div>
 
         <!-- 概览摘要 -->
         <div class="ant-card ant-card-bordered mb-4">
-          <div class="ant-card-head"><div class="ant-card-head-title">概览摘要</div>
-            <div class="ant-card-extra text-sm text-tertiary">生成时间：2026-07-02 08:00 · 数据周期：<span id="detailPeriod">2026-07-01</span></div>
-          </div>
+          <div class="ant-card-head"><div class="ant-card-head-title">概览摘要</div></div>
           <div class="ant-card-body">
             <div class="grid grid-cols-3 gap-3 mb-3">
               <div class="kpi-mini kpi-mini-center" style="background:#e6f4ff"><div class="v" style="color:var(--ant-primary)" id="dIn">-</div><div class="l">总进入</div></div>
@@ -124,8 +110,6 @@
             </div>
             <div class="ant-card-body">
               <div class="flex items-center gap-4 mb-3 text-xs">
-                <span><span class="status-dot" style="background:#1677ff"></span>进入人数</span>
-                <span><span class="status-dot" style="background:#52c41a"></span>离开人数</span>
                 <span><span class="status-dot" style="background:#faad14"></span>同时在场</span>
               </div>
               <div id="reportTrend"></div>
@@ -136,21 +120,15 @@
             <div class="ant-card-head"><div class="ant-card-head-title">建筑排行 Top5</div></div>
             <div class="ant-card-body" style="padding:0">
               <table class="ant-table" style="font-size:12px">
-                <thead><tr><th>区域</th><th width="70">进入</th><th width="70">环比</th></tr></thead>
+                <thead><tr><th>区域</th><th width="70">进入</th></tr></thead>
                 <tbody id="dRankBody"></tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- 关联 + 热力图 + 告警 -->
-        <div class="grid grid-cols-3 gap-4">
-          <div class="ant-card ant-card-bordered" style="opacity:.5">
-            <div class="ant-card-head"><div class="ant-card-head-title">建筑关联摘要 <span class="text-xs font-normal" style="color:var(--ant-error)">已移出本次</span></div></div>
-            <div class="ant-card-body">
-              <div class="text-xs text-tertiary" style="text-align:center;padding:12px 0">无 ReID（关键帧无法人脸识别）<br>本次不实现（见总纲 3.3）</div>
-            </div>
-          </div>
+        <!-- 热力图 + 告警 -->
+        <div class="grid grid-cols-2 gap-4">
           <div class="ant-card ant-card-bordered">
             <div class="ant-card-head"><div class="ant-card-head-title">热力图快照</div></div>
             <div class="ant-card-body">
@@ -162,11 +140,11 @@
             <div class="ant-card-head"><div class="ant-card-head-title">告警汇总 <span class="text-xs font-normal" style="color:var(--ant-text-tertiary)" title="告警级别在规则配置时指定（紧急/警告），无自动升级">超员级别口径 <i class="fa-solid fa-circle-question"></i></span></div></div>
             <div class="ant-card-body" style="padding:0">
               <table class="ant-table" style="font-size:12px">
-                <thead><tr><th>类型</th><th width="50">次数</th><th width="90">处理时效</th></tr></thead>
+                <thead><tr><th>类型</th><th width="50">次数</th></tr></thead>
                 <tbody>
-                  <tr><td><span class="ant-tag ant-tag-red">超员</span></td><td class="tnum" id="dAlertOver">-</td><td id="dAlertOverTime">-</td></tr>
-                  <tr><td><span class="ant-tag ant-tag-orange">聚集</span></td><td class="tnum" id="dAlertGather">-</td><td id="dAlertGatherTime">-</td></tr>
-                  <tr><td><span class="ant-tag" style="background:#722ed1;color:#fff">客流异常</span></td><td class="tnum" id="dAlertAnomaly">-</td><td id="dAlertAnomalyTime">-</td></tr>
+                  <tr><td><span class="ant-tag ant-tag-red">超员</span></td><td class="tnum" id="dAlertOver">-</td></tr>
+                  <tr><td><span class="ant-tag ant-tag-orange">聚集</span></td><td class="tnum" id="dAlertGather">-</td></tr>
+                  <tr><td><span class="ant-tag" style="background:#722ed1;color:#fff">客流异常</span></td><td class="tnum" id="dAlertAnomaly">-</td></tr>
                 </tbody>
               </table>
             </div>
@@ -261,7 +239,7 @@
     var list = filtered || [];
     document.getElementById('listCountLabel').textContent = '共 '+list.length+' 份';
     if(list.length === 0){
-      document.getElementById('reportTableBody').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--ant-text-tertiary);">该日期范围内无报表</td></tr>';
+      document.getElementById('reportTableBody').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--ant-text-tertiary);">暂无报表</td></tr>';
       return;
     }
     var html = list.map(function(r){
@@ -277,7 +255,6 @@
       parts.push('<td><div class="action-wrap">');
       parts.push('<button class="ant-btn ant-btn-text ant-btn-sm" onclick="showDetailView(\''+r.d+'\')"><i class="fa-solid fa-eye"></i> 查看详情</button>');
       parts.push('<button class="ant-btn ant-btn-text ant-btn-sm" onclick="exportReport(\'pdf\')">导出</button>');
-      parts.push('<button class="ant-btn ant-btn-text ant-btn-dangerous ant-btn-sm" onclick="deleteReport(\''+r.d+'\')"><i class="fa-solid fa-trash"></i></button>');
       parts.push('</div></td></tr>');
       return parts.join('');
     }).join('');
@@ -286,44 +263,12 @@
 
   // 根据 d 查找报表数据
   function findReport(d){ return (reports[curType]||[]).filter(function(r){return r.d===d;})[0]; }
-  function deleteReport(d){
-    if(!confirm('确认删除「'+curType+' · '+d+'」？不可恢复。')) return;
-    reports[curType]=reports[curType].filter(function(r){return r.d!==d;});
-    filtered = filtered.filter(function(r){return r.d!==d;});
-    renderTable(); showToast('报表已删除');
-  }
 
   // 切换报表类型：重置为该类型全部数据
   function onTypeChange(){
     curType = document.getElementById('reportType').value;
     filtered = reports[curType] || [];
     renderTable();
-  }
-
-  // 日期筛选：按 dateFrom/dateTo 字符串区间过滤
-  function applyDateFilter(){
-    curType = document.getElementById('reportType').value;
-    var from = document.getElementById('dateFrom').value;
-    var to = document.getElementById('dateTo').value;
-    var list = reports[curType] || [];
-    filtered = list.filter(function(r){
-      if(from && r.d < from) return false;
-      if(to && r.d > to) return false;
-      return true;
-    });
-    renderTable();
-    showToast('查询完成');
-  }
-
-  // 重置：清空日期、还原类型、重新渲染
-  function resetFilter(){
-    document.getElementById('reportType').value = '日报';
-    document.getElementById('dateFrom').value = '';
-    document.getElementById('dateTo').value = '';
-    curType = '日报';
-    filtered = reports['日报'] || [];
-    renderTable();
-    showToast('筛选条件已重置');
   }
 
   // 切换到详情视图
@@ -334,7 +279,6 @@
     document.getElementById('detailView').style.display = '';
     document.getElementById('detailTitle').textContent = '人流'+curType+' · '+d;
     document.getElementById('detailCrumb').textContent = d;
-    document.getElementById('detailPeriod').textContent = d;
     // KPI
     document.getElementById('dIn').textContent = rpt.in.toLocaleString();
     document.getElementById('dOut').textContent = rpt.out.toLocaleString();
@@ -347,15 +291,12 @@
     // 排行
     var pct2 = function(v){ if(v===null) return '<span class=\"text-tertiary\">-</span>'; var c=v>=0?'var(--ant-success)':'var(--ant-error)'; return '<span style=\"color:'+c+'\">'+(v>=0?'+':'')+v+'%</span>'; };
     document.getElementById('dRankBody').innerHTML = (rpt.ranks||[]).map(function(r){
-      return '<tr><td>'+r.area+'</td><td class=\"tnum\">'+r.v.toLocaleString()+'</td><td>'+pct2(r.mom)+'</td></tr>';
+      return '<tr><td>'+r.area+'</td><td class=\"tnum\">'+r.v.toLocaleString()+'</td></tr>';
     }).join('');
     // 告警
     document.getElementById('dAlertOver').textContent = rpt.alertOver||0;
-    document.getElementById('dAlertOverTime').textContent = rpt.alertOverTime||'-';
     document.getElementById('dAlertGather').textContent = rpt.alertGather||0;
-    document.getElementById('dAlertGatherTime').textContent = rpt.alertGatherTime||'-';
     document.getElementById('dAlertAnomaly').textContent = rpt.alertAnomaly||0;
-    document.getElementById('dAlertAnomalyTime').textContent = rpt.alertAnomalyTime||'-';
     window.scrollTo(0,0);
   }
   // 返回列表视图
@@ -369,7 +310,7 @@
   function renderTrend(data){
     var h=data||[];
     var max=Math.max.apply(null,h)||1;
-    document.getElementById('reportTrend').innerHTML = '<div style="display:flex;align-items:flex-end;gap:2px;height:120px">'+h.map(function(v){return '<span style="flex:1;background:#1677ff;border-radius:2px 2px 0 0;height:'+Math.max(3,v/max*120)+'px"></span>';}).join('')+'</div>';
+    document.getElementById('reportTrend').innerHTML = '<div style="display:flex;align-items:flex-end;gap:2px;height:120px">'+h.map(function(v){return '<span style="flex:1;background:#faad14;border-radius:2px 2px 0 0;height:'+Math.max(3,v/max*120)+'px"></span>';}).join('')+'</div>';
   }
 
   // Esc 返回列表

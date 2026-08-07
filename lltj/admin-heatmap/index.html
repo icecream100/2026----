@@ -46,11 +46,6 @@
     <div class="logo"><i class="fa-solid fa-people-group"></i></div>
     <span class="app-name">园区人员热力图与流量统计</span>
     <div class="spacer"></div>
-    <span class="nav-action"><i class="fa-regular fa-bell mr-1"></i>3</span>
-    <span class="role-switch"></span><div class="flex items-center gap-2 user-block" style="color:rgba(255,255,255,0.85);">
-      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">管</div>
-      <span style="font-size:13px;">管理员·王</span>
-    </div>
   </header>
 
   <div class="content-wrap">
@@ -59,12 +54,12 @@
       <a class="menu-item" href="../admin-dashboard/index.html"><i class="fa-solid fa-gauge-high"></i>分析总览</a>
       <a class="menu-item" href="../admin-stats/index.html"><i class="fa-solid fa-chart-column"></i>流量统计分析</a>
       <a class="menu-item active" href="../admin-heatmap/index.html"><i class="fa-solid fa-fire"></i>热力图分析</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
+      <a class="menu-item" href="../admin-report/index.html"><i class="fa-solid fa-file-lines"></i>统计报表</a>
+      <a class="menu-item" href="../admin-region-monitor/index.html"><i class="fa-solid fa-eye"></i>实时人数监测</a>
+      <a class="menu-item" href="../admin-config/index.html"><i class="fa-solid fa-sliders"></i>分析配置</a>
       <div class="menu-group-title">告警</div>
-      <a class="menu-item" data-role-hide="visitor,operator" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
-      <a class="menu-item" data-role-hide="visitor" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
+      <a class="menu-item" href="../admin-alert-rule/index.html"><i class="fa-solid fa-bell"></i>告警规则</a>
+      <a class="menu-item" href="../admin-alert-list/index.html"><i class="fa-solid fa-triangle-exclamation"></i>告警列表</a>
       <div class="menu-group-title">监控</div>
       <a class="menu-item" href="../admin-screen/index.html"><i class="fa-solid fa-display"></i>监控中心大屏</a>
     </aside>
@@ -91,25 +86,35 @@
               <span>-</span>
               <input type="text" class="ant-input" id="hourTo" style="width:100px" value="24:00" onchange="filterByHour()">
             </div>
-            <div class="flex items-center gap-2">
-              <label class="text-sm text-secondary">透明度</label>
-              <input type="range" min="0" max="100" value="78" oninput="var v=this.value;document.getElementById('opacityVal').textContent=v+'%';var s=document.getElementById('heatRegionSvg');if(s)s.style.opacity=v/100;">
-              <span id="opacityVal" class="text-sm" style="width:40px">78%</span>
-            </div>
-            <div class="flex gap-2 ml-auto">
+            <div class="flex items-center gap-4 ml-auto">
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-secondary">色带</span>
+                <div class="legend-bar" style="width:120px;height:8px;"></div>
+                <span class="text-xs text-tertiary">稀疏→密集</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-secondary">倍速</span>
+                <div class="flex gap-1" id="speedBtns">
+                  <button class="ant-btn ant-btn-sm" onclick="setSpeed(1,this)">1x</button>
+                  <button class="ant-btn ant-btn-sm ant-btn-primary" onclick="setSpeed(2,this)">2x</button>
+                  <button class="ant-btn ant-btn-sm" onclick="setSpeed(4,this)">4x</button>
+                  <button class="ant-btn ant-btn-sm" onclick="setSpeed(8,this)">8x</button>
+                  <button class="ant-btn ant-btn-sm" onclick="setSpeed(16,this)">16x</button>
+                </div>
+              </div>
               <button class="ant-btn ant-btn-primary" onclick="exportHeatPNG()"><i class="fa-solid fa-download"></i> 导出 PNG</button>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="grid gap-4" style="grid-template-columns:1fr 280px;">
+      <div class="grid gap-4">
         <!-- 主热力图 -->
         <div class="ant-card ant-card-bordered">
           <div class="ant-card-head">
             <div class="ant-card-head-title" id="heatTitle">实时热力图 · 2026-07-01 全天</div>
             <div class="ant-card-extra">
-              <span id="heatSummary" class="text-sm mr-3" style="color:var(--ant-text-secondary)" title="在场/峰值基于分组净流入+营业日清零，估算（见 3.5.1/3.5.5）"><span id="sumLbl">在场</span> <b id="sumTotal" style="color:var(--ant-text)">-</b> · 超员 <b id="sumOver" style="color:#ff4d4f">0</b></span><span id="refreshDot" class="status-dot pulse-dot" style="background:#52c41a"></span><span id="refreshLabel" class="text-sm mr-3">实时 · 5 秒刷新</span>
+              <span id="refreshDot" class="status-dot pulse-dot" style="background:#52c41a"></span><span id="refreshLabel" class="text-sm mr-3">实时 · 30 秒刷新</span>
               <button class="ant-btn ant-btn-sm" onclick="togglePlay()" id="playBtn"><i class="fa-solid fa-play"></i> 播放</button>
             </div>
           </div>
@@ -133,44 +138,6 @@
           </div>
         </div>
 
-        <!-- 右侧：实时建筑热度榜 + 高级面板 -->
-        <div>
-          <div class="ant-card ant-card-bordered mb-4">
-            <div class="ant-card-head">
-              <div class="ant-card-head-title" id="rankTitle">实时建筑热度榜</div>
-            </div>
-            <div class="ant-card-body" style="padding:10px;">
-              <div id="rankList"></div>
-              <div class="text-xs text-tertiary mt-1"><i class="fa-solid fa-circle-info mr-1"></i>点击摄像头行 → 地图高亮定位</div>
-            </div>
-          </div>
-
-          <div class="ant-card ant-card-bordered">
-            <div class="ant-card-body" style="padding:12px 14px;">
-              <div class="adv-toggle" onclick="toggleAdv()"><i class="fa-solid fa-chevron-right" id="advCaret" style="transition:.2s;"></i> 高级 · 色带 / 动画 / 聚集检测</div>
-              <div id="advPanel" style="display:none;margin-top:12px;">
-                <div class="mb-3">
-                  <div class="text-sm mb-1">色带图例</div>
-                  <div class="legend-bar mb-1"></div>
-                  <div class="flex justify-between text-xs text-tertiary"><span>稀疏</span><span>密集</span></div>
-                </div>
-                <div class="mb-3">
-                  <div class="text-sm mb-1">动画倍速</div>
-                  <div class="flex gap-2">
-                    <button class="ant-btn ant-btn-sm" onclick="setSpeed(1,this)">1x</button>
-                    <button class="ant-btn ant-btn-sm ant-btn-primary" onclick="setSpeed(4,this)">4x</button>
-                    <button class="ant-btn ant-btn-sm" onclick="setSpeed(16,this)">16x</button>
-                  </div>
-                  <button class="ant-btn ant-btn-sm w-full mt-2" disabled style="opacity:.55;cursor:not-allowed"><i class="fa-solid fa-film"></i> 导出动画 GIF（未来迭代）</button>
-                </div>
-                <div>
-                  <div class="text-sm mb-1">聚集点检测 <span class="st-tag st-normal">已就绪</span></div>
-                  <button class="ant-btn ant-btn-sm ant-btn-primary w-full" onclick="toggleCluster(this)">开启检测</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
     </main>
@@ -196,12 +163,8 @@
   function applyLiveState(){
     var live = isLiveDate();
     var refreshLabel=document.getElementById('refreshLabel'), refreshDot=document.getElementById('refreshDot');
-    if(refreshLabel){ refreshLabel.textContent = live ? '实时 · 5 秒刷新 · 当前拥挤度（已去重）' : '历史回看 · 已定格 · 足迹热度（经过频率）'; }
+    if(refreshLabel){ refreshLabel.textContent = live ? '实时 · 30 秒刷新 · 当前拥挤度（已去重）' : '历史回看 · 已定格 · 足迹热度（经过频率）'; }
     if(refreshDot){ refreshDot.style.background = live ? '#52c41a' : '#bfbfbf'; refreshDot.classList.toggle('pulse-dot', live); }
-    var rankTitle=document.getElementById('rankTitle');
-    if(rankTitle){ rankTitle.textContent = live ? ('实时建筑热度榜 · '+mapName()) : ('该日建筑热度榜 · '+mapName()); }
-    var sumLbl=document.getElementById('sumLbl');
-    if(sumLbl){ sumLbl.textContent = live ? '在场' : '峰值'; }
     if(!live && playing){ togglePlay(); } // 历史态停止刷新动画，避免与定格态冲突
     return live;
   }
@@ -264,7 +227,7 @@
     img.onerror=function(){ URL.revokeObjectURL(url); showToast('导出失败（浏览器安全限制），请截图保存'); };
     img.src=url;
   }
-  function setSpeed(s,el){ speed=s; document.querySelectorAll('.ant-card-body .ant-btn-sm').forEach(function(b){ if(b.textContent==='1x'||b.textContent==='4x'||b.textContent==='16x') b.classList.remove('ant-btn-primary'); }); el.classList.add('ant-btn-primary'); if(playing){ clearInterval(timer); timer=setInterval(function(){ pos=(pos+0.5)%100; updateTimeline(); }, 200/speed); } }
+  function setSpeed(s,el){ speed=s; document.querySelectorAll('#speedBtns .ant-btn').forEach(function(b){ b.classList.remove('ant-btn-primary'); }); el.classList.add('ant-btn-primary'); if(playing){ clearInterval(timer); timer=setInterval(function(){ pos=(pos+0.5)%100; updateTimeline(); }, 200/speed); } }
   function updateTimeline(){
     document.getElementById('timeProgress').style.width=pos+'%';
     document.getElementById('timeKnob').style.left=pos+'%';
@@ -339,12 +302,9 @@
   var curMapId = 'm1';
   function curMap(){ return MAP_DATA[curMapId]; }
   function mapName(){ return curMap() ? curMap().name : ''; }
-  // 全局引用随底图切换重绑定（renderHeatmap/renderRank/renderKpi 复用，不改渲染函数）
-  var heatRegions = MAP_DATA.m1.regions;
+  // 全局引用随底图切换重绑定（renderHeatmap 复用）
   var mockFootprints = MAP_DATA.m1.footprints;
-  var mockClusters = MAP_DATA.m1.clusters;
   var curRegion = null;
-  var clusterOn = false;
 
   function ratioOf(r){ return r.threshold>0 ? r.count/r.threshold : 0; }
   function statusOf(r){ if(r.offline) return 'offline'; var x=ratioOf(r); if(x>=1) return 'over'; if(x>=0.8) return 'near'; return 'normal'; }
@@ -378,27 +338,16 @@
   function switchMap(id){
     if(!MAP_DATA[id]) return;
     curMapId=id;
-    heatRegions=curMap().regions;
     mockFootprints=curMap().footprints;
-    mockClusters=curMap().clusters||[];
     curRegion=null;
     renderMapSel();
     renderZones();
     renderHeatmap();
-    renderRank();
-    renderKpi();
     var live=applyLiveState();
     var ht=document.getElementById('heatTitle'); if(ht) ht.textContent=viewTitle(live);
     showToast('已切换底图：'+curMap().name+'（仅渲染绑定该底图的已标定摄像头）');
   }
-  function onMapChange(sel){
-    if(window.MockStore && MockStore.getRole()==='visitor'){
-      showToast('只读访客不可切换底图（锁定默认底图）');
-      sel.value=curMapId;
-      return;
-    }
-    switchMap(sel.value);
-  }
+  function onMapChange(sel){ switchMap(sel.value); }
   function densityColor(n,max){
     if(n===0) return 'transparent';
     var r=n/max;
@@ -439,85 +388,13 @@
         }
       }
     }
-    heatRegions.forEach(function(r){
-      if(r.offline) return;
-      var hl=r.id===curRegion;
-      var color=heatColor(r);
-      h+='<circle cx="'+(r.mapX*100)+'%" cy="'+(r.mapY*100)+'%" r="'+(hl?6:4)+'" fill="#fff" stroke="'+color+'" stroke-width="2" style="cursor:pointer" onclick="selectRegion(\''+r.id+'\')"><title>'+r.name+'：'+r.count+' 人 / 阈值 '+r.threshold+'</title></circle>';
-    });
-    if(clusterOn){
-      mockClusters.forEach(function(c){
-        h+='<circle cx="'+c.x+'%" cy="'+c.y+'%" r="'+c.r+'" fill="none" stroke="#ff4d4f" stroke-width="2" stroke-dasharray="4 3"/>';
-        h+='<text x="'+c.x+'%" y="'+(c.y-2)+'%" text-anchor="middle" fill="#ff4d4f" font-size="10" font-weight="600" style="paint-order:stroke;stroke:rgba(0,0,0,0.5);stroke-width:2px;">聚集 '+c.n+'人</text>';
-      });
-    }
     svg.innerHTML=h;
-  }
-  function toggleCluster(btn){
-    clusterOn=!clusterOn;
-    btn.textContent = clusterOn?'关闭检测':'开启检测';
-    btn.classList.toggle('ant-btn-primary', clusterOn);
-    renderHeatmap();
-    showToast(clusterOn?'聚集点检测已开启':'聚集点检测已关闭');
   }
   window.addEventListener('resize', renderHeatmap);
 
   // ===== 实时建筑热度榜 =====
-  function renderRank(){
-    var el=document.getElementById('rankList'); if(!el) return;
-    var list=heatRegions.slice().sort(function(a,b){
-      return b.count-a.count;
-    });
-    var maxCount=Math.max.apply(null, heatRegions.map(function(r){return r.count;}))||1;
-    var stMeta={normal:['正常','st-normal'],near:['接近阈值','st-near'],over:['超员','st-over'],offline:['离线','st-tag']};
-    el.innerHTML=list.map(function(r){
-      var st=statusOf(r), meta=stMeta[st];
-      var color=heatColor(r);
-      var pct=Math.round(r.count/maxCount*100);
-      var momHtml = r.offline ? '<span class="text-xs text-tertiary">-</span>'
-        : '<span class="text-xs" style="color:'+(r.mom>=0?'#ff4d4f':'#52c41a')+'"><i class="fa-solid fa-arrow-'+(r.mom>=0?'up':'down')+'"></i> '+Math.abs(r.mom)+'%</span>';
-      var extra = '';
-      return '<div class="rank-row'+(r.id===curRegion?' active':'')+'" onclick="selectRegion(\''+r.id+'\')">'
-        + '<div class="flex items-center justify-between">'
-        + '<span class="text-sm font-medium">'+r.name+' <span class="text-xs text-tertiary">'+r.group+'</span></span>'
-        + '<span class="st-tag '+meta[1]+'">'+meta[0]+'</span></div>'
-        + '<div class="flex items-center justify-between mt-1">'
-        + '<span class="text-sm font-semibold" style="color:'+color+'">'+(r.offline?'--':r.count)+' 人'+(r.offline?'':' <span class="text-xs text-tertiary">/'+r.threshold+'</span>')+'</span>'
-        + '<span class="flex items-center gap-2">'+momHtml+extra+'</span></div>'
-        + '<div class="rank-bar-track"><div class="rank-bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div>'
-        + '</div>';
-    }).join('');
-  }
-
-  // ===== 摘要（标题栏：在场/峰值 + 超员数）=====
-  function renderKpi(){
-    var online=heatRegions.filter(function(r){return !r.offline;});
-    var total=online.reduce(function(a,r){return a+r.count;},0);
-    var over=online.filter(function(r){return statusOf(r)==='over';}).length;
-    var st=document.getElementById('sumTotal'); if(st) st.textContent=total.toLocaleString();
-    var so=document.getElementById('sumOver'); if(so) so.textContent=over;
-  }
-
-  // ===== 图榜联动 =====
-  function selectRegion(id){ curRegion=(curRegion===id?null:id); renderHeatmap(); renderRank(); }
-  function toggleAdv(){ var p=document.getElementById('advPanel'), c=document.getElementById('advCaret'); var open=p.style.display==='none'; p.style.display=open?'block':'none'; c.style.transform=open?'rotate(90deg)':'rotate(0)'; }
-
-  function renderAll(){ renderZones(); renderMapSel(); renderHeatmap(); renderRank(); renderKpi(); }
-  // 角色联动：只读访客锁定默认底图（不可切换）
-  document.addEventListener('DOMContentLoaded', function(){
-    renderAll();
-    var origApply = MockStore.applyRole.bind(MockStore);
-    MockStore.applyRole = function(){
-      origApply();
-      var sel=document.getElementById('mapSel');
-      if(sel){
-        var isV = MockStore.getRole()==='visitor';
-        sel.disabled = isV;
-        sel.title = isV ? '只读访客不可切换底图（锁定默认底图）' : '多底图切换（底图库>1 张时展示，=1 张自动隐藏）';
-      }
-    };
-    MockStore.applyRole();
-  });
+  function renderAll(){ renderZones(); renderMapSel(); renderHeatmap(); }
+  document.addEventListener('DOMContentLoaded', renderAll);
 </script>
 </body>
 </html>
