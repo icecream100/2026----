@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>分析接入管理（布控比对）- N11 布控预警</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="../assets/proto.css">
+<style>
+  /* ===== 页面级样式（仅本页使用；token 与基础组件见 ../assets/proto.css） ===== */
+  .ant-card { background: #fff; border: 1px solid #f0f0f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+  .quota-card { display: flex; gap: 24px; align-items: center; }
+  .quota-item { flex: 1; }
+  .progress { height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+  .progress-bar { height: 100%; background: #1677ff; border-radius: 4px; }
+  .progress-bar.warn { background: #faad14; }
+  .progress-bar.error { background: #ff4d4f; }
+  .page-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .page-head h2 { margin: 0; font-size: 18px; }
+  .page-head .sub { color: #999; font-size: 12px; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid #f0f0f0; padding: 8px 12px; text-align: left; }
+  th { background: #fafafa; }
+  .tag-blue { background:#e6f4ff; color:#1677ff; border-radius:4px; padding:2px 8px; }
+  .tag-green { background:#f6ffed; color:#52c41a; border-radius:4px; padding:2px 8px; }
+  .tag-gray { background:#fafafa; color:#999; border-radius:4px; padding:2px 8px; }
+  .switch { display:inline-block; width:36px; height:20px; background:#ccc; border-radius:10px; position:relative; cursor:pointer; vertical-align:middle; }
+  .switch.on { background:#52c41a; }
+  .switch::after { content:''; position:absolute; width:16px; height:16px; background:#fff; border-radius:50%; top:2px; left:2px; transition:left 0.2s; }
+  .switch.on::after { left:18px; }
+  .btn { display:inline-block; padding:5px 12px; border:1px solid #d9d9d9; border-radius:4px; background:#fff; cursor:pointer; font-size:13px; }
+  .btn-primary { background:#1677ff; color:#fff; border-color:#1677ff; }
+  .btn-sm { padding:2px 8px; font-size:12px; }
+  .btn-danger { color:#ff4d4f; border-color:#ffa39e; }
+  .hint { color:#999; font-size:12px; margin-top:12px; }
+  .filter-bar { display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+  .tree-wrap { display:flex; gap:16px; align-items:flex-start; }
+  .device-tree { width:220px; flex-shrink:0; background:#fafafa; border:1px solid #f0f0f0; border-radius:8px; padding:10px; max-height:460px; overflow:auto; }
+  .tree-node .node-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tree-node .twisty { width:12px; flex-shrink:0; display:inline-flex; justify-content:center; color:#bfbfbf; font-size:10px; }
+  .tree-title { font-size:12px; color:#999; font-weight:600; margin-bottom:8px; }
+  .tree-node { display:flex; align-items:center; gap:6px; padding:6px 8px; border-radius:4px; cursor:pointer; color:rgba(0,0,0,0.85); font-size:13px; }
+  .tree-node:hover { background:#e6f4ff; }
+  .tree-node.active { background:#e6f4ff; color:#1677ff; font-weight:600; }
+  .tree-node .cnt { margin-left:auto; color:#999; font-size:12px; }
+  /* 分析设备目录：CRUD 入口 */
+  .tree-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .tree-head .tree-title { margin-bottom:0; }
+  .tree-actions { display:flex; gap:2px; }
+  .tree-btn { width:22px; height:22px; border:1px solid #d9d9d9; background:#fff; border-radius:4px; cursor:pointer; color:#666; font-size:11px; line-height:1; display:inline-flex; align-items:center; justify-content:center; }
+  .tree-btn:hover { color:#1677ff; border-color:#1677ff; }
+  .tree-btn:disabled { color:#ccc; border-color:#e8e8e8; cursor:not-allowed; }
+  .node-ops { display:none; margin-left:6px; gap:5px; color:#aaa; font-size:11px; flex-shrink:0; }
+  .tree-node:hover .node-ops { display:inline-flex; }
+  .node-ops i:hover { color:#1677ff; }
+  .tree-foot { margin-top:10px; padding-top:8px; border-top:1px dashed #e8e8e8; }
+  .tree-foot .btn { width:100%; justify-content:center; display:flex; }
+  .tree-note { color:#bbb; font-size:11px; margin-top:6px; line-height:1.5; }
+  .move-tree { max-height:300px; overflow:auto; border:1px solid #f0f0f0; border-radius:6px; padding:6px; background:#fff; }
+  .tree-node.active .cnt { color:#1677ff; }
+  .tree-node.active .cnt { color:#1677ff; }
+  select, input[type=text] { height:32px; padding:0 8px; border:1px solid #d9d9d9; border-radius:4px; background:#fff; }
+  .modal-mask { position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:100; }
+  .modal-mask.open { display:flex; }
+  .modal-box { background:#fff; border-radius:8px; width:760px; max-height:80vh; overflow:auto; padding:20px; }
+  .modal-box.narrow { width:480px; }
+  .modal-foot { display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
+  .toast { position:fixed; top:24px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.75); color:#fff; padding:10px 18px; border-radius:6px; display:none; z-index:200; font-size:13px; }
+</style>
+</head>
+<body class="theme-n11">
+<div class="proto-layout">
+<header class="proto-topbar">
+  <div class="logo">
+    <div class="logo-icon"><i class="fa-solid fa-video"></i></div>
+    <span>视频云平台</span>
+  </div>
+  <span class="comp-badge">N11 布控预警</span>
+  <div class="topbar-breadcrumb">
+    <span>布控预警</span><span class="sep">/</span><span class="current">分析接入管理</span>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-bell"><i class="fa-regular fa-bell"></i><span class="bell-dot">2</span></div>
+    <div style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+      <div class="topbar-avatar">张</div>
+      <span style="font-size:13px;color:var(--ant-text-secondary);">张工程师</span>
+    </div>
+  </div>
+</header>
+<div class="proto-body">
+
+  <aside class="proto-sider">
+    <div class="sider-group"><i class="fa-solid fa-shield-halved"></i>布控预警</div>
+    <nav class="proto-menu">
+      <a href="library.html" class="proto-menu-item"><i class="fa-solid fa-database"></i>目标库</a>
+      <a href="list.html" class="proto-menu-item"><i class="fa-solid fa-crosshairs"></i>布控任务</a>
+      <a href="alerts.html" class="proto-menu-item"><i class="fa-solid fa-bell"></i>布控预警<span class="menu-count">2</span></a>
+      <a href="analysis-devices.html" class="proto-menu-item active"><i class="fa-solid fa-microchip"></i>分析接入管理</a>
+    </nav>
+  </aside>
+  <main class="proto-main">
+    <div class="proto-content">
+    <div class="page-head">
+      <div>
+        <h2>分析接入管理（布控比对）</h2>
+        <div class="sub">仅系统管理员可见 · 管理进入布控比对流水线的设备；布控比对依赖设备实时流，不依赖录像可用，新设备通过「新增布控比对设备」弹窗纳入并开启</div>
+      </div>
+    </div>
+    <div class="ant-card">
+      <div class="quota-card">
+        <div class="quota-item">
+          <div style="display:flex;justify-content:space-between;"><span>布控比对配额</span><b id="monCount">- / 200</b></div>
+          <div class="progress"><div class="progress-bar" id="monBar" style="width:0%"></div></div>
+          <div style="color:#999;font-size:12px;margin-top:4px;" id="monHint">已开启设备数 / 配额上限</div>
+        </div>
+      </div>
+    </div>
+    <div class="ant-card">
+      <div class="tree-wrap">
+<div class="device-tree">
+          <div class="tree-head">
+            <div class="tree-title"><i class="fa-solid fa-sitemap" style="margin-right:4px"></i>分析设备目录</div>
+            <div class="tree-actions">
+              <button class="tree-btn" title="新建子节点" onclick="openNodeModal('add',curNode)"><i class="fa-solid fa-plus"></i></button>
+              <button class="tree-btn" title="重命名" onclick="openNodeModal('edit',curNode)"><i class="fa-solid fa-pen"></i></button>
+              <button class="tree-btn" title="删除" onclick="deleteNode(curNode)"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+          <div id="treeBody"></div>
+          <div class="tree-foot">
+            <button class="btn btn-sm" onclick="initFromBase()"><i class="fa-solid fa-download"></i> 按底座区域初始化</button>
+            <button class="btn btn-sm" style="margin-top:6px;" onclick="syncFromBase()"><i class="fa-solid fa-rotate"></i> 增量拉取新区域</button>
+            <div class="tree-note">组件私有目录，不与平台区域自动同步；删除节点时设备移至「未分类」，分析开关与配额不受影响</div>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:0;">
+      <div class="filter-bar">
+        <span>筛选：</span>
+        <select id="fType"><option value="">设备类型：全部</option><option>摄像头</option><option>卡口</option></select>
+        <select id="fOnline"><option value="">在线状态：全部</option><option>在线</option><option>离线</option></select>
+        <select id="fMon"><option value="">布控比对：全部</option><option>已开启</option><option>未开启</option></select>
+        <input type="text" id="fKeyword" placeholder="设备名称/编码">
+        <button class="btn" onclick="renderList()">查询</button>
+        <span style="width:1px;height:20px;background:#e8e8e8;"></span>
+        <button class="btn btn-primary" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> 新增布控比对设备</button>
+        <button class="btn" onclick="openMoveModal()"><i class="fa-solid fa-share"></i> 批量移动至…</button>
+        <button class="btn" onclick="batchRemove()">移除设备</button>
+      </div>
+      <table>
+        <thead><tr><th>复选框</th><th>设备名称</th><th>设备编码</th><th>设备类型</th><th>所属目录</th><th>在线状态</th><th>布控比对</th><th>数据起始时间</th><th>纳入人/时间</th><th>操作</th></tr></thead>
+        <tbody id="listBody"></tbody>
+      </table>
+      <div class="hint">说明：布控比对数据自开启时刻起产生，不回溯；关闭布控比对后进行中布控任务的比对范围自动剔除本设备。平台删除/下线设备自动移出设备清单并释放配额。</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-mask" id="addModal" onclick="if(event.target===this)this.classList.remove('open')">
+      <div class="modal-box">
+        <h3 style="margin:0 0 6px;">新增布控比对设备</h3>
+        <div style="color:#999;font-size:12px;margin-bottom:12px;">从底座设备中选择未纳入布控比对的设备；确认后纳入并开启布控比对（消耗布控比对配额），数据自开启时刻起产生、不回溯。已选 <b id="selCount">0</b> 台</div>
+        <div class="tree-wrap">
+          <div class="device-tree" style="width:220px;">
+            <div class="tree-head">
+              <div class="tree-title">分析设备目录</div>
+            </div>
+            <div id="addTreeBody"></div>
+          </div>
+          <div style="flex:1;min-width:0;">
+        <div class="filter-bar">
+          <select id="aType"><option value="">设备类型：全部</option><option>摄像头</option><option>卡口</option></select>
+          <select id="aOnline"><option value="">在线状态：全部</option><option>在线</option><option>离线</option></select>
+          <input type="text" id="aKeyword" placeholder="设备名称/编码">
+          <button class="btn" onclick="renderAddList()">查询</button>
+        </div>
+        <table>
+          <thead><tr><th>复选框</th><th>设备名称</th><th>设备编码</th><th>设备类型</th><th>所属目录</th><th>在线状态</th></tr></thead>
+          <tbody id="addBody"></tbody>
+        </table>
+          </div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid #f0f0f0;padding-top:12px;">
+          <div style="font-weight:600;font-size:13px;margin-bottom:8px;">开启分析方式</div>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" id="openMon" checked> 开启布控比对（默认勾选）</label>
+          <div style="color:#999;font-size:12px;margin-top:8px;" id="quotaPreview">配额预览：请先勾选设备</div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" onclick="document.getElementById('addModal').classList.remove('open')">取消</button>
+          <button class="btn btn-primary" onclick="confirmAdd()">确认纳入并开启</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-mask" id="nodeModal" onclick="if(event.target===this)this.classList.remove('open')">
+      <div class="modal-box narrow">
+        <h3 style="margin:0 0 6px;" id="nodeModalTitle">新建目录节点</h3>
+        <div style="color:#999;font-size:12px;margin-bottom:12px;" id="nodeParentHint"></div>
+        <div style="margin-bottom:10px;">
+          <div style="font-size:13px;margin-bottom:6px;">节点名称 <span style="color:#ff4d4f;">*</span></div>
+          <input type="text" id="nodeName" style="width:100%;" maxlength="20" placeholder="≤20 字，同层级下唯一">
+        </div>
+        <div class="hint" style="margin-top:0;">目录为组件私有组织视图，最多 3 层；新建 / 重命名不会影响设备的分析开关与配额占用。</div>
+        <div class="modal-foot">
+          <button class="btn" onclick="document.getElementById('nodeModal').classList.remove('open')">取消</button>
+          <button class="btn btn-primary" onclick="saveNode()">保存</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-mask" id="moveModal" onclick="if(event.target===this)this.classList.remove('open')">
+      <div class="modal-box narrow">
+        <h3 style="margin:0 0 6px;" id="moveTitle">移动设备至目录</h3>
+        <div style="color:#999;font-size:12px;margin-bottom:12px;">已选 <b id="moveCount">0</b> 台设备，选择目标目录节点。<b>仅变更目录归属</b>，设备的轨迹分析开关与配额占用保持不变。</div>
+        <div class="move-tree" id="moveTreeBody"></div>
+        <div class="modal-foot">
+          <button class="btn" onclick="document.getElementById('moveModal').classList.remove('open')">取消</button>
+          <button class="btn btn-primary" onclick="confirmMove()">确认移动</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-mask" id="detailModal" onclick="if(event.target===this)this.classList.remove('open')">
+      <div class="modal-box narrow">
+        <h3 style="margin:0 0 16px;">设备布控比对数据量统计</h3>
+        <div id="detailBody"></div>
+        <div class="modal-foot">
+          <button class="btn" onclick="document.getElementById('detailModal').classList.remove('open')">关闭</button>
+        </div>
+      </div>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div>
+  </main>
+</div>
+</div>
+<script>
+/* baseArea = 底座所属区域（只读投影，仅用于「按底座初始化」归类与详情展示）；node = 组件目录节点 ID（单挂） */
+var devices = [
+  { id:1, name:'东门人脸相机', code:'CAM-001', type:'camera', baseArea:'园区A/东门', node:'n13', online:true, access:true, mon:true, monTasks:2, monStart:'自06-01起', by:'admin / 06-01 10:00', addedBy:'admin / 06-01 10:00' },
+  { id:2, name:'停车场卡口', code:'GATE-002', type:'gate', baseArea:'园区A/地下停车场', node:'n14', online:true, access:true, mon:false, monTasks:0, monStart:'', by:'—', addedBy:'admin / 06-10 09:00' },
+  { id:3, name:'周界枪机-03', code:'CAM-003', type:'camera', baseArea:'园区B/周界/东围墙', node:'n211', online:false, access:true, mon:false, monTasks:0, monStart:'', by:'—', addedBy:'admin / 07-10 09:00' },
+  { id:4, name:'广场全景球机', code:'CAM-004', type:'camera', baseArea:'园区B/广场', node:'n22', online:true, access:true, mon:true, monTasks:1, monStart:'自06-15起', by:'admin / 06-15 11:00', addedBy:'admin / 06-15 11:00' },
+  { id:5, name:'东门卡口-02', code:'GATE-005', type:'gate', baseArea:'园区A/东门', node:'n13', online:true, access:false, mon:false, monTasks:0, monStart:'', by:'—', addedBy:'—' },
+  { id:6, name:'停车场枪机-06', code:'CAM-006', type:'camera', baseArea:'园区A/地下停车场', node:'n14', online:true, access:false, mon:false, monTasks:0, monStart:'', by:'—', addedBy:'—' },
+  { id:7, name:'周界枪机-07', code:'CAM-007', type:'camera', baseArea:'园区B/周界/西围墙', node:'n212', online:false, access:false, mon:false, monTasks:0, monStart:'', by:'—', addedBy:'—' },
+  { id:8, name:'广场人脸相机', code:'CAM-008', type:'camera', baseArea:'园区B/广场', node:'n22', online:true, access:false, mon:false, monTasks:0, monStart:'', by:'—', addedBy:'—' }
+];
+var monQuota = 200;
+var typeLabel = { camera:'摄像头', gate:'卡口' };
+var now = function(){ var d = new Date(); function p(n){ return String(n).padStart(2,'0'); } return 'admin / ' + d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes()); };
+
+function findDevice(id){ return devices.filter(function(d){ return d.id === id; })[0]; }
+function accessedCount(){ return devices.filter(function(d){ return d.access; }).length; }
+
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(t._t);
+  t._t = setTimeout(function(){ t.style.display = 'none'; }, 2500);
+}
+
+function refreshQuota(){
+  var mn = devices.filter(function(d){ return d.access && d.mon; }).length;
+  document.getElementById('monCount').textContent = mn + ' / ' + monQuota;
+  var mpct = Math.round(mn / monQuota * 100);
+  var mbar = document.getElementById('monBar');
+  mbar.style.width = mpct + '%';
+  mbar.className = 'progress-bar' + (mpct >= 90 ? (mpct >= 100 ? ' error' : ' warn') : '');
+  document.getElementById('monHint').textContent = mpct >= 90 ? '已达 ' + mpct + '%，建议关注容量' : '已开启设备数 / 配额上限';
+}
+
+/* ===== 分析设备目录（组件私有，支持 CRUD；设备实体仍只读引用底座） ===== */
+var nodeSeq = 300;
+var catalog = [
+  { id:'n1', name:'园区A', children:[
+      { id:'n11', name:'1号楼', children:[ { id:'n111', name:'1层大堂' }, { id:'n112', name:'2层办公区' } ] },
+      { id:'n12', name:'2号楼', children:[ { id:'n121', name:'1层机房' } ] },
+      { id:'n13', name:'东门' },
+      { id:'n14', name:'地下停车场' }
+  ]},
+  { id:'n2', name:'园区B', children:[
+      { id:'n21', name:'周界', children:[ { id:'n211', name:'东围墙' }, { id:'n212', name:'西围墙' } ] },
+      { id:'n22', name:'广场' }
+  ]},
+  { id:'n0', name:'未分类', system:true }
+];
+var UNCLASSIFIED = 'n0';
+var MAX_LEVEL = 3;
+var curNode = '';
+var addCurNode = '';
+var expanded = { n1:true, n2:true };
+var baseInited = false;
+var baseNewAreas = [];          // 模拟「底座新增区域」，增量拉取后清空
+
+/* --- 目录树基础操作 --- */
+function findNode(id, list){
+  list = list || catalog;
+  for (var i = 0; i < list.length; i++){
+    if (list[i].id === id) return list[i];
+    if (list[i].children){ var r = findNode(id, list[i].children); if (r) return r; }
+  }
+  return null;
+}
+function nodeInfo(id, list, parent, depth){
+  list = list || catalog; parent = parent || null; depth = depth || 1;
+  for (var i = 0; i < list.length; i++){
+    if (list[i].id === id) return { node:list[i], parent:parent, depth:depth, sibs:list };
+    if (list[i].children){ var r = nodeInfo(id, list[i].children, list[i], depth + 1); if (r) return r; }
+  }
+  return null;
+}
+function nodePath(id){
+  var info = nodeInfo(id);
+  if (!info) return '';
+  var prefix = info.parent ? nodePath(info.parent.id) : '';
+  return prefix ? prefix + ' / ' + info.node.name : info.node.name;
+}
+function nodeDepth(id){ var info = nodeInfo(id); return info ? info.depth : 0; }
+function descendantIds(id){
+  var n = findNode(id); if (!n) return [];
+  var out = [id];
+  (n.children || []).forEach(function(c){ out = out.concat(descendantIds(c.id)); });
+  return out;
+}
+function inNode(dev, id){ return !id || descendantIds(id).indexOf(dev.node) >= 0; }
+
+/* --- 计数：主树显示「已纳入/总数」，弹窗树显示候选数 --- */
+function counts(id, isAdd){
+  var ids = id ? descendantIds(id) : null;
+  var all = devices.filter(function(d){ return !ids || ids.indexOf(d.node) >= 0; });
+  var sub = all.filter(function(d){ return isAdd ? !d.access : d.access; });
+  return isAdd ? String(sub.length) : (sub.length + ' / ' + all.length);
+}
+
+/* --- 渲染 --- */
+function nodeOps(n){
+  if (n.system) return '';
+  var d = nodeDepth(n.id);
+  var ops = '<span class="node-ops">';
+  if (d < MAX_LEVEL) ops += '<i class="fa-solid fa-plus" title="新建子节点" onclick="event.stopPropagation();openNodeModal(\'add\',\'' + n.id + '\')"></i>';
+  ops += '<i class="fa-solid fa-pen" title="重命名" onclick="event.stopPropagation();openNodeModal(\'edit\',\'' + n.id + '\')"></i>';
+  ops += '<i class="fa-solid fa-trash" title="删除" onclick="event.stopPropagation();deleteNode(\'' + n.id + '\')"></i>';
+  return ops + '</span>';
+}
+
+function treeWalk(nodes, depth, isAdd, plain){
+  var html = '';
+  var cur = isAdd ? addCurNode : curNode;
+  nodes.forEach(function(n){
+    var kids = n.children || [];
+    var open = !!expanded[n.id];
+    var icon = kids.length ? (open ? 'fa-solid fa-folder-open' : 'fa-solid fa-folder') : 'fa-regular fa-folder';
+    html += '<div class="tree-node' + (cur === n.id ? ' active' : '') + '"'
+      + ' style="padding-left:' + (6 + depth * 14) + 'px" title="' + nodePath(n.id) + '"'
+      + ' onclick="' + (isAdd ? 'selectAddNode' : 'selectNode') + '(\'' + n.id + '\')">'
+      + (kids.length
+          ? '<span class="twisty" onclick="event.stopPropagation();toggleNode(\'' + n.id + '\')"><i class="fa-solid fa-chevron-' + (open ? 'down' : 'right') + '"></i></span>'
+          : '<span class="twisty"></span>')
+      + '<i class="' + icon + '"></i>'
+      + '<span class="node-name">' + n.name + '</span>'
+      + '<span class="cnt">' + counts(n.id, isAdd) + '</span>'
+      + (isAdd || plain ? '' : nodeOps(n))
+      + '</div>';
+    if (open && kids.length) html += treeWalk(kids, depth + 1, isAdd, plain);
+  });
+  return html;
+}
+
+function toggleNode(id){ expanded[id] = !expanded[id]; renderTree(); renderAddTree(); }
+function selectNode(id){ curNode = id; renderTree(); renderList(); }
+function selectAddNode(id){ addCurNode = id; renderAddTree(); renderAddList(); }
+
+function renderTree(){
+  document.getElementById('treeBody').innerHTML =
+    '<div class="tree-node' + (curNode === '' ? ' active' : '') + '" onclick="selectNode(\'\')">'
+    + '<i class="fa-solid fa-layer-group"></i><span class="node-name">全部设备</span>'
+    + '<span class="cnt">' + counts('', false) + '</span></div>' + treeWalk(catalog, 0, false);
+}
+
+function renderAddTree(){
+  document.getElementById('addTreeBody').innerHTML =
+    '<div class="tree-node' + (addCurNode === '' ? ' active' : '') + '" onclick="selectAddNode(\'\')">'
+    + '<i class="fa-solid fa-layer-group"></i><span class="node-name">全部设备</span>'
+    + '<span class="cnt">' + counts('', true) + '</span></div>' + treeWalk(catalog, 0, true);
+}
+
+/* --- 节点 CRUD --- */
+var nodeModalMode = 'add';
+var nodeModalId = '';
+var nodeModalParent = '';
+
+function openNodeModal(mode, id){
+  if (mode === 'edit'){
+    if (!id) { showToast('请先在左侧选中一个目录节点'); return; }
+    var n = findNode(id);
+    if (!n) { showToast('请先在左侧选中一个目录节点'); return; }
+    if (n.system) { showToast('系统节点（未分类）不可重命名'); return; }
+    nodeModalMode = 'edit'; nodeModalId = id; nodeModalParent = '';
+    document.getElementById('nodeModalTitle').textContent = '重命名目录节点';
+    document.getElementById('nodeName').value = n.name;
+    document.getElementById('nodeParentHint').textContent = '当前节点：' + nodePath(id) + '　（第 ' + nodeDepth(id) + ' 层）';
+  } else {
+    if (id){
+      if (nodeDepth(id) >= MAX_LEVEL) { showToast('最多支持 ' + MAX_LEVEL + ' 层目录'); return; }
+    }
+    nodeModalMode = 'add'; nodeModalId = ''; nodeModalParent = id || '';
+    document.getElementById('nodeModalTitle').textContent = '新建目录节点';
+    document.getElementById('nodeName').value = '';
+    document.getElementById('nodeParentHint').textContent = id
+      ? '父节点：' + nodePath(id) + '　（新建后为第 ' + (nodeDepth(id) + 1) + ' 层）'
+      : '父节点：根目录　（新建后为第 1 层）';
+  }
+  document.getElementById('nodeModal').classList.add('open');
+  setTimeout(function(){ document.getElementById('nodeName').focus(); }, 50);
+}
+
+function saveNode(){
+  var name = document.getElementById('nodeName').value.trim();
+  if (!name) { showToast('请输入节点名称'); return; }
+  if (name.length > 20) { showToast('节点名称不超过 20 字'); return; }
+  if (nodeModalMode === 'edit'){
+    var info = nodeInfo(nodeModalId);
+    var dup = info.sibs.filter(function(s){ return s.id !== nodeModalId && s.name === name; }).length;
+    if (dup) { showToast('同层级下节点名称已存在'); return; }
+    info.node.name = name;
+    showToast('已重命名为「' + name + '」');
+  } else {
+    var sibs = nodeModalParent ? (findNode(nodeModalParent).children || []) : catalog;
+    if (sibs.filter(function(s){ return s.name === name; }).length) { showToast('同层级下节点名称已存在'); return; }
+    var nn = { id:'n' + (++nodeSeq), name:name };
+    if (nodeModalParent){
+      var p = findNode(nodeModalParent);
+      p.children = p.children || [];
+      p.children.push(nn);
+      expanded[nodeModalParent] = true;
+    } else {
+      catalog.splice(catalog.length - 1, 0, nn);   // 「未分类」保持在最后
+    }
+    showToast('已新建节点「' + name + '」');
+  }
+  document.getElementById('nodeModal').classList.remove('open');
+  renderTree(); renderAddTree(); renderList();
+}
+
+function removeNode(id){
+  function walk(list){
+    for (var i = 0; i < list.length; i++){
+      if (list[i].id === id) { list.splice(i, 1); return true; }
+      if (list[i].children && walk(list[i].children)) return true;
+    }
+    return false;
+  }
+  return walk(catalog);
+}
+
+function deleteNode(id){
+  if (!id) { showToast('请先在左侧选中一个目录节点'); return; }
+  var n = findNode(id);
+  if (!n) return;
+  if (n.system) { showToast('系统节点（未分类）不可删除'); return; }
+  var ids = descendantIds(id);
+  var kids = ids.length - 1;
+  var devs = devices.filter(function(d){ return ids.indexOf(d.node) >= 0; });
+  var tasks = devs.reduce(function(s, d){ return s + (d.monTasks || 0); }, 0);
+  var msg = '确认删除目录节点「' + nodePath(id) + '」？';
+  if (tasks > 0) msg = '该目录被 ' + tasks + ' 个进行中的布控任务引用，删除后任务比对范围将收缩。\n\n' + msg;
+  if (kids > 0) msg = '将同时删除 ' + kids + ' 个子节点；'
+    + (devs.length ? '节点下 ' + devs.length + ' 台设备将移至「未分类」，分析开关与配额不受影响。' : '') + '\n\n' + msg;
+  else if (devs.length) msg = '节点下 ' + devs.length + ' 台设备将移至「未分类」，分析开关与配额不受影响。\n\n' + msg;
+  if (!confirm(msg)) return;
+  devs.forEach(function(d){ d.node = UNCLASSIFIED; });
+  removeNode(id);
+  if (!curNode || ids.indexOf(curNode) >= 0) curNode = '';
+  if (addCurNode && ids.indexOf(addCurNode) >= 0) addCurNode = '';
+  showToast('已删除「' + n.name + '」' + (devs.length ? '，' + devs.length + ' 台设备已移至未分类' : ''));
+  renderTree(); renderAddTree(); renderList();
+}
+
+/* --- 按底座区域初始化 / 增量拉取 --- */
+function ensurePath(path){
+  var parts = path.split('/');
+  var list = catalog, node = null;
+  parts.forEach(function(name){
+    var found = null;
+    list.forEach(function(x){ if (x.name === name) found = x; });
+    if (!found){ found = { id:'n' + (++nodeSeq), name:name }; list.splice(list.length - (list === catalog ? 1 : 0), 0, found); }
+    found.children = found.children || [];
+    list = found.children; node = found;
+  });
+  return node;
+}
+function findByPath(path){
+  var parts = path.split('/');
+  var list = catalog, node = null;
+  for (var i = 0; i < parts.length; i++){
+    var found = null;
+    list.forEach(function(x){ if (x.name === parts[i]) found = x; });
+    if (!found) return null;
+    node = found; list = found.children || [];
+  }
+  return node;
+}
+
+function initFromBase(){
+  if (baseInited) { showToast('已按底座区域结构初始化过；如需同步底座新增区域，请使用「增量拉取新区域」'); return; }
+  if (!confirm('按底座区域结构生成初始目录？将重建当前目录结构（已有节点被覆盖），已纳入设备的分析开关与配额不受影响。')) return;
+  catalog = [];
+  var paths = [];
+  devices.forEach(function(d){ if (paths.indexOf(d.baseArea) < 0) paths.push(d.baseArea); });
+  paths.forEach(function(p){ ensurePath(p); });
+  catalog.push({ id:UNCLASSIFIED, name:'未分类', system:true });
+  var hit = 0;
+  devices.forEach(function(d){
+    var n = findByPath(d.baseArea);
+    if (n) { d.node = n.id; hit++; } else { d.node = UNCLASSIFIED; }
+  });
+  baseInited = true;
+  curNode = ''; addCurNode = '';
+  expanded = {}; catalog.forEach(function(n){ expanded[n.id] = true; });
+  showToast('已按底座区域结构初始化目录（' + paths.length + ' 个区域路径，' + hit + ' 台设备已归类）');
+  renderTree(); renderAddTree(); renderList();
+}
+
+function syncFromBase(){
+  var added = 0;
+  baseNewAreas.forEach(function(p){ if (!findByPath(p)) { ensurePath(p); added++; } });
+  baseNewAreas = [];
+  if (!added) { showToast('暂无底座新增区域，目录已是最新'); return; }
+  showToast('已从底座拉取 ' + added + ' 个新区域节点（不覆盖已有节点）');
+  renderTree(); renderAddTree(); renderList();
+}
+
+/* --- 设备归类 --- */
+var singleMoveId = 0;
+var moveTarget = '';
+
+function selectedIds(){
+  var ids = [];
+  document.querySelectorAll('.ck:checked').forEach(function(cb){ ids.push(Number(cb.getAttribute('data-id'))); });
+  return ids;
+}
+
+function moveTreeWalk(nodes, depth){
+  var html = '';
+  nodes.forEach(function(n){
+    var kids = n.children || [];
+    var open = !!expanded[n.id];
+    html += '<div class="tree-node' + (moveTarget === n.id ? ' active' : '') + '"'
+      + ' style="padding-left:' + (6 + depth * 14) + 'px" title="' + nodePath(n.id) + '"'
+      + ' onclick="selectMoveTarget(\'' + n.id + '\')">'
+      + (kids.length
+          ? '<span class="twisty" onclick="event.stopPropagation();toggleNode(\'' + n.id + '\')"><i class="fa-solid fa-chevron-' + (open ? 'down' : 'right') + '"></i></span>'
+          : '<span class="twisty"></span>')
+      + '<i class="' + (kids.length && open ? 'fa-solid fa-folder-open' : 'fa-regular fa-folder') + '"></i>'
+      + '<span class="node-name">' + n.name + '</span>'
+      + '<span class="cnt">' + counts(n.id, false).split(' / ')[1] + ' 台</span></div>';
+    if (open && kids.length) html += moveTreeWalk(kids, depth + 1);
+  });
+  return html;
+}
+function selectMoveTarget(id){ moveTarget = id; renderMoveTree(); }
+function renderMoveTree(){
+  document.getElementById('moveTreeBody').innerHTML =
+    '<div class="tree-node' + (moveTarget === UNCLASSIFIED ? ' active' : '') + '" onclick="selectMoveTarget(\'' + UNCLASSIFIED + '\')">'
+    + '<i class="fa-solid fa-box-open"></i><span class="node-name">未分类</span>'
+    + '<span class="cnt">' + devices.filter(function(d){ return d.node === UNCLASSIFIED; }).length + ' 台</span></div>'
+    + treeWalk(catalog.filter(function(n){ return !n.system; }), 0, false, true);
+}
+
+function openMoveModal(){
+  var ids = selectedIds();
+  if (!ids.length) { showToast('请先在列表中勾选设备'); return; }
+  singleMoveId = 0; moveTarget = '';
+  document.getElementById('moveTitle').textContent = '批量移动设备至目录';
+  document.getElementById('moveCount').textContent = ids.length;
+  renderMoveTree();
+  document.getElementById('moveModal').classList.add('open');
+}
+
+function openMoveSingle(id){
+  singleMoveId = id; moveTarget = '';
+  document.getElementById('moveTitle').textContent = '移动设备至目录';
+  document.getElementById('moveCount').textContent = '1';
+  renderMoveTree();
+  document.getElementById('moveModal').classList.add('open');
+}
+
+function confirmMove(){
+  var ids = singleMoveId ? [singleMoveId] : selectedIds();
+  if (!ids.length) { showToast('请先在列表中勾选设备'); return; }
+  if (!moveTarget) { showToast('请选择目标目录节点'); return; }
+  var tp = nodePath(moveTarget);
+  ids.forEach(function(id){ var d = findDevice(id); if (d) d.node = moveTarget; });
+  document.getElementById('moveModal').classList.remove('open');
+  showToast('已将 ' + ids.length + ' 台设备移动至「' + tp + '」，分析开关与配额不变');
+  singleMoveId = 0;
+  renderTree(); renderAddTree(); renderList();
+}
+
+function renderList(){
+  var fType = document.getElementById('fType').value;
+  var fNode = curNode;
+  var fOnline = document.getElementById('fOnline').value;
+  var fMon = document.getElementById('fMon').value;
+  var fKw = document.getElementById('fKeyword').value.trim();
+  var list = devices.filter(function(d){
+    if (!d.access) return false;
+    if (fType && typeLabel[d.type] !== fType) return false;
+    if (!inNode(d, fNode)) return false;
+    if (fOnline && ((fOnline === '在线') !== d.online)) return false;
+    if (fMon && ((fMon === '已开启') !== d.mon)) return false;
+    if (fKw && d.name.indexOf(fKw) < 0 && d.code.indexOf(fKw) < 0) return false;
+    return true;
+  });
+  var html = '';
+  list.forEach(function(d){
+    var typeTag = d.type === 'camera' ? '<span class="tag-blue">摄像头</span>' : '<span class="tag-green">卡口</span>';
+    var onlineTag = d.online ? '<span class="tag-green">在线</span>' : '<span class="tag-gray">离线</span>';
+    var monSw = '<span class="switch' + (d.mon ? ' on' : '') + '" onclick="toggleMon(' + d.id + ')"></span>' + (d.monTasks > 0 ? ' <span style="color:#999;font-size:12px;">' + d.monTasks + '个任务</span>' : '');
+    var monStart = d.mon ? '<span style="color:#999;font-size:12px;">' + (d.monStart || '自开启时') + '</span>' : '<span style="color:#ccc;">—</span>';
+    html += '<tr><td><input type="checkbox" class="ck" data-id="' + d.id + '"></td>'
+      + '<td>' + d.name + '</td><td>' + d.code + '</td><td>' + typeTag + '</td><td>' + nodePath(d.node) + '</td><td>' + onlineTag + '</td>'
+      + '<td>' + monSw + '</td><td>' + monStart + '</td>'
+      + '<td>' + d.addedBy + '</td>'
+      + '<td><button class="btn btn-sm" onclick="showDetail(' + d.id + ')">详情</button> '
+      + '<button class="btn btn-sm" onclick="openMoveSingle(' + d.id + ')">移动至…</button> '
+      + '<button class="btn btn-sm btn-danger" onclick="removeDevice(' + d.id + ')">移除</button></td></tr>';
+  });
+  document.getElementById('listBody').innerHTML = html || '<tr><td colspan="10" style="color:#999;text-align:center;padding:32px;">暂无已纳入布控比对的设备，点击上方「新增布控比对设备」从平台设备中圈选</td></tr>';
+  refreshQuota();
+  renderTree();
+}
+
+function openAddModal(){
+  addCurNode = '';
+  document.getElementById('addModal').classList.add('open');
+  renderAddTree();
+  renderAddList();
+}
+
+function renderAddList(){
+  var aType = document.getElementById('aType').value;
+  var aNode = addCurNode;
+  var aOnline = document.getElementById('aOnline').value;
+  var aKw = document.getElementById('aKeyword').value.trim();
+  var list = devices.filter(function(d){
+    if (d.access) return false;
+    if (aType && typeLabel[d.type] !== aType) return false;
+    if (!inNode(d, aNode)) return false;
+    if (aOnline && ((aOnline === '在线') !== d.online)) return false;
+    if (aKw && d.name.indexOf(aKw) < 0 && d.code.indexOf(aKw) < 0) return false;
+    return true;
+  });
+  var html = '';
+  list.forEach(function(d){
+    var typeTag = d.type === 'camera' ? '<span class="tag-blue">摄像头</span>' : '<span class="tag-green">卡口</span>';
+    var onlineTag = d.online ? '<span class="tag-green">在线</span>' : '<span class="tag-gray">离线</span>';
+    html += '<tr><td><input type="checkbox" class="ck-add" data-id="' + d.id + '" onchange="updateSelected()"></td>'
+      + '<td>' + d.name + '</td><td>' + d.code + '</td><td>' + typeTag + '</td><td>' + nodePath(d.node) + '</td><td>' + onlineTag + '</td></tr>';
+  });
+  document.getElementById('addBody').innerHTML = html || '<tr><td colspan="6" style="color:#999;text-align:center;padding:24px;">已无未纳入布控比对的设备可选</td></tr>';
+  updateSelected();
+  renderAddTree();
+}
+
+function updateSelected(){
+  var n = document.querySelectorAll('.ck-add:checked').length;
+  document.getElementById('selCount').textContent = n;
+  updateQuotaPreview();
+}
+
+function updateQuotaPreview(){
+  var checked = [];
+  document.querySelectorAll('.ck-add:checked').forEach(function(cb){ checked.push(Number(cb.getAttribute('data-id'))); });
+  var el = document.getElementById('quotaPreview');
+  if (!checked.length) { el.textContent = '配额预览：请先勾选设备'; return; }
+  var usedMn = devices.filter(function(d){ return d.access && d.mon; }).length;
+  el.innerHTML = '配额预览：勾选 <b>' + checked.length + '</b> 台 → 布控比对配额：本次+' + checked.length + '，已用' + usedMn + '，合计' + (usedMn + checked.length) + '/上限' + monQuota;
+}
+
+function confirmAdd(){
+  var checked = [];
+  document.querySelectorAll('.ck-add:checked').forEach(function(cb){ checked.push(Number(cb.getAttribute('data-id'))); });
+  if (!checked.length) { showToast('请先勾选要纳入的设备'); return; }
+  var usedMn = devices.filter(function(d){ return d.access && d.mon; }).length;
+  if (checked.length > monQuota - usedMn) { showToast('布控比对配额不足：剩余' + (monQuota - usedMn) + '台，本次勾选' + checked.length + '台，请减少勾选数量'); return; }
+  checked.forEach(function(id){
+    var d = findDevice(id);
+    d.access = true;
+    d.addedBy = now();
+    d.mon = true; d.monStart = '自' + now().split(' ')[1] + '起';
+    d.by = now();
+  });
+  document.getElementById('addModal').classList.remove('open');
+  showToast('成功纳入 ' + checked.length + ' 台设备，开启布控比对 ' + checked.length + ' 台');
+  renderList();
+}
+
+function toggleMon(id){
+  var d = findDevice(id);
+  if (!d || !d.access) return;
+  if (!d.mon) {
+    var used = devices.filter(function(x){ return x.access && x.mon; }).length;
+    if (used >= monQuota) { showToast('布控比对配额已满（' + used + '/' + monQuota + '），请先关闭其他设备或调整配额'); return; }
+    if (!confirm('开启布控比对？比对数据自开启时刻起产生，不回溯。')) return;
+    d.mon = true;
+    d.monStart = '自' + now().split(' ')[1] + '起';
+    d.by = now();
+  } else {
+    if (!confirm('关闭布控比对？进行中布控任务的比对范围将自动剔除本设备。')) return;
+    d.mon = false; d.monStart = ''; d.monTasks = 0; d.by = now();
+  }
+  renderList();
+}
+
+function removeDevice(id){
+  var d = findDevice(id);
+  if (!d || !d.access) return;
+  var msg = '确认移除设备「' + d.name + '」（' + d.code + '）？';
+  if (d.mon) { msg = '该设备已开启布控比对，移除将自动关闭开关并释放配额，涉及布控任务则比对范围自动剔除。' + msg; }
+  if (!confirm(msg)) return;
+  d.access = false;
+  d.mon = false; d.monStart = ''; d.monTasks = 0; d.by = '—'; d.addedBy = '—';
+  showToast('已移除「' + d.name + '」，开关已关闭并释放配额');
+  renderList();
+}
+
+function batchRemove(){
+  var ids = [];
+  document.querySelectorAll('.ck:checked').forEach(function(cb){ ids.push(Number(cb.getAttribute('data-id'))); });
+  if (!ids.length) { showToast('请先在列表中勾选设备'); return; }
+  if (!confirm('确认移除 ' + ids.length + ' 台设备？已开启的开关将自动关闭并释放配额。')) return;
+  ids.forEach(function(id){
+    var d = findDevice(id);
+    d.access = false; d.mon = false; d.monStart = ''; d.monTasks = 0; d.by = '—'; d.addedBy = '—';
+  });
+  showToast('已移除 ' + ids.length + ' 台设备');
+  renderList();
+}
+
+function showDetail(id){
+  var d = findDevice(id);
+  if (!d) return;
+  var html = '<table>';
+  html += '<tr><th style="width:120px;background:#fafafa;">设备</th><td>' + d.name + '（' + d.code + '）</td></tr>';
+  html += '<tr><th style="background:#fafafa;">设备类型</th><td>' + typeLabel[d.type] + '</td></tr>';
+  html += '<tr><th style="background:#fafafa;">所属目录</th><td>' + nodePath(d.node) + '</td></tr>';
+  html += '<tr><th style="background:#fafafa;">底座所属区域</th><td>' + d.baseArea + '（只读，目录与底座区域互不同步）</td></tr>';
+  html += '<tr><th style="background:#fafafa;">布控比对</th><td>' + (d.mon ? '已开启（' + (d.monStart || '自开启时') + '）' : '未开启') + '</td></tr>';
+  html += '<tr><th style="background:#fafafa;">关联布控任务</th><td>' + (d.monTasks > 0 ? d.monTasks + ' 个进行中任务' : '—') + '</td></tr>';
+  html += '</table>';
+  document.getElementById('detailBody').innerHTML = html;
+  document.getElementById('detailModal').classList.add('open');
+}
+
+renderTree();
+renderAddTree();
+renderList();
+</script>
+</body>
+</html>

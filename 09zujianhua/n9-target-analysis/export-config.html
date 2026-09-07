@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>轨迹导出配置 - 视频云平台 · N9 轨迹查询</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="../assets/proto.css">
+<style>/* token 别名 + 演示页头预留 */:root{--radius-md:8px;--radius-sm:4px;--ant-danger:var(--ant-error)}body{padding-top:36px !important}</style>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --ant-primary: #1677ff;
+            --ant-primary-hover: #4096ff;
+            --ant-primary-active: #0958d9;
+            --ant-primary-bg: #e6f4ff;
+
+            --ant-bg: #f5f5f5;
+            --ant-bg-container: #fff;
+
+            --ant-text: rgba(0,0,0,0.88);
+            --ant-text-secondary: rgba(0,0,0,0.65);
+            --ant-text-tertiary: rgba(0,0,0,0.45);
+
+            --ant-border-secondary: #f0f0f0;
+            --ant-border-color: #d9d9d9;
+            --ant-success: #52c41a;
+
+            --radius-sm: 4px;
+            --radius-md: 8px;
+
+            --ant-shadow-lg: 0 6px 16px 0 rgba(0,0,0,0.08), 0 3px 6px -4px rgba(0,0,0,0.12), 0 9px 28px 8px rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+            background: var(--ant-bg);
+            color: var(--ant-text);
+            font-size: 14px;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            height: 56px;
+            background: var(--ant-bg-container);
+            border-bottom: 1px solid var(--ant-border-secondary);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            gap: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 1;
+        }
+        .top-bar-logo {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ant-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .top-bar-logo i { color: var(--ant-primary); font-size: 20px; }
+        .top-bar-breadcrumb {
+            color: var(--ant-text-secondary);
+            font-size: 13px;
+            margin-left: 16px;
+        }
+        .top-bar-breadcrumb span { color: var(--ant-text-tertiary); }
+
+        /* 内容区域（模拟轨迹结果页） */
+        .page-content {
+            padding: 20px 24px;
+            position: relative;
+            z-index: 1;
+        }
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .page-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ant-text);
+        }
+        .btn-export {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            font-size: 14px;
+            border: 1px solid var(--ant-border-color);
+            border-radius: var(--radius-sm);
+            background: var(--ant-bg-container);
+            color: var(--ant-text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-export:hover {
+            border-color: var(--ant-primary);
+            color: var(--ant-primary);
+        }
+        .btn-export i { font-size: 13px; }
+
+        /* 模拟的轨迹结果卡片区 */
+        .mock-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .mock-card {
+            background: var(--ant-bg-container);
+            border: 1px solid var(--ant-border-secondary);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .mock-card-label { font-size: 12px; color: var(--ant-text-tertiary); margin-bottom: 6px; }
+        .mock-card-value { font-size: 24px; font-weight: 600; color: var(--ant-text); }
+
+        .mock-map {
+            background: var(--ant-bg-container);
+            border: 1px solid var(--ant-border-secondary);
+            border-radius: var(--radius-md);
+            height: 340px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ant-text-tertiary);
+            font-size: 15px;
+        }
+        .mock-map i { font-size: 40px; margin-bottom: 10px; display: block; }
+
+        /* 遮罩层 */
+        .modal-mask {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInMask 0.2s ease-out;
+        }
+        @keyframes fadeInMask {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        /* 弹窗主体 */
+        .modal-wrap {
+            width: 520px;
+            background: var(--ant-bg-container);
+            border-radius: var(--radius-md);
+            box-shadow: var(--ant-shadow-lg);
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+            animation: slideInModal 0.25s ease-out;
+        }
+        @keyframes slideInModal {
+            from { opacity: 0; transform: translateY(-24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 弹窗头部 */
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--ant-border-secondary);
+            flex-shrink: 0;
+        }
+        .modal-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ant-text);
+        }
+        .modal-close {
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            border: none; background: transparent;
+            color: var(--ant-text-tertiary);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        .modal-close:hover {
+            background: rgba(0,0,0,0.06);
+            color: var(--ant-text-secondary);
+        }
+
+        /* 弹窗内容 */
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* 表单行 */
+        .form-row {
+            margin-bottom: 20px;
+        }
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ant-text);
+            margin-bottom: 8px;
+        }
+        .form-label .required {
+            color: var(--ant-primary);
+            margin-right: 4px;
+            font-size: 14px;
+        }
+
+        /* 输入框 */
+        .ant-input {
+            width: 100%;
+            height: 36px;
+            padding: 4px 12px;
+            border: 1px solid var(--ant-border-color);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            color: var(--ant-text);
+            background: var(--ant-bg-container);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .ant-input:focus {
+            border-color: var(--ant-primary);
+            box-shadow: 0 0 0 2px var(--ant-primary-bg);
+        }
+        .ant-input::placeholder {
+            color: var(--ant-text-tertiary);
+        }
+
+        /* Checkbox 组 */
+        .check-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .check-item input[type="checkbox"] {
+            width: 16px; height: 16px;
+            margin-top: 2px;
+            accent-color: var(--ant-primary);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .check-item span {
+            font-size: 14px;
+            color: var(--ant-text);
+            line-height: 20px;
+        }
+
+        /* Radio 组 */
+        .radio-group {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .radio-item input[type="radio"] {
+            width: 16px; height: 16px;
+            accent-color: var(--ant-primary);
+            cursor: pointer;
+        }
+        .radio-item span {
+            font-size: 14px;
+            color: var(--ant-text);
+        }
+
+        /* 子选项（抓拍图片下方） */
+        .sub-options {
+            margin-left: 24px;
+            margin-top: 10px;
+            padding: 12px 14px;
+            background: #fafafa;
+            border: 1px solid var(--ant-border-secondary);
+            border-radius: var(--radius-sm);
+            transition: opacity 0.2s, max-height 0.3s;
+            max-height: 100px;
+            overflow: hidden;
+        }
+        .sub-options.hidden {
+            opacity: 0;
+            max-height: 0;
+            padding: 0 14px;
+            margin-top: 0;
+            border-color: transparent;
+            pointer-events: none;
+        }
+        .sub-options .radio-item span { font-size: 13px; color: var(--ant-text-secondary); }
+
+        /* 高清提示 */
+        .quality-hint {
+            font-size: 12px;
+            color: var(--ant-text-tertiary);
+            margin-top: 6px;
+            margin-left: 24px;
+        }
+        .quality-hint i { margin-right: 3px; font-size: 11px; }
+
+        /* 弹窗底部 */
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 14px 24px;
+            border-top: 1px solid var(--ant-border-secondary);
+            flex-shrink: 0;
+        }
+
+        /* 按钮样式 */
+        .ant-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 36px;
+            padding: 4px 16px;
+            font-size: 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--ant-border-color);
+            background: var(--ant-bg-container);
+            color: var(--ant-text);
+            white-space: nowrap;
+        }
+        .ant-btn:hover {
+            border-color: var(--ant-primary);
+            color: var(--ant-primary);
+        }
+        .ant-btn-primary {
+            background: var(--ant-primary);
+            border-color: var(--ant-primary);
+            color: #fff;
+        }
+        .ant-btn-primary:hover {
+            background: var(--ant-primary-hover);
+            border-color: var(--ant-primary-hover);
+            color: #fff;
+        }
+
+        /* 进度条区域 */
+        .progress-section {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-section.active {
+            display: block;
+        }
+        .progress-bar-outer {
+            height: 8px;
+            background: var(--ant-border-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .progress-bar-inner {
+            height: 100%;
+            width: 0%;
+            background: var(--ant-primary);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            font-size: 13px;
+            color: var(--ant-text-secondary);
+            text-align: center;
+        }
+
+        /* 完成区域 */
+        .complete-section {
+            display: none;
+            text-align: center;
+            padding: 20px 0 4px;
+        }
+        .complete-section.active {
+            display: block;
+        }
+        .complete-icon {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: #f6ffed;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+        .complete-icon i {
+            font-size: 22px;
+            color: var(--ant-success);
+        }
+        .complete-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--ant-text);
+            margin-bottom: 4px;
+        }
+        .complete-meta {
+            font-size: 13px;
+            color: var(--ant-text-tertiary);
+            margin-bottom: 18px;
+        }
+        .complete-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--ant-bg-container);
+            border: 1px solid var(--ant-border-secondary);
+            border-radius: var(--radius-md);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--ant-text);
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .toast.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+        .toast i {
+            color: var(--ant-success);
+            font-size: 16px;
+        }
+
+        /* 底部导航链接 */
+        .demo-footer {
+            text-align: center;
+            padding: 24px 0 32px;
+        }
+        .demo-footer a {
+            color: var(--ant-primary);
+            font-size: 13px;
+            text-decoration: none;
+        }
+        .demo-footer a:hover {
+            text-decoration: underline;
+        }
+        .demo-footer i {
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body>
+<!-- 演示页头（原型导航用，实际集成时为页面内弹窗） -->
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:var(--ant-bg-container);border-bottom:1px solid var(--ant-border-secondary);display:flex;align-items:center;gap:10px;padding:0 16px;font-size:12px;color:var(--ant-text-tertiary);z-index:9999;box-shadow:var(--ant-shadow);">
+  <span class="comp-badge" style="height:20px;font-size:11px;">N9 轨迹查询</span>
+  <span>弹窗演示 · 轨迹导出配置（P-005）</span>
+  <a href="result.html" style="margin-left:auto;color:var(--ant-primary);text-decoration:none;">← 返回人员轨迹结果</a>
+</div>
+
+
+    <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="top-bar-logo">
+            <i class="fa-solid fa-shield-halved"></i>
+            视频云平台 · N9 轨迹查询
+        </div>
+        <div class="top-bar-breadcrumb">
+            <span>轨迹分析</span> <span style="margin:0 6px;">/</span> 人员轨迹查询 <span style="margin:0 6px;">/</span> 查询结果
+        </div>
+    </div>
+
+    <!-- 页面内容 -->
+    <div class="page-content">
+        <div class="page-header">
+            <h2>人员轨迹查询结果</h2>
+            <button class="btn-export" onclick="openModal()">
+                <i class="fa-solid fa-file-arrow-down"></i>
+                导出报告
+            </button>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="mock-cards">
+            <div class="mock-card">
+                <div class="mock-card-label">抓拍次数</div>
+                <div class="mock-card-value">47</div>
+            </div>
+            <div class="mock-card">
+                <div class="mock-card-label">涉及摄像头</div>
+                <div class="mock-card-value">12</div>
+            </div>
+            <div class="mock-card">
+                <div class="mock-card-label">活动时长</div>
+                <div class="mock-card-value">3h 25min</div>
+            </div>
+            <div class="mock-card">
+                <div class="mock-card-label">异常节点</div>
+                <div class="mock-card-value">3</div>
+            </div>
+        </div>
+
+        <!-- 模拟地图 -->
+        <div class="mock-map">
+            <div style="text-align:center;">
+                <i class="fa-solid fa-map-location-dot"></i>
+                <div>轨迹地图区域（示意）</div>
+            </div>
+        </div>
+
+        <!-- 底部导航链接 -->
+        <div class="demo-footer">
+            <a href="../index.html"><i class="fa-solid fa-arrow-left"></i>返回原型导航页</a>
+        </div>
+    </div>
+
+    <!-- 遮罩 + 弹窗 -->
+    <div class="modal-mask" id="modalMask" style="display:none;">
+        <div class="modal-wrap" id="modalWrap">
+            <!-- 头部 -->
+            <div class="modal-header">
+                <h3>导出轨迹报告</h3>
+                <button class="modal-close" onclick="closeModal()" title="关闭">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- 内容 -->
+            <div class="modal-body" id="modalBody">
+                <!-- 表单区域 -->
+                <div id="formSection">
+                    <!-- 报告标题 -->
+                    <div class="form-row">
+                        <div class="form-label">
+                            <span class="required">*</span> 报告标题
+                        </div>
+                        <input class="ant-input" type="text" id="reportTitle" value="人员轨迹分析报告_20260601" />
+                    </div>
+
+                    <!-- 导出内容 -->
+                    <div class="form-row">
+                        <div class="form-label">导出内容</div>
+                        <div class="check-group">
+                            <!-- 地图截图 -->
+                            <label class="check-item">
+                                <input type="checkbox" checked />
+                                <span>轨迹地图截图（当前地图视角）</span>
+                            </label>
+
+                            <!-- 抓拍图片 -->
+                            <div>
+                                <label class="check-item">
+                                    <input type="checkbox" id="checkCaptures" checked onchange="toggleSubOptions()" />
+                                    <span>抓拍图片</span>
+                                </label>
+                                <div class="sub-options" id="captureSubOptions">
+                                    <div class="radio-group">
+                                        <label class="radio-item">
+                                            <input type="radio" name="captureScope" value="all" checked />
+                                            <span>全部</span>
+                                        </label>
+                                        <label class="radio-item">
+                                            <input type="radio" name="captureScope" value="abnormal" />
+                                            <span>仅异常节点</span>
+                                        </label>
+                                        <label class="radio-item">
+                                            <input type="radio" name="captureScope" value="top20" />
+                                            <span>前20张</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 时间线列表 -->
+                            <label class="check-item">
+                                <input type="checkbox" checked />
+                                <span>时间线列表（序号、时间、点位、相似度）</span>
+                            </label>
+
+                            <!-- 统计信息 -->
+                            <label class="check-item">
+                                <input type="checkbox" checked />
+                                <span>统计信息（抓拍次数、涉及摄像头、活动时长等）</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 图片质量 -->
+                    <div class="form-row">
+                        <div class="form-label">图片质量</div>
+                        <div class="radio-group">
+                            <label class="radio-item">
+                                <input type="radio" name="imageQuality" value="standard" checked />
+                                <span>标准</span>
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="imageQuality" value="high" />
+                                <span>高清</span>
+                            </label>
+                        </div>
+                        <div class="quality-hint" id="qualityHint" style="display:none;">
+                            <i class="fa-solid fa-circle-info"></i>
+                            高清模式下PDF文件体积会显著增大，生成时间也会相应增加
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 进度条区域 -->
+                <div class="progress-section" id="progressSection">
+                    <div class="progress-bar-outer">
+                        <div class="progress-bar-inner" id="progressBar"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">正在生成报告... 0%</div>
+                </div>
+
+                <!-- 完成区域 -->
+                <div class="complete-section" id="completeSection">
+                    <div class="complete-icon">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <div class="complete-title">报告已生成（2.3 MB）</div>
+                    <div class="complete-meta">人员轨迹分析报告_20260601.pdf</div>
+                    <div class="complete-actions">
+                        <button class="ant-btn ant-btn-primary" onclick="downloadReport()">
+                            <i class="fa-solid fa-download"></i> 下载
+                        </button>
+                        <button class="ant-btn" onclick="closeModal()">关闭</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部按钮（表单态） -->
+            <div class="modal-footer" id="modalFooter">
+                <button class="ant-btn" onclick="closeModal()">取消</button>
+                <button class="ant-btn ant-btn-primary" onclick="generateReport()">
+                    <i class="fa-solid fa-file-export"></i> 生成报告
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toastText">PDF报告已开始下载</span>
+    </div>
+
+    <script>
+        /* ========== DOM 引用 ========== */
+        const modalMask   = document.getElementById('modalMask');
+        const formSection = document.getElementById('formSection');
+        const progressSec = document.getElementById('progressSection');
+        const completeSec = document.getElementById('completeSection');
+        const modalFooter = document.getElementById('modalFooter');
+        const progressBar = document.getElementById('progressBar');
+        const progressText= document.getElementById('progressText');
+
+        /* ========== 打开 / 关闭弹窗 ========== */
+        function openModal() {
+            resetModal();
+            modalMask.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modalMask.style.display = 'none';
+            resetModal();
+        }
+
+        /* 点击遮罩关闭 */
+        modalMask.addEventListener('click', function(e) {
+            if (e.target === modalMask) closeModal();
+        });
+
+        /* ESC 关闭 */
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modalMask.style.display !== 'none') {
+                closeModal();
+            }
+        });
+
+        /* ========== 重置弹窗状态 ========== */
+        function resetModal() {
+            formSection.style.display  = '';
+            progressSec.classList.remove('active');
+            completeSec.classList.remove('active');
+            modalFooter.style.display  = '';
+            progressBar.style.width    = '0%';
+            progressText.textContent   = '正在生成报告... 0%';
+        }
+
+        /* ========== 切换抓拍子选项 ========== */
+        function toggleSubOptions() {
+            const checked = document.getElementById('checkCaptures').checked;
+            const sub = document.getElementById('captureSubOptions');
+            if (checked) {
+                sub.classList.remove('hidden');
+            } else {
+                sub.classList.add('hidden');
+            }
+        }
+
+        /* ========== 高清提示 ========== */
+        document.querySelectorAll('input[name="imageQuality"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                const hint = document.getElementById('qualityHint');
+                hint.style.display = this.value === 'high' ? '' : 'none';
+            });
+        });
+
+        /* ========== 生成报告（进度条动画） ========== */
+        function generateReport() {
+            /* 隐藏表单和底部按钮，显示进度 */
+            formSection.style.display  = 'none';
+            modalFooter.style.display  = 'none';
+            progressSec.classList.add('active');
+
+            let progress = 0;
+            const duration = 3000; /* 3秒 */
+            const interval = 30;
+            const step = 100 / (duration / interval);
+
+            const timer = setInterval(function() {
+                progress += step;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(timer);
+                    /* 延迟 0.3s 后显示完成 */
+                    setTimeout(showComplete, 300);
+                }
+                progressBar.style.width  = progress.toFixed(0) + '%';
+                progressText.textContent = '正在生成报告... ' + progress.toFixed(0) + '%';
+            }, interval);
+        }
+
+        /* ========== 显示完成状态 ========== */
+        function showComplete() {
+            progressSec.classList.remove('active');
+            completeSec.classList.add('active');
+        }
+
+        /* ========== 下载报告 ========== */
+        function downloadReport() {
+            showToast('PDF报告已开始下载');
+        }
+
+        /* ========== Toast ========== */
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastText').textContent = message;
+            toast.classList.add('visible');
+            setTimeout(function() {
+                toast.classList.remove('visible');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>N9 人员轨迹查询 · html-antd 技术验证</title>
+  <link rel="stylesheet" href="assets/antd-6.4.3.css">
+  <link rel="stylesheet" href="assets/ant-prototype.css">
+  <link rel="stylesheet" href="assets/n9-test.css">
+</head>
+<body class="ant-prototype-body">
+  <div class="ant-prototype-shell">
+    <aside class="ant-prototype-sider">
+      <div class="ant-prototype-brand">
+        <span class="ant-prototype-brand-mark" aria-hidden="true">N9</span>
+        <span>轨迹查询</span>
+      </div>
+      <nav aria-label="N9 功能导航">
+        <div class="n9-menu-group">轨迹查询</div>
+        <button class="ant-menu-item ant-menu-item-selected n9-nav-button" type="button" data-action="nav-person" data-n9-view="search" aria-current="page"><span class="ant-menu-title-content">人员轨迹查询</span></button>
+        <button class="ant-menu-item n9-nav-button" type="button" data-action="nav-vehicle" data-ant-message="本次技术验证聚焦人员轨迹查询闭环"><span class="ant-menu-title-content">车辆轨迹查询</span></button>
+        <button class="ant-menu-item n9-nav-button" type="button" data-action="nav-compare" data-ant-message="多目标对比沿用现有产品范围，本次不重做"><span class="ant-menu-title-content">多目标对比</span></button>
+        <div class="n9-menu-group">分析接入</div>
+        <button class="ant-menu-item n9-nav-button" type="button" data-action="nav-analysis" data-ant-message="轨迹分析接入沿用现有页面，本次不重做"><span class="ant-menu-title-content">轨迹分析接入</span></button>
+      </nav>
+    </aside>
+
+    <main class="ant-prototype-main">
+      <header class="ant-prototype-header">
+        <div class="n9-header-title"><span>视频云平台</span><span class="ant-tag ant-tag-blue css-var-_R_0_">N9 轨迹查询</span></div>
+        <div class="ant-prototype-header-meta"><span>通知 2</span><span class="n9-avatar" aria-hidden="true">张</span><span>张工程师</span></div>
+      </header>
+
+      <div class="ant-prototype-content n9-content">
+        <div class="ant-prototype-breadcrumb">轨迹查询 / <span data-n9-title>人员轨迹查询</span></div>
+
+        <section data-n9-panel="search">
+          <div class="ant-prototype-page-heading">
+            <div><h1>人员轨迹查询</h1><p>上传人员线索，在已开启轨迹分析的设备范围内检索候选目标。</p></div>
+            <span class="ant-tag ant-tag-processing css-var-_R_0_">html-antd 验证版</span>
+          </div>
+
+          <div class="ant-alert ant-alert-info ant-alert-with-description css-var-_R_0_ n9-test-notice" role="status">
+            <span class="ant-alert-icon" aria-hidden="true">i</span>
+            <div class="ant-alert-section"><div class="ant-alert-title">本页仅验证新的原型渲染方案</div><div class="ant-alert-description">产品范围、字段与业务规则取自现有 N9 PRD；不会替换原 17 页原型。</div></div>
+          </div>
+
+          <div class="ant-card ant-card-bordered ant-card-css-var css-var-_R_0_ n9-search-card">
+            <div class="ant-card-head"><div class="ant-card-head-wrapper"><div class="ant-card-head-title">查询条件</div><div class="ant-card-extra"><span class="ant-tag ant-tag-blue css-var-_R_0_">人员特征检索</span></div></div></div>
+            <div class="ant-card-body">
+              <div class="ant-tabs ant-tabs-top ant-tabs-css-var css-var-_R_0_ n9-tabs" data-ant-tabs>
+                <div class="ant-tabs-nav" role="tablist" aria-label="检索方式"><div class="ant-tabs-nav-wrap"><div class="ant-tabs-nav-list">
+                  <button class="ant-tabs-tab ant-tabs-tab-active" type="button" role="tab" aria-selected="true" data-action="tab-image" data-ant-tab="image"><span class="ant-tabs-tab-btn">以图搜人</span></button>
+                  <button class="ant-tabs-tab" type="button" role="tab" aria-selected="false" tabindex="-1" data-action="tab-text" data-ant-tab="text"><span class="ant-tabs-tab-btn">文本搜人</span></button>
+                </div></div></div>
+
+                <form id="search-form" novalidate>
+                  <div class="n9-form-grid">
+                    <div class="ant-form-item ant-form-item-vertical">
+                      <div class="ant-form-item-label"><label class="ant-form-item-required" for="start-time">开始时间</label></div>
+                      <input id="start-time" class="ant-input ant-input-outlined ant-input-css-var css-var-_R_0_" type="datetime-local" value="2026-05-28T23:59" required>
+                    </div>
+                    <div class="ant-form-item ant-form-item-vertical">
+                      <div class="ant-form-item-label"><label class="ant-form-item-required" for="end-time">结束时间</label></div>
+                      <input id="end-time" class="ant-input ant-input-outlined ant-input-css-var css-var-_R_0_" type="datetime-local" value="2026-05-29T23:59" required>
+                    </div>
+                    <div class="ant-form-item ant-form-item-vertical">
+                      <div class="ant-form-item-label"><label for="scope-button">地点范围</label></div>
+                      <button id="scope-button" class="ant-btn css-var-_R_0_ ant-btn-color-default ant-btn-variant-outlined n9-field-button" type="button" data-action="open-scope" data-ant-open-modal="scope-modal"><span data-scope-label>东区园区（6/8 台已开启）</span><span aria-hidden="true">⌄</span></button>
+                    </div>
+                  </div>
+
+                  <div data-ant-tab-panel="image">
+                    <div class="n9-query-layout">
+                      <div>
+                        <div class="ant-form-item ant-form-item-vertical">
+                          <div class="ant-form-item-label"><label class="ant-form-item-required" for="person-image">上传人像照片</label><span class="n9-label-note">限 1 张，JPG/PNG/BMP，≤5MB</span></div>
+                          <div id="upload-box" class="n9-upload" role="group" aria-describedby="upload-help">
+                            <input id="person-image" type="file" accept=".jpg,.jpeg,.png,.bmp" hidden>
+                            <div id="upload-placeholder">
+                              <span class="n9-upload-symbol" aria-hidden="true">＋</span>
+                              <strong>点击选择人像照片</strong>
+                              <span id="upload-help">全身或半身均可，不要求必须含人脸</span>
+                              <div class="n9-upload-actions">
+                                <button class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-outlined" type="button" data-action="choose-file"><span>选择文件</span></button>
+                                <button class="ant-btn css-var-_R_0_ ant-btn-color-default ant-btn-variant-dashed" type="button" data-action="load-demo"><span>载入演示照片</span></button>
+                              </div>
+                            </div>
+                            <div id="upload-preview" class="n9-upload-preview" hidden>
+                              <div class="n9-person-placeholder" aria-label="演示人员照片"><span></span></div>
+                              <div><strong>演示人员线索.jpg</strong><p>已识别可用的人体特征 · 1.2 MB</p></div>
+                              <button class="ant-btn css-var-_R_0_ ant-btn-color-dangerous ant-btn-variant-text" type="button" data-action="remove-image"><span>移除</span></button>
+                            </div>
+                          </div>
+                          <div id="image-error" class="ant-prototype-field-error" role="alert" hidden></div>
+                        </div>
+                      </div>
+                      <div class="n9-upload-tips">
+                        <strong>上传建议</strong>
+                        <ul><li>正面或半身照片识别率更高</li><li>图片清晰无遮挡，光线均匀</li><li>上传后仍可调整相似度阈值</li></ul>
+                        <button class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-link" type="button" data-action="open-library" data-ant-open-modal="library-modal"><span>从目标库选择（N11）</span></button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div data-ant-tab-panel="text" hidden>
+                    <div class="ant-form-item ant-form-item-vertical">
+                      <div class="ant-form-item-label"><label class="ant-form-item-required" for="search-text">人员特征描述</label></div>
+                      <textarea id="search-text" class="ant-input ant-input-outlined ant-input-css-var css-var-_R_0_ n9-textarea" minlength="10" maxlength="200" placeholder="例如：穿白色上衣、背黑色双肩包的人员"></textarea>
+                      <div id="text-error" class="ant-prototype-field-error" role="alert" hidden></div>
+                    </div>
+                  </div>
+
+                  <div class="n9-threshold-row">
+                    <label for="threshold"><span>相似度阈值</span><strong id="threshold-value">75%</strong></label>
+                    <input id="threshold" type="range" min="60" max="99" value="75">
+                    <div><span>宽松（60%）</span><span>精准（99%）</span></div>
+                  </div>
+
+                  <div id="scope-error" class="ant-alert ant-alert-error css-var-_R_0_ n9-inline-alert" role="alert" hidden><span class="ant-alert-icon" aria-hidden="true">!</span><div class="ant-alert-section"><div class="ant-alert-title">所选范围未开启轨迹分析，无数据可查，请联系管理员开启</div></div></div>
+
+                  <div class="n9-form-actions">
+                    <button class="ant-btn css-var-_R_0_ ant-btn-color-default ant-btn-variant-outlined" type="reset" data-action="reset-search"><span>重置</span></button>
+                    <button id="query-button" class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-solid" type="submit" data-action="run-search"><span data-query-label>查询</span></button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section data-n9-panel="candidates" hidden>
+          <div class="ant-prototype-page-heading">
+            <div><h1>请确认目标人员</h1><p>系统返回 5 个候选，请由人工确认后生成轨迹。</p></div>
+            <button class="ant-btn css-var-_R_0_ ant-btn-color-default ant-btn-variant-outlined" type="button" data-action="back-search"><span>返回查询</span></button>
+          </div>
+          <div class="ant-alert ant-alert-warning css-var-_R_0_ n9-inline-alert" role="status"><span class="ant-alert-icon" aria-hidden="true">!</span><div class="ant-alert-section"><div class="ant-alert-title">所选范围内 6/8 台设备已开启分析，结果可能不完整</div></div></div>
+          <div class="ant-card ant-card-bordered ant-card-css-var css-var-_R_0_ n9-summary-card">
+            <div class="ant-card-body"><div class="n9-query-summary"><div class="n9-person-placeholder is-small" aria-hidden="true"><span></span></div><div><span class="ant-tag ant-tag-blue css-var-_R_0_">以图搜人</span><strong>演示人员线索.jpg</strong><p>2026-05-28 23:59 至 2026-05-29 23:59 · 东区园区 · 阈值 75%</p></div><div class="n9-summary-count"><strong>5</strong><span>个候选</span></div></div></div>
+          </div>
+          <h2 class="n9-section-title">候选人员 <span>按第一次出现时间排序</span></h2>
+          <div class="n9-candidate-grid">
+            <article class="ant-card ant-card-bordered ant-card-css-var css-var-_R_0_ n9-candidate"><div class="n9-candidate-image tone-blue"><span class="n9-rank">1</span><div class="n9-silhouette"><span></span></div></div><div class="ant-card-body"><strong>P-00231</strong><p>第一次出现 09:12</p><button class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-solid ant-btn-block" type="button" data-action="confirm-target" data-target="P-00231"><span>确认目标</span></button></div></article>
+            <article class="ant-card ant-card-bordered ant-card-css-var css-var-_R_0_ n9-candidate"><div class="n9-candidate-image tone-green"><span class="n9-rank">2</span><div class="n9-silhouette"><span></span></div></div><div class="ant-card-body"><strong>P-00187</strong><p>第一次出现 10:05</p><button class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-solid ant-btn-block" type="button" data-action="confirm-target" data-target="P-00187"><span>确认目标</span></button></div></article>
+            <article class="ant-card ant-card-bordered ant-card-css-var css-var-_R_0_ n9-candidate"><div class="n9-candidate-image tone-gold"><span class="n9-rank">3</span><div class="n9-silhouette"><span></span></div></div><div class="ant-card-body"><strong>P-00342</strong><p>第一次出现 11:30</p><button class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-solid ant-btn-block" type="button" data-action="confirm-target" data-target="P-00342"><span>确认目标</span></button></div></article>
+            <article class="ant-card ant-card-bordered ant-card-css-var css-var-_R_0_ n9-candidate"><div class="n9-candidate-image tone-red"><span class="n9-rank">4</span><div class="n9-silhouette"><span></span></div></div><div class="ant-card-body"><strong>P-00415</strong><p>第一次出现 13:20</p><button class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-solid ant-btn-block" type="button" data-action="confirm-target" data-target="P-00415"><span>确认目标</span></button></div></article>
+            <article class="ant-card ant-card-bordered ant-card-css-var css-var-_R_0_ n9-candidate"><div class="n9-candidate-image tone-gray"><span class="n9-rank">5</span><div class="n9-silhouette"><span></span></div></div><div class="ant-card-body"><strong>P-00098</strong><p>第一次出现 14:10</p><button class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-solid ant-btn-block" type="button" data-action="confirm-target" data-target="P-00098"><span>确认目标</span></button></div></article>
+          </div>
+          <div class="n9-none-match"><button class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-link" type="button" data-action="none-match"><span>以上都不是？返回重新查询</span></button></div>
+        </section>
+
+        <section data-n9-panel="trajectory" hidden>
+          <div class="ant-prototype-page-heading">
+            <div><h1>人员轨迹结果</h1><p><span class="ant-tag ant-tag-blue css-var-_R_0_" data-target-id>P-00231</span> 已确认，按时间顺序展示轨迹节点。</p></div>
+            <div class="ant-prototype-actions"><button class="ant-btn css-var-_R_0_ ant-btn-color-default ant-btn-variant-outlined" type="button" data-action="back-candidates"><span>返回候选</span></button><button class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-solid" type="button" data-action="open-export" data-ant-open-modal="export-modal"><span>导出报告</span></button></div>
+          </div>
+          <div class="n9-stat-grid">
+            <div class="ant-card ant-card-bordered ant-card-css-var css-var-_R_0_"><div class="ant-card-body"><span>抓拍次数</span><strong>6 次</strong></div></div>
+            <div class="ant-card ant-card-bordered ant-card-css-var css-var-_R_0_"><div class="ant-card-body"><span>涉及摄像头</span><strong>5 个</strong></div></div>
+            <div class="ant-card ant-card-bordered ant-card-css-var css-var-_R_0_"><div class="ant-card-body"><span>活动时长</span><strong>6h 18m</strong></div></div>
+            <div class="ant-card ant-card-bordered ant-card-css-var css-var-_R_0_"><div class="ant-card-body"><span>首次 / 末次出现</span><strong>09:12 / 15:30</strong></div></div>
+          </div>
+          <div class="ant-card ant-card-bordered ant-card-css-var css-var-_R_0_ n9-map-card">
+            <div class="ant-card-head"><div class="ant-card-head-wrapper"><div class="ant-card-head-title">轨迹地图</div><div class="ant-card-extra"><span class="ant-tag ant-tag-processing css-var-_R_0_">6 个节点</span></div></div></div>
+            <div class="ant-card-body">
+              <div class="n9-map" aria-label="东区园区人员轨迹示意图">
+                <svg viewBox="0 0 1000 420" role="img" aria-labelledby="map-title"><title id="map-title">人员 P-00231 在东区园区的六个轨迹节点</title>
+                  <defs><pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#e8edf3" stroke-width="1"/></pattern><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#1677ff"/></marker></defs>
+                  <rect width="1000" height="420" fill="url(#grid)"/>
+                  <g class="n9-building"><rect x="80" y="70" width="210" height="100" rx="10"/><text x="185" y="125">东区办公楼</text><rect x="380" y="55" width="180" height="120" rx="10"/><text x="470" y="120">访客中心</text><rect x="690" y="80" width="220" height="95" rx="10"/><text x="800" y="132">北门广场</text><rect x="185" y="270" width="240" height="90" rx="10"/><text x="305" y="322">停车区域</text><rect x="650" y="260" width="220" height="100" rx="10"/><text x="760" y="318">东区仓库</text></g>
+                  <path class="n9-route" d="M135 220 C240 205 295 235 365 220 S510 185 580 225 S730 240 820 210" marker-end="url(#arrow)"/>
+                  <g class="n9-route-nodes"><g transform="translate(135 220)" data-map-node="1"><circle r="15"/><text>1</text></g><g transform="translate(280 220)" data-map-node="2"><circle r="15"/><text>2</text></g><g transform="translate(420 207)" data-map-node="3"><circle r="15"/><text>3</text></g><g class="is-stay" transform="translate(575 224)" data-map-node="4"><circle r="23"/><text>18m</text></g><g transform="translate(690 229)" data-map-node="5"><circle r="15"/><text>5</text></g><g transform="translate(820 210)" data-map-node="6"><circle r="15"/><text>6</text></g></g>
+                </svg>
+                <div class="n9-map-legend"><span><i class="is-route"></i>移动轨迹</span><span><i class="is-stay"></i>停留节点</span></div>
+              </div>
+              <div class="n9-timeline"><button id="play-button" class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-solid" type="button" data-action="play-route" aria-pressed="false"><span data-play-label>播放</span></button><input id="timeline" type="range" min="0" max="5" value="0" aria-label="轨迹时间轴"><strong id="timeline-time">09:12</strong></div>
+            </div>
+          </div>
+
+          <div class="ant-card ant-card-bordered ant-card-css-var css-var-_R_0_ n9-captures-card">
+            <div class="ant-card-head"><div class="ant-card-head-wrapper"><div class="ant-card-head-title">抓拍记录</div><div class="ant-card-extra">按时间升序</div></div></div>
+            <div class="ant-card-body"><div class="ant-table-wrapper ant-table-css-var css-var-_R_0_"><div class="ant-table ant-table-middle"><div class="ant-table-container"><div class="ant-table-content ant-prototype-table-scroll"><table><thead class="ant-table-thead"><tr><th class="ant-table-cell">序号</th><th class="ant-table-cell">抓拍时间</th><th class="ant-table-cell">点位名称</th><th class="ant-table-cell">摄像头编码</th><th class="ant-table-cell">相似度</th><th class="ant-table-cell">操作</th></tr></thead><tbody class="ant-table-tbody">
+              <tr class="ant-table-row" data-capture-row="0"><td class="ant-table-cell">1</td><td class="ant-table-cell">09:12:08</td><td class="ant-table-cell">东区办公楼东侧</td><td class="ant-table-cell">CAM-E-012</td><td class="ant-table-cell"><span class="ant-tag ant-tag-success css-var-_R_0_">92%</span></td><td class="ant-table-cell"><button class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-link" type="button" data-action="open-capture" data-capture="1"><span>查看详情</span></button></td></tr>
+              <tr class="ant-table-row" data-capture-row="1"><td class="ant-table-cell">2</td><td class="ant-table-cell">09:45:31</td><td class="ant-table-cell">访客中心入口</td><td class="ant-table-cell">CAM-E-027</td><td class="ant-table-cell"><span class="ant-tag ant-tag-success css-var-_R_0_">89%</span></td><td class="ant-table-cell"><button class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-link" type="button" data-action="open-capture" data-capture="2"><span>查看详情</span></button></td></tr>
+              <tr class="ant-table-row" data-capture-row="2"><td class="ant-table-cell">3</td><td class="ant-table-cell">10:23:16</td><td class="ant-table-cell">北门通道</td><td class="ant-table-cell">CAM-N-003</td><td class="ant-table-cell"><span class="ant-tag ant-tag-warning css-var-_R_0_">82%</span></td><td class="ant-table-cell"><button class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-link" type="button" data-action="open-capture" data-capture="3"><span>查看详情</span></button></td></tr>
+              <tr class="ant-table-row" data-capture-row="3"><td class="ant-table-cell">4</td><td class="ant-table-cell">11:07:42</td><td class="ant-table-cell">停车区域西侧</td><td class="ant-table-cell">CAM-P-009</td><td class="ant-table-cell"><span class="ant-tag ant-tag-warning css-var-_R_0_">79%</span></td><td class="ant-table-cell"><button class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-link" type="button" data-action="open-capture" data-capture="4"><span>查看详情</span></button></td></tr>
+            </tbody></table></div></div></div></div></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div id="scope-modal" class="ant-prototype-modal-root ant-modal-root ant-modal-css-var css-var-_R_0_" hidden><div class="ant-prototype-mask ant-modal-mask" data-action="close-scope-mask" data-ant-close></div><div class="ant-prototype-modal-wrap ant-modal-wrap" role="dialog" aria-modal="true" aria-labelledby="scope-title"><div class="ant-modal ant-modal-css-var css-var-_R_0_ n9-modal-wide"><div class="ant-modal-container"><button class="ant-modal-close" type="button" aria-label="关闭" data-action="close-scope" data-ant-close><span class="ant-modal-close-x">×</span></button><div class="ant-modal-header"><div id="scope-title" class="ant-modal-title">选择地点范围</div></div><div class="ant-modal-body"><p class="ant-prototype-muted">地点树为 N9 分析设备目录只读投影，未开启节点仍可选择。</p><div class="n9-scope-list"><button class="n9-scope-option is-selected" type="button" data-action="choose-scope" data-scope="partial" data-label="东区园区（6/8 台已开启）"><span><strong>东区园区</strong><small>6/8 台设备已开启分析</small></span><span class="ant-tag ant-tag-warning css-var-_R_0_">部分开启</span></button><button class="n9-scope-option" type="button" data-action="choose-scope" data-scope="full" data-label="南区园区（12/12 台已开启）"><span><strong>南区园区</strong><small>12/12 台设备已开启分析</small></span><span class="ant-tag ant-tag-success css-var-_R_0_">全部开启</span></button><button class="n9-scope-option" type="button" data-action="choose-scope" data-scope="none" data-label="北区仓库（未开启分析）"><span><strong>北区仓库</strong><small>0/5 台设备已开启分析</small></span><span class="ant-tag css-var-_R_0_">未开启分析</span></button></div></div><div class="ant-modal-footer"><button class="ant-btn css-var-_R_0_ ant-btn-color-default ant-btn-variant-outlined" type="button" data-action="cancel-scope" data-ant-close><span>取消</span></button></div></div></div></div></div>
+
+  <div id="library-modal" class="ant-prototype-modal-root ant-modal-root ant-modal-css-var css-var-_R_0_" hidden><div class="ant-prototype-mask ant-modal-mask" data-action="close-library-mask" data-ant-close></div><div class="ant-prototype-modal-wrap ant-modal-wrap" role="dialog" aria-modal="true" aria-labelledby="library-title"><div class="ant-modal ant-modal-css-var css-var-_R_0_"><div class="ant-modal-container"><button class="ant-modal-close" type="button" aria-label="关闭" data-action="close-library" data-ant-close><span class="ant-modal-close-x">×</span></button><div class="ant-modal-header"><div id="library-title" class="ant-modal-title">从 N11 目标库选择</div></div><div class="ant-modal-body"><div class="ant-alert ant-alert-info css-var-_R_0_ n9-inline-alert"><span class="ant-alert-icon">i</span><div class="ant-alert-section"><div class="ant-alert-title">可选协同入口；未安装 N11 时此入口隐藏</div></div></div><button class="n9-library-target" type="button" data-action="choose-library-target"><div class="n9-person-placeholder is-small"><span></span></div><span><strong>重点目标 A-017</strong><small>园区安保关注对象 · 已授权调用</small></span><span class="ant-tag ant-tag-blue css-var-_R_0_">选择</span></button></div></div></div></div></div>
+
+  <div id="capture-modal" class="ant-prototype-modal-root ant-modal-root ant-modal-css-var css-var-_R_0_" hidden><div class="ant-prototype-mask ant-modal-mask" data-action="close-capture-mask" data-ant-close></div><div class="ant-prototype-modal-wrap ant-modal-wrap" role="dialog" aria-modal="true" aria-labelledby="capture-title"><div class="ant-modal ant-modal-css-var css-var-_R_0_ n9-modal-wide"><div class="ant-modal-container"><button class="ant-modal-close" type="button" aria-label="关闭" data-action="close-capture" data-ant-close><span class="ant-modal-close-x">×</span></button><div class="ant-modal-header"><div id="capture-title" class="ant-modal-title">抓拍详情</div></div><div class="ant-modal-body"><div class="n9-capture-detail"><div class="n9-capture-picture"><div class="n9-silhouette"><span></span></div><span>抓拍画面</span></div><dl><div><dt>抓拍时间</dt><dd data-capture-time>09:12:08</dd></div><div><dt>点位名称</dt><dd data-capture-place>东区办公楼东侧</dd></div><div><dt>摄像头编码</dt><dd data-capture-code>CAM-E-012</dd></div><div><dt>相似度</dt><dd><span class="ant-tag ant-tag-success css-var-_R_0_" data-capture-score>92%</span></dd></div></dl></div></div><div class="ant-modal-footer"><button class="ant-btn css-var-_R_0_ ant-btn-color-default ant-btn-variant-outlined" type="button" data-action="locate-map" data-ant-close><span>定位到地图</span></button><button class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-outlined" type="button" data-action="video-unavailable"><span>查看录像</span></button><button class="ant-btn css-var-_R_0_ ant-btn-color-default ant-btn-variant-text" type="button" data-action="close-capture-footer" data-ant-close><span>关闭</span></button></div></div></div></div></div>
+
+  <div id="export-modal" class="ant-prototype-modal-root ant-modal-root ant-modal-css-var css-var-_R_0_" hidden><div class="ant-prototype-mask ant-modal-mask" data-action="close-export-mask" data-ant-close></div><div class="ant-prototype-modal-wrap ant-modal-wrap" role="dialog" aria-modal="true" aria-labelledby="export-title"><div class="ant-modal ant-modal-css-var css-var-_R_0_"><div class="ant-modal-container"><button class="ant-modal-close" type="button" aria-label="关闭" data-action="close-export" data-ant-close><span class="ant-modal-close-x">×</span></button><div class="ant-modal-header"><div id="export-title" class="ant-modal-title">导出轨迹报告</div></div><div class="ant-modal-body"><div id="export-config"><div class="ant-form-item ant-form-item-vertical"><div class="ant-form-item-label"><label class="ant-form-item-required" for="report-title">报告标题</label></div><input id="report-title" class="ant-input ant-input-outlined ant-input-css-var css-var-_R_0_" value="人员轨迹分析报告_20260529" required autofocus></div><div class="n9-export-options"><label class="ant-checkbox-wrapper ant-checkbox-css-var css-var-_R_0_"><span class="ant-checkbox ant-checkbox-checked"><input class="ant-checkbox-input" type="checkbox" checked><span class="ant-checkbox-inner"></span></span><span>轨迹地图截图</span></label><label class="ant-checkbox-wrapper ant-checkbox-css-var css-var-_R_0_"><span class="ant-checkbox ant-checkbox-checked"><input class="ant-checkbox-input" type="checkbox" checked><span class="ant-checkbox-inner"></span></span><span>抓拍图片（全部）</span></label><label class="ant-checkbox-wrapper ant-checkbox-css-var css-var-_R_0_"><span class="ant-checkbox ant-checkbox-checked"><input class="ant-checkbox-input" type="checkbox" checked><span class="ant-checkbox-inner"></span></span><span>时间线列表</span></label><label class="ant-checkbox-wrapper ant-checkbox-css-var css-var-_R_0_"><span class="ant-checkbox ant-checkbox-checked"><input class="ant-checkbox-input" type="checkbox" checked><span class="ant-checkbox-inner"></span></span><span>统计信息</span></label></div></div><div id="export-success" class="ant-result ant-result-success ant-result-css-var css-var-_R_0_ n9-export-result" hidden><div class="ant-result-icon"><span class="n9-success-icon">✓</span></div><div class="ant-result-title">报告已生成</div><div class="ant-result-subtitle">人员轨迹分析报告_20260529.pdf · 3.8 MB</div></div></div><div class="ant-modal-footer"><button class="ant-btn css-var-_R_0_ ant-btn-color-default ant-btn-variant-outlined" type="button" data-action="cancel-export" data-ant-close><span>取消</span></button><button id="generate-report" class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-solid" type="button" data-action="generate-report"><span data-generate-label>生成报告</span></button><button id="finish-export" class="ant-btn css-var-_R_0_ ant-btn-color-primary ant-btn-variant-solid" type="button" data-action="finish-export" data-ant-close hidden><span>完成</span></button></div></div></div></div></div>
+
+  <script src="assets/ant-prototype.js"></script>
+  <script src="assets/n9-test.js"></script>
+</body>
+</html>

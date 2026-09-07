@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>方案1 — 场所树下拉选择</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/proto.css">
+    <style>:root{--ant-bg-layout:var(--ant-bg)}</style>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --ant-primary: #1677ff; --ant-primary-hover: #4096ff; --ant-primary-active: #0958d9;
+            --ant-primary-bg: #e6f4ff; --ant-primary-border: #91caff;
+            --ant-success: #52c41a; --ant-success-bg: #f6ffed;
+            --ant-warning: #faad14; --ant-warning-bg: #fffbe6;
+            --ant-error: #ff4d4f; --ant-error-bg: #fff2f0;
+            --ant-bg-layout: #f5f5f5; --ant-bg-container: #ffffff;
+            --ant-text: rgba(0,0,0,0.88); --ant-text-secondary: rgba(0,0,0,0.65);
+            --ant-text-tertiary: rgba(0,0,0,0.45); --ant-text-quaternary: rgba(0,0,0,0.25);
+            --ant-border: #d9d9d9; --ant-border-secondary: #f0f0f0;
+            --ant-radius: 6px; --ant-radius-lg: 8px;
+            --ant-shadow: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif; background: var(--ant-bg-layout); color: var(--ant-text); font-size: 14px; height: 100vh; overflow: hidden; }
+        .ant-layout { display: flex; height: 100vh; }
+        .ant-layout-sider { width: 208px; background: var(--ant-bg-container); flex-shrink: 0; display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--ant-border-secondary); box-shadow: 2px 0 8px rgba(0,0,0,0.05); }
+        .ant-menu { flex: 1; overflow-y: auto; padding: 8px 0; }
+        .ant-menu-item { display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 16px; margin: 4px 12px; font-size: 14px; border-radius: 4px; cursor: pointer; transition: all 0.2s; text-decoration: none; color: var(--ant-text); }
+        .ant-menu-item:hover { background: rgba(0,0,0,0.06); }
+        .ant-menu-item-selected { background: var(--ant-primary-bg); color: var(--ant-primary); }
+        .ant-layout-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .ant-layout-content-main { flex: 1; overflow-y: auto; padding: 20px 24px; }
+        .ant-card { background: var(--ant-bg-container); border-radius: var(--ant-radius-lg); border: 1px solid var(--ant-border-secondary); margin-bottom: 16px; box-shadow: var(--ant-shadow); }
+        .ant-card-head { padding: 14px 20px; border-bottom: 1px solid var(--ant-border-secondary); display: flex; align-items: center; justify-content: space-between; }
+        .ant-card-title { font-size: 16px; font-weight: 600; color: var(--ant-text); display: flex; align-items: center; gap: 8px; }
+        .ant-tag { font-size: 12px; padding: 2px 8px; background: var(--ant-primary-bg); color: var(--ant-primary); border-radius: var(--ant-radius); font-weight: 400; border: 1px solid var(--ant-primary-border); line-height: 1.5; }
+        .ant-card-body { padding: 20px; }
+        .ant-tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--ant-border-secondary); }
+        .ant-tabs-tab { padding: 10px 20px; border: none; background: transparent; color: var(--ant-text-secondary); font-size: 14px; cursor: pointer; transition: all 0.2s; font-weight: 500; border-bottom: 2px solid transparent; margin-bottom: -1px; display: flex; align-items: center; gap: 6px; }
+        .ant-tabs-tab:hover { color: var(--ant-primary); }
+        .ant-tabs-tab-active { color: var(--ant-primary); border-bottom-color: var(--ant-primary); }
+        .ant-form { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 24px; }
+        .ant-form-item { display: flex; flex-direction: column; gap: 6px; }
+        .ant-form-item-full-width { grid-column: 1 / -1; }
+        .ant-form-label { font-size: 13px; color: var(--ant-text-secondary); font-weight: 500; }
+        .ant-form-label .ant-form-item-required { color: var(--ant-error); margin-left: 2px; }
+        .ant-form-label .ant-form-item-hint { font-weight: 400; color: var(--ant-text-tertiary); font-size: 12px; margin-left: 6px; }
+        .ant-input, .ant-select { height: 36px; padding: 0 12px; border: 1px solid var(--ant-border); border-radius: var(--ant-radius); font-size: 13px; color: var(--ant-text); outline: none; transition: all 0.2s; font-family: inherit; background: var(--ant-bg-container); }
+        .ant-input:focus, .ant-select:focus { border-color: var(--ant-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+        .ant-input:hover, .ant-select:hover { border-color: var(--ant-primary); }
+        .ant-input::placeholder { color: var(--ant-text-quaternary); }
+        .ant-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300000040' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; }
+        .ant-time-range { display: flex; align-items: center; gap: 8px; }
+        .ant-time-range .ant-input { flex: 1; }
+        .ant-time-separator { color: var(--ant-text-tertiary); font-size: 13px; }
+        .ant-tag-group { display: flex; gap: 8px; margin-bottom: 8px; }
+        .ant-tag-checkable { padding: 4px 12px; border: 1px solid var(--ant-border); background: var(--ant-bg-container); color: var(--ant-text-secondary); border-radius: var(--ant-radius); font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .ant-tag-checkable:hover { border-color: var(--ant-primary); color: var(--ant-primary); }
+        .ant-tag-checkable-checked { background: var(--ant-primary); border-color: var(--ant-primary); color: #fff; }
+        .ant-upload { border: 1px dashed var(--ant-border); border-radius: var(--ant-radius); padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--ant-bg-layout); }
+        .ant-upload:hover { border-color: var(--ant-primary); background: var(--ant-primary-bg); }
+        .ant-upload-has-files { border-style: solid; border-color: var(--ant-border-secondary); padding: 16px; text-align: left; }
+        .ant-upload-default .ant-upload-icon { font-size: 28px; margin-bottom: 8px; color: var(--ant-text-tertiary); }
+        .ant-upload-default .ant-upload-text { font-size: 14px; color: var(--ant-text); margin-bottom: 4px; }
+        .ant-upload-default .ant-upload-hint { font-size: 12px; color: var(--ant-text-tertiary); }
+        .ant-upload-list { display: flex; gap: 12px; flex-wrap: wrap; }
+        .ant-upload-list-item { position: relative; width: 80px; height: 80px; border-radius: var(--ant-radius); overflow: hidden; border: 1px solid var(--ant-border-secondary); background: var(--ant-bg-container); }
+        .ant-upload-list-item img { width: 100%; height: 100%; object-fit: cover; }
+        .ant-upload-list-item .ant-upload-list-item-remove { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; background: var(--ant-error); border: none; border-radius: 50%; color: #fff; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+        .ant-upload-list-item:hover .ant-upload-list-item-remove { opacity: 1; }
+        .ant-upload-list-item .ant-upload-list-item-status { position: absolute; bottom: 0; left: 0; right: 0; padding: 2px 4px; font-size: 10px; text-align: center; font-weight: 500; }
+        .ant-upload-list-item-status-success { background: var(--ant-success); color: #fff; }
+        .ant-upload-list-item-status-warning { background: var(--ant-warning); color: #fff; }
+        .ant-upload-add { width: 80px; height: 80px; border: 1px dashed var(--ant-border); border-radius: var(--ant-radius); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--ant-text-tertiary); font-size: 24px; transition: all 0.2s; background: var(--ant-bg-container); }
+        .ant-upload-add:hover { border-color: var(--ant-primary); color: var(--ant-primary); background: var(--ant-primary-bg); }
+        .ant-upload-tip { margin-top: 8px; font-size: 12px; display: none; }
+        .ant-upload-tip-show { display: block; }
+        .ant-upload-tip-success { color: var(--ant-success); }
+        .ant-upload-tip-warning { color: var(--ant-warning); }
+        .ant-btn-group { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--ant-border-secondary); }
+        .ant-btn { height: 36px; padding: 0 20px; border-radius: var(--ant-radius); font-size: 14px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; font-weight: 500; border: 1px solid transparent; }
+        .ant-btn-primary { background: var(--ant-primary); color: #fff; border-color: var(--ant-primary); }
+        .ant-btn-primary:hover:not(:disabled) { background: var(--ant-primary-hover); border-color: var(--ant-primary-hover); }
+        .ant-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .ant-btn-text { background: transparent; color: var(--ant-text-secondary); border: none; padding: 0 12px; }
+        .ant-btn-text:hover { color: var(--ant-primary); background: var(--ant-primary-bg); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+
+        /* ===== 方案1：场所树下拉 ===== */
+        .area-tree-trigger { height: 36px; padding: 0 12px; border: 1px solid var(--ant-border); border-radius: var(--ant-radius); font-size: 13px; color: var(--ant-text); cursor: pointer; transition: all 0.2s; background: var(--ant-bg-container); display: flex; align-items: center; justify-content: space-between; }
+        .area-tree-trigger:hover { border-color: var(--ant-primary); }
+        .area-tree-trigger .placeholder { color: var(--ant-text-quaternary); }
+        .area-tree-trigger .selected-tags { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+        .area-tree-trigger .sel-tag { background: var(--ant-primary-bg); color: var(--ant-primary); border: 1px solid var(--ant-primary-border); border-radius: 4px; padding: 1px 6px; font-size: 11px; display: flex; align-items: center; gap: 3px; }
+        .area-tree-trigger .sel-tag .remove { cursor: pointer; font-size: 10px; opacity: 0.6; }
+        .area-tree-trigger .sel-tag .remove:hover { opacity: 1; }
+        .area-tree-trigger .arrow { color: var(--ant-text-quaternary); font-size: 10px; margin-left: 8px; flex-shrink: 0; }
+
+        .area-tree-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--ant-bg-container); border: 1px solid var(--ant-border); border-radius: var(--ant-radius); box-shadow: 0 6px 16px rgba(0,0,0,0.08); z-index: 100; display: none; max-height: 360px; flex-direction: column; }
+        .area-tree-dropdown.open { display: flex; }
+        .area-tree-search { padding: 8px; border-bottom: 1px solid var(--ant-border-secondary); }
+        .area-tree-search input { width: 100%; height: 32px; border: 1px solid var(--ant-border); border-radius: 4px; padding: 0 8px; font-size: 12px; outline: none; }
+        .area-tree-search input:focus { border-color: var(--ant-primary); }
+        .area-tree-body { flex: 1; overflow-y: auto; padding: 4px 0; }
+        .area-tree-footer { padding: 6px 12px; border-top: 1px solid var(--ant-border-secondary); display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+        .tree-group { }
+        .tree-group-header { display: flex; align-items: center; gap: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--ant-text-secondary); user-select: none; }
+        .tree-group-header:hover { background: var(--ant-primary-bg); }
+        .tree-group-header .arrow-icon { font-size: 10px; color: var(--ant-text-quaternary); transition: transform 0.2s; width: 14px; text-align: center; }
+        .tree-group-header .arrow-icon.expanded { transform: rotate(90deg); }
+        .tree-group-header .group-count { color: var(--ant-text-tertiary); font-size: 11px; font-weight: 400; }
+        .tree-group-children { display: none; }
+        .tree-group-children.expanded { display: block; }
+        .tree-item { display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 32px; cursor: pointer; font-size: 13px; color: var(--ant-text); }
+        .tree-item:hover { background: var(--ant-primary-bg); }
+        .tree-item .check-box { width: 16px; height: 16px; border: 1px solid var(--ant-border); border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+        .tree-item .check-box.checked { background: var(--ant-primary); border-color: var(--ant-primary); color: #fff; font-size: 10px; }
+        .tree-item .check-box.partial { background: var(--ant-primary); border-color: var(--ant-primary); }
+        .tree-item .check-box.partial::after { content: ''; width: 8px; height: 2px; background: #fff; border-radius: 1px; }
+        .tree-item .camera-count { color: var(--ant-text-tertiary); font-size: 11px; margin-left: auto; }
+        .tree-item .unopen-tag { color: #999; font-size: 11px; background: #fafafa; border: 1px solid #f0f0f0; border-radius: 3px; padding: 0 4px; }
+        .area-tree-actions { display: flex; gap: 8px; }
+        .area-tree-actions button { padding: 2px 8px; font-size: 12px; border: none; background: none; color: var(--ant-primary); cursor: pointer; border-radius: 4px; }
+        .area-tree-actions button:hover { background: var(--ant-primary-bg); }
+    </style>
+</head>
+<body>
+<!-- 方案存档标注 -->
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:var(--ant-warning-bg);border-bottom:1px solid #ffe58f;display:flex;align-items:center;gap:10px;padding:0 16px;font-size:12px;color:#d48806;z-index:9999;">
+  <i class="fa-solid fa-box-archive"></i>
+  <span><b>方案存档</b> · 场所树下拉选择（方案1）· 不入原型导航，正式交互见各查询页内「地点范围」触发器</span>
+  <a href="search.html" style="margin-left:auto;color:var(--ant-primary);text-decoration:none;">← 返回人员轨迹查询</a>
+</div>
+<style>body{padding-top:36px !important}</style>
+
+    <div class="ant-layout">
+        <div class="ant-layout-sider">
+            <div class="ant-menu">
+                <div style="padding: 12px 16px 8px; font-size: 12px; color: var(--ant-text-tertiary); font-weight: 600;">
+                    <i class="fa-solid fa-route" style="margin-right: 6px;"></i>轨迹查询
+                </div>
+                <a href="search.html" class="ant-menu-item ant-menu-item-selected"><i class="fa-solid fa-person"></i>人员轨迹查询</a>
+                <a href="vehicle-search.html" class="ant-menu-item"><i class="fa-solid fa-car"></i>车辆轨迹查询</a>
+                <a href="compare.html" class="ant-menu-item"><i class="fa-solid fa-users-viewfinder"></i>多目标对比</a>
+                <div style="padding: 12px 16px 8px; font-size: 12px; color: var(--ant-text-tertiary); font-weight: 600; margin-top: 8px;"><i class="fa-solid fa-microchip" style="margin-right: 6px;"></i>分析接入</div>
+                <a href="analysis-devices.html" class="ant-menu-item"><i class="fa-solid fa-gear"></i>轨迹分析接入</a>
+            </div>
+        </div>
+        <div class="ant-layout-content">
+            <div class="ant-layout-content-main">
+                <div class="ant-card">
+                    <div class="ant-card-head">
+                        <div class="ant-card-title">查询条件 <span class="ant-tag" id="modeTag">以图搜人</span></div>
+                        <span style="font-size:12px;color:var(--ant-text-tertiary);background:#fff7e6;border:1px solid #ffe58f;border-radius:4px;padding:2px 8px;">方案1 · 场所树下拉</span>
+                    </div>
+                    <div class="ant-card-body">
+                        <div class="ant-tabs">
+                            <button class="ant-tabs-tab ant-tabs-tab-active" onclick="switchMode('image')"><i class="fa-solid fa-image"></i>以图搜人</button>
+                            <button class="ant-tabs-tab" onclick="switchMode('text')"><i class="fa-solid fa-keyboard"></i>文本搜人</button>
+                        </div>
+
+                        <!-- 以图搜人 -->
+                        <div id="imageForm">
+                            <div class="ant-form">
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">时间范围 <span class="ant-form-item-required">*</span></label>
+                                    <div class="ant-tag-group">
+                                        <button class="ant-tag-checkable" onclick="setQuickTime(this,'1h')">近1小时</button>
+                                        <button class="ant-tag-checkable" onclick="setQuickTime(this,'6h')">近6小时</button>
+                                        <button class="ant-tag-checkable ant-tag-checkable-checked" onclick="setQuickTime(this,'24h')">近24小时</button>
+                                        <button class="ant-tag-checkable" onclick="setQuickTime(this,'7d')">近7天</button>
+                                        <button class="ant-tag-checkable" onclick="setQuickTime(this,'30d')">近30天</button>
+                                    </div>
+                                    <div class="ant-time-range">
+                                        <input type="datetime-local" class="ant-input" id="startTime">
+                                        <span class="ant-time-separator">至</span>
+                                        <input type="datetime-local" class="ant-input" id="endTime">
+                                    </div>
+                                </div>
+
+                                <!-- ★ 方案1核心：场所树下拉 ★ -->
+                                <div class="ant-form-item" style="position:relative;">
+                                    <label class="ant-form-label">地点范围</label>
+                                    <div class="area-tree-trigger" onclick="toggleDropdown(event)">
+                                        <div class="selected-tags" id="selectedTags">
+                                            <span class="placeholder">全部设备</span>
+                                        </div>
+                                        <span class="arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                    </div>
+                                    <div class="area-tree-dropdown" id="areaDropdown">
+                                        <div class="area-tree-search">
+                                            <input type="text" placeholder="搜索目录节点..." oninput="filterTree(this.value)" id="treeSearch">
+                                        </div>
+                                        <div class="area-tree-body" id="treeBody">
+                                            <!-- 由JS渲染 -->
+                                        </div>
+                                        <div class="area-tree-footer">
+                                            <span id="selectedCount">已选 0 个场所，覆盖 0 个摄像头</span>
+                                            <div class="area-tree-actions">
+                                                <button onclick="selectAll()">全选</button>
+                                                <button onclick="clearAll()">清空</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">匹配严格度</label>
+                                    <select class="ant-select">
+                                        <option value="loose">宽松</option>
+                                        <option value="standard" selected>标准</option>
+                                        <option value="strict">严格</option>
+                                    </select>
+                                </div>
+
+                                <div class="ant-form-item ant-form-item-full-width">
+                                    <label class="ant-form-label">上传人像照片 <span class="ant-form-item-required">*</span>
+                                        <span class="ant-form-item-hint">最多3张，全身/半身均可</span>
+                                    </label>
+                                    <div class="ant-upload" id="uploadBox" onclick="document.getElementById('fileInput').click()">
+                                        <div class="ant-upload-default" id="uploadDefault">
+                                            <div class="ant-upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                                            <div class="ant-upload-text">点击或拖拽上传人像照片</div>
+                                            <div class="ant-upload-hint">支持 JPG、PNG 格式，最多3张，单张不超过 5MB</div>
+                                        </div>
+                                        <div class="ant-upload-list" id="previewList" style="display:none;"></div>
+                                    </div>
+                                    <input type="file" id="fileInput" accept="image/jpeg,image/png" multiple onchange="handleFiles(event)" style="display:none;">
+                                    <div class="ant-upload-tip" id="uploadTip"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 文本搜人 -->
+                        <div id="textForm" style="display:none;">
+                            <div class="ant-form">
+                                <div class="ant-form-item ant-form-item-full-width">
+                                    <label class="ant-form-label">人员特征描述 <span class="ant-form-item-required">*</span>
+                                        <span class="ant-form-item-hint">请用自然语言描述目标人员的外貌特征</span>
+                                    </label>
+                                    <textarea class="ant-input" id="searchText" rows="3" maxlength="200" placeholder="请描述目标人员的特征，如：穿白色连衣裙的中年女性，背黑色双肩包" oninput="updateCharCount()" style="resize:vertical;min-height:80px;"></textarea>
+                                    <div style="text-align:right;color:var(--ant-text-tertiary);font-size:12px;margin-top:4px;"><span id="charCount">0</span>/200</div>
+                                </div>
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">时间范围 <span class="ant-form-item-required">*</span></label>
+                                    <div class="ant-tag-group">
+                                        <button class="ant-tag-checkable" onclick="setQuickTime(this,'1h')">近1小时</button>
+                                        <button class="ant-tag-checkable ant-tag-checkable-checked" onclick="setQuickTime(this,'24h')">近24小时</button>
+                                        <button class="ant-tag-checkable" onclick="setQuickTime(this,'7d')">近7天</button>
+                                    </div>
+                                    <div class="ant-time-range">
+                                        <input type="datetime-local" class="ant-input" id="tStartTime">
+                                        <span class="ant-time-separator">至</span>
+                                        <input type="datetime-local" class="ant-input" id="tEndTime">
+                                    </div>
+                                </div>
+                                <!-- 文本搜人也用场所树 -->
+                                <div class="ant-form-item" style="position:relative;">
+                                    <label class="ant-form-label">地点范围</label>
+                                    <div class="area-tree-trigger" onclick="toggleDropdown(event)">
+                                        <div class="selected-tags"><span class="placeholder">全部设备</span></div>
+                                        <span class="arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                    </div>
+                                </div>
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">匹配严格度</label>
+                                    <select class="ant-select">
+                                        <option value="loose">宽松</option>
+                                        <option value="standard" selected>标准</option>
+                                        <option value="strict">严格</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ant-btn-group">
+                            <button class="ant-btn ant-btn-text" onclick="resetForm()">重置</button>
+                            <button class="ant-btn ant-btn-primary" id="queryBtn" onclick="doQuery()" disabled><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'image';
+        let files = [];
+
+        // ===== 分析设备目录（组件私有目录 · 只读投影）=====
+        // 口径：目录仅用于圈选哪一批设备；设备地理位置与其底座区域归属不变
+        const CATALOG = [
+            { id: 'n1', name: '园区A', children: [
+                { id: 'n11', name: '1号楼', children: [ { id: 'n111', name: '1层大堂', dev: 3, open: 2 }, { id: 'n112', name: '2层办公区', dev: 2, open: 1 } ] },
+                { id: 'n12', name: '2号楼', children: [ { id: 'n121', name: '1层机房', dev: 2, open: 2 } ] },
+                { id: 'n13', name: '东门', dev: 4, open: 3 },
+                { id: 'n14', name: '地下停车场', dev: 6, open: 4 }
+            ]},
+            { id: 'n2', name: '园区B', children: [
+                { id: 'n21', name: '周界', children: [ { id: 'n211', name: '东围墙', dev: 2, open: 1 }, { id: 'n212', name: '西围墙', dev: 2, open: 0 } ] },
+                { id: 'n22', name: '广场', dev: 4, open: 3 }
+            ]},
+        ];
+        (function agg(list){ list.forEach(n => { if (n.children) { agg(n.children); n.dev = n.children.reduce((s,c) => s+c.dev, 0); n.open = n.children.reduce((s,c) => s+c.open, 0); } }); })(CATALOG);
+        const DEV_TOTAL = CATALOG.reduce((s,n) => s+n.dev, 0), DEV_OPEN = CATALOG.reduce((s,n) => s+n.open, 0);
+        const expandedGroups = { n1: true, n2: true, n11: true, n21: true };
+        let selectedAreas = new Set();      // 选中的目录节点（任意层级 = 整棵子树）
+        let covSet = new Set();             // 被祖先选中而整体覆盖的节点
+        function findPath(list, id, acc) { for (const n of list) { const p = [...acc, n]; if (n.id === id) return p; if (n.children) { const r = findPath(n.children, id, p); if (r) return r; } } return null; }
+        function computeCov() { covSet = new Set(); (function walk(list, covered) { list.forEach(n => { const c = covered || selectedAreas.has(n.id); if (c) covSet.add(n.id); if (n.children) walk(n.children, c); }); })(CATALOG, false); }
+        function subMatch(n, f) { return n.name.includes(f) || (n.children || []).some(k => subMatch(k, f)); }
+
+        function renderTree(filter) {
+            computeCov();
+            const body = document.getElementById('treeBody');
+            let html = '';
+            (function walk(list, depth) {
+                list.forEach(n => {
+                    const kids = n.children || [];
+                    const expanded = !!expandedGroups[n.id];
+                    const on = covSet.has(n.id);
+                    const some = kids.length ? kids.some(c => covSet.has(c.id)) : false;
+                    if (filter && !subMatch(n, filter)) return;
+                    const badge = n.open === 0 ? '<span class="unopen-tag">未开启分析</span>' : '';
+                    const tw = kids.length ? `<span class="arrow-icon ${expanded ? 'expanded' : ''}" onclick="event.stopPropagation();toggleGroup('${n.id}')"><i class="fa-solid fa-chevron-right"></i></span>` : '<span class="arrow-icon"></span>';
+                    html += `<div class="tree-item" style="padding-left:${12 + depth*16}px" onclick="toggleItem('${n.id}')">
+                        ${tw}
+                        <span class="check-box ${on ? 'checked' : some ? 'partial' : ''}" onclick="event.stopPropagation();toggleItem('${n.id}')"></span>
+                        ${n.name}
+                        ${badge}
+                        <span class="camera-count">${n.open}/${n.dev}台</span>
+                    </div>`;
+                    if (kids.length && (expanded || filter)) walk(kids, depth + 1);
+                });
+            })(CATALOG, 0);
+            body.innerHTML = html;
+            updateSelectedTags();
+        }
+
+        function toggleGroup(id) { expandedGroups[id] = !expandedGroups[id]; renderTree(document.getElementById('treeSearch')?.value || ''); }
+
+        function toggleItem(id) {
+            if (selectedAreas.has(id)) { selectedAreas.delete(id); }
+            else {
+                const path = findPath(CATALOG, id) || [];
+                const ti = path.findIndex(p => selectedAreas.has(p.id));
+                if (ti >= 0) {
+                    const top = path[ti]; selectedAreas.delete(top.id);
+                    for (let i = ti; i < path.length - 1; i++) { (path[i].children || []).forEach(c => { if (c.id !== path[i+1].id) selectedAreas.add(c.id); }); }
+                } else selectedAreas.add(id);
+            }
+            renderTree(document.getElementById('treeSearch')?.value || '');
+        }
+
+        function selectAll() { CATALOG.forEach(n => selectedAreas.add(n.id)); renderTree(''); }
+        function clearAll() { selectedAreas.clear(); renderTree(''); }
+
+        function updateSelectedTags() {
+            const tags = document.getElementById('selectedTags');
+            if (selectedAreas.size === 0) {
+                tags.innerHTML = '<span class="placeholder">全部设备</span>';
+            } else {
+                let items = [];
+                (function walk(list) { list.forEach(n => { if (selectedAreas.has(n.id)) items.push(n); else if (n.children) walk(n.children); }); })(CATALOG);
+                let devCnt = items.reduce((s, n) => s + n.dev, 0);
+                let openCnt = items.reduce((s, n) => s + n.open, 0);
+                const show = items.slice(0, 3);
+                tags.innerHTML = show.map(c => `<span class="sel-tag">${c.name}<span class="remove" onclick="event.stopPropagation();toggleItem('${c.id}')">×</span></span>`).join('');
+                if (items.length > 3) tags.innerHTML += `<span class="sel-tag">+${items.length - 3}</span>`;
+                document.getElementById('selectedCount').textContent = `已选 ${items.length} 个目录节点，覆盖 ${devCnt} 台设备（已开启 ${openCnt} 台）`;
+                return;
+            }
+            document.getElementById('selectedCount').textContent = `未选择特定目录，将搜索全部设备（${DEV_TOTAL}台·已开启${DEV_OPEN}台）`;
+        }
+
+        function toggleDropdown(e) {
+            e.stopPropagation();
+            const dd = document.getElementById('areaDropdown');
+            dd.classList.toggle('open');
+            if (dd.classList.contains('open')) renderTree('');
+        }
+
+        function filterTree(val) { renderTree(val); }
+
+        document.addEventListener('click', e => {
+            const dd = document.getElementById('areaDropdown');
+            if (dd && !dd.contains(e.target) && !e.target.closest('.area-tree-trigger')) dd.classList.remove('open');
+        });
+
+        // ===== 通用功能 =====
+        function initTime() {
+            const now = new Date('2026-05-29T23:59:00');
+            const start = new Date(now); start.setHours(start.getHours() - 1);
+            const fmt = d => { const p = n => n.toString().padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; };
+            document.getElementById('startTime').value = fmt(start);
+            document.getElementById('endTime').value = fmt(now);
+        }
+        initTime();
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.ant-tabs-tab').forEach(b => b.classList.remove('ant-tabs-tab-active'));
+            event.target.closest('.ant-tabs-tab').classList.add('ant-tabs-tab-active');
+            document.getElementById('modeTag').textContent = mode === 'image' ? '以图搜人' : '文本搜人';
+            document.getElementById('imageForm').style.display = mode === 'image' ? 'block' : 'none';
+            document.getElementById('textForm').style.display = mode === 'text' ? 'block' : 'none';
+            updateQueryBtn();
+        }
+
+        function handleFiles(e) {
+            const newFiles = Array.from(e.target.files);
+            const remain = 3 - files.length;
+            if (newFiles.length > remain) { showTip('最多只能上传3张照片', 'warning'); return; }
+            newFiles.forEach(file => {
+                if (file.size > 5*1024*1024) { showTip(`"${file.name}" 超过5MB限制`, 'warning'); return; }
+                const reader = new FileReader();
+                reader.onload = ev => { files.push({ name: file.name, src: ev.target.result, ok: Math.random() > 0.3 }); updatePreview(); updateQueryBtn(); };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function updatePreview() {
+            const box = document.getElementById('uploadBox');
+            const def = document.getElementById('uploadDefault');
+            const list = document.getElementById('previewList');
+            if (files.length > 0) {
+                box.classList.add('ant-upload-has-files'); def.style.display = 'none'; list.style.display = 'flex';
+                list.innerHTML = files.map((f,i) => `<div class="ant-upload-list-item"><img src="${f.src}"><button class="ant-upload-list-item-remove" onclick="removeFile(${i})">×</button><div class="ant-upload-list-item-status ant-upload-list-item-status-${f.ok?'success':'warning'}">${f.ok?'已识别到人体':'未检测到人体'}</div></div>`).join('') + (files.length < 3 ? '<div class="ant-upload-add" onclick="document.getElementById(\'fileInput\').click()">+</div>' : '');
+                showTip(files.every(f=>f.ok) ? `已上传 ${files.length} 张照片` : '部分照片未检测到人体', files.every(f=>f.ok) ? 'success' : 'warning');
+            } else { box.classList.remove('ant-upload-has-files'); def.style.display = 'block'; list.style.display = 'none'; }
+        }
+
+        function removeFile(i) { files.splice(i,1); updatePreview(); updateQueryBtn(); }
+        function showTip(text, type) { const tip = document.getElementById('uploadTip'); tip.textContent = text; tip.className = 'ant-upload-tip ant-upload-tip-'+type+' ant-upload-tip-show'; }
+        function updateQueryBtn() {
+            if (currentMode === 'image') document.getElementById('queryBtn').disabled = files.length === 0;
+            else { const t = document.getElementById('searchText').value.trim(); document.getElementById('queryBtn').disabled = t.length < 10; }
+        }
+        function updateCharCount() { document.getElementById('charCount').textContent = document.getElementById('searchText').value.length; updateQueryBtn(); }
+        function setQuickTime(el, type) {
+            el.parentElement.querySelectorAll('.ant-tag-checkable').forEach(t=>t.classList.remove('ant-tag-checkable-checked'));
+            el.classList.add('ant-tag-checkable-checked');
+        }
+        function resetForm() { files=[]; updatePreview(); selectedAreas.clear(); renderTree(''); initTime(); updateQueryBtn(); }
+        function doQuery() {
+            // 分析覆盖联动：所选目录节点圈定的设备中无任一开启轨迹分析 → 阻断
+            let hasEnabled = false, selectedTotal = 0, enabledTotal = 0;
+            (function walk(list) { list.forEach(n => {
+                if (selectedAreas.has(n.id)) { selectedTotal += n.dev; enabledTotal += n.open; if (n.open > 0) hasEnabled = true; }
+                else if (n.children) walk(n.children);
+            }); })(CATALOG);
+            if (!hasEnabled) { alert('所选范围未开启轨迹分析，无数据可查，请联系管理员开启'); return; }
+            if (selectedAreas.size > 0 && enabledTotal < selectedTotal) alert('注：所选范围内 ' + enabledTotal + '/' + selectedTotal + ' 台设备已开启分析，结果可能不完整');
+            window.location.href = 'result.html';
+        }
+    </script>
+</body>
+</html>

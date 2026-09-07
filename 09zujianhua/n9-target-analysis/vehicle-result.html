@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>车辆轨迹查询结果 - N9 轨迹查询</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../assets/proto.css">
+<style>
+  /* ===== 页面级样式（仅本页使用；token 与基础组件见 ../assets/proto.css） ===== */
+  :root{--radius-base:4px;--radius-lg:8px;--shadow-1:var(--ant-shadow);--shadow-2:var(--ant-shadow-lg);--ant-text-disabled:var(--ant-text-quaternary);--ant-warning-bg:#fff7e6;--ant-error-bg:#fff1f0}
+  button{cursor:pointer;border:none;outline:none;font-family:inherit;font-size:12px}
+  a{text-decoration:none;color:inherit}
+
+  .df-primary{background:var(--ant-primary);color:#fff;padding:8px 16px;border-radius:var(--radius-base);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+  .df-primary:hover{background:var(--ant-primary-hover)}
+  .df-secondary{background:var(--ant-bg-container);border:1px solid var(--ant-border-secondary);color:var(--ant-text-secondary);padding:8px 16px;border-radius:var(--radius-base);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+  .df-secondary:hover{border-color:var(--ant-primary);color:var(--ant-primary)}
+
+  /* 人工确认状态 */
+  .confirm-state{display:none;flex:1;min-width:0;overflow-y:auto;flex-direction:column}
+  .confirm-state.active{display:flex}
+  .confirm-top{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--ant-bg-container);border-bottom:1px solid var(--ant-border-secondary);flex-shrink:0}
+  .confirm-top-info{flex:1}.confirm-top-info .query-mode{font-size:14px;font-weight:600;margin-bottom:4px}
+  .confirm-top-info .query-params{font-size:12px;color:var(--ant-text-tertiary);display:flex;gap:16px;flex-wrap:wrap}
+  .confirm-grid-title{padding:16px 20px 8px;font-size:14px;font-weight:600;color:var(--ant-text-secondary);display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .confirm-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:0 20px 12px;flex:1;align-content:start}
+  .confirm-card{background:var(--ant-bg-container);border:2px solid var(--ant-border-secondary);border-radius:var(--radius-lg);overflow:hidden;transition:all 0.3s;display:flex;flex-direction:column}
+  .confirm-card:hover{border-color:var(--ant-primary-border);box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+  .confirm-card-img{width:100%;aspect-ratio:16/10;overflow:hidden;background:var(--ant-bg);position:relative;display:flex;align-items:center;justify-content:center}
+  .confirm-card-img .rank-badge{position:absolute;top:6px;left:6px;background:var(--ant-primary);color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+  .confirm-card-img .plate-label{font-size:16px;font-weight:700;color:var(--ant-text)}
+  .confirm-card-body{padding:8px 10px 10px;flex:1;display:flex;flex-direction:column}
+  .confirm-card-body h4{font-size:13px;font-weight:600;margin-bottom:4px}
+  .confirm-card-body .meta-row{font-size:11px;color:var(--ant-text-secondary);margin-bottom:2px}
+  .confirm-card-actions{margin-top:auto;padding-top:8px}
+  .confirm-card-actions .btn-confirm{width:100%;background-color:#52c41a!important;color:#fff!important;border:none!important;padding:7px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;transition:all 0.2s}
+  .confirm-card-actions .btn-confirm:hover{background-color:#389e0d!important}
+  .confirm-card.confirmed{border-color:var(--ant-success);background:var(--ant-success-bg)}
+  .confirm-card.skipped{opacity:0.4;pointer-events:none}
+
+  /* 结果状态 */
+  .result-state{display:none;flex:1;min-width:0}
+  .result-state.active{display:flex}
+  .right-panel{flex:1;display:flex;flex-direction:column;min-width:0;overflow-y:auto}
+  .map-section{position:relative;background:#0a1628;margin:12px 12px 0;border-radius:var(--radius-lg);overflow:hidden;height:55vh}
+  .map-toolbar{position:absolute;top:12px;left:12px;display:flex;gap:6px;z-index:10}
+  .map-tb-btn{background:var(--ant-bg-container);border:1px solid var(--ant-border-secondary);color:var(--ant-text-secondary);padding:6px 12px;border-radius:var(--radius-base);font-size:11px;cursor:pointer;transition:all 0.2s;box-shadow:var(--shadow-1)}
+  .map-tb-btn:hover{border-color:var(--ant-primary);color:var(--ant-primary)}
+  .map-stats{position:absolute;top:12px;right:12px;background:var(--ant-bg-container);border:1px solid var(--ant-border-secondary);border-radius:var(--radius-lg);padding:12px 16px;z-index:10;box-shadow:var(--shadow-1)}
+  .map-stats h4{font-size:12px;color:var(--ant-text-tertiary);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .stat-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px}
+  .stat-row span:first-child{color:var(--ant-text-tertiary)}.stat-row .val{font-weight:600}
+  .map-svg{width:100%;height:100%}
+  .map-tooltip{position:absolute;background:var(--ant-bg-container);border:1px solid var(--ant-primary);border-radius:var(--radius-lg);padding:10px 14px;font-size:12px;pointer-events:none;z-index:100;display:none;box-shadow:var(--shadow-2)}
+  .map-tooltip .tip-time{color:var(--ant-primary);font-weight:600}.map-tooltip .tip-loc{color:var(--ant-text);margin-top:4px}.map-tooltip .tip-plate{color:var(--ant-warning);margin-top:4px}
+
+  .timeline-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;margin:12px 12px 0;background:var(--ant-bg-container);border:1px solid var(--ant-border-secondary);border-radius:var(--radius-lg)}
+  .play-btn{width:32px;height:32px;background:var(--ant-primary);border:none;border-radius:50%;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+  .play-btn:hover{background:var(--ant-primary-hover)}
+  .timeline-label{font-size:12px;color:var(--ant-text-tertiary);white-space:nowrap}
+  .timeline-track{flex:1;height:6px;background:var(--ant-border-secondary);border-radius:3px;position:relative;cursor:pointer}
+  .timeline-progress{height:100%;background:var(--ant-primary);border-radius:3px;width:0%;transition:width 0.1s}
+  .timeline-handle{position:absolute;top:-5px;left:0%;width:16px;height:16px;background:var(--ant-primary);border:2px solid var(--ant-bg-container);border-radius:50%;cursor:pointer;transform:translateX(-50%)}
+  .timeline-time{font-size:12px;color:var(--ant-primary);font-weight:600;white-space:nowrap;min-width:50px}
+  .speed-btn{background:var(--ant-bg-container);border:1px solid var(--ant-border-secondary);color:var(--ant-text-tertiary);padding:4px 10px;border-radius:var(--radius-base);font-size:11px;cursor:pointer}
+  .speed-btn:hover,.speed-btn.active{border-color:var(--ant-primary);color:var(--ant-primary)}
+
+  .capture-section{margin:12px;background:var(--ant-bg-container);border:1px solid var(--ant-border-secondary);border-radius:var(--radius-lg);overflow:hidden;flex:1;min-height:120px;display:flex;flex-direction:column}
+  .cap-header{padding:12px 16px;border-bottom:1px solid var(--ant-border-secondary);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .cap-header h4{font-size:13px;display:flex;align-items:center;gap:8px}
+  .cap-header h4 i{color:var(--ant-primary)}
+  .cap-header .count{font-size:11px;color:var(--ant-text-tertiary);font-weight:400}
+  .view-toggle{display:flex;gap:4px}
+  .view-btn{width:28px;height:28px;background:var(--ant-bg);border:1px solid var(--ant-border-secondary);border-radius:var(--radius-base);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ant-text-tertiary);font-size:11px}
+  .view-btn.active{border-color:var(--ant-primary);color:var(--ant-primary);background:var(--ant-primary-bg)}
+  .cap-body{flex:1;overflow-y:auto;padding:12px}
+  .cap-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  .cap-card{background:var(--ant-bg);border:1px solid var(--ant-border-secondary);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative}
+  .cap-card:hover{border-color:var(--ant-primary);transform:translateY(-2px)}
+  .cap-card .seq{position:absolute;top:4px;left:4px;background:var(--ant-primary);color:#fff;font-size:9px;font-weight:600;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .cap-card .plate-badge{position:absolute;top:4px;right:4px;background:var(--ant-primary);color:#fff;font-size:8px;font-weight:600;padding:1px 4px;border-radius:var(--radius-base)}
+  .cap-card .img-wrap{height:80px;background:var(--ant-bg-container);display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .cap-card .img-wrap .placeholder{color:var(--ant-text-tertiary);font-size:24px}
+  .cap-card .info{padding:6px}.cap-card .time{font-size:11px;font-weight:600;color:var(--ant-primary)}
+  .cap-card .location{font-size:10px;color:var(--ant-text-tertiary);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cap-card .direction{font-size:9px;padding:1px 4px;border-radius:2px;margin-left:3px}
+  .dir-in{background:var(--ant-success-bg);color:var(--ant-success)}.dir-out{background:var(--ant-error-bg);color:var(--ant-error)}
+
+  .cap-table{width:100%;border-collapse:collapse;font-size:12px}
+  .cap-table th{padding:8px 12px;text-align:left;color:var(--ant-text-tertiary);background:#fafafa;border-bottom:1px solid var(--ant-border-secondary);font-weight:600;font-size:11px;position:sticky;top:0}
+  .cap-table td{padding:8px 12px;border-bottom:1px solid var(--ant-border-secondary)}
+  .cap-table tr:hover{background:var(--ant-primary-bg);cursor:pointer}
+  .action-link{color:var(--ant-primary);cursor:pointer;font-size:11px}.action-link:hover{text-decoration:underline}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;z-index:500;align-items:flex-start;justify-content:center;padding-top:60px;overflow-y:auto}
+  .modal-overlay.active{display:flex}
+  .modal{background:var(--ant-bg-container);border:1px solid var(--ant-border-secondary);border-radius:var(--radius-lg);box-shadow:var(--shadow-2);width:720px;max-width:92vw;margin-bottom:40px}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--ant-border-secondary)}
+  .modal-head h3{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .modal-close{background:none;color:var(--ant-text-tertiary);font-size:18px;cursor:pointer;padding:4px}.modal-close:hover{color:var(--ant-text)}
+  .modal-body{padding:20px}
+  .modal-foot{padding:12px 20px;border-top:1px solid var(--ant-border-secondary);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+
+  .ant-message{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+  .ant-message-item{background:var(--ant-bg-container);border:1px solid var(--ant-border-secondary);border-radius:var(--radius-lg);padding:8px 16px;box-shadow:var(--shadow-2);display:flex;align-items:center;gap:8px;font-size:13px;animation:fadeInDown 0.3s;pointer-events:auto}
+  .ant-message-success .ant-message-icon{color:var(--ant-success)}.ant-message-error .ant-message-icon{color:var(--ant-error)}.ant-message-info .ant-message-icon{color:var(--ant-primary)}
+  @keyframes fadeInDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(1.1)}}
+</style>
+</head>
+<body>
+  <div class="proto-layout">
+    <header class="proto-topbar">
+      <div class="logo">
+        <div class="logo-icon"><i class="fa-solid fa-video"></i></div>
+        <span>视频云平台</span>
+      </div>
+      <span class="comp-badge">N9 轨迹查询</span>
+      <div class="topbar-breadcrumb">
+        <span>轨迹查询</span><span class="sep">/</span><span class="current">车辆轨迹结果</span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-bell"><i class="fa-regular fa-bell"></i><span class="bell-dot">2</span></div>
+        <div style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <div class="topbar-avatar">张</div>
+          <span style="font-size:13px;color:var(--ant-text-secondary);">张工程师</span>
+        </div>
+      </div>
+    </header>
+    <div class="proto-body">
+      <aside class="proto-sider">
+        <div class="sider-group"><i class="fa-solid fa-route"></i>轨迹查询</div>
+        <nav class="proto-menu">
+          <a href="search.html" class="proto-menu-item"><i class="fa-solid fa-person"></i>人员轨迹查询</a>
+          <a href="vehicle-search.html" class="proto-menu-item active"><i class="fa-solid fa-car"></i>车辆轨迹查询</a>
+          <a href="compare.html" class="proto-menu-item"><i class="fa-solid fa-users-viewfinder"></i>多目标对比</a>
+          <div class="sider-group" style="padding-top:12px;"><i class="fa-solid fa-microchip"></i>分析接入</div>
+          <a href="analysis-devices.html" class="proto-menu-item"><i class="fa-solid fa-gear"></i>轨迹分析接入</a>
+        </nav>
+      </aside>
+      <main class="proto-main">
+        <div class="proto-content no-scroll">
+      <!-- 页面标题 -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px" id="pageTitle">
+        <div style="font-size:20px;font-weight:600;color:var(--ant-text)"><span id="titleText">请确认目标车辆</span></div>
+        <div style="display:flex;gap:8px" id="topActions">
+          <button class="df-secondary" onclick="window.location.href='vehicle-search.html'" id="btnBack"><i class="fa-solid fa-arrow-left" style="margin-right:4px"></i>返回查询</button>
+          <button class="df-primary" onclick="openModal('modalExport')" style="display:none" id="btnExport"><i class="fa-solid fa-file-export" style="margin-right:4px"></i>导出报告</button>
+        </div>
+      </div>
+
+      <!-- 查询进度态 -->
+      <div class="query-loading-state" id="loadingState" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px;">
+        <div style="text-align:center;">
+          <div style="width:64px;height:64px;margin:0 auto 20px;border-radius:50%;background:var(--ant-primary-bg);display:flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-magnifying-glass" style="color:var(--ant-primary);font-size:24px;animation:pulse 1.5s infinite;"></i>
+          </div>
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;color:var(--ant-text);" id="loadingTitle">车牌识别中...</h3>
+          <p style="font-size:13px;color:var(--ant-text-secondary);margin-bottom:24px;" id="loadingDesc">正在识别上传图片中的车牌信息</p>
+          <div style="width:320px;margin:0 auto;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ant-text-tertiary);margin-bottom:6px;">
+              <span id="loadingStep">步骤 1/3</span>
+              <span id="loadingPercent">15%</span>
+            </div>
+            <div style="height:6px;background:var(--ant-border-secondary);border-radius:3px;overflow:hidden;">
+              <div id="loadingBar" style="height:100%;background:var(--ant-primary);border-radius:3px;width:15%;transition:width 0.5s ease;"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:24px;justify-content:center;margin-top:20px;">
+            <span id="step1Tag" style="font-size:12px;color:var(--ant-primary);font-weight:600;"><i class="fa-solid fa-circle-dot" style="margin-right:4px;"></i>车牌识别中</span>
+            <span id="step2Tag" style="font-size:12px;color:var(--ant-text-tertiary);"><i class="fa-regular fa-circle" style="margin-right:4px;"></i>检索匹配中</span>
+            <span id="step3Tag" style="font-size:12px;color:var(--ant-text-tertiary);"><i class="fa-regular fa-circle" style="margin-right:4px;"></i>结果排序中</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 人工确认状态 -->
+      <div class="confirm-state" id="confirmState" style="display:none;">
+        <div class="confirm-top">
+          <div style="width:64px;height:64px;border-radius:8px;overflow:hidden;border:2px solid var(--ant-primary);background:var(--ant-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i class="fa-solid fa-car" style="color:var(--ant-primary);font-size:24px"></i>
+          </div>
+          <div class="confirm-top-info">
+            <div class="query-mode"><span style="background:var(--ant-primary);color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;margin-right:6px">以图搜车</span>请确认目标车辆</div>
+            <div class="query-params">
+              <span><i class="fa-regular fa-clock" style="margin-right:3px"></i>近24小时</span>
+              <span><i class="fa-solid fa-location-dot" style="margin-right:3px"></i>全部卡口</span>
+              <span style="color:var(--ant-primary)"><i class="fa-solid fa-magnifying-glass" style="margin-right:3px"></i>共 8 个候选</span>
+            </div>
+          </div>
+        </div>
+        <div class="confirm-grid-title"><i class="fa-solid fa-images" style="color:var(--ant-primary)"></i>候选车辆 — 按第一次出现时间排序</div>
+        <div class="confirm-grid" id="confirmList">
+          <!-- 候选1 -->
+          <div class="confirm-card" data-idx="0">
+            <div class="confirm-card-img"><div class="rank-badge">1</div><div class="plate-label" style="color:var(--ant-primary)">京A·12345</div></div>
+            <div class="confirm-card-body">
+              <h4>京A·12345</h4>
+              <div class="meta-row">白色 SUV · 丰田</div>
+              <div class="meta-row">第一次出现 08:02</div>
+              <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(0)">确认目标</button></div>
+            </div>
+          </div>
+          <!-- 候选2 -->
+          <div class="confirm-card" data-idx="1">
+            <div class="confirm-card-img"><div class="rank-badge">2</div><div class="plate-label" style="color:var(--ant-success)">京B·67890</div></div>
+            <div class="confirm-card-body">
+              <h4>京B·67890</h4>
+              <div class="meta-row">黑色 轿车 · 宝马</div>
+              <div class="meta-row">第一次出现 09:15</div>
+              <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(1)">确认目标</button></div>
+            </div>
+          </div>
+          <!-- 候选3 -->
+          <div class="confirm-card" data-idx="2">
+            <div class="confirm-card-img"><div class="rank-badge">3</div><div class="plate-label" style="color:var(--ant-warning)">京C·34567</div></div>
+            <div class="confirm-card-body">
+              <h4>京C·34567</h4>
+              <div class="meta-row">银色 SUV · 大众</div>
+              <div class="meta-row">第一次出现 10:30</div>
+              <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(2)">确认目标</button></div>
+            </div>
+          </div>
+          <!-- 候选4 -->
+          <div class="confirm-card" data-idx="3">
+            <div class="confirm-card-img"><div class="rank-badge">4</div><div class="plate-label" style="color:var(--ant-error)">京D·90123</div></div>
+            <div class="confirm-card-body">
+              <h4>京D·90123</h4>
+              <div class="meta-row">白色 轿车 · 本田</div>
+              <div class="meta-row">第一次出现 11:00</div>
+              <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(3)">确认目标</button></div>
+            </div>
+          </div>
+          <!-- 候选5 -->
+          <div class="confirm-card" data-idx="4">
+            <div class="confirm-card-img"><div class="rank-badge">5</div><div class="plate-label">京E·56789</div></div>
+            <div class="confirm-card-body">
+              <h4>京E·56789</h4>
+              <div class="meta-row">灰色 面包车 · 五菱</div>
+              <div class="meta-row">第一次出现 07:45</div>
+              <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(4)">确认目标</button></div>
+            </div>
+          </div>
+          <!-- 候选6 -->
+          <div class="confirm-card" data-idx="5">
+            <div class="confirm-card-img"><div class="rank-badge">6</div><div class="plate-label">京F·11111</div></div>
+            <div class="confirm-card-body">
+              <h4>京F·11111</h4>
+              <div class="meta-row">红色 轿车 · 马自达</div>
+              <div class="meta-row">第一次出现 13:20</div>
+              <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(5)">确认目标</button></div>
+            </div>
+          </div>
+          <!-- 候选7 -->
+          <div class="confirm-card" data-idx="6">
+            <div class="confirm-card-img"><div class="rank-badge">7</div><div class="plate-label">无牌-001</div></div>
+            <div class="confirm-card-body">
+              <h4>无牌车辆-001</h4>
+              <div class="meta-row">红色 轿车 · 大众</div>
+              <div class="meta-row">第一次出现 14:20</div>
+              <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(6)">确认目标</button></div>
+            </div>
+          </div>
+          <!-- 候选8 -->
+          <div class="confirm-card" data-idx="7">
+            <div class="confirm-card-img"><div class="rank-badge">8</div><div class="plate-label">京G·22222</div></div>
+            <div class="confirm-card-body">
+              <h4>京G·22222</h4>
+              <div class="meta-row">黑色 SUV · 奥迪</div>
+              <div class="meta-row">第一次出现 16:05</div>
+              <div class="confirm-card-actions"><button class="btn-confirm" onclick="confirmTarget(7)">确认目标</button></div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center;padding:4px 20px 8px;flex-shrink:0">
+          <a href="vehicle-search.html" style="color:var(--ant-text-tertiary);font-size:13px">以上都不是？返回重新查询</a>
+        </div>
+      </div>
+
+      <!-- 结果展示状态 -->
+      <div class="result-state" id="resultState">
+        <div class="right-panel">
+          <div class="map-section">
+            <div class="map-toolbar"><button class="map-tb-btn" onclick="showMessage('全屏','info')"><i class="fa-solid fa-expand"></i></button></div>
+            <div class="map-stats">
+              <h4><i class="fa-solid fa-chart-simple"></i>轨迹统计</h4>
+              <div class="stat-row"><span>识别车牌</span><span class="val" style="color:var(--ant-primary)">京A·12345</span></div>
+              <div class="stat-row"><span>通行次数</span><span class="val">15 次</span></div>
+              <div class="stat-row"><span>涉及卡口</span><span class="val">4 个</span></div>
+              <div class="stat-row"><span>行驶时长</span><span class="val">2h 15m</span></div>
+              <div class="stat-row"><span>首次通行</span><span class="val">08:02</span></div>
+              <div class="stat-row"><span>末次通行</span><span class="val">18:35</span></div>
+            </div>
+            <svg class="map-svg" viewBox="0 0 1100 500">
+              <defs><pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="#0d1b2a" stroke-width="0.5"/></pattern><marker id="arrowG" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3b82f6"/></marker></defs>
+              <rect width="1100" height="500" fill="url(#grid)"/>
+              <rect x="50" y="30" width="140" height="90" rx="4" fill="#1a2744" stroke="#2a3f66"/><text x="120" y="80" fill="rgba(255,255,255,0.5)" font-size="11" text-anchor="middle">A栋</text>
+              <rect x="50" y="150" width="140" height="60" rx="4" fill="#1a2744" stroke="#2a3f66"/><text x="120" y="185" fill="rgba(255,255,255,0.5)" font-size="11" text-anchor="middle">B栋</text>
+              <rect x="400" y="150" width="260" height="160" rx="4" fill="#1a2744" stroke="#2a3f66"/><text x="530" y="235" fill="rgba(255,255,255,0.5)" font-size="11" text-anchor="middle">中央广场</text>
+              <rect x="750" y="30" width="140" height="90" rx="4" fill="#1a2744" stroke="#2a3f66"/><text x="820" y="80" fill="rgba(255,255,255,0.5)" font-size="11" text-anchor="middle">C栋</text>
+              <rect x="750" y="150" width="140" height="60" rx="4" fill="#1a2744" stroke="#2a3f66"/><text x="820" y="185" fill="rgba(255,255,255,0.5)" font-size="11" text-anchor="middle">D栋</text>
+              <rect x="420" y="370" width="160" height="70" rx="4" fill="#1a2744" stroke="#2a3f66"/><text x="500" y="410" fill="rgba(255,255,255,0.5)" font-size="11" text-anchor="middle">食堂</text>
+              <rect x="640" y="370" width="100" height="50" rx="4" fill="#1a2744" stroke="#2a3f66"/><text x="690" y="400" fill="rgba(255,255,255,0.5)" font-size="11" text-anchor="middle">停车场</text>
+              <line x1="100" y1="350" x2="900" y2="350" stroke="#1e3050" stroke-width="2" stroke-dasharray="4 4"/>
+              <line x1="900" y1="350" x2="900" y2="100" stroke="#1e3050" stroke-width="2" stroke-dasharray="4 4"/>
+              <line x1="900" y1="100" x2="100" y2="100" stroke="#1e3050" stroke-width="2" stroke-dasharray="4 4"/>
+              <line x1="100" y1="100" x2="100" y2="350" stroke="#1e3050" stroke-width="2" stroke-dasharray="4 4"/>
+              <circle cx="100" cy="90" r="6" fill="#4a5568"/><text x="100" y="80" fill="rgba(255,255,255,0.3)" font-size="8" text-anchor="middle">G01</text>
+              <circle cx="400" cy="140" r="6" fill="#4a5568"/><text x="400" y="130" fill="rgba(255,255,255,0.3)" font-size="8" text-anchor="middle">G02</text>
+              <circle cx="660" cy="140" r="6" fill="#4a5568"/><text x="660" y="130" fill="rgba(255,255,255,0.3)" font-size="8" text-anchor="middle">G03</text>
+              <circle cx="900" cy="90" r="6" fill="#4a5568"/><text x="900" y="80" fill="rgba(255,255,255,0.3)" font-size="8" text-anchor="middle">G04</text>
+              <circle cx="900" cy="360" r="6" fill="#4a5568"/><text x="900" y="350" fill="rgba(255,255,255,0.3)" font-size="8" text-anchor="middle">G05</text>
+              <circle cx="500" cy="360" r="6" fill="#4a5568"/><text x="500" y="350" fill="rgba(255,255,255,0.3)" font-size="8" text-anchor="middle">G06</text>
+              <path d="M100,90 L400,140 L660,140 L900,90" fill="none" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowG)" stroke-linecap="round" class="trajectory-path" stroke-dasharray="2000" stroke-dashoffset="2000"/>
+              <circle cx="100" cy="90" r="10" fill="none" stroke="#fbbf24" stroke-width="2"/><text x="100" y="94" fill="#fbbf24" font-size="8" text-anchor="middle">①</text>
+              <circle cx="400" cy="140" r="18" fill="none" stroke="#fbbf24" stroke-width="2"/><text x="400" y="144" fill="#fbbf24" font-size="9" text-anchor="middle">45m</text>
+              <circle cx="660" cy="140" r="10" fill="none" stroke="#3b82f6" stroke-width="2"/><text x="660" y="144" fill="#3b82f6" font-size="8" text-anchor="middle">②</text>
+              <circle cx="900" cy="90" r="10" fill="none" stroke="#3b82f6" stroke-width="2"/><text x="900" y="94" fill="#3b82f6" font-size="8" text-anchor="middle">③</text>
+            </svg>
+            <div class="map-tooltip" id="mapTooltip">
+              <div class="tip-time" id="tipTime"></div>
+              <div class="tip-loc" id="tipLoc"></div>
+              <div class="tip-plate" id="tipPlate" style="display:none"></div>
+            </div>
+          </div>
+          <div class="timeline-bar">
+            <button class="play-btn" id="playBtn" onclick="togglePlay()"><i class="fa-solid fa-play"></i></button>
+            <span class="timeline-label">时间轴</span>
+            <div class="timeline-track" id="timelineTrack" onclick="seekTimeline(event)">
+              <div class="timeline-progress" id="timelineProgress"></div>
+              <div class="timeline-handle" id="timelineHandle"></div>
+            </div>
+            <span class="timeline-time" id="timelineTime">08:02</span>
+            <button class="speed-btn active" onclick="setSpeed(this,1)">1x</button>
+            <button class="speed-btn" onclick="setSpeed(this,2)">2x</button>
+            <button class="speed-btn" onclick="setSpeed(this,4)">4x</button>
+          </div>
+          <div class="capture-section">
+            <div class="cap-header">
+              <h4><i class="fa-solid fa-images"></i>卡口通行记录 <span class="count" id="capCount">共 4 条</span></h4>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="view-toggle">
+                  <button class="view-btn active" id="viewCard" onclick="switchView('card')"><i class="fa-solid fa-grip"></i></button>
+                  <button class="view-btn" id="viewList" onclick="switchView('list')"><i class="fa-solid fa-list"></i></button>
+                </div>
+              </div>
+            </div>
+            <div class="cap-body" id="capBody"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+      </main>
+    </div>
+
+  <!-- 详情弹窗 -->
+  <div class="modal-overlay" id="modalDetail">
+    <div class="modal">
+      <div class="modal-head"><h3><i class="fa-solid fa-magnifying-glass"></i>通行详情</h3><button class="modal-close" onclick="closeModal('modalDetail')">&times;</button></div>
+      <div class="modal-body">
+        <div style="display:flex;gap:20px">
+          <div style="width:200px;height:150px;background:var(--ant-bg);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fa-solid fa-car" style="color:var(--ant-text-tertiary);font-size:36px"></i></div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--ant-border-secondary);font-size:13px"><span style="color:var(--ant-text-tertiary)">车牌号</span><span style="color:var(--ant-primary);font-weight:600" id="dPlate">京A·12345</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--ant-border-secondary);font-size:13px"><span style="color:var(--ant-text-tertiary)">通行时间</span><span id="dTime">2026-05-29 08:02:15</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--ant-border-secondary);font-size:13px"><span style="color:var(--ant-text-tertiary)">卡口</span><span id="dLoc">北门卡口 (G01)</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--ant-border-secondary);font-size:13px"><span style="color:var(--ant-text-tertiary)">车身颜色</span><span>白色</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--ant-border-secondary);font-size:13px"><span style="color:var(--ant-text-tertiary)">车辆类型</span><span>SUV</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px"><span style="color:var(--ant-text-tertiary)">行驶方向</span><span style="color:var(--ant-success)">进入</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="df-secondary" onclick="closeModal('modalDetail')"><i class="fa-solid fa-xmark" style="margin-right:4px"></i>关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 导出弹窗 -->
+  <div class="modal-overlay" id="modalExport">
+    <div class="modal" style="width:520px">
+      <div class="modal-head"><h3><i class="fa-solid fa-file-export"></i>轨迹导出配置</h3><button class="modal-close" onclick="closeModal('modalExport')">&times;</button></div>
+      <div class="modal-body">
+        <div style="margin-bottom:16px"><label style="font-size:13px;color:var(--ant-text-secondary);display:block;margin-bottom:6px">报告标题</label><input type="text" value="车辆轨迹分析报告_京A12345_20260601" style="width:100%;height:36px;border:1px solid var(--ant-border);border-radius:var(--radius-base);padding:0 12px;font-size:13px;outline:none"></div>
+        <div style="margin-bottom:16px"><label style="font-size:13px;color:var(--ant-text-secondary);display:block;margin-bottom:8px">导出内容</label>
+          <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;cursor:pointer"><input type="checkbox" checked> 轨迹地图截图</label>
+          <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;cursor:pointer"><input type="checkbox" checked> 卡口抓拍图片</label>
+          <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;cursor:pointer"><input type="checkbox" checked> 时间线列表</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" checked> 统计信息</label>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="df-secondary" onclick="closeModal('modalExport')">取消</button>
+        <button class="df-primary" onclick="closeModal('modalExport');window.open('report-preview.html','_blank')"><i class="fa-solid fa-download" style="margin-right:4px"></i>生成报告</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ant-message" id="messageContainer"></div>
+
+  <script>
+    const trajectoryData=[
+      {idx:1,time:'08:02:15',cam:'G01',camName:'北门卡口',camCode:'GATE-NORTH-001',x:160,y:90,plate:'京A·12345',direction:'进入'},
+      {idx:2,time:'08:08:32',cam:'G02',camName:'A栋卡口',camCode:'GATE-A-001',x:400,y:140,plate:'京A·12345',direction:'进入',duration:'45分钟'},
+      {idx:3,time:'10:15:48',cam:'G03',camName:'中央广场卡口',camCode:'GATE-CENTRAL-001',x:660,y:140,plate:'京A·12345',direction:'进入'},
+      {idx:4,time:'10:45:20',cam:'G04',camName:'C栋卡口',camCode:'GATE-C-001',x:900,y:90,plate:'京A·12345',direction:'离开'}
+    ];
+    let currentView='card',isPlaying=false,playSpeed=1,playTimer=null,playProgress=0;
+
+    // 查询进度条动画
+    (function runLoading(){
+      const bar=document.getElementById('loadingBar');
+      const pct=document.getElementById('loadingPercent');
+      const step=document.getElementById('loadingStep');
+      const title=document.getElementById('loadingTitle');
+      const desc=document.getElementById('loadingDesc');
+      const s1=document.getElementById('step1Tag');
+      const s2=document.getElementById('step2Tag');
+      const s3=document.getElementById('step3Tag');
+      const stages=[
+        {pct:33,step:'步骤 1/3',title:'车牌识别中...',desc:'正在识别上传图片中的车牌和车辆特征',s1c:'var(--ant-success)',s2c:'var(--ant-primary)',s3c:'var(--ant-text-tertiary)'},
+        {pct:70,step:'步骤 2/3',title:'检索匹配中...',desc:'正在将车牌和车辆特征与卡口记录进行比对',s1c:'var(--ant-success)',s2c:'var(--ant-success)',s3c:'var(--ant-primary)'},
+        {pct:100,step:'步骤 3/3',title:'结果排序中...',desc:'正在对匹配结果进行排序和聚合',s1c:'var(--ant-success)',s2c:'var(--ant-success)',s3c:'var(--ant-primary)'}
+      ];
+      let i=0;
+      function nextStage(){
+        if(i>=stages.length){
+          setTimeout(()=>{
+            document.getElementById('loadingState').style.display='none';
+            document.getElementById('confirmState').style.display='';
+            document.getElementById('confirmState').classList.add('active');
+          },400);
+          return;
+        }
+        const s=stages[i];
+        bar.style.width=s.pct+'%';
+        pct.textContent=s.pct+'%';
+        step.textContent=s.step;
+        title.textContent=s.title;
+        desc.textContent=s.desc;
+        s1.innerHTML=(i>=1?'<i class="fa-solid fa-circle-check" style="margin-right:4px;color:'+s.s1c+'"></i>':'<i class="fa-solid fa-circle-dot" style="margin-right:4px;"></i>')+'车牌识别'+(i>=1?'':'中');
+        s1.style.color=s.s1c;
+        s2.innerHTML=(i>=2?'<i class="fa-solid fa-circle-check" style="margin-right:4px;color:'+s.s2c+'"></i>':'<i class="fa-regular fa-circle" style="margin-right:4px;"></i>')+'检索匹配'+(i===1?'中':'');
+        s2.style.color=s.s2c;
+        s3.innerHTML=(i>=2?'<i class="fa-solid fa-circle-dot" style="margin-right:4px;"></i>':'<i class="fa-regular fa-circle" style="margin-right:4px;"></i>')+'结果排序'+(i===2?'中':'');
+        s3.style.color=s.s3c;
+        i++;
+        setTimeout(nextStage,1200);
+      }
+      setTimeout(nextStage,600);
+    })();
+
+    // 人工确认
+    function confirmTarget(idx){
+      const cards=document.querySelectorAll('.confirm-card');
+      cards.forEach((c,i)=>{if(i===idx){c.classList.add('confirmed');const a=c.querySelector('.confirm-card-actions');if(a)a.innerHTML='<div style="color:var(--ant-success);font-weight:600;font-size:14px;text-align:center;padding:10px"><i class="fa-solid fa-circle-check" style="margin-right:4px"></i>已确认</div>'}else{c.classList.add('skipped')}});
+      setTimeout(()=>switchToResult(),500);
+    }
+
+    // 车牌查询跳过人工确认，直接展示轨迹
+    const urlParams=new URLSearchParams(window.location.search);
+    if(urlParams.get('mode')==='plate'){
+      document.getElementById('loadingState').style.display='none';
+      document.getElementById('confirmState').style.display='none';
+      document.getElementById('resultState').classList.add('active');
+      document.getElementById('titleText').textContent='车辆轨迹查询结果';
+      document.getElementById('btnBack').style.display='none';
+      document.getElementById('btnExport').style.display='';
+      document.querySelector('.query-mode').innerHTML='<span style="background:var(--ant-primary);color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;margin-right:6px">车牌查询</span>京A·12345 精确匹配结果';
+      setTimeout(()=>{const p=document.querySelector('.trajectory-path');if(p)p.style.strokeDashoffset='0'},300);
+      renderCaptures();
+    }
+
+    function switchToResult(){
+      document.getElementById('confirmState').classList.remove('active');
+      document.getElementById('resultState').classList.add('active');
+      document.getElementById('titleText').textContent='车辆轨迹查询结果';
+      document.getElementById('btnBack').style.display='none';
+      document.getElementById('btnExport').style.display='';
+      showMessage('已确认目标车辆 京A·12345，正在生成轨迹...','success');
+      setTimeout(()=>{const p=document.querySelector('.trajectory-path');if(p)p.style.strokeDashoffset='0'},300);
+      renderCaptures();
+    }
+
+    // 地图交互
+    document.querySelectorAll('.map-svg circle[r="6"]').forEach(c=>{
+      c.style.cursor='pointer';
+      c.addEventListener('mouseenter',e=>{
+        const d=trajectoryData.find(t=>t.cam===c.nextElementSibling?.textContent);
+        if(d)showTip(e,d.time+' '+d.direction,d.camName,null,d.plate);
+      });
+      c.addEventListener('mouseleave',hideTip);
+    });
+
+    function showTip(evt,time,loc,dur,plate){
+      const tip=document.getElementById('mapTooltip');
+      const rect=document.querySelector('.map-section').getBoundingClientRect();
+      tip.style.display='block';tip.style.left=(evt.clientX-rect.left+10)+'px';tip.style.top=(evt.clientY-rect.top-40)+'px';
+      document.getElementById('tipTime').textContent=time;document.getElementById('tipLoc').textContent=loc;
+      if(plate){document.getElementById('tipPlate').style.display='block';document.getElementById('tipPlate').textContent=plate}else{document.getElementById('tipPlate').style.display='none'}
+    }
+    function hideTip(){document.getElementById('mapTooltip').style.display='none'}
+
+    // 时间轴
+    function togglePlay(){isPlaying=!isPlaying;document.getElementById('playBtn').innerHTML=isPlaying?'<i class="fa-solid fa-pause"></i>':'<i class="fa-solid fa-play"></i>';if(isPlaying)startPlay();else stopPlay()}
+    function startPlay(){playTimer=setInterval(()=>{playProgress+=playSpeed;if(playProgress>=100){playProgress=0;stopPlay();return}updateTimeline()},100)}
+    function stopPlay(){clearInterval(playTimer);isPlaying=false;document.getElementById('playBtn').innerHTML='<i class="fa-solid fa-play"></i>'}
+    function updateTimeline(){document.getElementById('timelineProgress').style.width=playProgress+'%';document.getElementById('timelineHandle').style.left=playProgress+'%';const idx=Math.min(Math.floor(playProgress/25),trajectoryData.length-1);document.getElementById('timelineTime').textContent=trajectoryData[idx].time.split(':').slice(0,2).join(':')}
+    function seekTimeline(e){const rect=document.getElementById('timelineTrack').getBoundingClientRect();playProgress=Math.max(0,Math.min(100,(e.clientX-rect.left)/rect.width*100));updateTimeline()}
+    function setSpeed(btn,spd){playSpeed=spd;document.querySelectorAll('.speed-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
+
+    // 抓拍视图
+    function switchView(view){currentView=view;document.getElementById('viewCard').classList.toggle('active',view==='card');document.getElementById('viewList').classList.toggle('active',view==='list');renderCaptures()}
+    function renderCaptures(){const body=document.getElementById('capBody');if(!body)return;
+      if(currentView==='card'){let h='<div class="cap-grid">';trajectoryData.forEach((d,i)=>{h+=`<div class="cap-card" onclick="openDetail(${i})"><div class="seq">${d.idx}</div><div class="plate-badge">${d.plate}</div><div class="img-wrap"><div class="placeholder"><i class="fa-solid fa-car"></i></div></div><div class="info"><div class="time">${d.time}</div><div class="location"><i class="fa-solid fa-location-dot" style="margin-right:3px"></i>${d.camName}<span class="direction ${d.direction==='进入'?'dir-in':'dir-out'}">${d.direction}</span></div></div></div>`});h+='</div>';body.innerHTML=h}
+      else{let h='<table class="cap-table"><thead><tr><th>序号</th><th>时间</th><th>卡口</th><th>车牌</th><th>方向</th><th>操作</th></tr></thead><tbody>';trajectoryData.forEach((d,i)=>{h+=`<tr onclick="openDetail(${i})"><td>${d.idx}</td><td style="color:var(--ant-primary);font-weight:600">${d.time}</td><td>${d.camName}</td><td style="font-weight:600">${d.plate}</td><td><span class="direction ${d.direction==='进入'?'dir-in':'dir-out'}">${d.direction}</span></td><td><span class="action-link">查看详情</span></td></tr>`});h+='</tbody></table>';body.innerHTML=h}
+    }
+
+    function openDetail(idx){const d=trajectoryData[idx];document.getElementById('dPlate').textContent=d.plate;document.getElementById('dTime').textContent='2026-05-29 '+d.time;document.getElementById('dLoc').textContent=d.camName+' ('+d.cam+')';openModal('modalDetail')}
+    function openModal(id){document.getElementById(id).classList.add('active')}
+    function closeModal(id){document.getElementById(id).classList.remove('active')}
+    function showMessage(text,type='success'){const c=document.getElementById('messageContainer');const icons={success:'fa-circle-check',error:'fa-circle-xmark',info:'fa-circle-info'};const item=document.createElement('div');item.className='ant-message-item ant-message-'+type;item.innerHTML=`<i class="fa-solid ${icons[type]||icons.info} ant-message-icon"></i>${text}`;c.appendChild(item);setTimeout(()=>item.remove(),3000)}
+  </script>
+</body>
+</html>

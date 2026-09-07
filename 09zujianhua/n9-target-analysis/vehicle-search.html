@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>车辆轨迹查询 - N9 轨迹查询</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/proto.css">
+    <style>
+        /* ===== 页面级样式（仅本页使用；token 与基础组件见 ../assets/proto.css） ===== */
+        .ant-btn-group{display:flex;justify-content:flex-end;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid var(--ant-border-secondary)}
+        .upload-row{display:flex;gap:16px;align-items:flex-start}
+        .upload-row .ant-upload{flex:0 0 320px}
+        .upload-side{flex:1;min-width:0;background:var(--ant-bg);border-radius:var(--ant-radius);padding:14px 16px;font-size:12px;color:var(--ant-text-secondary);line-height:2}
+        .upload-side h5{font-size:13px;color:var(--ant-text);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+        .upload-side h5 i{color:var(--ant-primary)}
+        /* ===== 大弹窗（本页专用：树+地图） ===== */
+        .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;z-index:500;align-items:center;justify-content:center}
+        .modal-mask.open{display:flex}
+        .modal-box{background:var(--ant-bg-container);border-radius:var(--ant-radius-lg);box-shadow:0 12px 48px rgba(0,0,0,0.18);width:960px;max-width:95vw;height:580px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
+        .modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--ant-border-secondary);flex-shrink:0}
+        .modal-head h3{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+        .modal-close{background:none;border:none;color:var(--ant-text-tertiary);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:4px}
+        .modal-close:hover{color:var(--ant-text);background:var(--ant-bg)}
+        .modal-body{flex:1;display:flex;overflow:hidden}
+        .modal-foot{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--ant-border-secondary);flex-shrink:0}
+        .modal-left{width:340px;min-width:340px;border-right:1px solid var(--ant-border-secondary);display:flex;flex-direction:column;overflow:hidden}
+        .modal-search{padding:12px;border-bottom:1px solid var(--ant-border-secondary);flex-shrink:0;position:relative}
+        .modal-search input{width:100%;height:34px;border:1px solid var(--ant-border);border-radius:var(--ant-radius);padding:0 10px 0 32px;font-size:13px;outline:none}
+        .modal-search input:focus{border-color:var(--ant-primary)}
+        .modal-search i{position:absolute;left:22px;top:50%;transform:translateY(-50%);color:var(--ant-text-quaternary);font-size:12px}
+        .modal-tree{flex:1;overflow-y:auto;padding:4px 0}
+        .modal-tree-footer{padding:8px 12px;border-top:1px solid var(--ant-border-secondary);display:flex;justify-content:space-between;align-items:center;font-size:12px;flex-shrink:0}
+        .modal-tree-footer .actions{display:flex;gap:8px}
+        .modal-tree-footer .actions button{padding:2px 8px;font-size:12px;border:none;background:none;color:var(--ant-primary);cursor:pointer;border-radius:4px}
+        .modal-tree-footer .actions button:hover{background:var(--ant-primary-bg)}
+        .tree-grp-hd{display:flex;align-items:center;gap:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--ant-text-secondary);user-select:none}
+        .tree-grp-hd:hover{background:var(--ant-primary-bg)}
+        .tree-grp-hd .arr{font-size:10px;color:var(--ant-text-quaternary);transition:transform 0.2s;width:14px;text-align:center}
+        .tree-grp-hd .arr.exp{transform:rotate(90deg)}
+        .tree-grp-hd .cnt{color:var(--ant-text-tertiary);font-size:11px;font-weight:400}
+        .tree-grp-body{display:none}.tree-grp-body.exp{display:block}
+        .tree-node{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 32px;cursor:pointer;font-size:13px;color:var(--ant-text);transition:background 0.15s}
+        .tree-node:hover{background:var(--ant-primary-bg)}
+        .tree-node.hl{background:#e6f4ff}
+        .chk{width:16px;height:16px;border:1px solid var(--ant-border);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s}
+        .chk.on{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;font-size:10px}
+        .chk.half{background:var(--ant-primary);border-color:var(--ant-primary)}
+        .chk.half::after{content:'';width:8px;height:2px;background:#fff;border-radius:1px}
+        .cam-cnt{color:var(--ant-text-tertiary);font-size:11px;margin-left:auto}
+        .modal-right{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;background:#0a1628}
+        .map-svg{width:100%;flex:1}
+        .bld{fill:#1a2744;stroke:#2a3f66;stroke-width:1;transition:fill 0.3s,stroke 0.3s}.bld.sel{fill:#1e3a5f;stroke:var(--ant-primary);stroke-width:2}
+        .bld-lbl{fill:rgba(255,255,255,0.5);font-size:11px;text-anchor:middle;pointer-events:none;transition:fill 0.3s}.bld-lbl.sel{fill:rgba(255,255,255,0.9)}
+        .cam{fill:#4a5568;stroke:none;transition:fill 0.3s}.cam.on{fill:var(--ant-success)}
+        .cam-lbl{fill:rgba(255,255,255,0.3);font-size:8px;text-anchor:middle;pointer-events:none}
+        .road{stroke:#1e3050;stroke-width:2;stroke-dasharray:4 4;fill:none}
+        .map-overlay{position:absolute;bottom:12px;right:12px;background:rgba(255,255,255,0.95);border-radius:8px;padding:10px 14px;font-size:12px;box-shadow:0 2px 12px rgba(0,0,0,0.15);z-index:10}
+        .map-overlay .ov-row{display:flex;justify-content:space-between;gap:20px;margin-bottom:3px}
+        .map-overlay .ov-label{color:var(--ant-text-tertiary)}
+        .map-overlay .ov-val{font-weight:600;color:var(--ant-primary)}
+        .modal-foot .foot-stat{font-size:12px;color:var(--ant-text-secondary)}.modal-foot .foot-stat strong{color:var(--ant-primary);font-weight:600}
+        .modal-foot .foot-btns{display:flex;gap:8px}
+    </style>
+</head>
+<body>
+    <div class="proto-layout">
+        <header class="proto-topbar">
+            <div class="logo">
+                <div class="logo-icon"><i class="fa-solid fa-video"></i></div>
+                <span>视频云平台</span>
+            </div>
+            <span class="comp-badge">N9 轨迹查询</span>
+            <div class="topbar-breadcrumb">
+                <span>轨迹查询</span><span class="sep">/</span><span class="current">车辆轨迹查询</span>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-bell"><i class="fa-regular fa-bell"></i><span class="bell-dot">2</span></div>
+                <div style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <div class="topbar-avatar">张</div>
+                    <span style="font-size:13px;color:var(--ant-text-secondary);">张工程师</span>
+                </div>
+            </div>
+        </header>
+        <div class="proto-body">
+            <aside class="proto-sider">
+                <div class="sider-group"><i class="fa-solid fa-route"></i>轨迹查询</div>
+                <nav class="proto-menu">
+                    <a href="search.html" class="proto-menu-item"><i class="fa-solid fa-person"></i>人员轨迹查询</a>
+                    <a href="vehicle-search.html" class="proto-menu-item active"><i class="fa-solid fa-car"></i>车辆轨迹查询</a>
+                    <a href="compare.html" class="proto-menu-item"><i class="fa-solid fa-users-viewfinder"></i>多目标对比</a>
+                    <div class="sider-group" style="padding-top:12px;"><i class="fa-solid fa-microchip"></i>分析接入</div>
+                    <a href="analysis-devices.html" class="proto-menu-item"><i class="fa-solid fa-gear"></i>轨迹分析接入</a>
+                </nav>
+            </aside>
+            <main class="proto-main">
+                <div class="proto-content">
+                <div class="ant-card">
+                    <div class="ant-card-head">
+                        <div class="ant-card-title">查询条件 <span class="ant-tag" id="modeTag">以图搜车</span></div>
+                    </div>
+                    <div class="ant-card-body">
+                        <div class="ant-tabs">
+                            <button class="ant-tabs-tab ant-tabs-tab-active" onclick="switchMode('image')"><i class="fa-solid fa-image"></i>以图搜车</button>
+                            <button class="ant-tabs-tab" onclick="switchMode('plate')"><i class="fa-solid fa-font"></i>车牌查询</button>
+                            <button class="ant-tabs-tab" onclick="switchMode('text')"><i class="fa-solid fa-keyboard"></i>文字搜车</button>
+                        </div>
+
+                        <!-- 以图搜车 -->
+                        <div id="imageForm">
+                            <div class="ant-form">
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">时间范围 <span class="required">*</span></label>
+                                    <div class="time-picker-wrap">
+                                        <div class="time-picker-trigger" onclick="toggleCal(event)">
+                                            <i class="fa-regular fa-calendar"></i>
+                                            <span class="tp-text" id="tpText">近24小时（05-28 23:59 ~ 05-29 23:59）</span>
+                                            <span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">地点范围</label>
+                                    <div class="area-trigger" onclick="openModal()">
+                                        <div class="sel-tags" id="triggerTags"><span class="placeholder">全部设备</span></div>
+                                        <span class="arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                    </div>
+                                </div>
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">置信度阈值</label>
+                                    <select class="ant-select"><option value="80">≥ 80%</option><option value="85">≥ 85%</option><option value="90" selected>≥ 90%</option><option value="95">≥ 95%</option></select>
+                                </div>
+                                <div class="ant-form-item ant-form-item-full-width">
+                                    <label class="ant-form-label" style="display:flex;align-items:center;gap:8px;width:100%;">上传车辆照片 <span class="required">*</span><span class="hint">系统将自动识别车牌并提取车辆特征</span><button type="button" onclick="openLibModal()" style="margin-left:auto;height:26px;padding:0 12px;font-size:12px;color:#722ed1;border:1px dashed #b37feb;border-radius:4px;background:#f9f0ff;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-weight:500;"><i class="fa-solid fa-shield-halved"></i>从目标库选择<span style="font-weight:400;color:#9254de;">（N11）</span></button></label>
+                                    <div class="ant-upload" id="uploadBox" onclick="document.getElementById('fileInput').click()">
+                                        <div class="ant-upload-default" id="uploadDefault">
+                                            <div class="ant-upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                                            <div class="ant-upload-text">点击或拖拽上传车辆照片</div>
+                                            <div class="ant-upload-hint">支持 JPG、PNG 格式，1张，不超过 5MB</div>
+                                        </div>
+                                        <div class="ant-upload-list" id="previewList" style="display:none"></div>
+                                    </div>
+                                    <input type="file" id="fileInput" accept="image/jpeg,image/png" onchange="handleFile(event)" style="display:none">
+                                    <div class="ant-upload-tip" id="uploadTip"></div>
+                                </div>
+                                <div class="ant-form-item ant-form-item-full-width">
+                                    <div class="ant-alert" id="aiResult">
+                                        <div class="ant-alert-header"><i class="fa-solid fa-robot"></i><span>AI识别车牌</span></div>
+                                        <div class="ant-alert-content"><span class="ant-alert-title">京A·12345</span><span class="ant-alert-edit">修改</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 车牌查询 -->
+                        <div id="plateForm" style="display:none">
+                            <div class="ant-form">
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">车牌号 <span class="required">*</span></label>
+                                    <input type="text" class="ant-input" placeholder="请输入车牌号，如：京A12345">
+                                </div>
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">时间范围 <span class="required">*</span></label>
+                                    <div class="time-picker-wrap">
+                                        <div class="time-picker-trigger" onclick="toggleCal(event)">
+                                            <i class="fa-regular fa-calendar"></i>
+                                            <span class="tp-text" id="tpText2">近24小时（05-28 23:59 ~ 05-29 23:59）</span>
+                                            <span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">地点范围</label>
+                                    <div class="area-trigger" onclick="openModal()">
+                                        <div class="sel-tags"><span class="placeholder">全部设备</span></div>
+                                        <span class="arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 文字搜车 -->
+                        <div id="textForm" style="display:none">
+                            <div class="ant-form">
+                                <div class="ant-form-item ant-form-item-full-width">
+                                    <label class="ant-form-label">车辆特征描述 <span class="required">*</span><span class="hint">请用自然语言描述目标车辆的特征</span></label>
+                                    <textarea class="ant-input" id="vehicleText" rows="3" maxlength="200" placeholder="请描述目标车辆的特征，如：白色丰田SUV，车窗贴深色膜，后备箱有自行车架" oninput="updCC()" style="resize:vertical;min-height:80px"></textarea>
+                                    <div style="text-align:right;color:var(--ant-text-tertiary);font-size:12px;margin-top:4px"><span id="charCount">0</span>/200</div>
+                                </div>
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">时间范围 <span class="required">*</span></label>
+                                    <div class="time-picker-wrap">
+                                        <div class="time-picker-trigger" onclick="toggleCal(event)">
+                                            <i class="fa-regular fa-calendar"></i>
+                                            <span class="tp-text" id="tpText3">近24小时（05-28 23:59 ~ 05-29 23:59）</span>
+                                            <span class="tp-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">地点范围</label>
+                                    <div class="area-trigger" onclick="openModal()">
+                                        <div class="sel-tags"><span class="placeholder">全部设备</span></div>
+                                        <span class="arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                    </div>
+                                </div>
+                                <div class="ant-form-item">
+                                    <label class="ant-form-label">相似度阈值</label>
+                                    <div style="display:flex;align-items:center;gap:12px;">
+                                        <input type="range" id="vehicleTextThreshold" min="60" max="99" value="75" style="flex:1;accent-color:#1677ff;" oninput="document.getElementById('vehicleTextThresholdVal').textContent=this.value+'%'">
+                                        <span id="vehicleTextThresholdVal" style="font-size:14px;font-weight:600;color:#1677ff;min-width:36px;">75%</span>
+                                    </div>
+                                    <div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(0,0,0,0.45);margin-top:4px;"><span>宽松（60%）</span><span>精准（99%）</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ant-btn-group">
+                            <button class="ant-btn ant-btn-text" onclick="resetForm()">重置</button>
+                            <button class="ant-btn ant-btn-primary" id="queryBtn" onclick="doQuery()" disabled><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 场所选择弹窗（复用人员版） -->
+    <div class="modal-mask" id="modalMask">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h3><i class="fa-solid fa-map-location-dot" style="color:var(--ant-primary)"></i>选择监控范围</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-left">
+                    <div class="modal-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="搜索目录节点..." id="treeSearch" oninput="renderTree(this.value)"></div>
+                    <div class="modal-tree" id="treeBody"></div>
+                    <div class="modal-tree-footer">
+                        <span id="footStat">未选择特定目录，将搜索全部设备（25台·已开启16台）</span>
+                        <div class="actions"><button onclick="selectAll()">全选</button><button onclick="clearAll()">清空</button></div>
+                    </div>
+                </div>
+                <div class="modal-right">
+                    <svg class="map-svg" id="mapSvg" viewBox="0 0 700 500">
+                        <defs><pattern id="g" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="#0d1b2a" stroke-width="0.5"/></pattern></defs>
+                        <rect width="700" height="500" fill="url(#g)"/>
+                        <line class="road" x1="350" y1="20" x2="350" y2="480"/><line class="road" x1="20" y1="250" x2="680" y2="250"/>
+                        <rect class="bld" data-area="n111,n111,n112,n112" x="30" y="40" width="100" height="70" rx="4"/><text class="bld-lbl" x="80" y="80">1号楼</text>
+                        <rect class="bld" data-area="n121,n121,n121" x="30" y="130" width="100" height="50" rx="4"/><text class="bld-lbl" x="80" y="160">2号楼</text>
+                        <rect class="bld" data-area="n22,n22,n22" x="230" y="170" width="200" height="120" rx="4"/><text class="bld-lbl" x="330" y="235">广场</text>
+                        <rect class="bld" data-area="n13,n13" x="230" y="320" width="120" height="50" rx="4"/><text class="bld-lbl" x="290" y="350">东门</text>
+                        <rect class="bld" data-area="n211,n211" x="480" y="40" width="100" height="70" rx="4"/><text class="bld-lbl" x="530" y="80">地下停车场</text>
+                        <rect class="bld" data-area="n211,n211" x="480" y="130" width="100" height="50" rx="4"/><text class="bld-lbl" x="530" y="160">周界·东围墙</text>
+                        <circle class="cam" data-area="n14" cx="70" cy="30" r="5"/><text class="cam-lbl" x="70" y="22">G01</text>
+                        <circle class="cam" data-area="n111" cx="130" cy="60" r="5"/><text class="cam-lbl" x="130" y="52">G02</text>
+                        <circle class="cam" data-area="n121" cx="130" cy="150" r="5"/><text class="cam-lbl" x="130" y="142">G03</text>
+                        <circle class="cam" data-area="n22" cx="330" cy="155" r="5"/><text class="cam-lbl" x="330" y="147">G04</text>
+                        <circle class="cam" data-area="n13" cx="250" cy="310" r="5"/><text class="cam-lbl" x="250" y="302">G05</text>
+                        <circle class="cam" data-area="n211" cx="530" cy="30" r="5"/><text class="cam-lbl" x="530" y="22">G06</text>
+                        <circle class="cam" data-area="n211" cx="530" cy="150" r="5"/><text class="cam-lbl" x="530" y="142">G07</text>
+                        <circle class="cam" data-area="n13" cx="650" cy="200" r="5"/><text class="cam-lbl" x="650" y="192">G08</text>
+                        <circle class="cam" data-area="n212" cx="20" cy="200" r="5"/><text class="cam-lbl" x="20" y="192">G09</text>
+                    </svg>
+                    <div class="map-overlay">
+                        <div class="ov-row"><span class="ov-label">已选范围</span><span class="ov-val" id="ovPlaces">0 个</span></div>
+                        <div class="ov-row"><span class="ov-label">已开启设备</span><span class="ov-val" id="ovCams">全部 (25台·已开启16台)</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <span class="foot-stat" id="modalFootStat">未选择特定目录，将搜索全部设备（25台·已开启16台）</span>
+                <div class="foot-btns">
+                    <button class="ant-btn ant-btn-text" onclick="closeModal()" style="height:32px;padding:0 16px;font-size:13px">取消</button>
+                    <button class="ant-btn ant-btn-primary" onclick="confirmModal()" style="height:32px;padding:0 16px;font-size:13px">确认选择</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 从目标库选择（N11 布控预警 · 唯一跨组件联动入口） -->
+    <div class="modal-mask" id="libModal" style="z-index:60;">
+        <div class="modal-box" style="max-width:760px;width:760px;">
+            <div class="modal-head">
+                <h3><i class="fa-solid fa-shield-halved" style="color:#722ed1"></i>从目标库选择目标 <span style="font-size:12px;color:rgba(0,0,0,0.45);font-weight:400;">来源：N11 布控预警 · 重点目标名单库</span></h3>
+                <button class="modal-close" onclick="closeLibModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="display:block;">
+                <div class="modal-search" style="margin-bottom:12px;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="搜索车牌 / 车辆类型..." oninput="libFilter(this.value)">
+                </div>
+                <div id="libGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-height:320px;overflow:auto;padding:2px;"></div>
+                <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:10px;line-height:1.6;"><i class="fa-solid fa-circle-info" style="margin-right:4px;"></i>选择目标后以其照片发起特征检索（以图搜车）。数据经 N11 目标库公开 API 读取；未安装 N11 时该入口隐藏。</div>
+            </div>
+            <div class="modal-foot">
+                <span class="foot-stat" id="libFootStat">请选择一个目标</span>
+                <div class="foot-btns">
+                    <button class="ant-btn ant-btn-text" onclick="closeLibModal()" style="height:32px;padding:0 16px;font-size:13px">取消</button>
+                    <button class="ant-btn ant-btn-primary" onclick="useLibTarget()" style="height:32px;padding:0 16px;font-size:13px">使用该目标检索</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let currentMode='image',file=null;
+
+    // ===== 日历时间选择器 =====
+    const NOW=new Date('2026-05-29T23:59:00');
+    let calStart=new Date(NOW.getTime()-24*3600*1000),calEnd=new Date(NOW);
+    let calViewYear=2026,calViewMonth=4;
+    const WEEKDAYS=['日','一','二','三','四','五','六'],MONTHS=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    function pad(n){return n.toString().padStart(2,'0')}
+    function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()}
+    function initTimeSelects(){[['startH',calStart.getHours()],['startM',calStart.getMinutes()],['endH',calEnd.getHours()],['endM',calEnd.getMinutes()]].forEach(([id,val])=>{const s=document.getElementById(id);s.innerHTML='';const mx=id.includes('H')?24:60;for(let i=0;i<mx;i++)s.innerHTML+=`<option value="${i}" ${i===val?'selected':''}>${pad(i)}</option>`})}
+    function renderCalMonth(el,year,month){const first=new Date(year,month,1),sd=first.getDay(),dim=new Date(year,month+1,0).getDate(),dip=new Date(year,month,0).getDate();let h=`<div class="cal-month-head"><button class="cal-nav" onclick="navCal(-1)"><i class="fa-solid fa-chevron-left"></i></button><span class="cal-title">${year}年${MONTHS[month]}</span><button class="cal-nav" onclick="navCal(1)"><i class="fa-solid fa-chevron-right"></i></button></div>`;h+='<div class="cal-weekdays">'+WEEKDAYS.map(w=>`<span>${w}</span>`).join('')+'</div><div class="cal-days">';for(let i=sd-1;i>=0;i--)h+=`<div class="cal-day other">${dip-i}</div>`;const today=new Date('2026-05-29');for(let d=1;d<=dim;d++){const dt=new Date(year,month,d),isS=sameDay(dt,calStart),isE=sameDay(dt,calEnd),inR=dt>calStart&&dt<calEnd;let cls='cal-day';if(sameDay(dt,today))cls+=' today';if(isS&&isE)cls+=' start end';else if(isS)cls+=' start';else if(isE)cls+=' end';else if(inR)cls+=' in-range';h+=`<div class="${cls}" onclick="pickDay(${year},${month},${d})">${d}</div>`}const tot=sd+dim,rem=tot%7?7-tot%7:0;for(let d=1;d<=rem;d++)h+=`<div class="cal-day other">${d}</div>`;h+='</div>';el.innerHTML=h}
+    function renderCal(){renderCalMonth(document.getElementById('calLeft'),calViewYear,calViewMonth);const rm=calViewMonth+1,ry=rm>11?calViewYear+1:calViewYear;renderCalMonth(document.getElementById('calRight'),ry,rm%12)}
+    function navCal(dir){calViewMonth+=dir;if(calViewMonth>11){calViewMonth=0;calViewYear++}if(calViewMonth<0){calViewMonth=11;calViewYear--}renderCal()}
+    function pickDay(y,m,d){calStart=new Date(y,m,d,0,0,0);calEnd=new Date(y,m,d,23,59,0);document.getElementById('startH').value=0;document.getElementById('startM').value=0;document.getElementById('endH').value=23;document.getElementById('endM').value=59;document.querySelectorAll('.cal-shortcut').forEach(s=>s.classList.remove('active'));renderCal()}
+    function pickShortcut(type){document.querySelectorAll('.cal-shortcut').forEach(s=>s.classList.remove('active'));event.target.classList.add('active');calEnd=new Date(NOW);switch(type){case 'today':calStart=new Date(2026,4,29,0,0,0);break;case 'yesterday':calStart=new Date(2026,4,28,0,0,0);calEnd=new Date(2026,4,28,23,59,0);break;case '3d':calStart=new Date(NOW.getTime()-3*86400000);break;case '7d':calStart=new Date(NOW.getTime()-7*86400000);break;case '30d':calStart=new Date(NOW.getTime()-30*86400000);break}calViewYear=calStart.getFullYear();calViewMonth=calStart.getMonth();initTimeSelects();renderCal()}
+    function updateTpText(){const sh=pad(parseInt(document.getElementById('startH').value)),sm=pad(parseInt(document.getElementById('startM').value)),eh=pad(parseInt(document.getElementById('endH').value)),em=pad(parseInt(document.getElementById('endM').value));const txt=`${pad(calStart.getMonth()+1)}-${pad(calStart.getDate())} ${sh}:${sm} ~ ${pad(calEnd.getMonth()+1)}-${pad(calEnd.getDate())} ${eh}:${em}`;['tpText','tpText2','tpText3'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt})}
+    function toggleCal(e){e.stopPropagation();const p=document.getElementById('calPopup');if(!p)return;if(p.classList.contains('open')){closeCal();return}p.classList.add('open');calViewYear=calStart.getFullYear();calViewMonth=calStart.getMonth();initTimeSelects();renderCal()}
+    function closeCal(){const p=document.getElementById('calPopup');if(p)p.classList.remove('open')}
+    function confirmCal(){calStart.setHours(parseInt(document.getElementById('startH').value),parseInt(document.getElementById('startM').value));calEnd.setHours(parseInt(document.getElementById('endH').value),parseInt(document.getElementById('endM').value));updateTpText();closeCal()}
+
+    // ===== 场所数据与弹窗 =====
+    // ===== 分析设备目录（组件私有目录 · 只读投影）=====
+    // 口径：目录仅用于圈选哪一批设备；设备地理位置与其底座区域归属不变，地图联动按设备实际位置展示
+    const CATALOG=[
+        {id:'n1',name:'园区A',children:[
+            {id:'n11',name:'1号楼',children:[{id:'n111',name:'1层大堂',dev:3,open:2},{id:'n112',name:'2层办公区',dev:2,open:1}]},
+            {id:'n12',name:'2号楼',children:[{id:'n121',name:'1层机房',dev:2,open:2}]},
+            {id:'n13',name:'东门',dev:4,open:3},
+            {id:'n14',name:'地下停车场',dev:6,open:4}
+        ]},
+        {id:'n2',name:'园区B',children:[
+            {id:'n21',name:'周界',children:[{id:'n211',name:'东围墙',dev:2,open:1},{id:'n212',name:'西围墙',dev:2,open:0}]},
+            {id:'n22',name:'广场',dev:4,open:3}
+        ]}
+    ];
+    (function agg(list){list.forEach(n=>{if(n.children){agg(n.children);n.dev=n.children.reduce((s,c)=>s+c.dev,0);n.open=n.children.reduce((s,c)=>s+c.open,0)}})})(CATALOG);
+    const DEV_TOTAL=CATALOG.reduce((s,n)=>s+n.dev,0),DEV_OPEN=CATALOG.reduce((s,n)=>s+n.open,0);
+    const exp={n1:true,n2:true,n11:true,n21:true};
+    const sel=new Set();          // 选中的目录节点（任意层级 = 整棵子树）
+    let effLeaves=new Set();      // 选中范围覆盖的叶子节点（地图高亮用，设备实际位置不变）
+    let covSet=new Set();         // 被选中节点整体覆盖的节点
+    function leafIds(n){return n.children?n.children.flatMap(leafIds):[n.id]}
+    function findPath(list,id,acc){for(const n of list){const p=[...acc,n];if(n.id===id)return p;if(n.children){const r=findPath(n.children,id,p);if(r)return r}}return null}
+    function computeEff(){effLeaves=new Set();covSet=new Set();(function walk(list,covered){list.forEach(n=>{const c=covered||sel.has(n.id);if(c){covSet.add(n.id);leafIds(n).forEach(l=>effLeaves.add(l))}if(n.children)walk(n.children,c)})})(CATALOG,false)}
+    function effOpenCnt(){let s=0;(function walk(list){list.forEach(n=>{if(sel.has(n.id))s+=n.open;else if(n.children)walk(n.children)})})(CATALOG);return s}
+    function toggleSel(id){
+        if(sel.has(id)){sel.delete(id)}
+        else{
+            const path=findPath(CATALOG,id)||[];
+            const ti=path.findIndex(p=>sel.has(p.id));
+            if(ti>=0){const top=path[ti];sel.delete(top.id);for(let i=ti;i<path.length-1;i++){(path[i].children||[]).forEach(c=>{if(c.id!==path[i+1].id)sel.add(c.id)})}}
+            else sel.add(id);
+        }
+        renderTree(document.getElementById('treeSearch').value||'')
+    }
+    function subMatch(n,f){return n.name.includes(f)||(n.children||[]).some(k=>subMatch(k,f))}
+    function togExp(id){exp[id]=!exp[id];renderTree(document.getElementById('treeSearch').value||'')}
+    function walkSel(list,fn){list.forEach(n=>{if(sel.has(n.id))fn(n);else if(n.children)walkSel(n.children,fn)})}
+    function renderTree(filter){
+        computeEff();
+        const b=document.getElementById('treeBody');let h='';
+        (function walk(list,depth){
+            list.forEach(n=>{
+                const kids=n.children||[];const e=!!exp[n.id];const on=covSet.has(n.id);
+                const some=kids.length?kids.some(c=>covSet.has(c.id)):false;
+                if(filter&&!subMatch(n,filter))return;
+                const unopen=n.open===0?'<span style="color:#999;font-size:11px;background:#fafafa;border:1px solid #f0f0f0;border-radius:3px;padding:0 4px;margin-left:4px;">未开启分析</span>':'';
+                const tw=kids.length?`<span class="arr ${e?'exp':''}" onclick="event.stopPropagation();togExp('${n.id}')"><i class="fa-solid fa-chevron-right"></i></span>`:'<span class="arr"></span>';
+                h+=`<div class="tree-node ${on?'hl':''}" style="padding-left:${12+depth*16}px" onclick="toggleSel('${n.id}')">${tw}<span class="chk ${on?'on':some?'half':''}"></span>${n.name}${unopen}<span class="cam-cnt">${n.open}/${n.dev}台</span></div>`;
+                if(kids.length&&(e||filter))walk(kids,depth+1);
+            })
+        })(CATALOG,0);
+        b.innerHTML=h;updMap();updTrigger();
+    }
+    function selectAll(){CATALOG.forEach(n=>sel.add(n.id));renderTree('')}
+    function clearAll(){sel.clear();renderTree('')}
+    function updMap(){
+        let camCnt=0;
+        document.querySelectorAll('.bld').forEach(b=>{
+            const ids=(b.dataset.area||'').split(',');
+            const on=ids.some(id=>effLeaves.has(id));
+            b.classList.toggle('sel',on);
+            const lbl=b.nextElementSibling;if(lbl&&lbl.classList.contains('bld-lbl'))lbl.classList.toggle('sel',on);
+        });
+        document.querySelectorAll('.cam').forEach(c=>{
+            const ids=(c.dataset.area||'').split(',');
+            const on=ids.some(id=>effLeaves.has(id));
+            c.classList.toggle('on',on);if(on)camCnt++;
+        });
+        const opened=effOpenCnt();
+        document.getElementById('ovPlaces').textContent=sel.size?sel.size+' 个节点':'0 个';
+        document.getElementById('ovCams').textContent=sel.size?opened+' / '+DEV_TOTAL+' 台':'全部 ('+DEV_TOTAL+'台·已开启'+DEV_OPEN+'台)';
+        document.getElementById('footStat').innerHTML=sel.size?`已选 <strong>${sel.size}</strong> 个目录节点，覆盖 <strong>${leafIdsCount()}</strong> 台设备（已开启 <strong>${opened}</strong> 台）`:'未选择特定目录，将搜索全部设备';
+    }
+    function leafIdsCount(){let s=0;walkSel(CATALOG,n=>{s+=n.dev});return s}
+    function updTrigger(){
+        const tags=document.getElementById('triggerTags');
+        if(!sel.size){tags.innerHTML='<span class="placeholder">全部设备</span>';return}
+        const items=[];walkSel(CATALOG,n=>items.push(n));
+        const show=items.slice(0,3);
+        tags.innerHTML=show.map(c=>`<span class="sel-tag">${c.name}<span class="rm" onclick="event.stopPropagation();toggleSel('${c.id}')">×</span></span>`).join('');
+        if(items.length>3)tags.innerHTML+=`<span class="sel-tag">+${items.length-3}</span>`;
+    }
+    function openModal(){document.getElementById('modalMask').classList.add('open');renderTree('')}
+    function closeModal(){document.getElementById('modalMask').classList.remove('open')}
+    function confirmModal(){closeModal();updTrigger()}
+    document.getElementById('modalMask').addEventListener('click',e=>{if(e.target===document.getElementById('modalMask'))closeModal()});
+
+    // ===== 日历弹窗注入 =====
+    (function(){
+        const popup=document.createElement('div');popup.className='cal-popup';popup.id='calPopup';
+        popup.innerHTML=`<div class="cal-popup-head"><div class="cal-shortcuts"><span class="cal-shortcut" onclick="pickShortcut('today')">今天</span><span class="cal-shortcut" onclick="pickShortcut('yesterday')">昨天</span><span class="cal-shortcut" onclick="pickShortcut('3d')">近3天</span><span class="cal-shortcut active" onclick="pickShortcut('7d')">近7天</span><span class="cal-shortcut" onclick="pickShortcut('30d')">近30天</span></div></div><div class="cal-popup-body"><div class="cal-month" id="calLeft"></div><div class="cal-divider"></div><div class="cal-month" id="calRight"></div></div><div class="cal-popup-foot"><div class="cal-time">起始 <select id="startH"></select>:<select id="startM"></select> 截止 <select id="endH"></select>:<select id="endM"></select></div><div class="cal-btns"><button onclick="closeCal()">取消</button><button class="cal-ok" onclick="confirmCal()">确认</button></div></div>`;
+        document.body.appendChild(popup);
+        initTimeSelects();
+        updateTpText();
+        document.addEventListener('click',e=>{const p=document.getElementById('calPopup');if(p&&!p.contains(e.target)&&!e.target.closest('.time-picker-trigger'))closeCal()});
+    })();
+
+    // ===== 通用功能 =====
+    function switchMode(mode){currentMode=mode;document.querySelectorAll('.ant-tabs-tab').forEach(b=>b.classList.remove('ant-tabs-tab-active'));event.target.closest('.ant-tabs-tab').classList.add('ant-tabs-tab-active');const tags={image:'以图搜车',plate:'车牌查询',text:'文字搜车'};document.getElementById('modeTag').textContent=tags[mode];document.getElementById('imageForm').style.display=mode==='image'?'block':'none';document.getElementById('plateForm').style.display=mode==='plate'?'block':'none';document.getElementById('textForm').style.display=mode==='text'?'block':'none';updateQueryBtn()}
+    function handleFile(e){const f=e.target.files[0];if(!f)return;if(f.size>5*1024*1024){showTip('超过5MB','warning');return}const reader=new FileReader();reader.onload=ev=>{file={name:f.name,src:ev.target.result};updatePreview();updateQueryBtn();showTip('正在AI识别车牌...','success');setTimeout(()=>{document.getElementById('aiResult').classList.add('show');showTip('车牌识别成功','success')},1000)};reader.readAsDataURL(f)}
+    function updatePreview(){const box=document.getElementById('uploadBox'),def=document.getElementById('uploadDefault'),list=document.getElementById('previewList');if(file){box.classList.add('ant-upload-has-files');def.style.display='none';list.style.display='flex';list.innerHTML=`<div class="ant-upload-list-item"><img src="${file.src}"><button class="remove-btn" onclick="removeFile()">×</button></div>`}else{box.classList.remove('ant-upload-has-files');def.style.display='block';list.style.display='none';document.getElementById('aiResult').classList.remove('show')}}
+    function removeFile(){file=null;updatePreview();updateQueryBtn()}
+    function showTip(text,type){const tip=document.getElementById('uploadTip');tip.textContent=text;tip.className='ant-upload-tip tip-'+type+' tip-show'}
+    function updateQueryBtn(){if(currentMode==='image')document.getElementById('queryBtn').disabled=!file;else if(currentMode==='text'){const t=document.getElementById('vehicleText').value.trim();document.getElementById('queryBtn').disabled=t.length<10}else document.getElementById('queryBtn').disabled=false}
+    function updCC(){document.getElementById('charCount').textContent=document.getElementById('vehicleText').value.length;updateQueryBtn()}
+    function selectColor(block){block.parentElement.querySelectorAll('.ant-color-block').forEach(b=>b.classList.remove('active'));block.classList.add('active')}
+    function resetForm(){file=null;updatePreview();sel.clear();updTrigger();updateTpText();updateQueryBtn();document.querySelectorAll('.ant-color-block').forEach(b=>b.classList.remove('active'))}
+    function doQuery(){window.location.href='vehicle-result.html'}
+
+    // ===== 从目标库选择（N11 布控预警 · 唯一跨组件联动） =====
+    const LIB_TARGETS=[
+      {id:1,plate:'京A·88888',tag:'白色 SUV · 布控中',c:'#1c7ed6'},
+      {id:2,plate:'浙G·C2M39',tag:'黑色轿车 · 重点目标',c:'#2f9e44'},
+      {id:3,plate:'苏E·7L52Q',tag:'银色面包车 · 告警命中',c:'#f76707'},
+      {id:4,plate:'闽A·6KX81',tag:'无牌嫌疑车辆',c:'#e03131'}
+    ];
+    let libSelected=null,libKw='';
+    function libSvg(t){return 'data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" rx="10" fill="#fff9db"/><rect x="10" y="36" width="60" height="18" rx="5" fill="${t.c}"/><rect x="18" y="25" width="34" height="15" rx="4" fill="${t.c}" opacity=".7"/><circle cx="24" cy="57" r="6" fill="#212529"/><circle cx="56" cy="57" r="6" fill="#212529"/></svg>`)}
+    function renderLib(){
+      const kw=(libKw||'').trim();
+      document.getElementById('libGrid').innerHTML=LIB_TARGETS.filter(t=>!kw||t.plate.includes(kw)||t.tag.includes(kw)).map(t=>{
+        const on=libSelected===t.id;
+        return `<div onclick="libSel(${t.id})" style="border:1.5px solid ${on?'#722ed1':'#f0f0f0'};border-radius:10px;padding:10px;cursor:pointer;text-align:center;background:${on?'#f9f0ff':'#fff'};transition:all .15s;"><img src="${libSvg(t)}" style="width:72px;height:72px;border-radius:8px;display:block;margin:0 auto;"><div style="font-weight:600;margin-top:8px;font-size:13px;color:#1f2328;">${t.plate}</div><div style="font-size:11px;color:#722ed1;margin-top:2px;">${t.tag}</div></div>`;
+      }).join('');
+    }
+    function openLibModal(){libSelected=null;renderLib();document.getElementById('libFootStat').textContent='请选择一个目标';document.getElementById('libModal').classList.add('open')}
+    function closeLibModal(){document.getElementById('libModal').classList.remove('open')}
+    function libSel(id){libSelected=id;renderLib();document.getElementById('libFootStat').textContent='已选择目标：'+LIB_TARGETS.find(t=>t.id===id).plate+'（N11）'}
+    function libFilter(kw){libKw=kw;renderLib()}
+    function useLibTarget(){
+      if(!libSelected){showTip('请先选择一个目标','warning');return}
+      const t=LIB_TARGETS.find(x=>x.id===libSelected);
+      file={name:'目标库_'+t.plate+'.jpg',src:libSvg(t)};
+      updatePreview();updateQueryBtn();
+      closeLibModal();
+      showTip('已从目标库选择目标 '+t.plate+'（N11），照片已填入，点击「查询」发起检索','success');
+    }
+    document.getElementById('libModal').addEventListener('click',e=>{if(e.target===document.getElementById('libModal'))closeLibModal()});
+    </script>
+</body>
+</html>

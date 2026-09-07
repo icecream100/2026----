@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="QDcmhcduAsPR0HSJ3vchJ8">
+<head data-page-node-id="QlvnMu85uA2EXlzHtjMqVr">
+    <meta charset="UTF-8" data-page-node-id="uCSslSEubBGdALadBLbOUA">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="F6zM3KJ3utj7lxgojpKRKg">
+    <title>人员轨迹搜索 - N9 轨迹查询</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" data-page-node-id="HTE4FZKXAvKID2sOzHqAAq">
+    <link rel="stylesheet" href="../assets/proto.css" data-page-node-id="5qEuT5H2A0SM4yg2I4qLbJ">
+    <style>
+        /* ===== 页面级样式（仅本页使用；token 与基础组件见 ../assets/proto.css） ===== */
+        .ant-btn-group{display:flex;justify-content:flex-end;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid var(--ant-border-secondary)}
+        .upload-row{display:flex;gap:16px;align-items:flex-start}
+        .upload-row .ant-upload{flex:0 0 320px}
+        .upload-side{flex:1;min-width:0;background:var(--ant-bg);border-radius:var(--ant-radius);padding:14px 16px;font-size:12px;color:var(--ant-text-secondary);line-height:2}
+        .upload-side h5{font-size:13px;color:var(--ant-text);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+        .upload-side h5 i{color:var(--ant-primary)}
+
+        /* 左侧面板 */
+        .modal-left{width:340px;min-width:340px;border-right:1px solid var(--ant-border-secondary);display:flex;flex-direction:column;overflow:hidden}
+        .modal-search{padding:12px;border-bottom:1px solid var(--ant-border-secondary);flex-shrink:0}
+        .modal-search input{width:100%;height:34px;border:1px solid var(--ant-border);border-radius:var(--ant-radius);padding:0 10px 0 32px;font-size:13px;outline:none}
+        .modal-search input:focus{border-color:var(--ant-primary)}
+        .modal-search{position:relative}
+        .modal-search i{position:absolute;left:22px;top:50%;transform:translateY(-50%);color:var(--ant-text-quaternary);font-size:12px}
+        .modal-tree{flex:1;overflow-y:auto;padding:4px 0}
+        .modal-tree-footer{padding:8px 12px;border-top:1px solid var(--ant-border-secondary);display:flex;justify-content:space-between;align-items:center;font-size:12px;flex-shrink:0}
+        .modal-tree-footer .actions{display:flex;gap:8px}
+        .modal-tree-footer .actions button{padding:2px 8px;font-size:12px;border:none;background:none;color:var(--ant-primary);cursor:pointer;border-radius:4px}
+        .modal-tree-footer .actions button:hover{background:var(--ant-primary-bg)}
+
+        .tree-grp{}
+        .tree-grp-hd{display:flex;align-items:center;gap:6px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--ant-text-secondary);user-select:none}
+        .tree-grp-hd:hover{background:var(--ant-primary-bg)}
+        .tree-grp-hd .arr{font-size:10px;color:var(--ant-text-quaternary);transition:transform 0.2s;width:14px;text-align:center}
+        .tree-grp-hd .arr.exp{transform:rotate(90deg)}
+        .tree-grp-hd .cnt{color:var(--ant-text-tertiary);font-size:11px;font-weight:400}
+        .tree-grp-body{display:none}.tree-grp-body.exp{display:block}
+        .tree-node{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 32px;cursor:pointer;font-size:13px;color:var(--ant-text);transition:background 0.15s}
+        .tree-node:hover{background:var(--ant-primary-bg)}
+        .tree-node.highlight{background:#e6f4ff}
+        .chk{width:16px;height:16px;border:1px solid var(--ant-border);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s}
+        .chk.on{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff;font-size:10px}
+        .chk.half{background:var(--ant-primary);border-color:var(--ant-primary)}
+        .chk.half::after{content:'';width:8px;height:2px;background:#fff;border-radius:1px}
+        .cam-cnt{color:var(--ant-text-tertiary);font-size:11px;margin-left:auto}
+
+        /* 右侧地图 */
+        .modal-right{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;background:#0a1628}
+        .map-svg{width:100%;flex:1}
+        .bld{fill:#1a2744;stroke:#2a3f66;stroke-width:1;transition:fill 0.3s,stroke 0.3s}
+        .bld.selected{fill:#1e3a5f;stroke:var(--ant-primary);stroke-width:2}
+        .bld-lbl{fill:rgba(255,255,255,0.5);font-size:11px;text-anchor:middle;pointer-events:none;transition:fill 0.3s}
+        .bld-lbl.selected{fill:rgba(255,255,255,0.9)}
+        .cam{fill:#4a5568;stroke:none;transition:fill 0.3s}
+        .cam.on{fill:var(--ant-success)}
+        .cam-lbl{fill:rgba(255,255,255,0.3);font-size:8px;text-anchor:middle;pointer-events:none}
+        .road{stroke:#1e3050;stroke-width:2;stroke-dasharray:4 4;fill:none}
+        .map-overlay{position:absolute;bottom:12px;right:12px;background:rgba(255,255,255,0.95);border-radius:8px;padding:10px 14px;font-size:12px;box-shadow:0 2px 12px rgba(0,0,0,0.15);z-index:10}
+        .map-overlay .ov-row{display:flex;justify-content:space-between;gap:20px;margin-bottom:3px}
+        .map-overlay .ov-label{color:var(--ant-text-tertiary)}
+        .map-overlay .ov-val{font-weight:600;color:var(--ant-primary)}
+        .pulse-ring{animation:pulseAnim 1.5s infinite}
+        @keyframes pulseAnim{0%{r:5;opacity:1}100%{r:14;opacity:0}}
+
+        /* ===== 大弹窗（本页专用：树+地图） ===== */
+        .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;z-index:500;align-items:center;justify-content:center}
+        .modal-mask.open{display:flex}
+        .modal-box{background:var(--ant-bg-container);border-radius:var(--ant-radius-lg);box-shadow:0 12px 48px rgba(0,0,0,0.18);width:960px;max-width:95vw;height:580px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
+        .modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--ant-border-secondary);flex-shrink:0}
+        .modal-head h3{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+        .modal-close{background:none;border:none;color:var(--ant-text-tertiary);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:4px}
+        .modal-close:hover{color:var(--ant-text);background:var(--ant-bg)}
+        .modal-body{flex:1;display:flex;overflow:hidden}
+        .modal-foot{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--ant-border-secondary);flex-shrink:0}
+        /* ===== 日历时间选择器 ===== */
+        .time-picker-wrap{position:relative}
+        .time-picker-trigger{height:36px;padding:0 12px;border:1px solid var(--ant-border);border-radius:var(--ant-radius);font-size:13px;color:var(--ant-text);cursor:pointer;transition:all 0.2s;background:var(--ant-bg-container);display:flex;align-items:center;gap:8px}
+        .time-picker-trigger:hover{border-color:var(--ant-primary)}
+        .time-picker-trigger i{color:var(--ant-primary);font-size:13px}
+        .time-picker-trigger .tp-text{flex:1}
+        .time-picker-trigger .tp-arrow{color:var(--ant-text-quaternary);font-size:10px}
+        .cal-popup{position:absolute;top:calc(100% + 4px);left:0;z-index:200;background:var(--ant-bg-container);border:1px solid var(--ant-border);border-radius:var(--ant-radius-lg);box-shadow:0 6px 24px rgba(0,0,0,0.12);display:none;width:480px}
+        .cal-popup.open{display:flex;flex-direction:column}
+        .cal-popup-head{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--ant-border-secondary);gap:8px;flex-shrink:0}
+        .cal-popup-head .cal-shortcuts{display:flex;gap:4px;flex-wrap:wrap}
+        .cal-shortcut{padding:3px 10px;border:1px solid var(--ant-border);border-radius:4px;font-size:12px;cursor:pointer;background:#fff;color:var(--ant-text-secondary);transition:all 0.15s}
+        .cal-shortcut:hover{border-color:var(--ant-primary);color:var(--ant-primary)}
+        .cal-shortcut.active{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff}
+        .cal-popup-body{display:flex;flex:1;overflow:hidden}
+        .cal-month{flex:1;padding:8px 12px;min-width:0}
+        .cal-month-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+        .cal-month-head .cal-title{font-size:13px;font-weight:600}
+        .cal-month-head .cal-nav{background:none;border:none;cursor:pointer;color:var(--ant-text-tertiary);padding:2px 6px;border-radius:4px;font-size:12px}
+        .cal-month-head .cal-nav:hover{color:var(--ant-primary);background:var(--ant-primary-bg)}
+        .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:0;text-align:center;margin-bottom:4px}
+        .cal-weekdays span{font-size:11px;color:var(--ant-text-quaternary);padding:4px 0}
+        .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+        .cal-day{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:12px;border-radius:50%;cursor:pointer;transition:all 0.15s;position:relative}
+        .cal-day:hover{background:var(--ant-primary-bg)}
+        .cal-day.other{color:var(--ant-text-quaternary)}
+        .cal-day.today{font-weight:700;color:var(--ant-primary)}
+        .cal-day.in-range{background:var(--ant-primary-bg);border-radius:0}
+        .cal-day.start{background:var(--ant-primary);color:#fff;border-radius:50% 0 0 50%}
+        .cal-day.end{background:var(--ant-primary);color:#fff;border-radius:0 50% 50% 0}
+        .cal-day.start.end{border-radius:50%}
+        .cal-divider{width:1px;background:var(--ant-border-secondary);flex-shrink:0}
+        .cal-popup-foot{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-top:1px solid var(--ant-border-secondary);flex-shrink:0}
+        .cal-popup-foot .cal-time{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ant-text-secondary)}
+        .cal-popup-foot .cal-time select{height:28px;padding:0 6px;border:1px solid var(--ant-border);border-radius:4px;font-size:12px;outline:none}
+        .cal-popup-foot .cal-btns{display:flex;gap:6px}
+        .cal-popup-foot .cal-btns button{padding:4px 12px;font-size:12px;border-radius:4px;cursor:pointer;border:1px solid var(--ant-border);background:#fff;color:var(--ant-text-secondary)}
+        .cal-popup-foot .cal-btns button:hover{border-color:var(--ant-primary);color:var(--ant-primary)}
+        .cal-popup-foot .cal-btns .cal-ok{background:var(--ant-primary);border-color:var(--ant-primary);color:#fff}
+        .cal-popup-foot .cal-btns .cal-ok:hover{background:var(--ant-primary-hover)}
+        .modal-foot .foot-stat{font-size:12px;color:var(--ant-text-secondary)}
+        .modal-foot .foot-stat strong{color:var(--ant-primary);font-weight:600}
+        .modal-foot .foot-btns{display:flex;gap:8px}
+    </style>
+</head>
+<body data-page-node-id="FZbfi7L4YansZPkRtcyEHx">
+    <div class="proto-layout" data-page-node-id="F3Kn13Um416X9e08pjCkGl">
+        <!-- 顶栏 -->
+        <header class="proto-topbar" data-page-node-id="2JFCx6YHsfM1IPHw6slifx">
+            <div class="logo" data-page-node-id="sK87uZeekUcC6oHpDXEGCG">
+                <div class="logo-icon" data-page-node-id="ayvyxBwS7n6xzgG6spVZXB"><i class="fa-solid fa-video" data-page-node-id="BU7T98MH6HEm7wjqMwScBZ"></i></div>
+                <span data-page-node-id="CLFNQSofq8ruDSqsRMguMl">视频云平台</span>
+            </div>
+            <span class="comp-badge" data-page-node-id="vdMCr9JyVbicPgLBU0gE6q">N9 轨迹查询</span>
+            <div class="topbar-breadcrumb" data-page-node-id="R4GiOz3mgU8yjr3mG66SP9">
+                <span data-page-node-id="Suq5qZVAaOH6OUJxEBMG2Y">轨迹查询</span><span class="sep" data-page-node-id="bg4weopls0hAMzxyIO6OTG">/</span><span class="current" data-page-node-id="NwkqFKSEeCU3pqapY8s48w">人员轨迹查询</span>
+            </div>
+            <div class="topbar-right" data-page-node-id="OfOf11qMOvFgiSKfKZmzQz">
+                <div class="topbar-bell" data-page-node-id="HtuVYQBHZodDD2JeAaCMRi">
+                    <i class="fa-regular fa-bell" data-page-node-id="eTAk2PkKpnSFqFpbpvRGiB"></i>
+                    <span class="bell-dot" data-page-node-id="9YjILUDWoYuTAFlvYLooc7">2</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;cursor:pointer;" data-page-node-id="nK9UnqSoSqyEnx8HOt5Gww">
+                    <div class="topbar-avatar" data-page-node-id="Dn1g1wTHZQzO3W98epdBMh">张</div>
+                    <span style="font-size:13px;color:var(--ant-text-secondary);" data-page-node-id="dE9FLFfCyUsDJsgMTIzx2B">张工程师</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="proto-body" data-page-node-id="5MMkQskmnX0S1DzvJOwD1J">
+            <!-- 侧栏 -->
+            <aside class="proto-sider" data-page-node-id="Wz8ArVHkhM6PFZnCpAXNYs">
+                <div class="sider-group" data-page-node-id="J6BVB8g4tGW2WIX0V0jGL8"><i class="fa-solid fa-route" data-page-node-id="1YvaQw0WlGG9Vf62vAwrli"></i>轨迹查询</div>
+                <nav class="proto-menu" data-page-node-id="1cd7XCx3rkC47cYjhTIl72">
+                    <a href="search.html" class="proto-menu-item active" data-page-node-id="kxThGCb8igrEKCisYHa1EM"><i class="fa-solid fa-person" data-page-node-id="Ba6LzrySEnzEfd6FIIavg5"></i>人员轨迹查询</a>
+                    <a href="vehicle-search.html" class="proto-menu-item" data-page-node-id="XbSr0y89DwI3p0tiCrO4n9"><i class="fa-solid fa-car" data-page-node-id="qfht5BoxBaI7jgh0NkTbFH"></i>车辆轨迹查询</a>
+                    <a href="compare.html" class="proto-menu-item" data-page-node-id="LVHPfPB4sBkiCXlvfYEaOA"><i class="fa-solid fa-users-viewfinder" data-page-node-id="dihahwwD3yKwpxlfOu9KVR"></i>多目标对比</a>
+                    <div class="sider-group" style="padding-top:12px;" data-page-node-id="NEN29fO4o4DjcuxFYtHK0d"><i class="fa-solid fa-microchip" data-page-node-id="KJCv04B7edCLG2ZXvv9gQm"></i>分析接入</div>
+                    <a href="analysis-devices.html" class="proto-menu-item" data-page-node-id="jWbx7G2OjAnilnBCVUwBZF"><i class="fa-solid fa-gear" data-page-node-id="r1gETIxTDrZRl1FOnlvcVC"></i>轨迹分析接入</a>
+                </nav>
+            </aside>
+
+            <!-- 内容区 -->
+            <main class="proto-main" data-page-node-id="roks4qGynSwx3KD89Jh7dL">
+                <div class="proto-content" data-page-node-id="r7NKzg9ZbH05jbb51tCn5M">
+                <div class="ant-card" data-page-node-id="jQ1RWho508qETxqDsGokRA">
+                    <div class="ant-card-head" data-page-node-id="7U9EaWMf44kUZhzeXEinMV">
+                        <div class="ant-card-title" data-page-node-id="jjF6avWZj1M2RIdO3R07xF">查询条件 <span class="ant-tag" id="modeTag" data-page-node-id="tFaL29b37tQNVwuLzOEfIf">以图搜人</span></div>
+                        <span style="font-size:12px;color:var(--ant-success);background:#f6ffed;border:1px solid #b7eb8f;border-radius:4px;padding:2px 8px" data-page-node-id="GsCLGsaU996g0eJXVnsS9S">结合版 · 树+地图联动</span>
+                    </div>
+                    <div class="ant-card-body" data-page-node-id="e6X1nRzgrMGVPBClJJoGdM">
+                        <div class="ant-tabs" data-page-node-id="guzyXYelbHJmICGSMRzQGH">
+                            <button class="ant-tabs-tab ant-tabs-tab-active" onclick="switchMode('image')" data-page-node-id="nCQK70RWudbEllVgQk6Loe"><i class="fa-solid fa-image" data-page-node-id="YokB32Apagf9OJBBDQQfdO"></i>以图搜人</button>
+                            <button class="ant-tabs-tab" onclick="switchMode('text')" data-page-node-id="NhMApsFsPBPqGwsJqnCHNh"><i class="fa-solid fa-keyboard" data-page-node-id="NqfKVUVOroNdbhctnULZhD"></i>文本搜人</button>
+                        </div>
+
+                        <div id="imageForm" data-page-node-id="RtOf8XGg0K8p7bifT94LSU">
+                            <div class="ant-form" data-page-node-id="XnmUeF9XXUkzjHGG10MWK5">
+                                <div class="ant-form-item" data-page-node-id="swGm7oTCwuBQ9yopUYq48Z">
+                                    <label class="ant-form-label" data-page-node-id="R2a1iQSVLnsIAA4ajUtOKL">时间范围 <span class="ant-form-item-required" data-page-node-id="LNcVxaE7yMeGjIi0KaQnA8">*</span></label>
+                                    <div class="time-picker-wrap" data-page-node-id="OkRToUlhpl7ECstZab9OLl">
+                                        <div class="time-picker-trigger" onclick="toggleCal(event)" data-page-node-id="vGjIYDAP2PoGUvzCJblaxA">
+                                            <i class="fa-regular fa-calendar" data-page-node-id="r0yfHwGT1Xa3kEJydAeqM7"></i>
+                                            <span class="tp-text" id="tpText" data-page-node-id="GKkBop7wypZa1nitoxLdh5">近24小时（05-28 23:59 ~ 05-29 23:59）</span>
+                                            <span class="tp-arrow" data-page-node-id="hwGRWpJ52CRcsSDjaoWBGe"><i class="fa-solid fa-chevron-down" data-page-node-id="2bT2N2CgzSRzzEhusp4p4d"></i></span>
+                                        </div>
+                                        <div class="cal-popup" id="calPopup" data-page-node-id="ZA1sdFtBvBPTvy2qWR2vE9">
+                                            <div class="cal-popup-head" data-page-node-id="5ONfs4caC0NWjLnavElwi0">
+                                                <div class="cal-shortcuts" id="calShortcuts" data-page-node-id="gQt8K6CXWo3deO7CyJE6hs">
+                                                    <span class="cal-shortcut" onclick="pickShortcut('today')" data-page-node-id="RZySJOGFzRZnFxfDav74O7">今天</span>
+                                                    <span class="cal-shortcut" onclick="pickShortcut('yesterday')" data-page-node-id="JQhWWfwnHXeVMEHCfrx8OP">昨天</span>
+                                                    <span class="cal-shortcut" onclick="pickShortcut('3d')" data-page-node-id="4IBKuUOYD4kHulSpu6htN9">近3天</span>
+                                                    <span class="cal-shortcut active" onclick="pickShortcut('7d')" data-page-node-id="dTDrE0u0mCx9U5IjwJhKCD">近7天</span>
+                                                    <span class="cal-shortcut" onclick="pickShortcut('30d')" data-page-node-id="bPUvqJhpeCFZbLe630ddBc">近30天</span>
+                                                </div>
+                                            </div>
+                                            <div class="cal-popup-body" data-page-node-id="vLrHGpPjfbsAbmCjG8WtD5">
+                                                <div class="cal-month" id="calLeft" data-page-node-id="pTGOCukALGHaOWv0B7sOfK"></div>
+                                                <div class="cal-divider" data-page-node-id="hLR9E1VKLrn7WqOOORzBY9"></div>
+                                                <div class="cal-month" id="calRight" data-page-node-id="ZElZGqAfUuFiwgxRzepDqi"></div>
+                                            </div>
+                                            <div class="cal-popup-foot" data-page-node-id="m2JpOV2RsdMPZe2EPWB768">
+                                                <div class="cal-time" data-page-node-id="d5hr5DFgaoOYQVk8HDSFZ4">
+                                                    起始 <select id="startH" data-page-node-id="eG42qW4knDZi7fvumHYKNi"></select>:<select id="startM" data-page-node-id="5WTrDsAVlOP4dPr2o7ucwR"></select>
+                                                    截止 <select id="endH" data-page-node-id="tbnAnngHHRJZiHCNfP4EhZ"></select>:<select id="endM" data-page-node-id="UXAhzjYes0FVx8UAC95IHR"></select>
+                                                </div>
+                                                <div class="cal-btns" data-page-node-id="PXQnxPJZT1vUhwQzBBAvTA">
+                                                    <button onclick="closeCal()" data-page-node-id="KaCtLaHBOqnWel9tNEEN9p">取消</button>
+                                                    <button class="cal-ok" onclick="confirmCal()" data-page-node-id="YHRg4p7qddvI4iHo0wlkn5">确认</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ★ 结合版核心：触发器 → 弹窗 ★ -->
+                                <div class="ant-form-item" data-page-node-id="YN71sGcDnAj9zJ0zlJZief">
+                                    <label class="ant-form-label" data-page-node-id="HHWf353NdQVxEpJ8rPEiKC">
+                                        <i class="fa-solid fa-map-location-dot" style="color:var(--ant-primary);margin-right:4px" data-page-node-id="XwOiHwB0fvt3kGEFbxLlhp"></i>地点范围
+                                    </label>
+                                    <div class="area-trigger" onclick="openModal()" data-page-node-id="LX4MPQMpY74CHAH8FhABAh">
+                                        <div class="sel-tags" id="triggerTags" data-page-node-id="R4RkSbwyWXFQtGJZwBVwFj"><span class="placeholder" data-page-node-id="1p723wHJG4et6lrSFF2yho">全部设备</span></div>
+                                        <span class="arrow" data-page-node-id="jMiq6gnYxOee52jl21Pvat"><i class="fa-solid fa-chevron-down" data-page-node-id="VM1IfE6eEcnaXZNZGcayIz"></i></span>
+                                    </div>
+                                </div>
+
+                                <div class="ant-form-item" data-page-node-id="vKChdKU3jTgYf2L3DQ7sKX">
+                                    <label class="ant-form-label" data-page-node-id="z8nV2lAEqsdIMLg2q3pA0M">相似度阈值</label>
+                                    <div style="display:flex;align-items:center;gap:12px;" data-page-node-id="PHGgicNSTBQfynCQIB6W95">
+                                        <input type="range" id="personThreshold" min="60" max="99" value="75" style="flex:1;accent-color:#1677ff;" oninput="document.getElementById('personThresholdVal').textContent=this.value+'%'" data-page-node-id="JigMPPne4GSmxZtCqXBni7">
+                                        <span id="personThresholdVal" style="font-size:14px;font-weight:600;color:#1677ff;min-width:36px;" data-page-node-id="GBEzl2FPBOp0m980EzJ6Z8">75%</span>
+                                    </div>
+                                    <div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(0,0,0,0.45);margin-top:4px;" data-page-node-id="FlleBSEFZXT3Et0oZG3SB7"><span data-page-node-id="bUjU3PnuT1ohFOODO1bPub">宽松（60%）</span><span data-page-node-id="TlnGR5QnmXKvpAjJKHBGU2">精准（99%）</span></div>
+                                </div>
+
+                                <div class="ant-form-item ant-form-item-full-width" data-page-node-id="iOLAKc6KchBNABErnT7w0K">
+                                    <label class="ant-form-label" style="display:flex;align-items:center;gap:8px;width:100%;" data-page-node-id="HaFw8rPezynJHH9x1On2CJ">上传人像照片 <span class="ant-form-item-required" data-page-node-id="OGcgE1zEbqnLFXQojdGBSp">*</span><span class="ant-form-item-hint" data-page-node-id="rQ895K52cWQBQDUvA1IK62">限1张，全身/半身均可</span><button type="button" onclick="openLibModal()" style="margin-left:auto;height:26px;padding:0 12px;font-size:12px;color:#722ed1;border:1px dashed #b37feb;border-radius:4px;background:#f9f0ff;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-weight:500;" data-page-node-id="nbtAA1AdyRfxDldau8T9Qe"><i class="fa-solid fa-shield-halved" data-page-node-id="Pgp9cKckfB9m17uglKFcf2"></i>从目标库选择<span style="font-weight:400;color:#9254de;" data-page-node-id="ND4dVt0GoZedlhHRnsRlah">（N11）</span></button></label>
+                                    <div class="upload-row" data-page-node-id="HCb1cbLAhmCAIlhHNPlrND">
+                                        <div class="ant-upload" id="uploadBox" onclick="document.getElementById('fileInput').click()" data-page-node-id="ELrl5hwFQ2PyZ8duo7Ga5Q">
+                                            <div class="ant-upload-default" id="uploadDefault" data-page-node-id="PvhehNSrvy7UDAtOrjpvJB">
+                                                <div class="ant-upload-icon" data-page-node-id="gkshSwHudDPivsndxSo7tq"><i class="fa-solid fa-cloud-arrow-up" data-page-node-id="LjSdtHAL8ONpGoppnwwHsG"></i></div>
+                                                <div class="ant-upload-text" data-page-node-id="0IYIPG3aEBLvByvpcYaAcQ">点击或拖拽上传人像照片</div>
+                                                <div class="ant-upload-hint" data-page-node-id="sNqsFdoDe6Dj1MFWecnTvm">支持 JPG、PNG 格式，限1张，不超过 5MB</div>
+                                            </div>
+                                            <div class="ant-upload-list" id="previewList" style="display:none" data-page-node-id="VfLsFWw2xDpHpImyfdP99X"></div>
+                                        </div>
+                                        <div class="upload-side" data-page-node-id="kmIbdB5xtXEiD6qBvdSR20">
+                                            <h5 data-page-node-id="PxlHXspQMiDuunc8DH2fC1"><i class="fa-solid fa-circle-info" data-page-node-id="opziAGuExkl4XlJNPCCiHR"></i>上传建议</h5>
+                                            · 正脸 / 半身照识别率更高<br data-page-node-id="3t5RB7LMKTKm6n9yVcHHXi">
+                                            · 图片清晰无遮挡，光线均匀<br data-page-node-id="BNnReRKXNG0JMgADzUGwdl">
+                                            · 上传后可调整相似度阈值
+                                        </div>
+                                    </div>
+                                    <input type="file" id="fileInput" accept="image/jpeg,image/png" onchange="handleFiles(event)" style="display:none" data-page-node-id="7L0zfGEtwkBhCb5AkBfuza">
+                                    <div class="ant-upload-tip" id="uploadTip" data-page-node-id="H65qn43I8eIwMFW1xoCLcs"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="textForm" style="display:none" data-page-node-id="THV1AOpSzKvofJWShyYlt9">
+                            <div class="ant-form" data-page-node-id="ckcVk7BpEMrEBMpHYclS32">
+                                <div class="ant-form-item ant-form-item-full-width" data-page-node-id="5xYRniYBS0ykcuPTUce8Ph">
+                                    <label class="ant-form-label" data-page-node-id="ZAsKkLht1EoV1dIn4BCQEH">人员特征描述 <span class="ant-form-item-required" data-page-node-id="FnYjCcfGTtOoC9DDtQGRn6">*</span></label>
+                                    <textarea class="ant-input" id="searchText" rows="3" maxlength="200" placeholder="请描述目标人员的特征" oninput="updCC()" style="resize:vertical;min-height:80px"></textarea>
+                                    <div style="text-align:right;color:var(--ant-text-tertiary);font-size:12px;margin-top:4px" data-page-node-id="5G8NNO7zUTK1hYxEgITPac"><span id="charCount" data-page-node-id="edDwtpE0teJsDsrNYID5Nn">0</span>/200</div>
+                                </div>
+                                <div class="ant-form-item" data-page-node-id="GgHFcAVdhkXWIKWIeL3Hv9">
+                                    <label class="ant-form-label" data-page-node-id="6IFtRCqkNaDrElAqUvEsnK">时间范围 <span class="ant-form-item-required" data-page-node-id="ERnXYI08YThhdhQqUj9h1G">*</span></label>
+                                    <div class="time-picker-wrap" data-page-node-id="aByUChQx5AazlD3AXR8Bqa">
+                                        <div class="time-picker-trigger" onclick="toggleCal(event)" data-page-node-id="qYwRQIlBtvpFW0EjWWpkPd">
+                                            <i class="fa-regular fa-calendar" data-page-node-id="h87zEmyBQiRZulh6oRqMOP"></i>
+                                            <span class="tp-text" id="tpText2" data-page-node-id="oMgRGc6mDIO4LANWtbUNYq">近24小时（05-28 23:59 ~ 05-29 23:59）</span>
+                                            <span class="tp-arrow" data-page-node-id="cjSdH0ktnjgtVXAuIGx1S3"><i class="fa-solid fa-chevron-down" data-page-node-id="M4dccORJG4Vgaapwq2cgPF"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="ant-form-item" data-page-node-id="qPHXk3m3DmFqjw02iZkbPA">
+                                    <label class="ant-form-label" data-page-node-id="mOyaRvo0lIdvhCpHOSL23k">地点范围</label>
+                                    <div class="area-trigger" onclick="openModal()" data-page-node-id="2HoeHmbVhYE8GyNdwlITjS"><div class="sel-tags" data-page-node-id="rXS9JVSL1mTaOM6U6BEFP7"><span class="placeholder" data-page-node-id="xDSaNLqrr2ORkNTpmzEMaf">全部设备</span></div><span class="arrow" data-page-node-id="f8OU6nv96VLI2poUV3bfjN"><i class="fa-solid fa-chevron-down" data-page-node-id="t9BdLYjAoQIOlIPAwEqVXA"></i></span></div>
+                                </div>
+                                <div class="ant-form-item" data-page-node-id="RD2ATiQ6PlFsij5JuyvjCd">
+                                    <label class="ant-form-label" data-page-node-id="t3Rf3j60nffk5VHZgZZi2v">相似度阈值</label>
+                                    <div style="display:flex;align-items:center;gap:12px;" data-page-node-id="slEar0rVJqxDySEWSFwokM">
+                                        <input type="range" id="textThreshold" min="60" max="99" value="75" style="flex:1;accent-color:#1677ff;" oninput="document.getElementById('textThresholdVal').textContent=this.value+'%'" data-page-node-id="xCjmBjbP9RE67h0K0jwKhn">
+                                        <span id="textThresholdVal" style="font-size:14px;font-weight:600;color:#1677ff;min-width:36px;" data-page-node-id="Mkxx1YMrFFyLBaWpwTf3wO">75%</span>
+                                    </div>
+                                    <div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(0,0,0,0.45);margin-top:4px;" data-page-node-id="POEqZu3qbDAaZrBcVHRPU3"><span data-page-node-id="49KJYLFhZbqenFF29FYLhq">宽松（60%）</span><span data-page-node-id="sYcOmykyypl6OoUVwDpZ6a">精准（99%）</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ant-btn-group" data-page-node-id="eHUC12LxdgUR1sCtlKcbVj">
+                            <button class="ant-btn ant-btn-text" onclick="resetForm()" data-page-node-id="NTo2buZZB9S9jEmbErcDow">重置</button>
+                            <button class="ant-btn ant-btn-primary" id="queryBtn" onclick="doQuery()" disabled data-page-node-id="nsFtGy9JdPb8vywS7Jhdog"><i class="fa-solid fa-magnifying-glass" data-page-node-id="ccjgCGbzCG9PHogoVDaiNo"></i>查询</button>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ===== 场所选择弹窗 ===== -->
+    <div class="modal-mask" id="modalMask" data-page-node-id="doHBC80PaFrcJOq9ry8G1F">
+        <div class="modal-box" data-page-node-id="xWAOVRWPyABMG9mJI9QBGp">
+            <div class="modal-head" data-page-node-id="uESvYY8lKigFBbyEkWedru">
+                <h3 data-page-node-id="Qo0GUDlMQGAqhCB4ZgarJE"><i class="fa-solid fa-map-location-dot" style="color:var(--ant-primary)" data-page-node-id="VrqxnGtMqqHo1W0RDqvG0F"></i>选择监控范围</h3>
+                <button class="modal-close" onclick="closeModal()" data-page-node-id="WRC285bEAmUiPqp8E8DM74">&times;</button>
+            </div>
+            <div class="modal-body" data-page-node-id="PCaGjADorZUq02sThLXxOh">
+                <!-- 左：搜索+树 -->
+                <div class="modal-left" data-page-node-id="V1ui7uRVDKugWfkWRHkP4Z">
+                    <div class="modal-search" data-page-node-id="ZQHxsYJVFBFRuGH4GDQHmn">
+                        <i class="fa-solid fa-magnifying-glass" data-page-node-id="cxhOXVKMznTWOwIoWnxRh7"></i>
+                        <input type="text" placeholder="搜索目录节点..." id="treeSearch" oninput="renderTree(this.value)" data-page-node-id="WLchTCdSHeGGBoWAYID0ld">
+                    </div>
+                    <div class="modal-tree" id="treeBody" data-page-node-id="YQ7yqDTfMjUuL668KUVaJQ"></div>
+                    <div class="modal-tree-footer" data-page-node-id="rWjevIVWRYFGqyzSpa5orr">
+                        <span id="footStat" data-page-node-id="lqPwupCB7w2nznWRhaqBaZ">未选择特定目录，将搜索全部设备（25台·已开启16台）</span>
+                        <div class="actions" data-page-node-id="nG8SIwBut2CCT4PT9Lw0Ht">
+                            <button onclick="selectAll()" data-page-node-id="I1DcyxGJKHuXAFVPMhIuNx">全选</button>
+                            <button onclick="clearAll()" data-page-node-id="uytEo4AyYkgNuwqh3hJloS">清空</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- 右：地图 -->
+                <div class="modal-right" data-page-node-id="79UBi3adESbfQsSUbcHYzw">
+                    <svg class="map-svg" id="mapSvg" viewBox="0 0 700 500" data-page-node-id="EQe1mGbaYoRyakkagQD1MW">
+                        <defs data-page-node-id="LXqTZZ82eciKtwJfVEB9Rr"><pattern id="g" width="50" height="50" patternUnits="userSpaceOnUse" data-page-node-id="D26K6iWcwKt3HVcgy5HES7"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="#0d1b2a" stroke-width="0.5" data-page-node-id="9aNfK4OLlxjL1Y6AtvWOhz"/></pattern></defs>
+                        <rect width="700" height="500" fill="url(#g)" data-page-node-id="nqKiCqPDvNaajEBC38MjY8"/>
+                        <line class="road" x1="350" y1="20" x2="350" y2="480" data-page-node-id="slVKjxbTYGdZBFXAa51Kin"/>
+                        <line class="road" x1="20" y1="250" x2="680" y2="250" data-page-node-id="UpA9q8c6KWA3rQB3y2Xdjp"/>
+                        <line class="road" x1="140" y1="100" x2="560" y2="100" data-page-node-id="R2XTJ4dDiayQlNrwcyf0dg"/>
+                        <line class="road" x1="140" y1="400" x2="560" y2="400" data-page-node-id="D9XtOtKy97i9GHEVWx5d1K"/>
+                        <!-- 建筑物/摄像头点位（data-area=分析设备目录叶子节点id，位置为设备实际位置） -->
+                        <rect class="bld" data-area="n111,n111,n112,n112" x="30" y="40" width="100" height="70" rx="4" data-page-node-id="RxjZYDTuHnBnXMgZs3xFKO"/>
+                        <text class="bld-lbl" x="80" y="80" data-page-node-id="zuK82pjYXSQGr4O6bzgSp0">1号楼</text>
+                        <rect class="bld" data-area="n121,n121,n121" x="30" y="130" width="100" height="50" rx="4" data-page-node-id="DDSQWfeMnpeldq1bhzsrL1"/>
+                        <text class="bld-lbl" x="80" y="160" data-page-node-id="LM8hXir8yGhCcHD72ScOQF">2号楼</text>
+                        <rect class="bld" data-area="n22,n22,n22,n22" x="230" y="170" width="200" height="120" rx="4" data-page-node-id="967duTBFviogMDoghUtTaS"/>
+                        <text class="bld-lbl" x="330" y="235" data-page-node-id="hoXGdSHuF1cv9ZtEn0uIP4">广场</text>
+                        <rect class="bld" data-area="n13,n13" x="230" y="320" width="120" height="50" rx="4" data-page-node-id="J5HVKZG0OYDrpBEZrXKLwd"/>
+                        <text class="bld-lbl" x="290" y="350" data-page-node-id="BS2wnh2daqWjfROsMATdsq">东门</text>
+                        <rect class="bld" data-area="n212" x="370" y="320" width="80" height="40" rx="4" data-page-node-id="acmL3U89PVlDCsIOj85QOV"/>
+                        <text class="bld-lbl" x="410" y="345" data-page-node-id="Z5VvMSULQo87dOJ2q5hD7o">西围墙</text>
+                        <rect class="bld" data-area="n211,n211,n211" x="480" y="40" width="100" height="70" rx="4" data-page-node-id="HfaSmYV8qSjAGgJ7MPXMyx"/>
+                        <text class="bld-lbl" x="530" y="80" data-page-node-id="cqPqyQBqKkx9YpMhixw9Z1">地下停车场</text>
+                        <rect class="bld" data-area="n211,n211,n211" x="480" y="130" width="100" height="50" rx="4" data-page-node-id="E8jPgC7kQRepu7mfXraQ7j"/>
+                        <text class="bld-lbl" x="530" y="160" data-page-node-id="Py8lcxmjkvZu0qeZPPuBcm">周界·东围墙</text>
+                        <rect class="bld" data-area="n14" x="30" y="300" width="100" height="60" rx="4" data-page-node-id="wJnesMxX0sCUXMXfmIH07u"/>
+                        <text class="bld-lbl" x="80" y="335" data-page-node-id="wfWAoWUJ03jSTsspNx89rg">周界·西围墙</text>
+                        <rect class="bld" data-area="n212" x="560" y="290" width="100" height="60" rx="4" data-page-node-id="Cu6AvAVutgn0hXJgM7rLEP"/>
+                        <text class="bld-lbl" x="610" y="325" data-page-node-id="xstvnHsCjmqZuOVGBkXXuL">周界·南段</text>
+                        <!-- 摄像头点位 -->
+                        <circle class="cam" data-area="n14" cx="70" cy="30" r="5" data-page-node-id="ck7kzVpWoVDKxrT5CqybEp"/><text class="cam-lbl" x="70" y="22" data-page-node-id="DRcIoqn4xxloecJaA3j1ld">C01</text>
+                        <circle class="cam" data-area="n111" cx="130" cy="60" r="5" data-page-node-id="r7JUJvYf1kJ6lNDySLf1J7"/><text class="cam-lbl" x="130" y="52" data-page-node-id="qZBEiB0nrPcWZl1sDHccBM">C02</text>
+                        <circle class="cam" data-area="n112" cx="20" cy="90" r="5" data-page-node-id="poGTk2ETD26bXsG1rlkIuM"/><text class="cam-lbl" x="20" y="82" data-page-node-id="abqR9uDYKOkw14LehdeQmt">C03</text>
+                        <circle class="cam" data-area="n121" cx="130" cy="150" r="5" data-page-node-id="Ek7GCLHQxc0HaRDdQBqOzr"/><text class="cam-lbl" x="130" y="142" data-page-node-id="eUFAmbvUgSWiZF66DJ728Y">C04</text>
+                        <circle class="cam" data-area="n22" cx="330" cy="155" r="5" data-page-node-id="k1HbKgXNBm6c6Uphs0qRWP"/><text class="cam-lbl" x="330" y="147" data-page-node-id="RM0VINAmpMe6TVLxKyuyGR">C05</text>
+                        <circle class="cam" data-area="n22" cx="440" cy="155" r="5" data-page-node-id="2xylO773uycL3SQ4uD2fAU"/><text class="cam-lbl" x="440" y="147" data-page-node-id="D2dbJmPvFq1Se6YlhryS6E">C06</text>
+                        <circle class="cam" data-area="n22" cx="330" cy="305" r="5" data-page-node-id="d6RnylnhsbgUP9ru45aC0p"/><text class="cam-lbl" x="330" y="297" data-page-node-id="OMZhR9pUhL1i0obPkf3IN1">C07</text>
+                        <circle class="cam" data-area="n22" cx="440" cy="250" r="5" data-page-node-id="WFCjXvXTMqSLmEvY8lxPxI"/><text class="cam-lbl" x="440" y="242" data-page-node-id="hiDHg4Sj6FMhH6yCVIPLDh">C08</text>
+                        <circle class="cam" data-area="n13" cx="250" cy="310" r="5" data-page-node-id="0rl4y0mIyxgDPkAG4qzTKd"/><text class="cam-lbl" x="250" y="302" data-page-node-id="locUm6g0g92ExU9Nf29VTp">C09</text>
+                        <circle class="cam" data-area="n13" cx="340" cy="370" r="5" data-page-node-id="NGJQyvj098UHsEgmFHj3T8"/><text class="cam-lbl" x="340" y="362" data-page-node-id="FsxpRoQx6pU05fS6zJJxao">C10</text>
+                        <circle class="cam" data-area="n212" cx="380" cy="310" r="5" data-page-node-id="EVWOMwscMocdE5zUZv3gO8"/><text class="cam-lbl" x="380" y="302" data-page-node-id="B8FxN0j9Jr1XHo8wm0Gmnl">C11</text>
+                        <circle class="cam" data-area="n211" cx="530" cy="30" r="5" data-page-node-id="9A7pHWIJBafcHixf7tgeQ3"/><text class="cam-lbl" x="530" y="22" data-page-node-id="ADFecUVkoou56bIQs55V8l">C12</text>
+                        <circle class="cam" data-area="n211" cx="530" cy="150" r="5" data-page-node-id="G9OJaM8EntvIEIhfjuNIQg"/><text class="cam-lbl" x="530" y="142" data-page-node-id="EB8YamJaVQ63TI3ASxmjNn">C13</text>
+                        <circle class="cam" data-area="n212" cx="580" cy="280" r="5" data-page-node-id="UoEh83nhTZQSRw92IpBB5L"/><text class="cam-lbl" x="580" y="272" data-page-node-id="MZeYgtKoX7yJJTTZIfZ8Sx">C14</text>
+                        <circle class="cam" data-area="n212" cx="600" cy="380" r="5" data-page-node-id="DAZibjr25h5yMmNGEgt3pt"/><text class="cam-lbl" x="600" y="372" data-page-node-id="4n5v1i3gQ82FBpHvJfxfHE">C15</text>
+                        <circle class="cam" data-area="n13" cx="650" cy="200" r="5" data-page-node-id="XD6hAIMb6hdGCZpyK5lV4r"/><text class="cam-lbl" x="650" y="192" data-page-node-id="qSCfk9bxn9GlUjqr1emosr">C16</text>
+                        <circle class="cam" data-area="n212" cx="20" cy="200" r="5" data-page-node-id="Ta1SdAlu7Q2gVVzPJO36y9"/><text class="cam-lbl" x="20" y="192" data-page-node-id="J9rv6gN8MXkpZvXYdqkS4t">C17</text>
+                        <circle class="cam" data-area="n13" cx="70" cy="450" r="5" data-page-node-id="gbVWZlKU4a8zZc6OTWHYmb"/><text class="cam-lbl" x="70" y="442" data-page-node-id="riNabDEoxmrPdIPGyAscTl">C18</text>
+                        <circle class="cam" data-area="n212" cx="600" cy="450" r="5" data-page-node-id="ydHVya9ZGq83pMKCKmGXli"/><text class="cam-lbl" x="600" y="442" data-page-node-id="GX9N20vxEqJDdWFEPn38YG">C19</text>
+                        <circle class="cam" data-area="n211" cx="650" cy="250" r="5" data-page-node-id="zZLSkAy3qeLqOGvUKqtDxe"/><text class="cam-lbl" x="650" y="242" data-page-node-id="qm1nBNqhNwYPRsvvWCFisF">C20</text>
+                        <circle class="cam" data-area="n14" cx="100" cy="340" r="5" data-page-node-id="KvCpK4ClhfbRZghkGz1PVP"/><text class="cam-lbl" x="100" y="332" data-page-node-id="nYt150XQt5I4ryHhJha3FF">C21</text>
+                    </svg>
+                    <div class="map-overlay" id="mapOverlay" data-page-node-id="noxFI9KroDkUP0tXv4jvEG">
+                        <div class="ov-row" data-page-node-id="beqHPGRkvkXj13TkWpv92e"><span class="ov-label" data-page-node-id="Ep785pWIa6ieYBkp7x11LA">已选范围</span><span class="ov-val" id="ovPlaces" data-page-node-id="tiIsEdgvQLnLWN78sp52KT">0 个</span></div>
+                        <div class="ov-row" data-page-node-id="QG30zPrzVDn4hAoIo5oDSV"><span class="ov-label" data-page-node-id="TNFR5B7GZsREVB72JHiWll">已开启设备</span><span class="ov-val" id="ovCams" data-page-node-id="PcAGAvcGCEgTSomyUSyN3Z">全部 (21个)</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-foot" data-page-node-id="vIggCjH70631XYt7vCBbkS">
+                <span class="foot-stat" id="modalFootStat" data-page-node-id="1kmuogXMx626VQFXbIKnfd">未选择特定目录，将搜索全部设备（25台·已开启16台）</span>
+                <div class="foot-btns" data-page-node-id="zUD71DdKMBUSwtnd8EHy5I">
+                    <button class="ant-btn ant-btn-text" onclick="closeModal()" style="height:32px;padding:0 16px;font-size:13px" data-page-node-id="9O8t3IZArSElC69YzD8RjD">取消</button>
+                    <button class="ant-btn ant-btn-primary" onclick="confirmModal()" style="height:32px;padding:0 16px;font-size:13px" data-page-node-id="BVKejIz4SB93S03Vp8sqQs">确认选择</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 从目标库选择（N11 布控预警 · 唯一跨组件联动入口） -->
+    <div class="modal-mask" id="libModal" style="z-index:60;" data-page-node-id="EHIVI3gIgfmu7RW6FSFlvd">
+        <div class="modal-box" style="max-width:760px;width:760px;" data-page-node-id="aBEMHkSM33k560nGc7HwNP">
+            <div class="modal-head" data-page-node-id="KQ1xFrBdQZfs4BdHPxqxYS">
+                <h3 data-page-node-id="4omkGmEYrzOWnP9syUhnG6"><i class="fa-solid fa-shield-halved" style="color:#722ed1" data-page-node-id="9TItDMJ5GkVC6fRJwA78n1"></i>从目标库选择目标 <span style="font-size:12px;color:rgba(0,0,0,0.45);font-weight:400;" data-page-node-id="T7KxNAhM3c9rMxnppPFwY0">来源：N11 布控预警 · 重点目标名单库</span></h3>
+                <button class="modal-close" onclick="closeLibModal()" data-page-node-id="JACoiqGesrNAnsS1Daz7Ya">&times;</button>
+            </div>
+            <div class="modal-body" style="display:block;" data-page-node-id="UCjWtuE7I66NiSXp17WhMe">
+                <div class="modal-search" style="margin-bottom:12px;" data-page-node-id="dsn7eBeHpX243qzioOJ6Rh">
+                    <i class="fa-solid fa-magnifying-glass" data-page-node-id="HwlVCJLQMwVP2ydKT9dGBH"></i>
+                    <input type="text" placeholder="搜索目标姓名 / 标签..." oninput="libFilter(this.value)" data-page-node-id="o2viHEsWLu6TPlDhQtOSUO">
+                </div>
+                <div id="libGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-height:320px;overflow:auto;padding:2px;" data-page-node-id="BGjXIoBmLIsAXXgAEgVXZC"></div>
+                <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:10px;line-height:1.6;" data-page-node-id="cA0bbHBYg1X2aRublt3vox"><i class="fa-solid fa-circle-info" style="margin-right:4px;" data-page-node-id="GEp9K6YbaltOMSB5LXuqec"></i>选择目标后以其照片发起特征检索（以图搜人）。数据经 N11 目标库公开 API 读取；未安装 N11 时该入口隐藏。</div>
+            </div>
+            <div class="modal-foot" data-page-node-id="AHPptwknscRHsX4e5CcJrF">
+                <span class="foot-stat" id="libFootStat" data-page-node-id="P0XdMPKGpZNJR6FxtpvvBe">请选择一个目标</span>
+                <div class="foot-btns" data-page-node-id="nn4PIQwmWpI7fc41yUNDXd">
+                    <button class="ant-btn ant-btn-text" onclick="closeLibModal()" style="height:32px;padding:0 16px;font-size:13px" data-page-node-id="qu0H9PPmyD7nq4bLj1VSdD">取消</button>
+                    <button class="ant-btn ant-btn-primary" onclick="useLibTarget()" style="height:32px;padding:0 16px;font-size:13px" data-page-node-id="a1gP98Ni233HBFuy9fAAFQ">使用该目标检索</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let currentMode='image',files=[];
+
+    // ===== 日历时间选择器 =====
+    const NOW = new Date('2026-05-29T23:59:00');
+    let calStart = new Date(NOW.getTime() - 24*3600*1000);
+    let calEnd = new Date(NOW);
+    let calViewYear = 2026, calViewMonth = 4; // 0-indexed, 4=May
+    const WEEKDAYS = ['日','一','二','三','四','五','六'];
+    const MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
+    function pad(n){return n.toString().padStart(2,'0')}
+    function fmtDate(d){return `${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`}
+    function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()}
+
+    function initTimeSelects(){
+        [['startH',calStart.getHours()],['startM',calStart.getMinutes()],['endH',calEnd.getHours()],['endM',calEnd.getMinutes()]].forEach(([id,val])=>{
+            const sel=document.getElementById(id);sel.innerHTML='';const max=id.includes('H')?24:60;
+            for(let i=0;i<max;i++) sel.innerHTML+=`<option value="${i}" ${i===val?'selected':''}>${pad(i)}</option>`;
+        });
+    }
+
+    function renderCalMonth(el, year, month){
+        const first=new Date(year,month,1);const startDay=first.getDay();
+        const daysInMonth=new Date(year,month+1,0).getDate();
+        const daysInPrev=new Date(year,month,0).getDate();
+        let h=`<div class="cal-month-head"><button class="cal-nav" onclick="navCal(-1,'${el.id}')"><i class="fa-solid fa-chevron-left"></i></button><span class="cal-title">${year}年${MONTHS[month]}</span><button class="cal-nav" onclick="navCal(1,'${el.id}')"><i class="fa-solid fa-chevron-right"></i></button></div>`;
+        h+='<div class="cal-weekdays">'+WEEKDAYS.map(w=>`<span>${w}</span>`).join('')+'</div><div class="cal-days">';
+        // Previous month
+        for(let i=startDay-1;i>=0;i--) h+=`<div class="cal-day other" onclick="pickDay(${year},${month},${-i})">${daysInPrev-i}</div>`;
+        // Current month
+        const today=new Date('2026-05-29');
+        for(let d=1;d<=daysInMonth;d++){
+            const dt=new Date(year,month,d);
+            const isStart=sameDay(dt,calStart),isEnd=sameDay(dt,calEnd);
+            const inRange=dt>calStart&&dt<calEnd;
+            let cls='cal-day';
+            if(sameDay(dt,today)) cls+=' today';
+            if(isStart&&isEnd) cls+=' start end';
+            else if(isStart) cls+=' start';
+            else if(isEnd) cls+=' end';
+            else if(inRange) cls+=' in-range';
+            h+=`<div class="${cls}" onclick="pickDay(${year},${month},${d})">${d}</div>`;
+        }
+        // Next month fill
+        const totalCells=startDay+daysInMonth;const rem=totalCells%7?7-totalCells%7:0;
+        for(let d=1;d<=rem;d++) h+=`<div class="cal-day other">${d}</div>`;
+        h+='</div>';
+        el.innerHTML=h;
+    }
+
+    function renderCal(){
+        renderCalMonth(document.getElementById('calLeft'), calViewYear, calViewMonth);
+        const rMonth=calViewMonth+1, rYear=rMonth>11?calViewYear+1:calViewYear;
+        renderCalMonth(document.getElementById('calRight'), rYear, rMonth%12);
+    }
+
+    function navCal(dir, elId){
+        calViewMonth+=dir;
+        if(calViewMonth>11){calViewMonth=0;calViewYear++}
+        if(calViewMonth<0){calViewMonth=11;calViewYear--}
+        renderCal();
+    }
+
+    function pickDay(y,m,d){
+        // Reset time
+        calStart=new Date(y,m,d,0,0,0);calEnd=new Date(y,m,d,23,59,0);
+        // Update time selects
+        document.getElementById('startH').value=0;document.getElementById('startM').value=0;
+        document.getElementById('endH').value=23;document.getElementById('endM').value=59;
+        // Clear shortcut highlight
+        document.querySelectorAll('.cal-shortcut').forEach(s=>s.classList.remove('active'));
+        renderCal();
+    }
+
+    function pickShortcut(type){
+        document.querySelectorAll('.cal-shortcut').forEach(s=>s.classList.remove('active'));
+        event.target.classList.add('active');
+        calEnd=new Date(NOW);
+        switch(type){
+            case 'today': calStart=new Date(2026,4,29,0,0,0);break;
+            case 'yesterday': calStart=new Date(2026,4,28,0,0,0);calEnd=new Date(2026,4,28,23,59,0);break;
+            case '3d': calStart=new Date(NOW.getTime()-3*86400000);break;
+            case '7d': calStart=new Date(NOW.getTime()-7*86400000);break;
+            case '30d': calStart=new Date(NOW.getTime()-30*86400000);break;
+        }
+        calViewYear=calStart.getFullYear();calViewMonth=calStart.getMonth();
+        initTimeSelects();renderCal();
+    }
+
+    function updateTpText(){
+        const sh=pad(parseInt(document.getElementById('startH').value));
+        const sm=pad(parseInt(document.getElementById('startM').value));
+        const eh=pad(parseInt(document.getElementById('endH').value));
+        const em=pad(parseInt(document.getElementById('endM').value));
+        const txt=`${pad(calStart.getMonth()+1)}-${pad(calStart.getDate())} ${sh}:${sm} ~ ${pad(calEnd.getMonth()+1)}-${pad(calEnd.getDate())} ${eh}:${em}`;
+        const el1=document.getElementById('tpText');if(el1)el1.textContent=txt;
+        const el2=document.getElementById('tpText2');if(el2)el2.textContent=txt;
+    }
+
+    function toggleCal(e){
+        e.stopPropagation();
+        const p=document.getElementById('calPopup');
+        if(p.classList.contains('open')){closeCal();return}
+        p.classList.add('open');
+        calViewYear=calStart.getFullYear();calViewMonth=calStart.getMonth();
+        initTimeSelects();renderCal();
+    }
+    function closeCal(){document.getElementById('calPopup').classList.remove('open')}
+    function confirmCal(){
+        calStart.setHours(parseInt(document.getElementById('startH').value),parseInt(document.getElementById('startM').value));
+        calEnd.setHours(parseInt(document.getElementById('endH').value),parseInt(document.getElementById('endM').value));
+        updateTpText();closeCal();
+    }
+    document.addEventListener('click',e=>{const p=document.getElementById('calPopup');if(p&&!p.contains(e.target)&&!e.target.closest('.time-picker-trigger'))closeCal()});
+    // ===== 分析设备目录（组件私有目录 · 只读投影）=====
+    // 口径：目录仅用于圈选哪一批设备；设备地理位置与其底座区域归属不变，地图联动按设备实际位置展示
+    const CATALOG=[
+        {id:'n1',name:'园区A',children:[
+            {id:'n11',name:'1号楼',children:[{id:'n111',name:'1层大堂',dev:3,open:2},{id:'n112',name:'2层办公区',dev:2,open:1}]},
+            {id:'n12',name:'2号楼',children:[{id:'n121',name:'1层机房',dev:2,open:2}]},
+            {id:'n13',name:'东门',dev:4,open:3},
+            {id:'n14',name:'地下停车场',dev:6,open:4}
+        ]},
+        {id:'n2',name:'园区B',children:[
+            {id:'n21',name:'周界',children:[{id:'n211',name:'东围墙',dev:2,open:1},{id:'n212',name:'西围墙',dev:2,open:0}]},
+            {id:'n22',name:'广场',dev:4,open:3}
+        ]}
+    ];
+    (function agg(list){list.forEach(n=>{if(n.children){agg(n.children);n.dev=n.children.reduce((s,c)=>s+c.dev,0);n.open=n.children.reduce((s,c)=>s+c.open,0)}})})(CATALOG);
+    const DEV_TOTAL=CATALOG.reduce((s,n)=>s+n.dev,0),DEV_OPEN=CATALOG.reduce((s,n)=>s+n.open,0);
+    const exp={n1:true,n2:true,n11:true,n21:true};
+    const sel=new Set();          // 选中的目录节点（任意层级 = 整棵子树）
+    let effLeaves=new Set();      // 选中范围覆盖的叶子节点（地图高亮用，设备实际位置不变）
+    let covSet=new Set();         // 被选中节点整体覆盖的节点
+    function leafIds(n){return n.children?n.children.flatMap(leafIds):[n.id]}
+    function findPath(list,id,acc){for(const n of list){const p=[...acc,n];if(n.id===id)return p;if(n.children){const r=findPath(n.children,id,p);if(r)return r}}return null}
+    function computeEff(){effLeaves=new Set();covSet=new Set();(function walk(list,covered){list.forEach(n=>{const c=covered||sel.has(n.id);if(c){covSet.add(n.id);leafIds(n).forEach(l=>effLeaves.add(l))}if(n.children)walk(n.children,c)})})(CATALOG,false)}
+    function effOpenCnt(){let s=0;(function walk(list){list.forEach(n=>{if(sel.has(n.id))s+=n.open;else if(n.children)walk(n.children)})})(CATALOG);return s}
+    function toggleSel(id){
+        if(sel.has(id)){sel.delete(id)}
+        else{
+            const path=findPath(CATALOG,id)||[];
+            const ti=path.findIndex(p=>sel.has(p.id));
+            if(ti>=0){const top=path[ti];sel.delete(top.id);for(let i=ti;i<path.length-1;i++){(path[i].children||[]).forEach(c=>{if(c.id!==path[i+1].id)sel.add(c.id)})}}
+            else sel.add(id);
+        }
+        renderTree(document.getElementById('treeSearch').value||'')
+    }
+    function subMatch(n,f){return n.name.includes(f)||(n.children||[]).some(k=>subMatch(k,f))}
+    function togExp(id){exp[id]=!exp[id];renderTree(document.getElementById('treeSearch').value||'')}
+    function walkSel(list,fn){list.forEach(n=>{if(sel.has(n.id))fn(n);else if(n.children)walkSel(n.children,fn)})}
+    function renderTree(filter){
+        computeEff();
+        const b=document.getElementById('treeBody');let h='';
+        (function walk(list,depth){
+            list.forEach(n=>{
+                const kids=n.children||[];const e=!!exp[n.id];const on=covSet.has(n.id);
+                const some=kids.length?kids.some(c=>covSet.has(c.id)):false;
+                if(filter&&!subMatch(n,filter))return;
+                const unopen=n.open===0?'<span style="color:#999;font-size:11px;background:#fafafa;border:1px solid #f0f0f0;border-radius:3px;padding:0 4px;margin-left:4px;">未开启分析</span>':'';
+                const tw=kids.length?`<span class="arr ${e?'exp':''}" onclick="event.stopPropagation();togExp('${n.id}')"><i class="fa-solid fa-chevron-right"></i></span>`:'<span class="arr"></span>';
+                h+=`<div class="tree-node ${on?'highlight':''}" style="padding-left:${12+depth*16}px" onclick="toggleSel('${n.id}')">${tw}<span class="chk ${on?'on':some?'half':''}"></span>${n.name}${unopen}<span class="cam-cnt">${n.open}/${n.dev}台</span></div>`;
+                if(kids.length&&(e||filter))walk(kids,depth+1);
+            })
+        })(CATALOG,0);
+        b.innerHTML=h;updMap();updTrigger();
+    }
+    function selectAll(){CATALOG.forEach(n=>sel.add(n.id));renderTree('')}
+    function clearAll(){sel.clear();renderTree('')}
+    function updMap(){
+        document.querySelectorAll('.bld').forEach(b=>{
+            const ids=(b.dataset.area||'').split(',');
+            const on=ids.some(id=>effLeaves.has(id));
+            b.classList.toggle('selected',on);
+            const lbl=b.nextElementSibling;if(lbl&&lbl.classList.contains('bld-lbl'))lbl.classList.toggle('selected',on);
+        });
+        let camCnt=0;
+        document.querySelectorAll('.cam').forEach(c=>{
+            const ids=(c.dataset.area||'').split(',');
+            const on=ids.some(id=>effLeaves.has(id));
+            c.classList.toggle('on',on);if(on)camCnt++;
+        });
+        const opened=effOpenCnt();
+        document.getElementById('ovPlaces').textContent=sel.size?sel.size+' 个节点':'0 个';
+        document.getElementById('ovCams').textContent=sel.size?opened+' / '+DEV_TOTAL+' 台':'全部 ('+DEV_TOTAL+'台·已开启'+DEV_OPEN+'台)';
+        document.getElementById('footStat').innerHTML=sel.size?`已选 <strong>${sel.size}</strong> 个目录节点，覆盖 <strong>${leafIdsCount()}</strong> 台设备（已开启 <strong>${opened}</strong> 台）`:'未选择特定目录，将搜索全部设备';
+    }
+    function leafIdsCount(){let s=0;walkSel(CATALOG,n=>{s+=n.dev});return s}
+    function updTrigger(){
+        const tags=document.getElementById('triggerTags');
+        if(!sel.size){tags.innerHTML='<span class="placeholder">全部设备</span>';return}
+        const items=[];walkSel(CATALOG,n=>items.push(n));
+        const show=items.slice(0,3);
+        tags.innerHTML=show.map(c=>`<span class="sel-tag">${c.name}<span class="rm" onclick="event.stopPropagation();toggleSel('${c.id}')">×</span></span>`).join('');
+        if(items.length>3)tags.innerHTML+=`<span class="sel-tag">+${items.length-3}</span>`;
+    }
+
+    // ===== 弹窗控制 =====
+    function openModal(){document.getElementById('modalMask').classList.add('open');renderTree('')}
+    function closeModal(){document.getElementById('modalMask').classList.remove('open')}
+    function confirmModal(){closeModal();updTrigger()}
+    document.getElementById('modalMask').addEventListener('click',e=>{if(e.target===document.getElementById('modalMask'))closeModal()});
+
+    // ===== 通用 =====
+    function initTime(){calStart=new Date(2026,4,28,23,59,0);calEnd=new Date(2026,4,29,23,59,0);initTimeSelects();updateTpText()}
+    initTime();
+    function switchMode(m){currentMode=m;document.querySelectorAll('.ant-tabs-tab').forEach(b=>b.classList.remove('ant-tabs-tab-active'));event.target.closest('.ant-tabs-tab').classList.add('ant-tabs-tab-active');document.getElementById('modeTag').textContent=m==='image'?'以图搜人':'文本搜人';document.getElementById('imageForm').style.display=m==='image'?'block':'none';document.getElementById('textForm').style.display=m==='text'?'block':'none';updQB()}
+    function handleFiles(e){const nf=Array.from(e.target.files),r=1-files.length;if(nf.length>r){showTip('仅支持上传1张图片','warning');return}nf.forEach(f=>{if(f.size>5*1024*1024){showTip('超过5MB','warning');return}const rd=new FileReader();rd.onload=ev=>{files.push({name:f.name,src:ev.target.result,ok:Math.random()>0.3});updPV();updQB()};rd.readAsDataURL(f)})}
+    function updPV(){const box=document.getElementById('uploadBox'),def=document.getElementById('uploadDefault'),list=document.getElementById('previewList');if(files.length){box.classList.add('ant-upload-has-files');def.style.display='none';list.style.display='flex';list.innerHTML=files.map((f,i)=>`<div class="ant-upload-list-item"><img src="${f.src}"><button class="remove-btn" onclick="rmFile(${i})">×</button><div class="status-bar ${f.ok?'status-success':'status-warning'}">${f.ok?'已识别':'未检测'}</div></div>`).join('')}else{box.classList.remove('ant-upload-has-files');def.style.display='block';list.style.display='none'}}
+    function rmFile(i){files.splice(i,1);updPV();updQB()}
+    function showTip(t,ty){const tip=document.getElementById('uploadTip');tip.textContent=t;tip.className='ant-upload-tip tip-'+ty+' tip-show'}
+    function updQB(){if(currentMode==='image')document.getElementById('queryBtn').disabled=files.length===0;else{const t=document.getElementById('searchText').value.trim();document.getElementById('queryBtn').disabled=t.length<10}}
+    function updCC(){document.getElementById('charCount').textContent=document.getElementById('searchText').value.length;updQB()}
+    function setQT(el,t){el.parentElement.querySelectorAll('.ant-tag-checkable').forEach(b=>b.classList.remove('ant-tag-checkable-checked'));el.classList.add('ant-tag-checkable-checked')}
+    function resetForm(){files=[];updPV();sel.clear();updTrigger();initTime();updQB()}
+    function doQuery(){window.location.href='result.html'}
+
+    // ===== 从目标库选择（N11 布控预警 · 唯一跨组件联动） =====
+    const LIB_TARGETS=[
+      {id:1,name:'张伟',tag:'重点目标 · 协查',c:'#1677ff'},
+      {id:2,name:'李娜',tag:'布控中 · 中央广场',c:'#2f9e44'},
+      {id:3,name:'王强',tag:'告警命中导入',c:'#f76707'},
+      {id:4,name:'陈芳',tag:'重点区域 · 周界',c:'#9c36b5'}
+    ];
+    let libSelected=null,libKw='';
+    function libSvg(t){return 'data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" rx="10" fill="#e6f4ff"/><circle cx="40" cy="30" r="14" fill="${t.c}" opacity=".55"/><rect x="18" y="52" width="44" height="26" rx="13" fill="${t.c}" opacity=".55"/></svg>`)}
+    function renderLib(){
+      const kw=(libKw||'').trim();
+      document.getElementById('libGrid').innerHTML=LIB_TARGETS.filter(t=>!kw||t.name.includes(kw)||t.tag.includes(kw)).map(t=>{
+        const on=libSelected===t.id;
+        return `<div onclick="libSel(${t.id})" style="border:1.5px solid ${on?'#722ed1':'#f0f0f0'};border-radius:10px;padding:10px;cursor:pointer;text-align:center;background:${on?'#f9f0ff':'#fff'};transition:all .15s;"><img src="${libSvg(t)}" style="width:72px;height:72px;border-radius:8px;display:block;margin:0 auto;"><div style="font-weight:600;margin-top:8px;font-size:13px;color:#1f2328;">${t.name}</div><div style="font-size:11px;color:#722ed1;margin-top:2px;">${t.tag}</div></div>`;
+      }).join('');
+    }
+    function openLibModal(){libSelected=null;renderLib();document.getElementById('libFootStat').textContent='请选择一个目标';document.getElementById('libModal').classList.add('open')}
+    function closeLibModal(){document.getElementById('libModal').classList.remove('open')}
+    function libSel(id){libSelected=id;renderLib();document.getElementById('libFootStat').textContent='已选择目标：'+LIB_TARGETS.find(t=>t.id===id).name+'（N11）'}
+    function libFilter(kw){libKw=kw;renderLib()}
+    function useLibTarget(){
+      if(!libSelected){showTip('请先选择一个目标','warning');return}
+      const t=LIB_TARGETS.find(x=>x.id===libSelected);
+      files=[{name:'目标库_'+t.name+'.jpg',src:libSvg(t),ok:true}];
+      updPV();updQB();
+      closeLibModal();
+      showTip('已从目标库选择目标 '+t.name+'（N11），照片已填入，点击「查询」发起检索','success');
+    }
+    document.getElementById('libModal').addEventListener('click',e=>{if(e.target===document.getElementById('libModal'))closeLibModal()});
+    </script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>告警详情 - N11 布控预警</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="../assets/proto.css">
+<style>/* token 别名 + 演示页头预留 */:root{--radius-md:8px;--radius-sm:4px;--ant-danger:var(--ant-error)}body{padding-top:36px !important}</style>
+  <style>
+    :root {
+      --primary: #1677ff;
+      --primary-hover: #4096ff;
+      --success: #52c41a;
+      --warning: #faad14;
+      --danger: #ff4d4f;
+      --text: rgba(0,0,0,0.88);
+      --text-2: rgba(0,0,0,0.65);
+      --text-3: rgba(0,0,0,0.45);
+      --border: #d9d9d9;
+      --border-light: #f0f0f0;
+      --bg: #f5f5f5;
+      --bg-white: #ffffff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); }
+
+    /* Modal */
+    .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; display: flex; align-items: flex-start; justify-content: center; padding-top: 40px; overflow-y: auto; }
+    .modal-box { width: 960px; background: var(--bg-white); border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.12); margin-bottom: 40px; animation: fadeIn 0.25s ease-out; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--border-light); }
+    .modal-head h2 { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .modal-close { width: 32px; height: 32px; border: none; background: transparent; cursor: pointer; border-radius: 6px; font-size: 16px; color: var(--text-3); display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { background: var(--bg); color: var(--text); }
+    .modal-body { padding: 24px; }
+
+    /* Info rows */
+    .info-grid { display: grid; grid-template-columns: 72px 1fr; gap: 10px 12px; font-size: 13px; }
+    .info-label { color: var(--text-3); text-align: right; }
+    .info-label::after { content: '：'; }
+    .info-val { color: var(--text); }
+
+    /* Section title */
+    .sec-title { font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+
+    /* Buttons */
+    .btn { height: 32px; padding: 0 15px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-white); color: var(--text); font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+    .btn:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); color: #fff; }
+    .btn-sm { height: 28px; padding: 0 12px; font-size: 12px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+    /* Video player */
+    .video-box { background: #000; border-radius: 8px; height: 320px; flex-shrink: 0; margin: auto 0; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .video-overlay { position: absolute; top: 12px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 12px; }
+    .video-overlay.left { left: 12px; }
+    .video-overlay.right { right: 12px; background: rgba(245,34,45,0.85); }
+    .video-controls { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+    .play-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text); }
+    .play-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .progress-track { flex: 1; height: 6px; background: var(--border-light); border-radius: 3px; position: relative; }
+    .progress-fill { height: 100%; background: var(--primary); border-radius: 3px; width: 45%; }
+    .progress-mark { position: absolute; top: 50%; left: 45%; width: 3px; height: 14px; background: var(--danger); transform: translate(-50%,-50%); border-radius: 1px; }
+
+    /* Handle form */
+    .handle-form { background: #fafafa; border: 1px solid var(--border-light); border-radius: 8px; padding: 20px; margin-top: 16px; display: none; }
+    .handle-form.show { display: block; }
+    .form-row { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-2); margin-bottom: 6px; }
+    .form-label .req { color: var(--danger); margin-left: 2px; }
+    .form-select { width: 100%; height: 36px; border: 1px solid var(--border); border-radius: 6px; padding: 0 12px; font-size: 13px; color: var(--text); background: #fff; outline: none; appearance: auto; }
+    .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .form-textarea { width: 100%; min-height: 72px; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; font-size: 13px; color: var(--text); resize: vertical; outline: none; font-family: inherit; }
+    .form-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .form-actions { display: flex; gap: 8px; justify-content: flex-end; padding-top: 4px; }
+    .char-count { text-align: right; font-size: 11px; color: var(--text-3); margin-top: 4px; }
+
+    /* Record card */
+    .record-card { background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 8px; padding: 16px; margin-top: 16px; display: none; }
+    .record-card.show { display: block; }
+    .record-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; font-size: 13px; }
+    .record-grid .rl { color: var(--text-3); }
+    .record-grid .rv { color: var(--text); }
+
+    /* Divider */
+    .divider { height: 1px; background: var(--border-light); margin: 20px 0; }
+
+    /* Timeline */
+    .tl { position: relative; padding-left: 24px; }
+    .tl::before { content: ''; position: absolute; left: 7px; top: 6px; bottom: 6px; width: 2px; background: var(--border-light); border-radius: 1px; }
+    .tl-item { position: relative; padding-bottom: 14px; display: flex; align-items: flex-start; gap: 14px; }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-dot { position: absolute; left: -24px; top: 4px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); background: #fff; z-index: 1; }
+    .tl-dot.active { border-color: var(--primary); background: var(--primary); box-shadow: 0 0 0 4px rgba(22,119,255,0.12); }
+    .tl-dot.done { border-color: var(--success); background: var(--success); }
+    .tl-dot.ignored { border-color: var(--warning); background: var(--warning); }
+    .tl-time { font-size: 12px; color: var(--text-3); white-space: nowrap; min-width: 130px; padding-top: 2px; }
+    .tl-body { flex: 1; background: #fafafa; border: 1px solid var(--border-light); border-radius: 6px; padding: 8px 12px; }
+    .tl-body.highlight { background: #e6f4ff; border-color: #91caff; }
+    .tl-loc { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+    .tl-meta { font-size: 12px; color: var(--text-3); display: flex; gap: 10px; align-items: center; }
+    .tl-sim { font-weight: 600; color: var(--primary); }
+    .tag { font-size: 11px; padding: 1px 6px; border-radius: 3px; }
+    .tag-danger { color: var(--danger); background: #fff2f0; }
+    .tag-success { color: var(--success); background: #f6ffed; }
+    .tag-warning { color: var(--warning); background: #fffbe6; }
+
+    /* Capture image placeholder */
+    .capture-img { width: 200px; height: 200px; background: var(--bg); border: 1px dashed var(--border); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-3); flex-shrink: 0; }
+
+    /* Radio card */
+    .radio-card { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 14px; transition: all 0.2s; user-select: none; }
+    .radio-card:hover { border-color: var(--primary); }
+    .radio-card.active { border-color: var(--primary); background: #e6f4ff; }
+    .radio-card .radio-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); display: inline-block; position: relative; flex-shrink: 0; }
+    .radio-card.active .radio-dot { border-color: var(--primary); }
+    .radio-card.active .radio-dot::after { content: ''; position: absolute; top: 3px; left: 3px; width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
+
+    /* Option chip */
+    .opt-chip { display: inline-flex; align-items: center; padding: 6px 14px; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 13px; transition: all 0.2s; user-select: none; }
+    .opt-chip:hover { border-color: var(--primary); color: var(--primary); }
+    .opt-chip.active { border-color: var(--primary); background: #e6f4ff; color: var(--primary); font-weight: 500; }
+  </style>
+</head>
+<body>
+<!-- 演示页头（原型导航用，实际集成时为页面内弹窗） -->
+<div style="position:fixed;top:0;left:0;right:0;height:36px;background:var(--ant-bg-container);border-bottom:1px solid var(--ant-border-secondary);display:flex;align-items:center;gap:10px;padding:0 16px;font-size:12px;color:var(--ant-text-tertiary);z-index:9999;box-shadow:var(--ant-shadow);">
+  <span class="comp-badge" style="height:20px;font-size:11px;">N11 布控预警</span>
+  <span>弹窗演示 · 告警处理详情（P-010）</span>
+  <a href="alerts.html" style="margin-left:auto;color:var(--ant-primary);text-decoration:none;">← 返回命中预警</a>
+</div>
+
+
+  <div class="modal-mask">
+    <div class="modal-box">
+
+      <!-- Header -->
+      <div class="modal-head">
+        <h2><i class="fa-solid fa-shield-halved" style="color:var(--danger)"></i>告警处理详情</h2>
+        <button class="modal-close" onclick="alert('关闭弹窗（演示）')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- 上半区：告警信息 + 录像预览 左右布局 -->
+        <div style="display:flex;gap:24px;align-items:stretch;">
+
+          <!-- 左栏：告警信息 -->
+          <div style="width:300px;flex-shrink:0;display:flex;flex-direction:column;">
+          <div class="sec-title"><i class="fa-solid fa-camera" style="color:var(--primary);"></i>抓拍图片 <span style="font-weight:400;font-size:12px;color:var(--text-3);margin-left:auto;">命中瞬间抓拍</span></div>
+            <div class="capture-img" style="width:100%;aspect-ratio:16/9;margin-bottom:16px;">
+              <i class="fa-solid fa-camera" style="font-size:32px;"></i>
+              <span style="font-size:12px;">点击查看大图</span>
+            </div>
+            <div class="info-grid">
+              <span class="info-label">布控任务</span><span class="info-val">东区重点人员布控</span>
+              <span class="info-label">抓拍时间</span><span class="info-val">2026-05-28 14:32:15</span>
+              <span class="info-label">点位名称</span><span class="info-val">东区入口-A03</span>
+              <span class="info-label">相似度</span><span class="info-val" style="font-weight:700;color:var(--primary);font-size:18px;">92.3%</span>
+              <span class="info-label">告警级别</span><span class="info-val"><span class="tag tag-danger">高危</span></span>
+            </div>
+          </div>
+
+          <!-- 右栏：录像预览 -->
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+            <div class="sec-title"><i class="fa-solid fa-video" style="color:var(--primary);"></i>录像预览 <span style="font-weight:400;font-size:12px;color:var(--text-3);margin-left:auto;">事件前后各15秒（共30秒）</span></div>
+            <div class="video-box">
+              <div style="text-align:center;color:rgba(255,255,255,0.6);">
+                <i class="fa-solid fa-play-circle" style="font-size:48px;margin-bottom:12px;display:block;cursor:pointer;"></i>
+                <div style="font-size:14px;">点击播放录像</div>
+              </div>
+              <div class="video-overlay left"><i class="fa-solid fa-location-dot" style="margin-right:4px;"></i>东区入口-A03</div>
+              <div class="video-overlay right"><i class="fa-solid fa-circle" style="font-size:8px;margin-right:4px;"></i>事件时间点</div>
+            </div>
+            <div class="video-controls" style="margin-top:auto;">
+              <button class="play-btn" onclick="var i=this.querySelector('i');i.classList.toggle('fa-play');i.classList.toggle('fa-pause')"><i class="fa-solid fa-play"></i></button>
+              <div class="progress-track">
+                <div class="progress-fill"></div>
+                <div class="progress-mark" title="事件时间点"></div>
+              </div>
+              <span style="font-size:12px;color:var(--text-3);white-space:nowrap;">-15s / +15s</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- 处理详情（直接展示） -->
+        <div id="handleSection">
+          <!-- 第一行：告警判定 -->
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+            <label class="form-label" style="margin-bottom:0;white-space:nowrap;width:72px;text-align:right;">告警判定 <span class="req">*</span></label>
+            <label class="radio-card active" onclick="switchJudge('true_alarm', this)"><input type="radio" name="judgeResult" value="true_alarm" checked style="display:none;"><span class="radio-dot"></span><span>属实</span></label>
+            <label class="radio-card" onclick="switchJudge('false_alarm', this)"><input type="radio" name="judgeResult" value="false_alarm" style="display:none;"><span class="radio-dot"></span><span>误报</span></label>
+            <label class="radio-card" onclick="switchJudge('duplicate', this)"><input type="radio" name="judgeResult" value="duplicate" style="display:none;"><span class="radio-dot"></span><span>重复</span></label>
+          </div>
+
+          <!-- 第二行：处置方式（仅判定为「属实」时展示并必填） -->
+          <div id="actionSection" style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+            <label class="form-label" style="margin-bottom:0;white-space:nowrap;width:72px;text-align:right;">处置方式 <span class="req">*</span></label>
+            <label class="opt-chip active" onclick="selectChip(this)"><input type="radio" name="actionType" value="notify_security" checked style="display:none;">通知安保</label>
+            <label class="opt-chip" onclick="selectChip(this)"><input type="radio" name="actionType" value="on_site" style="display:none;">现场核实</label>
+            <label class="opt-chip" onclick="selectChip(this)"><input type="radio" name="actionType" value="to_police" style="display:none;">转交警方</label>
+            <label class="opt-chip" onclick="selectChip(this)"><input type="radio" name="actionType" value="confirm_safe" style="display:none;">确认安全</label>
+          </div>
+
+          <!-- 第三行：备注 -->
+          <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;">
+            <label class="form-label" style="margin-bottom:0;white-space:nowrap;width:72px;text-align:right;padding-top:8px;">处理备注</label>
+            <input type="text" class="form-select" id="handleNote" placeholder="请输入补充说明（选填）..." maxlength="200" style="height:36px;flex:1;">
+          </div>
+
+          <!-- 第五行：按钮 -->
+          <div style="display:flex;gap:8px;padding-left:84px;">
+            <button class="btn btn-primary" onclick="confirmHandle()"><i class="fa-solid fa-check"></i>确认并归档</button>
+            <button class="btn" onclick="resetHandle()"><i class="fa-solid fa-rotate-left"></i>取消</button>
+          </div>
+          <div style="padding-left:84px;margin-top:8px;font-size:12px;color:var(--text-3);">快捷键：1-4 选判定 · Enter 归档 · Esc 取消（备注输入时数字键为输入）</div>
+        </div>
+
+        <!-- 处置记录（提交后显示） -->
+        <div class="record-card" id="recordCard">
+          <div style="font-size:14px;font-weight:600;color:var(--success);margin-bottom:12px;">
+            <i class="fa-solid fa-circle-check" style="margin-right:6px;"></i>处置记录
+          </div>
+          <div class="record-grid">
+            <div><span class="rl">归档时间：</span><span class="rv" id="recTime">-</span></div>
+            <div><span class="rl">归档人：</span><span class="rv">当前管理员</span></div>
+            <div><span class="rl">告警判定：</span><span class="rv" id="recJudge">-</span></div>
+            <div><span class="rl">处置方式：</span><span class="rv" id="recAction">—</span></div>
+            <div><span class="rl">处理备注：</span><span class="rv" id="recNote">-</span></div>
+            <div><span class="rl">归档编号：</span><span class="rv" id="recArchive">-</span></div>
+            <div><span class="rl">归档状态：</span><span class="rv" id="recState">已归档</span></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- 时间线 -->
+        <div class="sec-title"><i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);"></i>最近告警时间线</div>
+        <div class="tl">
+          <div class="tl-item">
+            <div class="tl-dot active"></div>
+            <div class="tl-time">05-28 14:32:15</div>
+            <div class="tl-body highlight">
+              <div class="tl-loc">东区入口-A03</div>
+              <div class="tl-meta"><span class="tl-sim">相似度 92.3%</span><span class="tag tag-danger">当前告警</span></div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-time">05-28 13:18:42</div>
+            <div class="tl-body">
+              <div class="tl-loc">北区停车场-B12</div>
+              <div class="tl-meta"><span class="tl-sim">相似度 87.6%</span></div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot done"></div>
+            <div class="tl-time">05-27 21:05:33</div>
+            <div class="tl-body">
+              <div class="tl-loc">西区通道-C07</div>
+              <div class="tl-meta"><span class="tl-sim">相似度 91.1%</span><span class="tag tag-success">已处理</span></div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-time">05-27 16:47:20</div>
+            <div class="tl-body">
+              <div class="tl-loc">东区大厅-A01</div>
+              <div class="tl-meta"><span class="tl-sim">相似度 85.4%</span></div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot done"></div>
+            <div class="tl-time">05-26 09:22:11</div>
+            <div class="tl-body">
+              <div class="tl-loc">南区入口-D05</div>
+              <div class="tl-meta"><span class="tl-sim">相似度 93.8%</span><span class="tag tag-success">已处理</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /modal-body -->
+    </div><!-- /modal-box -->
+  </div><!-- /modal-mask -->
+
+  <script>
+    var currentJudge = 'true_alarm';
+
+    // 切换告警判定：属实→展示处置方式；误报/重复→隐藏处置方式（action_type=null 不校验）
+    function switchJudge(type, el) {
+      currentJudge = type;
+      document.querySelectorAll('.radio-card').forEach(function(c) { c.classList.remove('active'); });
+      el.classList.add('active');
+      el.querySelector('input').checked = true;
+      var actionSec = document.getElementById('actionSection');
+      if (type === 'true_alarm') {
+        actionSec.style.display = 'flex';
+      } else {
+        actionSec.style.display = 'none';
+        document.querySelectorAll('input[name="actionType"]').forEach(function(r) { r.checked = false; });
+        document.querySelectorAll('#actionSection .opt-chip').forEach(function(c) { c.classList.remove('active'); });
+      }
+    }
+
+    function selectChip(el) {
+      document.querySelectorAll('.opt-chip').forEach(function(c) { c.classList.remove('active'); });
+      el.classList.add('active');
+      el.querySelector('input').checked = true;
+    }
+
+    function resetHandle() {
+      currentJudge = 'true_alarm';
+      document.querySelectorAll('.radio-card').forEach(function(c) { c.classList.remove('active'); });
+      document.querySelectorAll('input[name="judgeResult"]').forEach(function(r) { r.checked = r.value === 'true_alarm'; });
+      var trueCard = document.querySelector('input[name="judgeResult"][value="true_alarm"]').closest('.radio-card');
+      if (trueCard) trueCard.classList.add('active');
+      document.getElementById('actionSection').style.display = 'flex';
+      document.querySelectorAll('.opt-chip').forEach(function(c) { c.classList.remove('active'); });
+      document.querySelectorAll('input[name="actionType"]').forEach(function(r) { r.checked = r.value === 'notify_security'; });
+      var notifyChip = document.querySelector('input[name="actionType"][value="notify_security"]').closest('.opt-chip');
+      if (notifyChip) notifyChip.classList.add('active');
+      document.getElementById('handleNote').value = '';
+    }
+
+    function confirmHandle() {
+      var judgeRadio = document.querySelector('input[name="judgeResult"]:checked');
+      if (!judgeRadio) { alert('请选择告警判定'); return; }
+      var isTrue = judgeRadio.value === 'true_alarm';
+      var actionRadio = null;
+      if (isTrue) {
+        actionRadio = document.querySelector('input[name="actionType"]:checked');
+        if (!actionRadio) { alert('请选择处置方式（422）'); return; }
+      }
+      var judgeMap = { 'true_alarm': '属实', 'false_alarm': '误报', 'duplicate': '重复' };
+      var actionMap = { 'notify_security': '通知安保', 'on_site': '现场核实', 'to_police': '转交警方', 'confirm_safe': '确认安全' };
+      var judgeLabel = judgeMap[judgeRadio.value];
+      var actionLabel = isTrue ? (actionMap[actionRadio.value] || actionRadio.value) : '—';
+      var note = document.getElementById('handleNote').value.trim() || '无';
+      var now = new Date();
+      // 归档编号由服务端生成（演示：ARC-YYYYMMDD-6位序列）
+      var archiveNo = 'ARC-' + now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + '-' + String(Math.floor(Math.random()*900000+100000));
+      var ts = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+
+      document.getElementById('recTime').textContent = ts;
+      document.getElementById('recJudge').textContent = judgeLabel + '（弹窗研判）';
+      document.getElementById('recAction').textContent = actionLabel;
+      document.getElementById('recNote').textContent = note;
+      document.getElementById('recArchive').textContent = archiveNo + '（' + ts + '）';
+      document.getElementById('recState').textContent = '已归档';
+
+      document.getElementById('handleSection').style.display = 'none';
+      document.getElementById('recordCard').classList.add('show');
+      document.getElementById('recordCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // 快捷键（1-4 选判定 / Enter 归档 / Esc 取消；备注输入框 Focus Guard）
+    document.addEventListener('keydown', function(e) {
+      var tag = (document.activeElement && document.activeElement.tagName) || '';
+      var inInput = tag === 'INPUT' || tag === 'TEXTAREA';
+      if (inInput) return; // Focus Guard：输入框内数字键/Enter 均为文本输入
+      if (e.key === 'Escape') { resetHandle(); return; }
+      if (e.key === 'Enter') { confirmHandle(); return; }
+      var map = { '1': 'true_alarm', '2': 'false_alarm', '3': 'duplicate' };
+      if (map[e.key]) {
+        var card = document.querySelector('input[name="judgeResult"][value="' + map[e.key] + '"]').closest('.radio-card');
+        switchJudge(map[e.key], card);
+      }
+    });
+  </script>
+
+</body>
+</html>

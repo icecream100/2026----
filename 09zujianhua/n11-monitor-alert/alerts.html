@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>布控预警 - N11 布控预警</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../assets/proto.css">
+  <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; font-size: 14px; color: var(--ant-text); background: var(--ant-bg); overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--ant-bg); }
+    ::-webkit-scrollbar-thumb { background: var(--ant-border-color); border-radius: 3px; }
+
+    /* Top Nav */
+    .top-nav { height: 52px; background: #fff; border-bottom: 1px solid var(--ant-border-secondary); display: flex; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 200; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .top-nav .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; color: var(--ant-text); }
+    .top-nav .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--ant-primary), #9254de); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ant-text-tertiary); margin-left: 24px; }
+    .breadcrumb a { color: var(--ant-text-tertiary); text-decoration: none; transition: color 0.2s; }
+    .breadcrumb a:hover { color: var(--ant-primary); }
+    .breadcrumb .sep { color: var(--ant-text-tertiary); }
+    .breadcrumb .current { color: var(--ant-text-secondary); }
+
+    /* Layout (Ant Design style) */
+    .ant-layout-header { height: 52px; background: #ffffff; border-bottom: 1px solid var(--ant-border-secondary); display: flex; align-items: center; padding: 0 20px; position: sticky; top: 0; z-index: 200; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .ant-layout-sider { width: 208px; background: #ffffff; border-right: 1px solid var(--ant-border-secondary); flex-shrink: 0; overflow-y: auto; }
+    .ant-menu { padding: 8px 0; }
+    .ant-menu-item { display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 16px; margin: 4px 12px; font-size: 14px; border-radius: 4px; cursor: pointer; transition: all 0.2s; text-decoration: none; color: var(--ant-text); }
+    .ant-menu-item:hover { background: rgba(0,0,0,0.06); }
+    .ant-menu-item-selected { background: var(--ant-primary-bg); color: var(--ant-primary); }
+    .ant-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ant-text-tertiary); }
+    .ant-breadcrumb a { color: var(--ant-text-tertiary); text-decoration: none; }
+    .ant-breadcrumb a:hover { color: var(--ant-primary); }
+
+    /* Buttons */
+    .ant-btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; font-size: 13px; border: 1px solid var(--ant-border-color); border-radius: var(--radius-sm); background: var(--ant-bg-container); color: var(--ant-text); cursor: pointer; transition: all 0.2s; white-space: nowrap; box-shadow: 0 2px 0 rgba(0,0,0,0.02); }
+    .ant-btn:hover { border-color: var(--ant-primary); color: var(--ant-primary); }
+    .ant-btn-primary { background: var(--ant-primary); border-color: var(--ant-primary); color: #fff; box-shadow: 0 2px 0 rgba(5,145,255,0.1); }
+    .ant-btn-primary:hover { background: var(--ant-primary-hover); border-color: var(--ant-primary-hover); color: #fff; }
+    .ant-btn-danger { background: var(--ant-bg-container); border-color: var(--ant-danger); color: var(--ant-danger); }
+    .ant-btn-danger:hover { background: var(--ant-danger); color: #fff; border-color: var(--ant-danger); }
+    .ant-btn-sm { height: 24px; padding: 0 8px; font-size: 12px; }
+    .ant-btn-success-outline { border-color: var(--ant-success); color: var(--ant-success); background: var(--ant-bg-container); }
+    .ant-btn-success-outline:hover { background: var(--ant-success); color: #fff; border-color: var(--ant-success); }
+
+    /* Inputs */
+    .ant-input { height: 32px; padding: 0 12px; font-size: 13px; border: 1px solid var(--ant-border-color); border-radius: var(--radius-sm); background: var(--ant-bg-container); color: var(--ant-text); outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; }
+    .ant-input:focus { border-color: var(--ant-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .ant-input::placeholder { color: var(--ant-text-tertiary); }
+    .ant-select { height: 32px; padding: 0 28px 0 12px; font-size: 13px; border: 1px solid var(--ant-border-color); border-radius: var(--radius-sm); background: var(--ant-bg-container); color: var(--ant-text); outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23bfbfbf' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; transition: border-color 0.2s, box-shadow 0.2s; }
+    .ant-select:focus { border-color: var(--ant-primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .ant-select option { background: var(--ant-bg-container); color: var(--ant-text); }
+
+    /* Table */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th { padding: 12px 14px; text-align: left; font-weight: 600; color: var(--ant-text-secondary); background: #fafafa; border-bottom: 1px solid var(--ant-border-secondary); white-space: nowrap; font-size: 13px; }
+    .data-table td { padding: 12px 14px; border-bottom: 1px solid var(--ant-border-secondary); vertical-align: middle; }
+    .data-table tbody tr { transition: background 0.15s; }
+    .data-table tbody tr:hover { background: rgba(22,119,255,0.04); }
+
+    /* Tags */
+    .ant-tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; font-size: 12px; border-radius: var(--radius-sm); border: 1px solid; white-space: nowrap; line-height: 20px; }
+    .ant-tag-green { background: #f6ffed; border-color: #b7eb8f; color: #52c41a; }
+    .ant-tag-blue { background: #e6f4ff; border-color: #91caff; color: #1677ff; }
+    .ant-tag-gray { background: #f5f5f5; border-color: #d9d9d9; color: var(--ant-text-tertiary); }
+    .ant-tag-orange { background: #fff7e6; border-color: #ffd591; color: #fa8c16; }
+    .ant-tag-red { background: #fff2f0; border-color: #ffccc7; color: #ff4d4f; }
+    .ant-tag-purple { background: #f9f0ff; border-color: #d3adf7; color: #722ed1; }
+    .ant-tag-cyan { background: #e6fffb; border-color: #b5f5ec; color: #13c2c2; }
+
+    /* Modal */
+    .ant-modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(2px); display: none; z-index: 500; }
+    .ant-modal-mask.active { display: flex; align-items: flex-start; justify-content: center; padding-top: 60px; overflow-y: auto; }
+    .ant-modal { background: var(--ant-bg-container); border: 1px solid var(--ant-border-secondary); border-radius: var(--radius-md); box-shadow: 0 6px 16px 0 rgba(0,0,0,0.08), 0 3px 6px -4px rgba(0,0,0,0.12), 0 9px 28px 8px rgba(0,0,0,0.05); width: 720px; max-width: 92vw; margin-bottom: 40px; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--ant-border-secondary); }
+    .modal-header h3 { font-size: 15px; font-weight: 600; color: var(--ant-text); }
+    .modal-close { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); cursor: pointer; color: var(--ant-text-tertiary); transition: all 0.2s; background: transparent; border: none; }
+    .modal-close:hover { background: rgba(0,0,0,0.06); color: var(--ant-text); }
+    .modal-body { padding: 20px; max-height: 78vh; overflow-y: auto; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--ant-border-secondary); }
+
+    /* Pagination */
+    .pagination { display: flex; align-items: center; gap: 4px; justify-content: flex-end; margin-top: 16px; }
+    .page-item { min-width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--ant-border-color); border-radius: var(--radius-sm); cursor: pointer; padding: 0 8px; font-size: 13px; background: var(--ant-bg-container); color: var(--ant-text-secondary); transition: all 0.2s; }
+    .page-item:hover { border-color: var(--ant-primary); color: var(--ant-primary); }
+    .page-item.active { background: var(--ant-primary); border-color: var(--ant-primary); color: #fff; }
+    .page-info { font-size: 12px; color: var(--ant-text-tertiary); margin-right: 8px; }
+
+    /* Cards */
+    .card { background: var(--ant-bg-container); border: 1px solid var(--ant-border-secondary); border-radius: var(--radius-md); overflow: hidden; }
+
+    /* Stat card */
+    .stat-card { background: var(--ant-bg-container); border: 1px solid var(--ant-border-secondary); border-radius: var(--radius-md); padding: 16px; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02); }
+
+    /* Toast */
+    .toast-container { position: fixed; top: 60px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 10px 16px; border-radius: var(--radius-sm); font-size: 13px; color: #fff; animation: toastIn 0.3s ease; box-shadow: 0 6px 16px 0 rgba(0,0,0,0.08); display: flex; align-items: center; gap: 8px; }
+    .toast-success { background: var(--ant-success); }
+    .toast-error { background: var(--ant-danger); }
+    .toast-warning { background: var(--ant-warning); }
+    .toast-info { background: var(--ant-primary); }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(30px); } }
+
+    /* Divider */
+    .divider { height: 1px; background: var(--ant-border-secondary); margin: 16px 0; }
+
+    /* Timeline */
+    .timeline { position: relative; padding-left: 20px; }
+    .timeline::before { content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: #f0f0f0; border-radius: 1px; }
+    .timeline-item { position: relative; padding-bottom: 16px; display: flex; align-items: flex-start; gap: 14px; }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-dot { position: absolute; left: -20px; top: 4px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid #d9d9d9; background: #fff; z-index: 1; box-sizing: border-box; }
+    .timeline-dot.active { border-color: #1677ff; background: #1677ff; box-shadow: 0 0 0 4px rgba(22,119,255,0.12); }
+    .timeline-dot.resolved { border-color: #52c41a; background: #52c41a; }
+    .timeline-dot.ignored { border-color: #faad14; background: #faad14; }
+    .timeline-time { font-size: 12px; color: rgba(0,0,0,0.45); white-space: nowrap; min-width: 140px; padding-top: 1px; }
+    .timeline-body { flex: 1; background: #fafafa; border: 1px solid #f0f0f0; border-radius: 6px; padding: 8px 12px; }
+    .timeline-body.active-body { background: #e6f4ff; border-color: #91caff; }
+    .timeline-loc { font-size: 13px; font-weight: 500; color: rgba(0,0,0,0.88); margin-bottom: 2px; }
+    .timeline-meta { font-size: 12px; color: rgba(0,0,0,0.45); display: flex; gap: 12px; align-items: center; }
+    .timeline-sim { font-weight: 600; color: var(--ant-text-secondary); }
+
+    /* Detail modal */
+    .sec-title { font-size: 13px; font-weight: 600; color: var(--ant-text-secondary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+    .capture-img { width: 100%; aspect-ratio: 16/9; background: var(--ant-bg); border: 1px dashed var(--ant-border-color); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--ant-text-tertiary); }
+    .info-grid { display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; font-size: 13px; }
+    .info-label { color: var(--ant-text-tertiary); white-space: nowrap; }
+    .info-label::after { content: '：'; }
+    .info-val { color: var(--ant-text); }
+    .video-box { background: #000; border-radius: 8px; height: 320px; flex-shrink: 0; margin: auto 0; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .video-overlay { position: absolute; top: 12px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 12px; }
+    .video-overlay.left { left: 12px; }
+    .video-overlay.right { right: 12px; background: rgba(245,34,45,0.85); }
+    .video-controls { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+    .play-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--ant-border-color); background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--ant-text); }
+    .play-btn:hover { border-color: var(--ant-primary); color: var(--ant-primary); }
+    .progress-track { flex: 1; height: 6px; background: var(--ant-border-secondary); border-radius: 3px; position: relative; }
+    .progress-fill { height: 100%; background: var(--ant-primary); border-radius: 3px; width: 45%; }
+    .progress-mark { position: absolute; top: 50%; left: 45%; width: 3px; height: 14px; background: var(--ant-danger); transform: translate(-50%,-50%); border-radius: 1px; }
+    .radio-card { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border: 1px solid var(--ant-border-color); border-radius: 6px; cursor: pointer; font-size: 14px; transition: all 0.2s; user-select: none; }
+    .radio-card:hover { border-color: var(--ant-primary); }
+    .radio-card.active { border-color: var(--ant-primary); background: #e6f4ff; }
+    .radio-card .radio-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--ant-border-color); display: inline-block; position: relative; flex-shrink: 0; }
+    .radio-card.active .radio-dot { border-color: var(--ant-primary); }
+    .radio-card.active .radio-dot::after { content: ''; position: absolute; top: 3px; left: 3px; width: 6px; height: 6px; border-radius: 50%; background: var(--ant-primary); }
+    .opt-chip { display: inline-flex; align-items: center; padding: 6px 14px; border: 1px solid var(--ant-border-color); border-radius: 4px; cursor: pointer; font-size: 13px; transition: all 0.2s; user-select: none; }
+    .opt-chip:hover { border-color: var(--ant-primary); color: var(--ant-primary); }
+    .opt-chip.active { border-color: var(--ant-primary); background: #e6f4ff; color: var(--ant-primary); font-weight: 500; }
+    .record-card { background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 8px; padding: 16px; margin-bottom: 16px; display: none; }
+    .record-card.show { display: block; }
+    .record-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; font-size: 13px; }
+    .record-grid .rl { color: var(--ant-text-tertiary); }
+    .record-grid .rv { color: var(--ant-text); }
+
+    /* Count badge */
+    .count-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; font-size: 11px; font-weight: 600; }
+  </style>
+</head>
+<body class="theme-n11">
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="proto-layout">
+
+  <header class="proto-topbar">
+    <div class="logo">
+      <div class="logo-icon"><i class="fa-solid fa-video"></i></div>
+      <span>视频云平台</span>
+    </div>
+    <span class="comp-badge">N11 布控预警</span>
+    <div class="topbar-breadcrumb">
+      <span>布控预警</span><span class="sep">/</span><span class="current">布控预警</span>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-bell" onclick="showToast('info','您有 2 条新告警通知')">
+        <i class="fa-regular fa-bell"></i>
+        <span class="bell-dot">2</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <div class="topbar-avatar">张</div>
+        <span style="font-size:13px;color:var(--ant-text-secondary);">张工程师</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="proto-body">
+
+    <aside class="proto-sider">
+      <div class="sider-group"><i class="fa-solid fa-shield-halved"></i>布控预警</div>
+      <nav class="proto-menu">
+        <a href="library.html" class="proto-menu-item"><i class="fa-solid fa-database"></i>目标库</a>
+        <a href="list.html" class="proto-menu-item"><i class="fa-solid fa-crosshairs"></i>布控任务</a>
+        <a href="alerts.html" class="proto-menu-item active"><i class="fa-solid fa-bell"></i>布控预警<span class="menu-count">2</span></a>
+        <a href="analysis-devices.html" class="proto-menu-item"><i class="fa-solid fa-microchip"></i>分析接入管理</a>
+      </nav>
+    </aside>
+
+    <main class="proto-main">
+      <div class="proto-content">
+
+    <!-- Stat Cards Row -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px;">
+      <!-- Card 1: Active Tasks -->
+      <div class="stat-card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:36px;height:36px;background:rgba(22,119,255,0.1);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-crosshairs" style="color:var(--ant-primary);font-size:16px;"></i>
+          </div>
+          <div style="font-size:12px;color:var(--ant-text-tertiary);">当前进行中任务数</div>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:12px;">
+          <div style="font-size:36px;font-weight:700;color:var(--ant-primary);line-height:1;">3</div>
+          <div style="display:flex;gap:8px;padding-bottom:6px;">
+            <span class="ant-tag ant-tag-blue" style="font-size:11px;">人员 2</span>
+            <span class="ant-tag ant-tag-green" style="font-size:11px;">车辆 1</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--ant-text-tertiary);margin-top:6px;">个布控任务运行中</div>
+      </div>
+
+      <!-- Card 2: Today Alerts -->
+      <div class="stat-card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:36px;height:36px;background:rgba(250,173,20,0.1);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-bell" style="color:var(--ant-warning);font-size:16px;"></i>
+          </div>
+          <div style="font-size:12px;color:var(--ant-text-tertiary);">今日告警数</div>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:8px;">
+          <div style="font-size:36px;font-weight:700;color:var(--ant-warning);line-height:1;">12</div>
+          <div style="display:flex;align-items:center;gap:3px;font-size:13px;color:var(--ant-success);padding-bottom:4px;">
+            <i class="fa-solid fa-arrow-up" style="font-size:11px;"></i>+30%
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--ant-text-tertiary);margin-top:6px;">较昨日上升</div>
+      </div>
+
+      <!-- Card 3: Pending Alerts -->
+      <div class="stat-card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:36px;height:36px;background:rgba(255,77,79,0.1);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-triangle-exclamation" style="color:var(--ant-danger);font-size:16px;"></i>
+          </div>
+          <div style="font-size:12px;color:var(--ant-text-tertiary);">待处理告警数</div>
+        </div>
+        <div style="font-size:36px;font-weight:700;color:var(--ant-danger);line-height:1;">5</div>
+        <div style="font-size:12px;color:var(--ant-text-tertiary);margin-top:6px;">需要尽快处理</div>
+      </div>
+
+      <!-- Card 4: 7-Day Trend -->
+      <div class="stat-card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:36px;height:36px;background:rgba(22,119,255,0.1);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+            <i class="fa-solid fa-chart-line" style="color:var(--ant-primary);font-size:16px;"></i>
+          </div>
+          <div style="font-size:12px;color:var(--ant-text-tertiary);">近7天告警趋势</div>
+        </div>
+        <div style="background:var(--ant-bg);border:1px solid var(--ant-border-secondary);border-radius:var(--radius-sm);padding:8px 6px 4px;">
+          <svg width="100%" height="50" viewBox="0 0 260 50" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1677ff" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#1677ff" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="trendGrad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#52c41a" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#52c41a" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <polygon points="0,38 43,28 86,32 130,15 173,22 217,10 260,18 260,50 0,50" fill="url(#trendGrad)" opacity="0.4"/>
+            <polyline points="0,38 43,28 86,32 130,15 173,22 217,10 260,18" fill="none" stroke="#1677ff" stroke-width="2" stroke-linejoin="round"/>
+            <polygon points="0,42 43,40 86,38 130,35 173,37 217,33 260,30 260,50 0,50" fill="url(#trendGrad2)" opacity="0.3"/>
+            <polyline points="0,42 43,40 86,38 130,35 173,37 217,33 260,30" fill="none" stroke="#52c41a" stroke-width="2" stroke-linejoin="round" stroke-dasharray="4 2"/>
+            <circle cx="0" cy="38" r="2.5" fill="#1677ff"/>
+            <circle cx="43" cy="28" r="2.5" fill="#1677ff"/>
+            <circle cx="86" cy="32" r="2.5" fill="#1677ff"/>
+            <circle cx="130" cy="15" r="2.5" fill="#1677ff"/>
+            <circle cx="173" cy="22" r="2.5" fill="#1677ff"/>
+            <circle cx="217" cy="10" r="2.5" fill="#1677ff"/>
+            <circle cx="260" cy="18" r="2.5" fill="#1677ff"/>
+            <circle cx="0" cy="42" r="2" fill="#52c41a"/>
+            <circle cx="43" cy="40" r="2" fill="#52c41a"/>
+            <circle cx="86" cy="38" r="2" fill="#52c41a"/>
+            <circle cx="130" cy="35" r="2" fill="#52c41a"/>
+            <circle cx="173" cy="37" r="2" fill="#52c41a"/>
+            <circle cx="217" cy="33" r="2" fill="#52c41a"/>
+            <circle cx="260" cy="30" r="2" fill="#52c41a"/>
+          </svg>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:9px;color:var(--ant-text-tertiary);margin-top:2px;">
+            <div style="display:flex;gap:10px;">
+              <span><span style="display:inline-block;width:10px;height:2px;background:#1677ff;vertical-align:middle;margin-right:2px;"></span>人员</span>
+              <span><span style="display:inline-block;width:10px;height:2px;background:#52c41a;vertical-align:middle;margin-right:2px;border-top:1px dashed #52c41a;"></span>车辆</span>
+            </div>
+            <div style="display:flex;gap:14px;">
+              <span>05-23</span><span>05-24</span><span>05-25</span><span>05-26</span><span>05-27</span><span>05-28</span><span>05-29</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="card" style="padding:12px 16px;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <select class="ant-select" id="filterTargetType" style="width:110px;">
+          <option value="">全部类型</option>
+          <option value="人员">人员</option>
+          <option value="车辆">车辆</option>
+        </select>
+        <select class="ant-select" id="filterStatus" style="width:140px;">
+          <option value="">全部状态</option>
+          <option value="待处理">待处理</option>
+          <option value="已归档">已归档</option>
+        </select>
+        <select class="ant-select" id="filterLevel" style="width:130px;">
+          <option value="">全部级别</option>
+          <option value="high">高危</option>
+          <option value="medium">中危</option>
+          <option value="low">低危</option>
+        </select>
+        <select class="ant-select" id="filterTime" style="width:140px;">
+          <option value="1h">近1小时</option>
+          <option value="6h">近6小时</option>
+          <option value="24h" selected>近24小时</option>
+          <option value="7d">近7天</option>
+        </select>
+        <input type="text" class="ant-input" id="filterKeyword" style="width:180px;" placeholder="搜索点位名称...">
+        <button class="ant-btn ant-btn-primary" onclick="doFilter()"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+        <button class="ant-btn" onclick="resetFilter()"><i class="fa-solid fa-rotate-right"></i>重置</button>
+      </div>
+    </div>
+
+    <!-- Alert Table -->
+    <div class="card" style="padding:0;">
+      <div style="overflow-x:auto;">
+        <table class="data-table" id="alertTable">
+          <thead>
+            <tr>
+              <th>告警编号</th>
+              <th>布控任务</th>
+              <th>目标类型</th>
+              <th>抓拍缩略图</th>
+              <th>抓拍时间</th>
+              <th>点位名称</th>
+              <th>匹配信息</th>
+              <th>告警级别</th>
+              <th>处理状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="alertBody"></tbody>
+        </table>
+      </div>
+      <div style="padding:12px 16px;border-top:1px solid var(--ant-border-secondary);">
+        <div class="pagination" id="alertPagination"></div>
+      </div>
+    </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ==================== P-007: Alert Detail Modal ==================== -->
+<div class="ant-modal-mask" id="alertDetailModal">
+  <div class="ant-modal" style="width:960px;">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-shield-halved" style="color:var(--ant-danger);margin-right:8px;"></i>布控告警详情</h3>
+      <button class="modal-close" onclick="closeAlertDetail()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="alertDetailBody">
+      <div style="display:flex;gap:24px;align-items:stretch;">
+        <div style="width:300px;flex-shrink:0;display:flex;flex-direction:column;">
+          <div class="sec-title"><i class="fa-solid fa-camera" style="color:var(--ant-primary);"></i>抓拍图片 <span style="font-weight:400;font-size:12px;color:var(--ant-text-tertiary);margin-left:auto;">命中瞬间抓拍</span></div>
+          <div class="capture-img" style="margin-bottom:16px;">
+            <i id="detailImageIcon" class="fa-solid fa-user" style="font-size:32px;"></i>
+            <span style="font-size:12px;">点击查看大图</span>
+          </div>
+          <div id="detailPlateArea" style="display:none;margin-bottom:12px;padding:10px;background:var(--ant-bg);border:1px solid var(--ant-border-secondary);border-radius:var(--radius-md);text-align:center;">
+            <div style="font-size:11px;color:var(--ant-text-tertiary);margin-bottom:6px;">车牌特写</div>
+            <div style="height:40px;background:#fff;border:2px solid var(--ant-primary);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--ant-primary);letter-spacing:2px;" id="detailPlateText">京A·88888</div>
+          </div>
+          <div class="info-grid">
+            <span class="info-label">布控任务</span><span class="info-val"><a href="javascript:void(0)" id="detailTaskLink" style="color:var(--ant-primary);font-weight:600;text-decoration:none;" onclick="showToast('info','跳转到任务详情')">-</a></span>
+            <span class="info-label">告警编号</span><span class="info-val" id="detailAlertId" style="font-family:monospace;">-</span>
+            <span class="info-label">抓拍时间</span><span class="info-val" id="detailCaptureTime">-</span>
+            <span class="info-label">点位名称</span><span class="info-val" id="detailLocation">-</span>
+            <span class="info-label" id="detailMatchLabel">相似度</span><span class="info-val" id="detailSimilarity" style="font-weight:700;font-size:18px;">-</span>
+            <span class="info-label">状态</span><span class="info-val" id="detailStatus">-</span>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+          <div class="sec-title"><i class="fa-solid fa-video" style="color:var(--ant-primary);"></i>录像预览 <span style="font-weight:400;font-size:12px;color:var(--ant-text-tertiary);margin-left:auto;">事件前后各15秒（共30秒）</span></div>
+          <div class="video-box">
+            <div style="text-align:center;color:rgba(255,255,255,0.6);">
+              <i class="fa-solid fa-play-circle" style="font-size:48px;margin-bottom:12px;display:block;cursor:pointer;"></i>
+              <div style="font-size:14px;">点击播放录像</div>
+            </div>
+            <div class="video-overlay left" id="videoLocation"><i class="fa-solid fa-location-dot" style="margin-right:4px;"></i>-</div>
+            <div class="video-overlay right"><i class="fa-solid fa-circle" style="font-size:8px;margin-right:4px;"></i>事件时间点</div>
+          </div>
+          <div class="video-controls" style="margin-top:auto;">
+            <button class="play-btn" onclick="var i=this.querySelector('i');i.classList.toggle('fa-play');i.classList.toggle('fa-pause')"><i class="fa-solid fa-play"></i></button>
+            <div class="progress-track">
+              <div class="progress-fill"></div>
+              <div class="progress-mark" title="事件时间点"></div>
+            </div>
+            <span style="font-size:12px;color:var(--ant-text-tertiary);white-space:nowrap;">-15s / +15s</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div id="handleSection">
+        <!-- 第一行：告警判定 -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <label style="margin-bottom:0;white-space:nowrap;width:72px;text-align:right;font-size:13px;font-weight:500;color:var(--ant-text-secondary);">告警判定 <span style="color:var(--ant-danger);">*</span></label>
+          <label class="radio-card active" onclick="switchJudge('true_alarm', this)"><input type="radio" name="judgeResult" value="true_alarm" checked style="display:none;"><span class="radio-dot"></span><span>属实</span></label>
+          <label class="radio-card" onclick="switchJudge('false_alarm', this)"><input type="radio" name="judgeResult" value="false_alarm" style="display:none;"><span class="radio-dot"></span><span>误报</span></label>
+          <label class="radio-card" onclick="switchJudge('duplicate', this)"><input type="radio" name="judgeResult" value="duplicate" style="display:none;"><span class="radio-dot"></span><span>重复</span></label>
+        </div>
+
+        <!-- 第二行：处置方式（仅判定为「属实」时展示并必填） -->
+        <div id="actionSection" style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <label style="margin-bottom:0;white-space:nowrap;width:72px;text-align:right;font-size:13px;font-weight:500;color:var(--ant-text-secondary);">处置方式 <span style="color:var(--ant-danger);">*</span></label>
+          <label class="opt-chip active" onclick="selectChip(this)"><input type="radio" name="actionType" value="notify_security" checked style="display:none;">通知安保</label>
+          <label class="opt-chip" onclick="selectChip(this)"><input type="radio" name="actionType" value="on_site" style="display:none;">现场核实</label>
+          <label class="opt-chip" onclick="selectChip(this)"><input type="radio" name="actionType" value="to_police" style="display:none;">转交警方</label>
+          <label class="opt-chip" onclick="selectChip(this)"><input type="radio" name="actionType" value="confirm_safe" style="display:none;">确认安全</label>
+        </div>
+
+        <!-- 第三行：备注 -->
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;">
+          <label style="margin-bottom:0;white-space:nowrap;width:72px;text-align:right;padding-top:8px;font-size:13px;font-weight:500;color:var(--ant-text-secondary);">处理备注</label>
+          <input type="text" class="ant-input" id="handleNote" placeholder="请输入补充说明（选填）..." maxlength="200" style="height:36px;flex:1;">
+        </div>
+
+        <!-- 第五行：按钮 -->
+        <div style="display:flex;gap:8px;padding-left:84px;">
+          <button class="ant-btn ant-btn-primary" onclick="confirmHandle()"><i class="fa-solid fa-check"></i>确认并归档</button>
+          <button class="ant-btn" onclick="resetHandle()"><i class="fa-solid fa-rotate-left"></i>取消</button>
+        </div>
+        <div style="padding-left:84px;margin-top:8px;font-size:12px;color:var(--ant-text-tertiary);">快捷键：1-3 选判定 · Enter 归档 · Esc 取消（备注输入时数字键为输入）</div>
+      </div>
+
+      <div class="record-card" id="recordCard">
+        <div style="font-size:14px;font-weight:600;color:var(--ant-success);margin-bottom:12px;">
+          <i class="fa-solid fa-circle-check" style="margin-right:6px;"></i>处置记录
+        </div>
+        <div class="record-grid">
+          <div><span class="rl">归档时间：</span><span class="rv" id="recTime">-</span></div>
+          <div><span class="rl">归档人：</span><span class="rv" id="recordHandler">张工程师</span></div>
+          <div><span class="rl">告警判定：</span><span class="rv" id="recJudge">-</span></div>
+          <div><span class="rl">处置方式：</span><span class="rv" id="recAction">—</span></div>
+          <div><span class="rl">处理备注：</span><span class="rv" id="recNote">-</span></div>
+          <div><span class="rl">归档编号：</span><span class="rv" id="recArchive">-</span></div>
+          <div><span class="rl">归档状态：</span><span class="rv" id="recState">已归档</span></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div>
+        <div class="sec-title"><i class="fa-solid fa-clock-rotate-left" style="color:var(--ant-primary);"></i>最近告警时间线</div>
+        <div class="timeline" id="detailTimeline">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="ant-btn" onclick="closeAlertDetail()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== Sidebar Group Toggle ====================
+function toggleSidebarGroup(el) {
+  const items = el.nextElementSibling;
+  const icon = el.querySelector('i:last-child');
+  items.classList.toggle('collapsed');
+  icon.classList.toggle('expanded');
+}
+
+// ==================== Mock Data ====================
+const alerts = [
+  { id: 'ALT-20260529-0001', taskId: 'BK-20260529-001', taskName: '嫌疑人A布控', type: '人员', time: '2026-05-29 14:23:15', location: '东区-入口-C003', camCode: 'CAM-E-003', similarity: 91.2, matchInfo: '相似度 91.2%',  alertLevel: 'high',status: '待处理', attrs: ['男性','上衣：深色夹克','下装：黑色长裤'] },
+  { id: 'ALT-20260529-0002', taskId: 'BK-20260529-001', taskName: '嫌疑人A布控', type: '人员', time: '2026-05-29 12:05:33', location: '南区-路口-C017', camCode: 'CAM-S-017', similarity: 88.7, matchInfo: '相似度 88.7%',  alertLevel: 'high',status: '已归档', attrs: ['男性','上衣：灰色卫衣','下装：蓝色牛仔裤'], handleNote: '已通知东区安保到场核查，确认人员已离开现场。', handledAt: '2026-05-29 12:12:48', handler: '张工程师', archiveNo: 'ARC-20260529-0002', judgeResult: 'true_alarm', actionType: 'notify_security' },
+  { id: 'ALT-20260529-0003', taskId: 'BK-20260529-002', taskName: '重点人员监控', type: '人员', time: '2026-05-29 10:18:42', location: '北区-大门-C010', camCode: 'CAM-N-010', similarity: 82.3, matchInfo: '相似度 82.3%',  alertLevel: 'medium',status: '待处理', attrs: ['女性','上衣：白色衬衫','下装：黑色短裙'] },
+  { id: 'ALT-20260528-0004', taskId: 'BK-20260528-003', taskName: '协查通报-张某', type: '人员', time: '2026-05-28 15:30:05', location: '西区-车场-C015', camCode: 'CAM-W-015', similarity: 93.1, matchInfo: '相似度 93.1%',  alertLevel: 'medium',status: '已归档', attrs: ['男性','上衣：黑色西装','下装：深色西裤'], handleNote: '该人员已登记为园区施工人员，本次告警忽略。', handledAt: '2026-05-28 15:36:10', handler: '张工程师', archiveNo: 'ARC-20260528-0004', judgeResult: 'false_alarm', actionType: null },
+  { id: 'ALT-20260528-0005', taskId: 'BK-20260528-003', taskName: '协查通报-张某', type: '人员', time: '2026-05-28 09:15:22', location: '中央-广场-C005', camCode: 'CAM-C-005', similarity: 87.5, matchInfo: '相似度 87.5%',  alertLevel: 'medium',status: '已归档', attrs: ['男性','上衣：红色冲锋衣','下装：卡其色休闲裤'], handleNote: '5分钟内同目标重复命中，按去重口径归档。', handledAt: '2026-05-28 09:18:03', handler: '张工程师', archiveNo: 'ARC-20260528-0005', judgeResult: 'duplicate', actionType: null },
+  { id: 'ALT-20260529-0006', taskId: 'BK-20260529-006', taskName: '京A88888布控', type: '车辆', time: '2026-05-29 15:10:33', location: '东区-入口卡口-G003', camCode: 'GAT-E-003', similarity: 100, matchInfo: '车牌精确',  alertLevel: 'high',status: '待处理', attrs: ['车牌：京A·88888','车身颜色：黑色','车辆类型：轿车','品牌：奥迪','行驶方向：由东向西'] },
+  { id: 'ALT-20260529-0007', taskId: 'BK-20260529-007', taskName: '可疑车辆监控', type: '车辆', time: '2026-05-29 13:45:12', location: '南区-路口卡口-G017', camCode: 'GAT-S-017', similarity: 87.3, matchInfo: '特征 87.3%',  alertLevel: 'low',status: '已归档', attrs: ['车牌：沪B·66666','车身颜色：白色','车辆类型：SUV','品牌：宝马','行驶方向：由南向北'], handleNote: '现场核查后未发现异常，记录归档。', handledAt: '2026-05-29 13:51:26', handler: '张工程师', archiveNo: 'ARC-20260529-0007', judgeResult: 'false_alarm', actionType: null },
+];
+
+// ==================== Utility Functions ====================
+// ==================== Alert Handle Form (v5.3 单人闭环终稿) ====================
+var currentJudge = 'true_alarm';
+var currentAlertIndex = -1;
+
+// 切换告警判定：属实→展示处置方式；误报/重复→隐藏处置方式（action_type=null 不校验）
+function switchJudge(type, el) {
+  currentJudge = type;
+  document.querySelectorAll('.radio-card').forEach(function(c) { c.classList.remove('active'); });
+  el.classList.add('active');
+  el.querySelector('input').checked = true;
+  var actionSec = document.getElementById('actionSection');
+  if (type === 'true_alarm') {
+    actionSec.style.display = 'flex';
+  } else {
+    actionSec.style.display = 'none';
+    document.querySelectorAll('input[name="actionType"]').forEach(function(r) { r.checked = false; });
+    document.querySelectorAll('#actionSection .opt-chip').forEach(function(c) { c.classList.remove('active'); });
+  }
+}
+
+function selectChip(el) {
+  document.querySelectorAll('.opt-chip').forEach(function(c) { c.classList.remove('active'); });
+  el.classList.add('active');
+  el.querySelector('input').checked = true;
+}
+
+function resetHandle() {
+  currentJudge = 'true_alarm';
+  document.querySelectorAll('.radio-card').forEach(function(c) { c.classList.remove('active'); });
+  document.querySelectorAll('input[name="judgeResult"]').forEach(function(r) { r.checked = r.value === 'true_alarm'; });
+  var trueCard = document.querySelector('input[name="judgeResult"][value="true_alarm"]').closest('.radio-card');
+  if (trueCard) trueCard.classList.add('active');
+  document.getElementById('actionSection').style.display = 'flex';
+  document.querySelectorAll('.opt-chip').forEach(function(c) { c.classList.remove('active'); });
+  document.querySelectorAll('input[name="actionType"]').forEach(function(r) { r.checked = r.value === 'notify_security'; });
+  var notifyChip = document.querySelector('input[name="actionType"][value="notify_security"]').closest('.opt-chip');
+  if (notifyChip) notifyChip.classList.add('active');
+  document.getElementById('handleNote').value = '';
+}
+
+function confirmHandle() {
+  if (currentAlertIndex < 0) return;
+  var judgeRadio = document.querySelector('input[name="judgeResult"]:checked');
+  if (!judgeRadio) { alert('请选择告警判定'); return; }
+  var isTrue = judgeRadio.value === 'true_alarm';
+  var actionRadio = null;
+  if (isTrue) {
+    actionRadio = document.querySelector('input[name="actionType"]:checked');
+    if (!actionRadio) { alert('请选择处置方式（422）'); return; }
+  }
+  var note = document.getElementById('handleNote').value.trim() || '无';
+  var now = new Date();
+  var pad = function(n) { return String(n).padStart(2, '0'); };
+  // 归档编号由服务端生成（演示：ARC-YYYYMMDD-6位序列）
+  var archiveNo = 'ARC-' + now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate()) + '-' + String(Math.floor(Math.random()*900000+100000));
+  var ts = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+
+  var item = alerts[currentAlertIndex];
+  item.status = '已归档';
+  item.judgeResult = judgeRadio.value;
+  item.actionType = isTrue ? actionRadio.value : null;
+  item.handleNote = note;
+  item.handledAt = ts;
+  item.handler = '张工程师';
+  item.archiveNo = archiveNo;
+
+  showProcessRecord(item);
+  document.getElementById('detailStatus').innerHTML = '<span class="ant-tag ' + getStatusTag('已归档') + '">已归档</span>';
+  document.getElementById('handleSection').style.display = 'none';
+  document.getElementById('recordCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  renderTable(filteredData());
+  renderTimeline(currentAlertIndex);
+}
+
+function showProcessRecord(item) {
+  var judgeMap = { 'true_alarm': '属实', 'false_alarm': '误报', 'duplicate': '重复' };
+  var actionMap = { 'notify_security': '通知安保', 'on_site': '现场核实', 'to_police': '转交警方', 'confirm_safe': '确认安全' };
+  var judgeLabel = judgeMap[item.judgeResult] || '-';
+  var actionLabel = item.actionType ? (actionMap[item.actionType] || item.actionType) : '—';
+  document.getElementById('recTime').textContent = item.handledAt || '-';
+  document.getElementById('recordHandler').textContent = item.handler || '张工程师';
+  document.getElementById('recJudge').textContent = judgeLabel;
+  document.getElementById('recAction').textContent = actionLabel;
+  document.getElementById('recNote').textContent = item.handleNote || '无';
+  document.getElementById('recArchive').textContent = item.archiveNo ? item.archiveNo + '（' + (item.handledAt || '-') + '）' : '-';
+  document.getElementById('recState').textContent = '已归档';
+  document.getElementById('recordCard').classList.add('show');
+}
+
+function showToast(type, msg) {
+  const container = document.getElementById('toastContainer');
+  const icons = { success: 'fa-check-circle', error: 'fa-xmark-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+  const toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.innerHTML = '<i class="fa-solid ' + icons[type] + '"></i>' + msg;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'toastOut 0.3s ease forwards';
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
+}
+
+function getStatusTag(status) {
+  const map = { '待处理': 'ant-tag-orange', '已归档': 'ant-tag-green' };
+  return map[status] || 'ant-tag-gray';
+}
+
+function getTimeAgo(timeStr) {
+  const now = new Date('2026-05-29T15:00:00');
+  const t = new Date(timeStr.replace(' ', 'T'));
+  const diff = Math.floor((now - t) / 1000);
+  if (diff < 60) return diff + '秒前';
+  if (diff < 3600) return Math.floor(diff / 60) + '分钟前';
+  if (diff < 86400) return Math.floor(diff / 3600) + '小时前';
+  return Math.floor(diff / 86400) + '天前';
+}
+
+// ==================== Render Table ====================
+let currentPage = 1;
+const pageSize = 10;
+
+function renderTable(data) {
+  const tbody = document.getElementById('alertBody');
+  tbody.innerHTML = '';
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--ant-text-tertiary);"><i class="fa-solid fa-inbox" style="font-size:32px;display:block;margin-bottom:8px;opacity:0.5;"></i>暂无告警数据</td></tr>';
+    document.getElementById('alertPagination').innerHTML = '';
+    return;
+  }
+
+  data.forEach((item) => {
+    const idx = alerts.indexOf(item);
+    const statusTag = getStatusTag(item.status);
+    const typeTag = item.type === '车辆' ? '<span class="ant-tag ant-tag-green">车辆</span>' : '<span class="ant-tag ant-tag-blue">人员</span>';
+    const thumbIcon = item.type === '车辆' ? 'fa-car' : 'fa-user';
+    const matchDisplay = '<span style="font-weight:700;font-size:14px;color:var(--ant-text);">' + item.matchInfo + '</span>';
+    const levelTag = { high: '<span class="ant-tag ant-tag-red">高危</span>', medium: '<span class="ant-tag ant-tag-orange">中危</span>', low: '<span class="ant-tag ant-tag-blue">低危</span>' }[item.alertLevel] || '<span class="ant-tag ant-tag-gray">—</span>';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-family:monospace;font-size:12px;">${item.id}</td>
+      <td><a href="javascript:void(0)" style="color:var(--ant-primary);text-decoration:none;font-size:13px;" onclick="showToast('info','跳转到任务 ${item.taskId}')">${item.taskName}</a></td>
+      <td>${typeTag}</td>
+      <td>
+        <div style="width:60px;height:45px;background:linear-gradient(135deg,var(--ant-bg),#e6e6e6);border:1px solid var(--ant-border-secondary);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;">
+          <i class="fa-solid ${thumbIcon}" style="font-size:16px;color:var(--ant-text-tertiary);opacity:0.4;"></i>
+        </div>
+      </td>
+      <td style="white-space:nowrap;font-size:12px;">${item.time}</td>
+      <td>${item.location}</td>
+      <td>${matchDisplay}</td>
+      <td>${levelTag}</td>
+      <td><span class="ant-tag ${statusTag}">${item.status}</span></td>
+      <td>
+        <div style="display:flex;gap:4px;flex-wrap:nowrap;">
+          ${item.status === '待处理'
+            ? `<button class="ant-btn ant-btn-sm ant-btn-primary" onclick="openAlertDetail(${idx})" title="处理"><i class="fa-solid fa-check"></i>处理</button>`
+            : `<button class="ant-btn ant-btn-sm" onclick="openAlertDetail(${idx})" title="查看详情"><i class="fa-solid fa-eye"></i>查看详情</button>`}
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  renderPagination(data.length);
+}
+
+function renderPagination(total) {
+  const pag = document.getElementById('alertPagination');
+  const totalPages = Math.ceil(total / pageSize);
+  let html = `<span class="page-info">共 ${total} 条</span>`;
+  html += `<div class="page-item" onclick="goPage(${currentPage - 1})" style="opacity:${currentPage <= 1 ? 0.4 : 1};pointer-events:${currentPage <= 1 ? 'none' : 'auto'}"><i class="fa-solid fa-chevron-left" style="font-size:11px;"></i></div>`;
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<div class="page-item${i === currentPage ? ' active' : ''}" onclick="goPage(${i})">${i}</div>`;
+  }
+  html += `<div class="page-item" onclick="goPage(${currentPage + 1})" style="opacity:${currentPage >= totalPages ? 0.4 : 1};pointer-events:${currentPage >= totalPages ? 'none' : 'auto'}"><i class="fa-solid fa-chevron-right" style="font-size:11px;"></i></div>`;
+  pag.innerHTML = html;
+}
+
+function goPage(p) {
+  const totalPages = Math.ceil(filteredData().length / pageSize);
+  if (p < 1 || p > totalPages) return;
+  currentPage = p;
+  renderTable(filteredData());
+}
+
+// ==================== Filter ====================
+function filteredData() {
+  const status = document.getElementById('filterStatus').value;
+  const level = document.getElementById('filterLevel').value;
+  const targetType = document.getElementById('filterTargetType').value;
+  const keyword = document.getElementById('filterKeyword').value.trim().toLowerCase();
+
+  const result = alerts.filter(item => {
+    if (status && item.status !== status) return false;
+    if (level && item.alertLevel !== level) return false;
+    if (targetType && item.type !== targetType) return false;
+    if (keyword && !item.location.toLowerCase().includes(keyword)) return false;
+    return true;
+  });
+  // 排序：告警级别（高危优先）+ 触发时间倒序
+  const lv = { high: 0, medium: 1, low: 2 };
+  return result.sort((a, b) => (lv[a.alertLevel] ?? 1) - (lv[b.alertLevel] ?? 1) || (a.time < b.time ? 1 : -1));
+}
+
+function doFilter() {
+  currentPage = 1;
+  renderTable(filteredData());
+  showToast('info', '筛选完成，共 ' + filteredData().length + ' 条记录');
+}
+
+function resetFilter() {
+  document.getElementById('filterStatus').value = '';
+  document.getElementById('filterLevel').value = '';
+  document.getElementById('filterTargetType').value = '';
+  document.getElementById('filterTime').value = '24h';
+  document.getElementById('filterKeyword').value = '';
+  currentPage = 1;
+  renderTable(alerts);
+  showToast('info', '筛选条件已重置');
+}
+
+// ==================== Alert Detail Modal ====================
+function openAlertDetail(idx, action) {
+  const item = alerts[idx];
+  currentAlertIndex = idx;
+  resetHandle();
+  document.getElementById('handleSection').style.display = item.status === '待处理' ? 'block' : 'none';
+  document.getElementById('recordCard').classList.remove('show');
+  document.getElementById('detailTaskLink').textContent = item.taskId + ' ' + item.taskName;
+  document.getElementById('detailAlertId').textContent = item.id;
+  document.getElementById('detailCaptureTime').textContent = item.time;
+  document.getElementById('detailLocation').textContent = item.location;
+  document.getElementById('videoLocation').innerHTML = '<i class="fa-solid fa-location-dot" style="margin-right:4px;"></i>' + item.location;
+
+  const imageIcon = document.getElementById('detailImageIcon');
+  imageIcon.className = item.type === '车辆' ? 'fa-solid fa-car' : 'fa-solid fa-camera';
+
+  if (item.type === '车辆') {
+    const matchText = item.similarity === 100 ? '车牌精确' : '特征 ' + item.similarity + '%';
+    document.getElementById('detailSimilarity').textContent = matchText;
+    document.getElementById('detailMatchLabel').textContent = '匹配方式';
+    document.getElementById('detailPlateArea').style.display = 'block';
+    const plateAttr = item.attrs.find(a => a.startsWith('车牌：'));
+    const plateNum = plateAttr ? plateAttr.replace('车牌：', '') : item.taskName;
+    document.getElementById('detailPlateText').textContent = plateNum;
+  } else {
+    document.getElementById('detailSimilarity').textContent = item.similarity + '%';
+    document.getElementById('detailMatchLabel').textContent = '相似度';
+    document.getElementById('detailPlateArea').style.display = 'none';
+  }
+
+  const statusTag = getStatusTag(item.status);
+  document.getElementById('detailStatus').innerHTML = `<span class="ant-tag ${statusTag}">${item.status}</span>`;
+
+  renderTimeline(idx);
+
+  if (item.status !== '待处理') {
+    showProcessRecord(item);
+  }
+
+  document.getElementById('alertDetailModal').classList.add('active');
+}
+
+function renderTimeline(currentIdx) {
+  const timeline = document.getElementById('detailTimeline');
+  timeline.innerHTML = '';
+  const maxItems = Math.min(alerts.length, 5);
+  for (let i = 0; i < maxItems; i++) {
+    const a = alerts[i];
+    const isActive = i === currentIdx;
+    const dotClass = isActive ? 'active' : (a.status === '已归档' ? 'resolved' : '');
+    const statusTag = a.status === '待处理' ? '<span style="color:#ff4d4f;font-size:11px;background:#fff2f0;padding:1px 6px;border-radius:3px;">待处理</span>'
+      : '<span style="color:#52c41a;font-size:11px;background:#f6ffed;padding:1px 6px;border-radius:3px;">已归档</span>';
+    const div = document.createElement('div');
+    div.className = 'timeline-item';
+    div.innerHTML = `
+      <div class="timeline-dot ${dotClass}"></div>
+      <div class="timeline-time">${a.time.substring(5)}</div>
+      <div class="timeline-body${isActive ? ' active-body' : ''}">
+        <div class="timeline-loc">${a.location}</div>
+        <div class="timeline-meta">
+          <span class="timeline-sim">${a.matchInfo}</span>
+          ${statusTag}
+        </div>
+      </div>
+    `;
+    timeline.appendChild(div);
+  }
+}
+
+function closeAlertDetail() {
+  document.getElementById('alertDetailModal').classList.remove('active');
+}
+
+// ==================== Keyboard Events ====================
+// 快捷键（1-4 选判定 / Enter 归档 / Esc 取消；输入框 Focus Guard）
+document.addEventListener('keydown', function(e) {
+  var tag = (document.activeElement && document.activeElement.tagName) || '';
+  var inInput = tag === 'INPUT' || tag === 'TEXTAREA';
+  if (inInput) return; // Focus Guard：输入框内数字键/Enter 均为文本输入
+  var modalOpen = document.getElementById('alertDetailModal').classList.contains('active');
+  if (!modalOpen) return;
+  if (e.key === 'Escape') { resetHandle(); return; }
+  if (e.key === 'Enter') { confirmHandle(); return; }
+  var map = { '1': 'true_alarm', '2': 'false_alarm', '3': 'duplicate' };
+  if (map[e.key]) {
+    var card = document.querySelector('input[name="judgeResult"][value="' + map[e.key] + '"]').closest('.radio-card');
+    switchJudge(map[e.key], card);
+  }
+});
+
+// Click mask to close modal
+document.getElementById('alertDetailModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeAlertDetail();
+  }
+});
+
+// ==================== Init ====================
+renderTable(alerts);
+
+// Show alert bar after 5 seconds
+  </script>
+
+</body>
+</html>

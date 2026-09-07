@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>N9 轨迹查询 + N11 布控预警 — 原型导航</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/proto.css">
+  <style>
+    /* 导航页为滚动页，覆盖 proto 骨架的视口裁剪 */
+    body { height: auto; overflow: auto; }
+  </style>
+  <style>
+    /* Proto-UI 设计系统 — Ant Design 5.x 风格 */
+    :root {
+      /* 主色 */
+      --ant-primary: #1677ff;
+      --ant-primary-hover: #4096ff;
+      --ant-primary-active: #0958d9;
+      --ant-primary-bg: #e6f4ff;
+
+      /* 功能色 */
+      --ant-success: #52c41a;
+      --ant-warning: #faad14;
+      --ant-error: #ff4d4f;
+
+      /* 文字色 */
+      --ant-text: rgba(0,0,0,0.88);
+      --ant-text-secondary: rgba(0,0,0,0.65);
+      --ant-text-tertiary: rgba(0,0,0,0.45);
+      --ant-text-disabled: rgba(0,0,0,0.25);
+
+      /* 边框与背景 */
+      --ant-border: #d9d9d9;
+      --ant-border-secondary: #f0f0f0;
+      --ant-bg: #f5f5f5;
+      --ant-bg-container: #fff;
+
+      /* 圆角 */
+      --radius-base: 4px;
+      --radius-lg: 8px;
+
+      /* 阴影 */
+      --shadow-1: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+      --shadow-2: 0 3px 6px -4px rgba(0,0,0,0.12), 0 6px 16px 0 rgba(0,0,0,0.08), 0 9px 28px 8px rgba(0,0,0,0.05);
+
+      /* 动画 */
+      --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 14px; line-height: 22px;
+      background: var(--ant-bg); color: var(--ant-text);
+    }
+
+    /* 页面卡片 */
+    .page-card {
+      background: var(--ant-bg-container); border: 1px solid var(--ant-border-secondary); border-radius: var(--radius-lg);
+      padding: 24px; cursor: pointer; text-decoration: none; display: block;
+      color: inherit; transition: all 0.25s; position: relative; overflow: hidden;
+    }
+    .page-card:hover {
+      border-color: var(--ant-primary);
+      box-shadow: var(--shadow-2);
+      transform: translateY(-2px);
+    }
+
+    /* 徽章 */
+    .badge-new {
+      background: #fff1f0; color: var(--ant-error); border: 1px solid #ffa39e;
+      border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 500;
+    }
+    .badge-update {
+      background: #fff7e6; color: #d46b08; border: 1px solid #ffd591;
+      border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 500;
+    }
+
+    /* 区域标题栏 */
+    .section-bar { width: 4px; height: 18px; border-radius: 2px; display: inline-block; margin-right: 12px; }
+
+    /* 统计卡片 */
+    .stat-box {
+      background: var(--ant-bg-container); border: 1px solid var(--ant-border-secondary);
+      border-radius: var(--radius-lg); padding: 20px; text-align: center;
+    }
+
+    /* 表格 */
+    .ant-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .ant-table thead th {
+      background: #fafafa; padding: 12px 16px; text-align: left;
+      font-weight: 600; color: var(--ant-text-secondary);
+      border-bottom: 1px solid var(--ant-border-secondary);
+    }
+    .ant-table tbody td {
+      padding: 12px 16px; border-bottom: 1px solid var(--ant-border-secondary);
+      color: var(--ant-text);
+    }
+    .ant-table tbody tr:hover td { background: #fafafa; }
+
+    /* 标签 */
+    .ant-tag {
+      display: inline-flex; align-items: center;
+      height: 22px; padding: 0 7px; font-size: 12px;
+      border: 1px solid transparent; border-radius: var(--radius-base);
+    }
+    .ant-tag-blue { color: #1677ff; background: #e6f4ff; border-color: #91caff; }
+    .ant-tag-green { color: #52c41a; background: #f6ffed; border-color: #b7eb8f; }
+    .ant-tag-orange { color: #fa8c16; background: #fff7e6; border-color: #ffd591; }
+    .ant-tag-red { color: #f5222d; background: #fff1f0; border-color: #ffa39e; }
+    .ant-tag-purple { color: #722ed1; background: #f9f0ff; border-color: #d3adf7; }
+    .ant-tag-gray { color: var(--ant-text-tertiary); background: #fafafa; border-color: #d9d9d9; }
+
+    /* 顶部导航栏 */
+    .ant-layout-header {
+      height: 64px; background: var(--ant-bg-container);
+      border-bottom: 1px solid var(--ant-border-secondary);
+      display: flex; align-items: center; padding: 0 24px;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <!-- 顶部标题栏（与业务页统一骨架） -->
+  <header class="proto-topbar" style="height:64px;padding:0 24px;box-shadow:none;">
+    <div class="logo">
+      <div class="logo-icon"><i class="fa-solid fa-route"></i></div>
+      <span>视频云平台 · 原型导航</span>
+    </div>
+    <span class="comp-badge">N9 轨迹查询 + N11 布控预警</span>
+    <div class="topbar-breadcrumb">
+      <span>原型 v8.0 · 组件拆分（2026.08）· 两个独立组件</span>
+    </div>
+    <div class="topbar-right">
+      <span class="text-sm" style="color:var(--ant-text-tertiary);"><i class="fa-solid fa-calendar mr-1"></i>2026-08-24</span>
+      <span class="ant-tag ant-tag-green">
+        <i class="fa-solid fa-circle text-xs mr-1"></i>拆分后口径
+      </span>
+    </div>
+  </header>
+
+  <main class="p-8 max-w-6xl mx-auto">
+
+    <!-- 模块一：N9 轨迹查询 -->
+    <section class="mb-10">
+      <h2 class="text-base font-semibold mb-5 flex items-center" style="color: var(--ant-text-secondary);">
+        <span class="section-bar" style="background: var(--ant-primary);"></span>
+        N9 轨迹查询（找得到 · 事后研判）
+        <span class="ml-3 text-xs font-normal" style="color: var(--ant-text-tertiary);">特征检索 + 轨迹查询 + 多目标对比 + 报告导出 + 分析接入（轨迹分析）</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-5">
+
+        <!-- 人员轨迹查询 -->
+        <a href="n9-target-analysis/search.html" class="page-card">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-lg flex items-center justify-center" style="background: var(--ant-primary-bg);">
+                <i class="fa-solid fa-person text-lg" style="color: var(--ant-primary);"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-base">P-001 人员轨迹查询</div>
+                <div class="text-xs mt-1" style="color: var(--ant-text-tertiary);">搜索页 + 结果页</div>
+              </div>
+            </div>
+            <span class="badge-update">更新</span>
+          </div>
+          <p class="text-xs m-0 mb-3" style="color: var(--ant-text-tertiary); line-height: 1.8;">
+            以图搜人(ReID) / 文本搜人 / Tab切换 / 人工确认环节 / 左侧候选确认+右侧轨迹详情
+          </p>
+          <div class="flex gap-2 text-xs" style="color: var(--ant-text-tertiary);">
+            <span><i class="fa-solid fa-layer-group mr-1" style="color: var(--ant-primary);"></i>P-001A 搜索 + P-001B 结果</span>
+          </div>
+        </a>
+
+        <!-- 车辆轨迹查询 -->
+        <a href="n9-target-analysis/vehicle-search.html" class="page-card">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-lg flex items-center justify-center" style="background: #f6ffed;">
+                <i class="fa-solid fa-car text-lg" style="color: var(--ant-success);"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-base">P-002 车辆轨迹查询</div>
+                <div class="text-xs mt-1" style="color: var(--ant-text-tertiary);">搜索页 + 结果页</div>
+              </div>
+            </div>
+            <span class="badge-new">全新</span>
+          </div>
+          <p class="text-xs m-0 mb-3" style="color: var(--ant-text-tertiary); line-height: 1.8;">
+            以图搜车（AI识别车牌）/ 车牌号查询 / 条件检索 / 三Tab切换 / 绿色轨迹线
+          </p>
+          <div class="flex gap-2 text-xs" style="color: var(--ant-text-tertiary);">
+            <span><i class="fa-solid fa-layer-group mr-1" style="color: var(--ant-success);"></i>P-002A 搜索 + P-002B 结果</span>
+          </div>
+        </a>
+
+        <!-- 多目标对比 -->
+        <a href="n9-target-analysis/compare.html" class="page-card">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-lg flex items-center justify-center" style="background: #fff7e6;">
+                <i class="fa-solid fa-users-viewfinder text-lg" style="color: var(--ant-warning);"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-base">多目标对比</div>
+                <div class="text-xs mt-1" style="color: var(--ant-text-tertiary);">独立页面 · 进导航</div>
+              </div>
+            </div>
+            <span class="badge-new">全新</span>
+          </div>
+          <p class="text-xs m-0 mb-3" style="color: var(--ant-text-tertiary); line-height: 1.8;">
+            2-3人轨迹叠加对比 / 同行检测(5分钟同摄像头) / 接触检测(2分钟50米内) / 时空分析摘要
+          </p>
+          <div class="flex gap-2 text-xs" style="color: var(--ant-text-tertiary);">
+            <span><i class="fa-solid fa-chart-pie mr-1" style="color: var(--ant-warning);"></i>同行/接触标注</span>
+          </div>
+        </a>
+
+        <!-- 弹窗说明 -->
+        <div class="page-card" onclick="location.href='n9-target-analysis/video-preview.html'">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-lg flex items-center justify-center" style="background: #f0f5ff;">
+                <i class="fa-solid fa-window-restore text-lg" style="color: var(--ant-primary);"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-base">P-003~P-005 弹窗</div>
+                <div class="text-xs mt-1" style="color: var(--ant-text-tertiary);">P-004 视频预览 + P-005 导出配置</div>
+              </div>
+            </div>
+            <span class="badge-new">新增</span>
+          </div>
+          <p class="text-xs m-0 mb-3" style="color: var(--ant-text-tertiary); line-height: 1.8;">
+            P-003 抓拍记录详情弹窗 · P-004 视频预览弹窗 · P-005 轨迹导出配置弹窗<br>
+            人员/车辆详情差异化展示、录像回放、PDF报告生成
+          </p>
+          <div class="flex gap-2 text-xs" style="color: var(--ant-text-tertiary);">
+            <span><i class="fa-solid fa-video mr-1" style="color: var(--ant-primary);"></i>P-004</span>
+            <a href="n9-target-analysis/export-config.html" style="color: var(--ant-primary); text-decoration: none;"><i class="fa-solid fa-file-pdf mr-1"></i>P-005 导出配置</a>
+          </div>
+        </div>
+
+        <!-- 分析接入（轨迹分析） -->
+        <a href="n9-target-analysis/analysis-devices.html" class="page-card">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <div class="font-semibold text-base">P-013a 分析接入（轨迹分析）</div>
+              <div class="text-xs mt-1" style="color: var(--ant-text-tertiary);">N9 内部 · 仅管理员</div>
+            </div>
+            <span class="badge-update">拆分</span>
+          </div>
+          <p class="text-xs m-0 mb-3" style="color: var(--ant-text-tertiary);">轨迹分析开关 / 轨迹分析配额 / 录像可用标注 / 审计日志</p>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- 模块二：N11 布控预警 -->
+    <section class="mb-10">
+      <h2 class="text-base font-semibold mb-5 flex items-center" style="color: var(--ant-text-secondary);">
+        <span class="section-bar" style="background: var(--ant-error);"></span>
+        N11 布控预警（盯得住 · 事前防控）
+        <span class="ml-3 text-xs font-normal" style="color: var(--ant-text-tertiary);">目标库 + 布控任务 + 布控预警（告警） + 告警处理归档 + 分析接入（布控比对）</span>
+      </h2>
+      <div class="grid grid-cols-3 gap-5">
+
+        <!-- 目标库 -->
+        <a href="n11-monitor-alert/library.html" class="page-card">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-lg flex items-center justify-center" style="background: #f9f0ff;">
+                <i class="fa-solid fa-database text-lg" style="color: #722ed1;"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-base">P-006 目标库</div>
+                <div class="text-xs mt-1" style="color: var(--ant-text-tertiary);">独立页面 · 进导航</div>
+              </div>
+            </div>
+            <span class="badge-update">拆分</span>
+          </div>
+          <p class="text-xs m-0 mb-3" style="color: var(--ant-text-tertiary); line-height: 1.8;">
+            重点目标名单库（N11 权威数据）/ 人员+车辆统一管理 / 标签管理 / 从目标库布控
+          </p>
+          <div class="flex gap-2 text-xs" style="color: var(--ant-text-tertiary);">
+            <span><i class="fa-solid fa-users mr-1" style="color: #722ed1;"></i>供 N9 经 API 引用</span>
+          </div>
+        </a>
+
+        <!-- 布控任务 -->
+        <div class="page-card" onclick="location.href='n11-monitor-alert/list.html'">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-lg flex items-center justify-center" style="background: #fff1f0;">
+                <i class="fa-solid fa-shield-halved text-lg" style="color: var(--ant-error);"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-base">P-007 布控任务</div>
+                <div class="text-xs mt-1" style="color: var(--ant-text-tertiary);">独立页面 · 进导航</div>
+              </div>
+            </div>
+            <span class="badge-update">更新</span>
+          </div>
+          <p class="text-xs m-0 mb-3" style="color: var(--ant-text-tertiary); line-height: 1.8;">
+            快捷布控 + 从目标库布控（取消一键布控）/ 任务列表管理 / 新建/编辑弹窗
+          </p>
+          <div class="flex gap-2 text-xs" style="color: var(--ant-text-tertiary);">
+            <span><i class="fa-solid fa-layer-group mr-1" style="color: var(--ant-error);"></i>含 P-008/编辑</span>
+            <a href="n11-monitor-alert/task-edit.html" style="color: var(--ant-primary); text-decoration: none;"><i class="fa-solid fa-pen-to-square mr-1"></i>编辑弹窗</a>
+          </div>
+        </div>
+
+        <!-- 命中预警 -->
+        <a href="n11-monitor-alert/alerts.html" class="page-card">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-lg flex items-center justify-center" style="background: #fff7e6;">
+                <i class="fa-solid fa-bell text-lg" style="color: var(--ant-warning);"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-base">P-009 布控预警</div>
+                <div class="text-xs mt-1" style="color: var(--ant-text-tertiary);">独立页面 · 进导航</div>
+              </div>
+            </div>
+            <span class="badge-update">更新</span>
+          </div>
+          <p class="text-xs m-0 mb-3" style="color: var(--ant-text-tertiary); line-height: 1.8;">
+            告警统计（人员/车辆分线）/ 告警列表+级别筛选 / 告警处理与自动归档 / 实时通知条
+          </p>
+          <div class="flex gap-2 text-xs" style="color: var(--ant-text-tertiary);">
+            <span><i class="fa-solid fa-bell mr-1" style="color: var(--ant-warning);"></i>含 P-010 详情</span>
+          </div>
+        </a>
+
+        <!-- 分析接入（布控比对） -->
+        <a href="n11-monitor-alert/analysis-devices.html" class="page-card">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <div class="font-semibold text-base">P-013b 分析接入（布控比对）</div>
+              <div class="text-xs mt-1" style="color: var(--ant-text-tertiary);">N11 内部 · 仅管理员</div>
+            </div>
+            <span class="badge-update">拆分</span>
+          </div>
+          <p class="text-xs m-0 mb-3" style="color: var(--ant-text-tertiary);">布控比对开关 / 布控比对配额 / 关联任务数 / 审计日志</p>
+        </a>
+
+      </div>
+    </section>
+
+
+    <!-- 页面清单 -->
+    <section class="mb-10">
+      <h2 class="text-base font-semibold mb-5 flex items-center" style="color: var(--ant-text-secondary);">
+        <span class="section-bar" style="background: var(--ant-success);"></span>
+        页面清单（N9 轨迹查询 + N11 布控预警）
+      </h2>
+      <div style="background: var(--ant-bg-container); border: 1px solid var(--ant-border-secondary); border-radius: var(--radius-lg); overflow: hidden;">
+        <table class="ant-table">
+          <thead>
+            <tr>
+              <th>编号</th>
+              <th>页面名称</th>
+              <th>类型</th>
+              <th>所属组件</th>
+              <th>入口</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- N9 轨迹查询模块 -->
+            <tr>
+              <td style="color: var(--ant-primary); font-family: monospace;">P-001A</td>
+              <td>人员轨迹搜索页</td>
+              <td style="color: var(--ant-text-tertiary);">独立页面</td>
+              <td><span style="color: var(--ant-primary);">N9 轨迹查询</span></td>
+              <td style="color: var(--ant-text-tertiary);">轨迹查询 > 人员轨迹</td>
+              <td><span class="ant-tag ant-tag-green">已完成</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--ant-primary); font-family: monospace;">P-001B</td>
+              <td>人员轨迹结果页</td>
+              <td style="color: var(--ant-text-tertiary);">独立页面</td>
+              <td><span style="color: var(--ant-primary);">N9 轨迹查询</span></td>
+              <td style="color: var(--ant-text-tertiary);">P-001A 查询按钮</td>
+              <td><span class="ant-tag ant-tag-green">已完成</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--ant-success); font-family: monospace;">P-002A</td>
+              <td>车辆轨迹搜索页 <span class="badge-new" style="margin-left:6px;">NEW</span></td>
+              <td style="color: var(--ant-text-tertiary);">独立页面</td>
+              <td><span style="color: var(--ant-success);">N9 轨迹查询</span></td>
+              <td style="color: var(--ant-text-tertiary);">轨迹查询 > 车辆轨迹</td>
+              <td><span class="ant-tag ant-tag-green">已完成</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--ant-success); font-family: monospace;">P-002B</td>
+              <td>车辆轨迹结果页 <span class="badge-new" style="margin-left:6px;">NEW</span></td>
+              <td style="color: var(--ant-text-tertiary);">独立页面</td>
+              <td><span style="color: var(--ant-success);">N9 轨迹查询</span></td>
+              <td style="color: var(--ant-text-tertiary);">P-002A 查询按钮</td>
+              <td><span class="ant-tag ant-tag-green">已完成</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--ant-primary); font-family: monospace;">P-003</td>
+              <td>抓拍记录详情</td>
+              <td style="color: var(--ant-text-tertiary);">弹窗</td>
+              <td><span style="color: var(--ant-primary);">N9 轨迹查询</span></td>
+              <td style="color: var(--ant-text-tertiary);">P-001B/P-002B 抓拍卡片</td>
+              <td><span class="ant-tag ant-tag-blue">内嵌</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--ant-primary); font-family: monospace;">P-004</td>
+              <td><a href="n9-target-analysis/video-preview.html" style="color: var(--ant-primary); text-decoration: none;">视频预览</a></td>
+              <td style="color: var(--ant-text-tertiary);">弹窗</td>
+              <td><span style="color: var(--ant-primary);">N9 轨迹查询</span></td>
+              <td style="color: var(--ant-text-tertiary);">P-001B/P-002B/P-003 查看录像</td>
+              <td><span class="ant-tag ant-tag-green">已完成</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--ant-primary); font-family: monospace;">P-005</td>
+              <td><a href="n9-target-analysis/export-config.html" style="color: var(--ant-primary); text-decoration: none;">轨迹导出配置</a></td>
+              <td style="color: var(--ant-text-tertiary);">弹窗</td>
+              <td><span style="color: var(--ant-primary);">N9 轨迹查询</span></td>
+              <td style="color: var(--ant-text-tertiary);">P-001B/P-002B 导出报告</td>
+              <td><span class="ant-tag ant-tag-green">已完成</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--ant-warning); font-family: monospace;">P-012</td>
+              <td>多目标对比 <span class="badge-new" style="margin-left:6px;">NEW</span></td>
+              <td style="color: var(--ant-text-tertiary);">独立页面</td>
+              <td><span style="color: var(--ant-primary);">N9 轨迹查询</span></td>
+              <td style="color: var(--ant-text-tertiary);">轨迹查询 > 多目标对比</td>
+              <td><span class="ant-tag ant-tag-green">已完成</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--ant-primary); font-family: monospace;">P-013a</td>
+              <td><a href="n9-target-analysis/analysis-devices.html" style="color: var(--ant-primary); text-decoration: none;">分析接入（轨迹分析）</a></td>
+              <td style="color: var(--ant-text-tertiary);">独立页面</td>
+              <td><span style="color: var(--ant-primary);">N9 轨迹查询</span></td>
+              <td style="color: var(--ant-text-tertiary);">轨迹查询 > 分析接入管理</td>
+              <td><span class="ant-tag ant-tag-orange">拆分</span></td>
+            </tr>
+            <!-- N11 布控预警模块 -->
+            <tr>
+              <td style="color: var(--ant-error); font-family: monospace;">P-006</td>
+              <td>目标库</td>
+              <td style="color: var(--ant-text-tertiary);">独立页面</td>
+              <td><span style="color: var(--ant-error);">N11 布控预警</span></td>
+              <td style="color: var(--ant-text-tertiary);">布控预警 > 目标库</td>
+              <td><span class="ant-tag ant-tag-green">已完成</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--ant-error); font-family: monospace;">P-007</td>
+              <td>布控任务</td>
+              <td style="color: var(--ant-text-tertiary);">独立页面</td>
+              <td><span style="color: var(--ant-error);">N11 布控预警</span></td>
+              <td style="color: var(--ant-text-tertiary);">布控预警 > 布控任务</td>
+              <td><span class="ant-tag ant-tag-green">已完成</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--ant-error); font-family: monospace;">P-008</td>
+              <td>创建布控任务</td>
+              <td style="color: var(--ant-text-tertiary);">弹窗</td>
+              <td><span style="color: var(--ant-error);">N11 布控预警</span></td>
+              <td style="color: var(--ant-text-tertiary);">P-007/P-006 新建布控</td>
+              <td><span class="ant-tag ant-tag-blue">内嵌</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--ant-error); font-family: monospace;">P-009</td>
+              <td>布控预警（原命中预警）</td>
+              <td style="color: var(--ant-text-tertiary);">独立页面</td>
+              <td><span style="color: var(--ant-error);">N11 布控预警</span></td>
+              <td style="color: var(--ant-text-tertiary);">布控预警 > 布控预警</td>
+              <td><span class="ant-tag ant-tag-green">已完成</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--ant-error); font-family: monospace;">P-010</td>
+              <td><a href="n11-monitor-alert/alert-detail.html" style="color: var(--ant-error); text-decoration: none;">告警处理详情</a></td>
+              <td style="color: var(--ant-text-tertiary);">弹窗</td>
+              <td><span style="color: var(--ant-error);">N11 布控预警</span></td>
+              <td style="color: var(--ant-text-tertiary);">P-009 告警记录/通知条</td>
+              <td><span class="ant-tag ant-tag-green">已完成</span></td>
+            </tr>
+            <tr>
+              <td style="color: var(--ant-error); font-family: monospace;">P-013b</td>
+              <td><a href="n11-monitor-alert/analysis-devices.html" style="color: var(--ant-error); text-decoration: none;">分析接入（布控比对）</a></td>
+              <td style="color: var(--ant-text-tertiary);">独立页面</td>
+              <td><span style="color: var(--ant-error);">N11 布控预警</span></td>
+              <td style="color: var(--ant-text-tertiary);">布控预警 > 分析接入管理</td>
+              <td><span class="ant-tag ant-tag-orange">拆分</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 统计 -->
+    <div class="grid grid-cols-4 gap-5">
+      <div class="stat-box">
+        <div class="text-3xl font-bold" style="color: var(--ant-primary);">2</div>
+        <div class="text-sm mt-1" style="color: var(--ant-text-tertiary);">独立组件</div>
+      </div>
+      <div class="stat-box">
+        <div class="text-3xl font-bold" style="color: var(--ant-error);">15</div>
+        <div class="text-sm mt-1" style="color: var(--ant-text-tertiary);">页面总数</div>
+      </div>
+      <div class="stat-box">
+        <div class="text-3xl font-bold" style="color: var(--ant-success);">N9 9 页</div>
+        <div class="text-sm mt-1" style="color: var(--ant-text-tertiary);">轨迹查询组件</div>
+      </div>
+      <div class="stat-box">
+        <div class="text-3xl font-bold" style="color: var(--ant-warning);">N11 6 页</div>
+        <div class="text-sm mt-1" style="color: var(--ant-text-tertiary);">布控预警组件</div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
