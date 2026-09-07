@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>门户消息弹层 - 站内信模块</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <script src="../proto-ui.js"></script>
+</head>
+<body>
+<div class="layout">
+  <!-- 门户顶部导航（模拟：门户右上角常驻消息入口；弹窗由共享组件 proto-ui.js 注入） -->
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-video"></i></div>
+    <span class="app-name">视频云平台</span>
+    <div class="spacer"></div>
+    <div class="flex items-center gap-2 ml-3" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+      <span style="font-size:13px;">张运维</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <main class="main" style="display:flex;align-items:flex-start;justify-content:center;padding-top:60px;">
+      <div class="ant-card ant-card-bordered" style="max-width:680px;width:100%;">
+        <div class="ant-card-body">
+          <div class="page-title">门户消息入口 · 弹层演示</div>
+          <p class="text-sm" style="color:var(--ant-text-secondary);line-height:1.8;">
+            本页模拟视频云平台<strong>门户右上角常驻消息入口</strong>：点击右上角铃铛（含未读数字角标）弹出<strong>最近消息列表面板</strong>，
+            默认展示最近 <strong>5 条</strong>（未读优先 + 时间倒序），底部"<strong>查看更多</strong>"跳转消息中心列表页。
+            弹窗能力已抽为<strong>共享组件</strong>，消息中心列表页、详情页已统一接入。
+          </p>
+          <ul class="text-sm" style="color:var(--ant-text-secondary);line-height:2;">
+            <li>· 弹层点击<strong>有跳转目标</strong>的消息 → <strong>直达来源处理页</strong>（点击即已读，不经过详情页）</li>
+            <li>· 弹层点击纯公告（无跳转目标）→ 进入消息详情页，打开后自动已读</li>
+            <li>· 已读消息<strong>常驻保留</strong>：不再显示未读圆点、角标 -1，但仍留在列表中（不删除）</li>
+            <li>· 全部已读 → 角标清零，已读消息仍保留在弹层列表</li>
+            <li>· 消息超过 5 条时展示"查看全部消息"，点击进入完整列表页</li>
+          </ul>
+          <div class="mt-4 pt-4" style="border-top:1px dashed var(--ant-border-secondary);">
+            <a class="ant-btn" href="message-center.html"><i class="fa-solid fa-list"></i> 去消息中心列表页</a>
+            <a class="ant-btn ml-2" href="message-detail.html?id=1"><i class="fa-solid fa-file-lines"></i> 去消息详情页</a>
+            <a class="ant-btn ml-2" href="../index.html"><i class="fa-solid fa-rotate-left"></i> 返回原型导航</a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  /* === Mock 数据（8 条 > 5，演示"仅显示最近 5 条 + 查看更多"；sortTime 越大越新）=== */
+  const messages = [
+    { id: 1, cat: '告警', title: '【新告警】明厨亮灶-片区A 摄像头001 未戴工帽', summary: '业务：明厨亮灶 ｜ 设备：摄像头-001 ｜ 级别：紧急', time: '3 分钟前', sortTime: 10, unread: true, jump: true, jumpTo: '告警详情' },
+    { id: 2, cat: '系统公告', title: '视频云平台 8 月 20 日 23:00 系统升级公告', summary: '升级期间直播、回放服务暂不可用，预计 30 分钟完成。', time: '1 小时前', sortTime: 9, unread: true, jump: false, jumpTo: '' },
+    { id: 3, cat: '告警', title: '【转派通知】西门口 摄像头-008 人流聚集告警', summary: '原处理人：李四 ｜ 转派给：王五 ｜ 原因：区域调整', time: '2 小时前', sortTime: 8, unread: true, jump: true, jumpTo: '告警处理' },
+    { id: 4, cat: '任务', title: '【治理任务】设备档案完整度整改任务已派发', summary: '任务编号：T20260819003 ｜ 需在 3 个工作日内完成', time: '今天 09:30', sortTime: 7, unread: true, jump: true, jumpTo: '任务详情' },
+    { id: 5, cat: '告警', title: '【催办通知】视频质量异常告警 待处理已超时', summary: '业务：设备运维 ｜ 已自动升级至上级负责人 ｜ 强提醒', time: '昨天 17:45', sortTime: 6, unread: false, jump: true, jumpTo: '告警处理', strong: true },
+    { id: 6, cat: '运维', title: '存储服务器磁盘使用率超过 85%', summary: '节点：storage-03 ｜ 当前使用率 87.2%', time: '昨天 14:20', sortTime: 5, unread: false, jump: true, jumpTo: '运维详情' },
+    { id: 7, cat: '任务', title: '巡检任务：中心机房月度巡检已分配', summary: '巡检计划：月度 ｜ 截止时间：8 月 31 日', time: '昨天 10:00', sortTime: 4, unread: false, jump: true, jumpTo: '任务详情' },
+    { id: 8, cat: '告警', title: '【已处理】门禁 01 故障告警已处置', summary: '处置方式：现场维修 ｜ 处理人：张运维', time: '8 月 17 日', sortTime: 3, unread: false, jump: true, jumpTo: '告警详情' }
+  ];
+
+  /* === 右上角消息入口弹窗：统一共享组件（proto-ui.js）===
+     弹窗点击分流（CR-20260821-001）：有跳转目标→直达来源处理页（点击即已读）；纯公告→详情页 */
+  MSG_PANEL.setData(messages);
+  MSG_PANEL.init();
+</script>
+</body>
+</html>

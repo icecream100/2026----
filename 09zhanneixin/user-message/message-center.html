@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>消息中心 - 站内信模块</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <script src="../proto-ui.js"></script>
+</head>
+<body>
+<div class="layout">
+  <!-- 深色顶栏 -->
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-bell"></i></div>
+    <span class="app-name">站内信模块</span>
+    <div class="spacer"></div>
+    <!-- 右上角消息入口弹窗由共享组件 proto-ui.js 统一注入 -->
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+      <span style="font-size:13px;">张运维</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <!-- 深色侧栏 -->
+    <aside class="sider">
+      <div class="menu-group-title">消息中心</div>
+      <a class="menu-item active" href="message-center.html" aria-current="page"><i class="fa-solid fa-bell"></i>消息中心 <span class="badge-count" id="sideBadge">5</span></a>
+      <div class="menu-group-title">站内信管理端</div>
+      <a class="menu-item" href="../admin-message/message-send.html"><i class="fa-solid fa-paper-plane"></i>手动发送消息</a>
+      <a class="menu-item" href="../admin-message/send-record.html"><i class="fa-solid fa-file-lines"></i>发送记录</a>
+    </aside>
+
+    <!-- 内容区 -->
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span class="current">消息中心</span>
+      </div>
+
+      <div class="page-title">消息中心</div>
+
+      <!-- 筛选栏（PRD 4.3 CR-007：分类下拉 + 搜索一行） -->
+      <div class="ant-card ant-card-bordered mb-4">
+        <div class="ant-card-body">
+          <div class="flex items-center gap-4 flex-wrap">
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-secondary">消息分类</label>
+              <select id="msgCatFilter" class="ant-select" style="width:160px" onchange="switchCategory(this.value)">
+                <option value="全部">全部</option>
+                <option value="告警">告警</option>
+                <option value="任务">任务</option>
+                <option value="系统公告">系统公告</option>
+                <option value="运维">运维</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-magnifying-glass text-tertiary" style="color:var(--ant-text-tertiary);"></i>
+              <input id="msgSearch" class="ant-input" style="width:280px" placeholder="搜索标题或内容关键词"
+                     oninput="onSearch(this.value)" onkeydown="if(event.key==='Enter')onSearch(this.value)">
+              <button class="ant-btn ant-btn-text ant-btn-sm" onclick="clearSearch()"><i class="fa-solid fa-rotate-left"></i> 清空</button>
+            </div>
+            <div class="spacer"></div>
+            <button class="ant-btn ant-btn-primary ant-btn-sm" onclick="markAllRead()"><i class="fa-solid fa-check-double"></i> 全部已读</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 消息列表 -->
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding:0">
+          <div id="messageList"></div>
+          <!-- 空状态 -->
+          <div id="emptyState" class="empty-state hidden">
+            <div class="empty-state-icon"><i class="fa-regular fa-envelope-open"></i></div>
+            <div class="empty-state-title">暂无消息</div>
+            <div class="empty-state-desc">当前分类下没有消息，可切换其他分类查看</div>
+            <button class="ant-btn" onclick="switchCategory('全部')"><i class="fa-solid fa-rotate-left"></i> 查看全部</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分页 -->
+      <div class="flex items-center justify-between mt-4">
+        <span class="text-sm text-secondary" id="paginationInfo">共 10 条</span>
+        <div class="ant-pagination">
+          <button class="ant-pagination-item" onclick="changePage(currentPage-1)"><i class="fa-solid fa-chevron-left" style="font-size:12px"></i></button>
+          <span id="pageButtons"></span>
+          <button class="ant-pagination-item" onclick="changePage(currentPage+1)"><i class="fa-solid fa-chevron-right" style="font-size:12px"></i></button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  /* === 消息分类枚举（PRD DEC-008 固定枚举）=== */
+  const CATEGORY_TAG = { '告警': 'ant-tag-red', '任务': 'ant-tag-blue', '系统公告': 'ant-tag-purple', '运维': 'ant-tag-orange' };
+
+  /* === Mock 数据：覆盖全部分类 + 已读/未读态 + 强提醒（sortTime 越大越新，用于排序）=== */
+  let messages = [
+    { id: 1, cat: '告警', title: '【新告警】明厨亮灶-片区A 摄像头001 未戴工帽', summary: '业务：明厨亮灶 ｜ 设备：摄像头-001 ｜ 级别：紧急', time: '3 分钟前', sortTime: 10, unread: true, jump: true, jumpTo: '告警详情' },
+    { id: 2, cat: '系统公告', title: '视频云平台 8 月 20 日 23:00 系统升级公告', summary: '升级期间直播、回放服务暂不可用，预计 30 分钟完成。', time: '1 小时前', sortTime: 9, unread: true, jump: false },
+    { id: 3, cat: '告警', title: '【转派通知】西门口 摄像头-008 人流聚集告警', summary: '原处理人：李四 ｜ 转派给：王五 ｜ 原因：区域调整', time: '2 小时前', sortTime: 8, unread: true, jump: true, jumpTo: '告警处理' },
+    { id: 4, cat: '任务', title: '【治理任务】设备档案完整度整改任务已派发', summary: '任务编号：T20260819003 ｜ 需在 3 个工作日内完成', time: '今天 09:30', sortTime: 7, unread: true, jump: true, jumpTo: '任务详情' },
+    { id: 5, cat: '告警', title: '【催办通知】视频质量异常告警 待处理已超时', summary: '业务：设备运维 ｜ 已自动升级至上级负责人 ｜ 强提醒', time: '昨天 17:45', sortTime: 6, unread: false, jump: true, jumpTo: '告警处理', strong: true },
+    { id: 6, cat: '运维', title: '存储服务器磁盘使用率超过 85%', summary: '节点：storage-03 ｜ 当前使用率 87.2%', time: '昨天 14:20', sortTime: 5, unread: false, jump: true, jumpTo: '运维详情' },
+    { id: 7, cat: '任务', title: '巡检任务：中心机房月度巡检已分配', summary: '巡检计划：月度 ｜ 截止时间：8 月 31 日', time: '昨天 10:00', sortTime: 4, unread: false, jump: true, jumpTo: '任务详情' },
+    { id: 8, cat: '告警', title: '【已处理】门禁 01 故障告警已处置', summary: '处置方式：现场维修 ｜ 处理人：张运维', time: '8 月 17 日', sortTime: 3, unread: false, jump: true, jumpTo: '告警详情' },
+    { id: 9, cat: '系统公告', title: '平台新增 N9 目标研判预警组件上线通知', summary: '已发布目标库管理、轨迹查询、布控管理等能力。', time: '8 月 16 日', sortTime: 2, unread: false, jump: false },
+    { id: 10, cat: '运维', title: '链路抖动告警已恢复', summary: '节点：edge-gw-02 ｜ 恢复时间：8 月 15 日 22:10', time: '8 月 15 日', sortTime: 1, unread: false, jump: true, jumpTo: '运维详情' }
+  ];
+
+  let currentTab = '全部';
+  let searchKw = '';
+  let currentPage = 1, pageSize = 5, total = 0;
+
+  /* === 未读角标（headerBadge 由共享弹窗组件 proto-ui.js 管理，本页只维护侧栏）=== */
+  function unreadCount() { return messages.filter(m => m.unread).length; }
+  function syncBadges() {
+    const n = unreadCount();
+    const sideBadge = document.getElementById('sideBadge');
+    sideBadge.textContent = n;
+    sideBadge.style.display = n === 0 ? 'none' : '';
+  }
+
+  /* === 分类下拉切换（PRD 4.3 CR-007）=== */
+  function switchCategory(cat) {
+    currentTab = cat;
+    currentPage = 1;
+    renderList();
+  }
+
+  /* === 关键字搜索（PRD 4.2 CR-006）=== */
+  function onSearch(v) {
+    searchKw = v.trim();
+    currentPage = 1;
+    renderList();
+  }
+  function clearSearch() {
+    document.getElementById('msgSearch').value = '';
+    searchKw = '';
+    currentPage = 1;
+    renderList();
+  }
+
+  /* === 列表渲染（PRD 4.2 CR-006：未读优先+时间倒序，未读强提醒置顶，关键词过滤）=== */
+  function renderList() {
+    const list = document.getElementById('messageList');
+    const empty = document.getElementById('emptyState');
+    let filtered = messages.filter(m => {
+      // 分类过滤
+      if (currentTab !== '全部' && m.cat !== currentTab) return false;
+      // 关键词过滤（标题+内容摘要）
+      if (searchKw) {
+        const kw = searchKw.toLowerCase();
+        if (!(m.title.toLowerCase().includes(kw) || m.summary.toLowerCase().includes(kw))) return false;
+      }
+      return true;
+    });
+    // 排序：未读强提醒 > 其他未读 > 已读（含已读强提醒，退出置顶）；组内时间倒序
+    filtered.sort((a, b) => {
+      const rank = m => (m.strong && m.unread) ? 0 : m.unread ? 1 : 2;
+      const ra = rank(a), rb = rank(b);
+      if (ra !== rb) return ra - rb;
+      return (b.sortTime || 0) - (a.sortTime || 0);
+    });
+    total = filtered.length;
+    const start = (currentPage - 1) * pageSize;
+    const pageRows = filtered.slice(start, start + pageSize);
+
+    list.innerHTML = pageRows.map(m => `
+      <div class="msg-item ${m.unread ? 'msg-unread' : ''} ${(m.strong && m.unread) ? 'msg-strong' : ''}">
+        <!-- 整行可点（I1 UI 评审）：标题+摘要整块为链接跳详情；"去处理"为独立快捷动作 -->
+        <a class="msg-main" href="message-detail.html?id=${m.id}" onclick="markAutoRead(${m.id})">
+          <div class="msg-head">
+            ${m.unread ? '<span class="msg-dot"></span>' : '<span class="msg-dot msg-dot-read"></span>'}
+            ${m.strong ? `<span class="msg-strong-tag ${m.unread ? '' : 'msg-strong-tag-read'}"><i class="fa-solid fa-bell"></i> 强提醒</span>` : ''}
+            <span class="ant-tag ${CATEGORY_TAG[m.cat] || 'ant-tag-gray'}">${m.cat}</span>
+            <span class="msg-title">${m.title}</span>
+            ${m.jump ? '<span class="msg-jump"><i class="fa-solid fa-arrow-right"></i></span>' : ''}
+          </div>
+          <div class="msg-summary">${m.summary}</div>
+        </a>
+        <div class="msg-side">
+          <span class="msg-time">${m.time}</span>
+          <div class="msg-actions">
+            <!-- 操作列"去处理"：有跳转目标的消息直达来源处理页（CR-20260821-001） -->
+            ${m.jump ? `<button class="ant-btn ant-btn-text ant-btn-sm" onclick="goProcess(${m.id})"><i class="fa-solid fa-arrow-right"></i> 去处理</button>` : ''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    empty.classList.toggle('hidden', pageRows.length > 0);
+    updatePagination(total);
+  }
+
+  /* === 已读管理 === */
+  function markAllRead() {
+    MSG_PANEL.markAllRead(); // 内部改共享数组 + 刷新弹窗 + 触发 onChange（renderList + syncBadges）
+  }
+
+  /* === 详情跳转（a 链接；点击标记已读后跳转）=== */
+  function markAutoRead(id) {
+    const m = messages.find(x => x.id === id);
+    if (m && m.unread) { m.unread = false; MSG_PANEL.refresh(); }
+    // 允许默认跳转继续
+  }
+  /* === 操作列"去处理"：直达来源处理页（CR-20260821-001），点击即已读，不经过详情页 === */
+  function goProcess(id) {
+    const m = messages.find(x => x.id === id);
+    if (m && m.unread) { m.unread = false; MSG_PANEL.refresh(); }
+    showToast('原型演示：已直达「' + (m ? m.jumpTo : '来源处理页') + '」，消息已自动标记已读');
+  }
+
+  /* === 分页 === */
+  function updatePagination(nextTotal) {
+    total = nextTotal;
+    const maxPage = Math.max(1, Math.ceil(total / pageSize));
+    currentPage = Math.min(currentPage, maxPage);
+    document.getElementById('paginationInfo').textContent = '共 ' + total + ' 条';
+    let btns = '';
+    for (let i = 1; i <= maxPage && i <= 5; i++) {
+      btns += `<button class="ant-pagination-item ${i === currentPage ? 'ant-pagination-item-active' : ''}" onclick="changePage(${i})">${i}</button>`;
+    }
+    document.getElementById('pageButtons').innerHTML = btns;
+  }
+  function changePage(page) {
+    const maxPage = Math.max(1, Math.ceil(total / pageSize));
+    currentPage = Math.min(Math.max(1, page), maxPage);
+    renderList();
+  }
+
+  /* === Toast === */
+  function showToast(msg, duration) {
+    duration = duration || 2000;
+    var wrap = document.querySelector('.toast-wrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.className = 'toast-wrap';
+      wrap.setAttribute('role', 'status');
+      wrap.setAttribute('aria-live', 'polite');
+      document.body.appendChild(wrap);
+    }
+    var el = document.createElement('div');
+    el.className = 'toast-msg';
+    el.innerHTML = '<i class="fa-solid fa-circle-info" style="color:#1677ff;"></i>' + msg;
+    wrap.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add('show'); });
+    setTimeout(function () { el.classList.remove('show'); setTimeout(function () { el.remove(); }, 300); }, duration);
+  }
+
+  /* 初始化：注册共享消息数组（弹窗与列表共用同一数组），onChange=弹窗内数据变化后刷新列表与侧栏角标 */
+  MSG_PANEL.setData(messages);
+  MSG_PANEL.init({ onChange: function () { syncBadges(); renderList(); } });
+  renderList();
+
+  /* === 消息条目专属样式（本页，不入共享 CSS）=== */
+  const style = document.createElement('style');
+  style.textContent = `
+    .msg-item { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:16px 20px; border-bottom:1px solid var(--ant-border-secondary); transition:background 0.15s; }
+    .msg-item:hover { background:#fafafa; }
+    .msg-unread { background:#f5faff; }
+    /* 强提醒橙底仅限未读（I6 UI 评审）：已读退出置顶且不再高亮，仅保留弱化 tag */
+    .msg-strong { background:#fff7e6; border-left:3px solid var(--ant-warning); }
+    .msg-strong-tag { font-size:11px; color:#d46b08; background:#fff7e6; border:1px solid #ffd591; border-radius:4px; padding:0 6px; flex-shrink:0; }
+    .msg-strong-tag-read { color:var(--ant-text-tertiary); background:#fafafa; border-color:#d9d9d9; }
+    /* 整行可点（I1 UI 评审）：msg-main 为行内链接，覆盖标题+摘要 */
+    .msg-main { flex:1; min-width:0; display:block; text-decoration:none; color:inherit; cursor:pointer; }
+    .msg-head { display:flex; align-items:center; gap:8px; }
+    .msg-dot { width:8px; height:8px; border-radius:50%; background:var(--ant-error); flex-shrink:0; }
+    .msg-dot-read { background:transparent; }
+    /* 标题单行截断（I2 UI 评审）：长标题省略号，避免撑破行高 */
+    .msg-title { font-size:14px; color:var(--ant-text); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .msg-main:hover .msg-title { color:var(--ant-primary); }
+    .msg-unread .msg-title { font-weight:600; }
+    .msg-summary { margin-top:4px; padding-left:16px; font-size:12px; color:var(--ant-text-tertiary); }
+    .msg-jump { color:var(--ant-text-tertiary); font-size:12px; flex-shrink:0; }
+    .msg-side { display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0; }
+    .msg-actions { display:flex; align-items:center; gap:4px; }
+    .msg-time { font-size:12px; color:var(--ant-text-tertiary); }
+  `;
+  document.head.appendChild(style);
+</script>
+</body>
+</html>

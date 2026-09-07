@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>消息详情 - 站内信模块</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+  <script src="../proto-ui.js"></script>
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-bell"></i></div>
+    <span class="app-name">站内信模块</span>
+    <div class="spacer"></div>
+    <!-- 右上角消息入口弹窗由共享组件 proto-ui.js 统一注入 -->
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">张</div>
+      <span style="font-size:13px;">张运维</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">消息中心</div>
+      <a class="menu-item active" href="message-center.html" aria-current="page"><i class="fa-solid fa-bell"></i>消息中心 <span class="badge-count" id="sideBadge">5</span></a>
+      <div class="menu-group-title">站内信管理端</div>
+      <a class="menu-item" href="../admin-message/message-send.html"><i class="fa-solid fa-paper-plane"></i>手动发送消息</a>
+      <a class="menu-item" href="../admin-message/send-record.html"><i class="fa-solid fa-file-lines"></i>发送记录</a>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><a href="message-center.html">消息中心</a><span>/</span><span class="current" id="crumbTitle">消息详情</span>
+      </div>
+
+      <div class="page-title" id="pageTitle">消息详情</div>
+
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body">
+          <!-- 消息头部 -->
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="ant-tag ant-tag-red" id="detailCat">告警</span>
+                <span class="msg-read-tag" id="readTag">已读</span>
+              </div>
+              <h2 class="text-base font-semibold" id="detailTitle">消息标题</h2>
+              <div class="text-xs text-tertiary" id="detailTime">接收时间</div>
+            </div>
+            <div class="flex gap-2">
+              <button class="ant-btn" onclick="location.href='message-center.html'"><i class="fa-solid fa-arrow-left"></i> 返回列表</button>
+              <button class="ant-btn ant-btn-primary" id="jumpBtn" onclick="jumpSource()" style="display:none;">
+                <i class="fa-solid fa-arrow-right"></i> 跳转来源
+              </button>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- 富文本正文（PRD 4.4：粗体/链接，长度无限制） -->
+          <div id="detailBody" class="rich-body"></div>
+
+          <!-- 无跳转目标提示（纯公告） -->
+          <div class="ant-alert ant-alert-info mt-4" id="noJumpAlert" style="display:none;">
+            <i class="fa-solid fa-circle-info ant-alert-icon"></i>
+            <div class="ant-alert-content">
+              <div class="ant-alert-message">此消息为系统公告，无关联业务页面</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  /* === Mock 详情数据（与列表页一致，按 id 取详情）=== */
+  const DETAILS = {
+    1: { cat: '告警', title: '【新告警】明厨亮灶-片区A 摄像头001 未戴工帽', time: '2026-08-19 10:12:30', unreadBefore: true, jumpTo: '告警详情',
+      body: `<p>业务名称：<strong>明厨亮灶</strong> ｜ 设备名称：<strong>摄像头-001</strong> ｜ 告警类型：未戴工帽 ｜ 告警级别：<strong>紧急</strong></p><p>触发时间：2026-08-19 10:12:30</p><p>请尽快前往告警中心确认并处理该告警，处理完成后需填写处置方式。</p><p>详情见 <a href="javascript:void(0)" onclick="showToast('原型演示：此处跳转告警详情页')">告警详情页</a></p>` },
+    2: { cat: '系统公告', title: '视频云平台 8 月 20 日 23:00 系统升级公告', time: '2026-08-19 09:20:00', unreadBefore: true, jumpTo: '',
+      body: `<p>各位用户：</p><p>平台将于 <strong>8 月 20 日 23:00</strong> 进行系统升级，预计持续 <strong>30 分钟</strong>。升级期间直播、回放服务暂不可用，升级完成后自动恢复。</p><p>请提前保存未提交的配置，给您带来不便敬请谅解。</p><p>—— 平台运维团队</p>` },
+    3: { cat: '告警', title: '【转派通知】西门口 摄像头-008 人流聚集告警', time: '2026-08-19 08:45:00', unreadBefore: true, jumpTo: '告警处理',
+      body: `<p>业务名称：园区安保 ｜ 设备名称：摄像头-008 ｜ 告警类型：人流聚集</p><p>原处理人：<strong>李四</strong> ｜ 转派给：<strong>王五</strong> ｜ 转派原因：区域调整</p><p>请新责任人尽快处理。</p>` },
+    4: { cat: '任务', title: '【治理任务】设备档案完整度整改任务已派发', time: '2026-08-19 09:30:00', unreadBefore: true, jumpTo: '任务详情',
+      body: `<p>任务编号：<strong>T20260819003</strong></p><p>整改内容：设备档案字段完整度不达标项补充</p><p>请在 <strong>3 个工作日内</strong>完成整改并提交审核。</p>` },
+    5: { cat: '告警', title: '【催办通知】视频质量异常告警 待处理已超时', time: '2026-08-18 17:45:00', unreadBefore: false, jumpTo: '告警处理',
+      body: `<p>业务名称：设备运维 ｜ 告警级别：警告</p><p>该告警待处理已超时，已自动升级至上级负责人，请关注。</p>` },
+    6: { cat: '运维', title: '存储服务器磁盘使用率超过 85%', time: '2026-08-18 14:20:00', unreadBefore: false, jumpTo: '运维详情',
+      body: `<p>节点：<strong>storage-03</strong> ｜ 当前使用率：<strong>87.2%</strong></p><p>建议尽快清理日志或扩容，避免影响录像存储。</p>` },
+    7: { cat: '任务', title: '巡检任务：中心机房月度巡检已分配', time: '2026-08-18 10:00:00', unreadBefore: false, jumpTo: '任务详情',
+      body: `<p>巡检计划：<strong>月度巡检</strong></p><p>截止时间：<strong>8 月 31 日</strong></p><p>请按时完成巡检并提交巡检记录。</p>` },
+    8: { cat: '告警', title: '【已处理】门禁 01 故障告警已处置', time: '2026-08-17 15:30:00', unreadBefore: false, jumpTo: '告警详情',
+      body: `<p>业务名称：园区门禁 ｜ 设备名称：门禁-01 ｜ 告警类型：设备故障</p><p>处置方式：<strong>现场维修</strong> ｜ 处理人：张运维</p><p>该告警已处置完成。</p>` },
+    9: { cat: '系统公告', title: '平台新增 N9 目标研判预警组件上线通知', time: '2026-08-16 11:00:00', unreadBefore: false, jumpTo: '',
+      body: `<p>平台已上线 <strong>N9 目标研判预警组件</strong>，提供目标库管理、轨迹查询、布控管理、命中告警、核查归档等能力。</p><p>欢迎使用。</p>` },
+    10: { cat: '运维', title: '链路抖动告警已恢复', time: '2026-08-15 22:10:00', unreadBefore: false, jumpTo: '运维详情',
+      body: `<p>节点：<strong>edge-gw-02</strong> ｜ 恢复时间：<strong>8 月 15 日 22:10</strong></p><p>链路已恢复正常。</p>` }
+  };
+  const CATEGORY_TAG = { '告警': 'ant-tag-red', '任务': 'ant-tag-blue', '系统公告': 'ant-tag-purple', '运维': 'ant-tag-orange' };
+
+  /* === 弹窗消息数组（从 DETAILS 生成，供右上角共享弹窗组件 proto-ui.js 使用；sortTime 越大越新）=== */
+  const messages = Object.keys(DETAILS).map(function (k, i) {
+    const d = DETAILS[k];
+    return {
+      id: Number(k),
+      cat: d.cat,
+      title: d.title,
+      summary: d.body.replace(/<[^>]+>/g, '').slice(0, 40),
+      time: d.time.slice(5, 16), // 去除年份，如 "08-19 10:12"
+      sortTime: Object.keys(DETAILS).length - i, // DETAILS 定义顺序即新旧顺序，id 小=新
+      unread: !!d.unreadBefore,
+      jump: !!d.jumpTo,
+      jumpTo: d.jumpTo || ''
+    };
+  });
+
+  /* === 读取 id，渲染详情（进入详情即自动已读）=== */
+  function loadDetail() {
+    const params = new URLSearchParams(location.search);
+    const id = parseInt(params.get('id') || '1', 10);
+    const d = DETAILS[id] || DETAILS[1];
+    document.getElementById('crumbTitle').textContent = '消息详情';
+    document.getElementById('pageTitle').textContent = '消息详情';
+    document.getElementById('detailCat').textContent = d.cat;
+    document.getElementById('detailCat').className = 'ant-tag ' + (CATEGORY_TAG[d.cat] || 'ant-tag-gray');
+    document.getElementById('detailTitle').textContent = d.title;
+    document.getElementById('detailTime').textContent = '接收时间：' + d.time;
+    document.getElementById('detailBody').innerHTML = d.body;
+    // 跳转来源：有 jumpTo 展示按钮；纯公告显示提示（I3 UI 评审：动作文案统一为"去处理"）
+    if (d.jumpTo) {
+      document.getElementById('jumpBtn').style.display = '';
+      document.getElementById('jumpBtn').innerHTML = '<i class="fa-solid fa-arrow-right"></i> 去处理';
+      document.getElementById('noJumpAlert').style.display = 'none';
+    } else {
+      document.getElementById('jumpBtn').style.display = 'none';
+      document.getElementById('noJumpAlert').style.display = '';
+    }
+    // 进入详情自动已读（PRD 4.5）
+    document.getElementById('readTag').textContent = '已读';
+  }
+
+  function jumpSource() {
+    showToast('原型演示：此处跳转来源业务页');
+  }
+
+  function showToast(msg, duration) {
+    duration = duration || 2000;
+    var wrap = document.querySelector('.toast-wrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.className = 'toast-wrap';
+      wrap.setAttribute('role', 'status');
+      wrap.setAttribute('aria-live', 'polite');
+      document.body.appendChild(wrap);
+    }
+    var el = document.createElement('div');
+    el.className = 'toast-msg';
+    el.innerHTML = '<i class="fa-solid fa-circle-info" style="color:#1677ff;"></i>' + msg;
+    wrap.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add('show'); });
+    setTimeout(function () { el.classList.remove('show'); setTimeout(function () { el.remove(); }, 300); }, duration);
+  }
+
+  loadDetail();
+
+  /* === 右上角消息入口弹窗：统一共享组件（proto-ui.js），onChange 同步侧栏未读角标 === */
+  MSG_PANEL.setData(messages);
+  MSG_PANEL.init({ onChange: function () {
+    const n = MSG_PANEL.unreadCount();
+    const sideBadge = document.getElementById('sideBadge');
+    sideBadge.textContent = n;
+    sideBadge.style.display = n === 0 ? 'none' : '';
+  } });
+
+  /* === 本页样式 === */
+  const style = document.createElement('style');
+  style.textContent = `
+    .rich-body { font-size:14px; line-height:24px; color:var(--ant-text); }
+    .rich-body p { margin-bottom:12px; }
+    .rich-body a { color:var(--ant-primary); text-decoration:none; }
+    .rich-body strong { font-weight:600; }
+    .msg-read-tag { font-size:12px; color:var(--ant-text-tertiary); border:1px solid var(--ant-border); border-radius:4px; padding:0 6px; }
+  `;
+  document.head.appendChild(style);
+</script>
+</body>
+</html>

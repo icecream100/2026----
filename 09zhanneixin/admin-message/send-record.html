@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>发送记录 - 站内信模块</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-bell"></i></div>
+    <span class="app-name">站内信模块</span>
+    <div class="spacer"></div>
+    <a href="../user-message/message-center.html" class="nav-action" style="text-decoration:none;" aria-label="消息中心">
+      <i class="fa-regular fa-bell mr-1"></i>消息中心
+    </a>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">王</div>
+      <span style="font-size:13px;">王管理员</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">消息中心</div>
+      <a class="menu-item" href="../user-message/message-center.html"><i class="fa-solid fa-bell"></i>消息中心</a>
+      <div class="menu-group-title">站内信管理端</div>
+      <a class="menu-item" href="message-send.html"><i class="fa-solid fa-paper-plane"></i>手动发送消息</a>
+      <a class="menu-item active" href="send-record.html" aria-current="page"><i class="fa-solid fa-file-lines"></i>发送记录</a>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span class="current">发送记录</span>
+      </div>
+
+      <div class="page-title flex items-center justify-between">
+        <span>发送记录</span>
+        <button class="ant-btn ant-btn-primary" onclick="location.href='message-send.html'">
+          <i class="fa-solid fa-plus"></i> 新增消息
+        </button>
+      </div>
+
+      <!-- 页面说明（PRD 4.7：仅记录手动发送的系统公告） -->
+      <div class="ant-alert ant-alert-info mb-4">
+        <i class="fa-solid fa-circle-info ant-alert-icon"></i>
+        <div class="ant-alert-content">
+          <div class="ant-alert-message">仅记录管理端手动发送的系统公告；模块（N8 等）经接入通道投递的消息不在此记录</div>
+        </div>
+      </div>
+
+      <!-- 搜索栏（PRD 4.7：按发送人筛选） -->
+      <div class="ant-card ant-card-bordered mb-4">
+        <div class="ant-card-body">
+          <div class="flex items-center gap-4 flex-wrap">
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-secondary">发送人</label>
+              <input id="searchSender" class="ant-input" style="width:180px" placeholder="请输入发送人"
+                     onkeydown="if(event.key==='Enter')handleSearch()">
+            </div>
+            <div class="flex gap-2">
+              <button class="ant-btn ant-btn-primary" onclick="handleSearch()"><i class="fa-solid fa-search"></i> 查询</button>
+              <button class="ant-btn" onclick="handleReset()"><i class="fa-solid fa-rotate-right"></i> 重置</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 发送记录表格 -->
+      <div class="ant-card ant-card-bordered">
+        <div class="ant-card-body" style="padding:0">
+          <table class="ant-table">
+            <thead>
+              <tr>
+                <th width="60">序号</th>
+                <th>消息标题</th>
+                <th width="110">消息分类</th>
+                <th width="180">接收范围</th>
+                <th width="110">发送人</th>
+                <th width="160">发送时间</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+          <div id="emptyState" class="ant-empty hidden">
+            <div class="ant-empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+            <div class="ant-empty-text">暂无发送记录</div>
+            <button class="ant-btn ant-btn-primary" onclick="location.href='message-send.html'">
+              <i class="fa-solid fa-plus"></i> 发送消息
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分页 -->
+      <div class="flex items-center justify-between mt-4">
+        <span class="text-sm text-secondary" id="paginationInfo">共 0 条</span>
+        <div class="ant-pagination">
+          <button class="ant-pagination-item" onclick="changePage(currentPage-1)"><i class="fa-solid fa-chevron-left" style="font-size:12px"></i></button>
+          <span id="pageButtons"></span>
+          <button class="ant-pagination-item" onclick="changePage(currentPage+1)"><i class="fa-solid fa-chevron-right" style="font-size:12px"></i></button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const catTag = { '告警': 'ant-tag-red', '任务': 'ant-tag-blue', '系统公告': 'ant-tag-purple', '运维': 'ant-tag-orange' };
+
+  /* === Mock 数据：覆盖三档接收范围 + 全部分类（PRD 4.7 字段）=== */
+  /* === Mock 数据：每条记录带与标题语义匹配的正文内容（D2 UI 评审修复）=== */
+  const records = [
+    { id: 1, title: '平台升级维护公告 8 月 20 日', cat: '系统公告', scope: '全体用户', sender: '王管理员', time: '2026-08-19 10:30:00',
+      content: '<p>平台将于 <strong>8 月 20 日 23:00</strong> 进行系统升级维护，预计持续 <strong>30 分钟</strong>。</p><p>升级期间直播、回放服务暂不可用，升级完成后自动恢复，请提前保存未提交的配置。</p><p>—— 平台运维团队</p>' },
+    { id: 2, title: '明厨亮灶 8 月巡检工作安排', cat: '系统公告', scope: '角色：业务管理员、业务运营', sender: '王管理员', time: '2026-08-19 09:15:00',
+      content: '<p>8 月明厨亮灶巡检工作安排如下：</p><p>巡检范围：明厨亮灶片区 A/B 全部接入点位。</p><p>请各业务管理员在 <strong>8 月 31 日前</strong>完成巡检并提交巡检记录。</p>' },
+    { id: 3, title: '片区A 摄像头补光灯改造通知', cat: '系统公告', scope: '组织：片区A', sender: '王管理员', time: '2026-08-18 16:40:00',
+      content: '<p>片区A 部分摄像头将进行<strong>补光灯改造</strong>。</p><p>改造期间对应点位夜间画面可能偏暗，预计 <strong>3 个工作日</strong>内完成，期间不影响录像存储。</p>' },
+    { id: 4, title: '重点时段值守安排提醒', cat: '系统公告', scope: '角色：处理人、审核人', sender: '王管理员', time: '2026-08-18 10:20:00',
+      content: '<p>请处理人与审核人注意<strong>重点时段值守</strong>安排：</p><p>值守时段：<strong>每日 18:00 - 次日 8:00</strong>。</p><p>值守期间告警须在 <strong>30 分钟内</strong>响应处置。</p>' },
+    { id: 5, title: 'N9 目标研判组件上线公告', cat: '系统公告', scope: '全体用户', sender: '王管理员', time: '2026-08-16 11:00:00',
+      content: '<p>平台已上线 <strong>N9 目标研判预警组件</strong>。</p><p>提供目标库管理、轨迹查询、布控管理、命中告警、核查归档等能力，欢迎使用。</p>' },
+    { id: 6, title: '月度设备档案整改安排', cat: '系统公告', scope: '组织：运营中心、技术中心', sender: '王管理员', time: '2026-08-15 14:30:00',
+      content: '<p>月度设备档案完整度整改安排：</p><p>请各中心在 <strong>8 月 31 日</strong>前核对本中心设备档案，补齐字段完整度不达标项。</p>' },
+    { id: 7, title: '存储扩容维护通知', cat: '系统公告', scope: '全体用户', sender: '王管理员', time: '2026-08-14 09:00:00',
+      content: '<p>平台存储节点将进行<strong>扩容维护</strong>。</p><p>维护期间录像查询可能短暂延迟，录像存储不受影响。</p>' },
+    { id: 8, title: '安全加固专项通知', cat: '系统公告', scope: '角色：平台管理员', sender: '王管理员', time: '2026-08-12 17:45:00',
+      content: '<p>平台将于本周进行<strong>安全加固专项</strong>：</p><p>包含账号口令策略、国密算法、访问审计等加固项，加固期间平台服务正常。</p>' }
+  ];
+
+  let currentPage = 1, pageSize = 5, total = 0;
+
+  function getFilters() {
+    return {
+      sender: document.getElementById('searchSender').value.trim()
+    };
+  }
+  function handleSearch() { currentPage = 1; renderTable(getFilters()); }
+  function handleReset() {
+    document.getElementById('searchSender').value = '';
+    currentPage = 1;
+    renderTable({});
+    showToast('已重置筛选');
+  }
+
+  function renderTable(filters = {}) {
+    const body = document.getElementById('tableBody');
+    const empty = document.getElementById('emptyState');
+    const rows = records.filter(r => {
+      return (!filters.sender || r.sender.includes(filters.sender));
+    });
+    total = rows.length;
+    const start = (currentPage - 1) * pageSize;
+    const pageRows = rows.slice(start, start + pageSize);
+
+    body.innerHTML = pageRows.map((r, i) => `
+      <tr>
+        <td>${start + i + 1}</td>
+        <td><button class="ant-btn ant-btn-text ant-btn-sm" onclick="showRecordDetail(${r.id})">${r.title}</button></td>
+        <td><span class="ant-tag ${catTag[r.cat] || 'ant-tag-gray'}">${r.cat}</span></td>
+        <td><span class="text-sm" style="color:var(--ant-text-secondary);">${r.scope}</span></td>
+        <td>${r.sender}</td>
+        <td style="font-variant-numeric:tabular-nums;">${r.time}</td>
+      </tr>
+    `).join('');
+    empty.classList.toggle('hidden', pageRows.length > 0);
+    updatePagination(total);
+  }
+
+  /* === 记录详情：抽屉展示（PRD 4.7：标题内容可展开查看）=== */
+  function showRecordDetail(id) {
+    const r = records.find(x => x.id === id);
+    if (!r) return;
+    document.getElementById('drawerTitle').textContent = '发送记录详情';
+    document.getElementById('drawerBody').innerHTML = `
+      <div class="ant-form-item"><div class="ant-form-label">消息标题</div><div>${r.title}</div></div>
+      <div class="ant-form-item"><div class="ant-form-label">消息分类</div><div>${r.cat}</div></div>
+      <div class="ant-form-item"><div class="ant-form-label">接收范围</div><div>${r.scope}</div></div>
+      <div class="ant-form-item"><div class="ant-form-label">发送人</div><div>${r.sender}</div></div>
+      <div class="ant-form-item"><div class="ant-form-label">发送时间</div><div class="mono">${r.time}</div></div>
+      <div class="ant-form-item"><div class="ant-form-label">消息内容</div><div class="record-content" style="font-size:14px;line-height:24px;">${r.content}</div></div>
+    `;
+    openDrawer('recordDrawer');
+  }
+  function openDrawer(id) {
+    document.getElementById(id).classList.add('active');
+    document.getElementById(id + 'Mask').classList.add('active');
+  }
+  function closeDrawer(id) {
+    document.getElementById(id).classList.remove('active');
+    document.getElementById(id + 'Mask').classList.remove('active');
+  }
+
+  /* === 分页 === */
+  function updatePagination(nextTotal) {
+    total = nextTotal;
+    const maxPage = Math.max(1, Math.ceil(total / pageSize));
+    currentPage = Math.min(currentPage, maxPage);
+    document.getElementById('paginationInfo').textContent = '共 ' + total + ' 条';
+    let btns = '';
+    for (let i = 1; i <= maxPage && i <= 5; i++) {
+      btns += `<button class="ant-pagination-item ${i === currentPage ? 'ant-pagination-item-active' : ''}" onclick="changePage(${i})">${i}</button>`;
+    }
+    document.getElementById('pageButtons').innerHTML = btns;
+  }
+  function changePage(page) {
+    const maxPage = Math.max(1, Math.ceil(total / pageSize));
+    currentPage = Math.min(Math.max(1, page), maxPage);
+    renderTable(getFilters());
+  }
+
+  function showToast(msg, duration) {
+    duration = duration || 2000;
+    var wrap = document.querySelector('.toast-wrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.className = 'toast-wrap';
+      wrap.setAttribute('role', 'status');
+      wrap.setAttribute('aria-live', 'polite');
+      document.body.appendChild(wrap);
+    }
+    var el = document.createElement('div');
+    el.className = 'toast-msg';
+    el.innerHTML = '<i class="fa-solid fa-circle-info" style="color:#1677ff;"></i>' + msg;
+    wrap.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add('show'); });
+    setTimeout(function () { el.classList.remove('show'); setTimeout(function () { el.remove(); }, 300); }, duration);
+  }
+
+  /* 初始化 */
+  renderTable({});
+
+  /* Esc 关闭抽屉 */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeDrawer('recordDrawer');
+  });
+</script>
+
+<!-- 发送记录详情抽屉 -->
+<div class="drawer-mask" id="recordDrawerMask" onclick="closeDrawer('recordDrawer')"></div>
+<aside class="drawer" id="recordDrawer" role="dialog" aria-labelledby="drawerTitle">
+  <header class="drawer-header">
+    <span id="drawerTitle">发送记录详情</span>
+    <button class="ant-btn ant-btn-text" onclick="closeDrawer('recordDrawer')" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+  </header>
+  <div class="drawer-body" id="drawerBody"></div>
+  <footer class="drawer-footer">
+    <button class="ant-btn" onclick="closeDrawer('recordDrawer')">关闭</button>
+  </footer>
+</aside>
+</body>
+</html>

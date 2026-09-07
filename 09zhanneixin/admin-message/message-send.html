@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>手动发送消息 - 站内信模块</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../proto-ui.css">
+  <link rel="stylesheet" href="../tailwind-fallback.css">
+</head>
+<body>
+<div class="layout">
+  <header class="header">
+    <div class="logo"><i class="fa-solid fa-bell"></i></div>
+    <span class="app-name">站内信模块</span>
+    <div class="spacer"></div>
+    <a href="../user-message/message-center.html" class="nav-action" style="text-decoration:none;" aria-label="消息中心">
+      <i class="fa-regular fa-bell mr-1"></i>消息中心
+    </a>
+    <div class="flex items-center gap-2" style="color:rgba(255,255,255,0.85);">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1677ff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">王</div>
+      <span style="font-size:13px;">王管理员</span>
+    </div>
+  </header>
+
+  <div class="content-wrap">
+    <aside class="sider">
+      <div class="menu-group-title">消息中心</div>
+      <a class="menu-item" href="../user-message/message-center.html"><i class="fa-solid fa-bell"></i>消息中心</a>
+      <div class="menu-group-title">站内信管理端</div>
+      <a class="menu-item active" href="message-send.html" aria-current="page"><i class="fa-solid fa-paper-plane"></i>手动发送消息</a>
+      <a class="menu-item" href="send-record.html"><i class="fa-solid fa-file-lines"></i>发送记录</a>
+    </aside>
+
+    <main class="main">
+      <div class="breadcrumb">
+        <a href="../index.html">首页</a><span>/</span><span class="current">手动发送消息</span>
+      </div>
+
+      <div class="page-title">手动发送消息</div>
+
+      <div class="ant-card ant-card-bordered" style="max-width:760px;">
+        <div class="ant-card-body">
+          <!-- 消息分类（PRD 4.6：固定为系统公告，无需选择） -->
+          <div class="ant-form-item">
+            <label class="ant-form-label">消息分类</label>
+            <div class="flex items-center gap-2">
+              <span class="ant-tag ant-tag-purple">系统公告</span>
+              <span class="text-sm text-tertiary">手动发送固定为系统公告</span>
+            </div>
+          </div>
+
+          <!-- 接收范围（PRD 4.6：三档互斥单选，DEC-004） -->
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">接收范围</label>
+            <div class="ant-radio-group mb-2" id="scopeRadioGroup">
+              <label class="ant-radio">
+                <input type="radio" name="scope" value="all" onclick="onScopeChange('all')">
+                <span>全体用户（本租户 128 人）</span>
+              </label>
+              <label class="ant-radio">
+                <input type="radio" name="scope" value="role" onclick="onScopeChange('role')">
+                <span>按角色</span>
+              </label>
+              <label class="ant-radio">
+                <input type="radio" name="scope" value="org" onclick="onScopeChange('org')">
+                <span>按组织</span>
+              </label>
+            </div>
+            <div id="scopeErr" class="text-error text-sm mb-2 hidden">请选择接收范围</div>
+
+            <!-- 按角色树状复选（支持搜索） -->
+            <div id="scopeRole" class="scope-panel hidden">
+              <div class="text-sm text-secondary mb-2">选择角色（树状复选，勾选父角色组包含其全部子角色）</div>
+              <div class="org-search mb-2">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input id="roleSearch" class="ant-input" placeholder="搜索角色名称" oninput="onTreeSearch('role', this.value)">
+              </div>
+              <div class="org-tree" id="roleTree"></div>
+              <div id="roleCountSum" class="count-sum"></div>
+              <div id="roleEmptyErr" class="text-error text-sm mt-2 hidden">所选范围无匹配用户，请至少选择 1 个角色</div>
+            </div>
+
+            <!-- 按组织树状复选（支持搜索） -->
+            <div id="scopeOrg" class="scope-panel hidden">
+              <div class="text-sm text-secondary mb-2">选择组织（树状复选，勾选父组织包含其全部子组织）</div>
+              <div class="org-search mb-2">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input id="orgSearch" class="ant-input" placeholder="搜索组织名称" oninput="onTreeSearch('org', this.value)">
+              </div>
+              <div class="org-tree" id="orgTree"></div>
+              <div id="orgCountSum" class="count-sum"></div>
+              <div id="orgEmptyErr" class="text-error text-sm mt-2 hidden">所选范围无匹配用户，请至少选择 1 个组织</div>
+            </div>
+          </div>
+
+          <!-- 消息标题（PRD 4.6：必填） -->
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">消息标题</label>
+            <input id="msgTitle" class="ant-input" style="width:100%" placeholder="请输入消息标题" oninput="clearErr('titleErr')">
+            <div id="titleErr" class="text-error text-sm mt-2 hidden">请输入消息标题</div>
+          </div>
+
+          <!-- 消息正文（PRD 4.6：富文本不限长度，DEC-007） -->
+          <div class="ant-form-item">
+            <label class="ant-form-label ant-form-label-required">消息内容</label>
+            <div class="rich-toolbar">
+              <button type="button" class="tool-btn" onclick="showToast('原型演示：加粗')"><i class="fa-solid fa-bold"></i></button>
+              <button type="button" class="tool-btn" onclick="showToast('原型演示：插入链接')"><i class="fa-solid fa-link"></i></button>
+              <button type="button" class="tool-btn" onclick="showToast('原型演示：插入列表')"><i class="fa-solid fa-list"></i></button>
+            </div>
+            <textarea id="msgBody" class="ant-input" rows="8" placeholder="请输入消息内容，支持富文本（加粗、链接），长度无限制" oninput="clearErr('bodyErr')"></textarea>
+            <div id="bodyErr" class="text-error text-sm mt-2 hidden">请输入消息内容</div>
+          </div>
+
+          <!-- 发送人（只读展示） -->
+          <div class="ant-form-item">
+            <label class="ant-form-label">发送人</label>
+            <span class="text-sm" style="color:var(--ant-text-secondary);">王管理员（平台管理员）</span>
+          </div>
+        </div>
+        <div class="ant-card-body" style="border-top:1px solid var(--ant-border-secondary);">
+          <div class="flex gap-2">
+            <button class="ant-btn ant-btn-primary" id="sendBtn" onclick="submitSend()"><i class="fa-solid fa-paper-plane"></i> 发送消息</button>
+            <button class="ant-btn" onclick="resetForm()"><i class="fa-solid fa-rotate-left"></i> 清空</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  let currentScope = null;
+  /* === 树数据：组织树 + 角色树（含覆盖用户数，CR-003 RT-06）=== */
+  const TREES = {
+    org: {
+      data: [
+        { id: 'org-root', name: '视频云平台', count: 128, children: [
+          { id: 'org-op', name: '运营中心', count: 42, children: [
+            { id: 'org-op1', name: '明厨亮灶业务部', count: 18, children: [] },
+            { id: 'org-op2', name: '园区安保部', count: 24, children: [] }
+          ]},
+          { id: 'org-tech', name: '技术中心', count: 36, children: [
+            { id: 'org-t1', name: '平台研发组', count: 15, children: [] },
+            { id: 'org-t2', name: '运维保障组', count: 21, children: [] }
+          ]},
+          { id: 'org-a', name: '片区A', count: 26, children: [] },
+          { id: 'org-b', name: '片区B', count: 24, children: [] }
+        ]}
+      ],
+      checked: {}, partial: {}, kw: '',
+      containerId: 'orgTree', searchId: 'orgSearch', subLabel: '个子组织', countSumId: 'orgCountSum'
+    },
+    role: {
+      data: [
+        { id: 'role-root', name: '全部角色', count: 128, children: [
+          { id: 'role-mgmt', name: '管理类', count: 8, children: [
+            { id: 'role-plat', name: '平台管理员', count: 3, children: [] },
+            { id: 'role-biz', name: '业务管理员', count: 5, children: [] }
+          ]},
+          { id: 'role-bizops', name: '业务类', count: 52, children: [
+            { id: 'role-op', name: '业务运营', count: 20, children: [] },
+            { id: 'role-handler', name: '处理人', count: 24, children: [] },
+            { id: 'role-auditor', name: '审核人', count: 8, children: [] }
+          ]},
+          { id: 'role-ops', name: '运维类', count: 10, children: [
+            { id: 'role-engineer', name: '运维工程师', count: 10, children: [] }
+          ]}
+        ]}
+      ],
+      checked: {}, partial: {}, kw: '',
+      containerId: 'roleTree', searchId: 'roleSearch', subLabel: '个子角色', countSumId: 'roleCountSum'
+    }
+  };
+
+  /* === 通用树渲染（递归，支持搜索过滤并保留祖先路径）=== */
+  function renderTree(type) {
+    const t = TREES[type];
+    const root = document.getElementById(t.containerId);
+    root.innerHTML = buildTreeHtml(t.data, t.kw, true, type);
+    syncIndeterminate(type);
+  }
+  function syncIndeterminate(type) {
+    const t = TREES[type];
+    document.querySelectorAll('#' + t.containerId + ' .tree-chk').forEach(function (cb) {
+      cb.indeterminate = !!t.partial[cb.dataset.id];
+    });
+  }
+  function buildTreeHtml(nodes, kw, isRoot, type) {
+    const t = TREES[type];
+    let html = '<ul class="org-list">';
+    for (const node of nodes) {
+      const selfMatch = !kw || node.name.toLowerCase().includes(kw.toLowerCase());
+      const childMatch = node.children.some(c => treeSubMatch(c, kw));
+      const show = !kw || selfMatch || childMatch;
+      if (!show) continue;
+      const hasChildren = node.children.length > 0;
+      const expanded = !kw || childMatch || selfMatch; // 搜索时自动展开匹配路径
+      const checkboxState = t.checked[node.id] ? 'checked' : '';
+      html += `<li class="org-node-li" data-id="${node.id}">
+        <div class="org-node ${isRoot ? 'org-root-node' : ''}">
+          ${hasChildren ? `<button type="button" class="org-toggle ${expanded ? 'org-open' : ''}" onclick="toggleTreeNode('${type}', '${node.id}')"><i class="fa-solid fa-chevron-right"></i></button>` : '<span class="org-toggle-placeholder"></span>'}
+          <label class="ant-checkbox">
+            <input type="checkbox" class="tree-chk" data-id="${node.id}" ${checkboxState} onclick="onTreeCheck('${type}', this, '${node.id}')">
+            <span>${node.name}</span>
+          </label>
+          <span class="org-leaf-count text-xs" style="color:var(--ant-text-tertiary);">${node.children.length ? node.children.length + ' ' + t.subLabel : ''}${node.count != null ? ' · ' + node.count + ' 人' : ''}</span>
+        </div>
+        ${hasChildren ? `<div class="org-children ${expanded ? '' : 'hidden'}">${buildTreeHtml(node.children, kw, false, type)}</div>` : ''}
+      </li>`;
+    }
+    html += '</ul>';
+    return html;
+  }
+  function treeSubMatch(node, kw) {
+    if (node.name.toLowerCase().includes(kw.toLowerCase())) return true;
+    return node.children.some(c => treeSubMatch(c, kw));
+  }
+  function toggleTreeNode(type, id) {
+    const li = document.querySelector('#' + TREES[type].containerId + ' .org-node-li[data-id="' + id + '"]');
+    const children = li && li.querySelector('.org-children');
+    const btn = li && li.querySelector('.org-toggle');
+    if (children) children.classList.toggle('hidden');
+    if (btn) btn.classList.toggle('org-open');
+  }
+
+  /* === 通用勾选：级联子节点 + 更新父节点半选（PRD 4.6 树状复选规则）=== */
+  function onTreeCheck(type, cb, id) {
+    const checked = cb.checked;
+    setTreeChecked(type, TREES[type].data, id, checked);
+    updateTreePartial(type);
+    renderTree(type);
+    updateCountSum(type);
+    // I5 UI 评审：勾选节点后清除"范围无匹配用户"错误提示与红框
+    clearEmptyErr(type === 'role' ? 'roleEmptyErr' : 'orgEmptyErr');
+  }
+  function setTreeChecked(type, nodes, id, checked) {
+    for (const node of nodes) {
+      if (node.id === id) { TREES[type].checked[id] = checked; node.children.forEach(c => setSubChecked(type, c, checked)); return; }
+      setTreeChecked(type, node.children, id, checked);
+    }
+  }
+  function setSubChecked(type, node, checked) { TREES[type].checked[node.id] = checked; node.children.forEach(c => setSubChecked(type, c, checked)); }
+  function updateTreePartial(type) {
+    const t = TREES[type];
+    // 后序遍历：先计算子节点状态，再据此求父节点半选/勾选
+    walkPost(t.data, function (node) {
+      if (node.children.length === 0) { t.partial[node.id] = false; return; }
+      const s = node.children.map(c => t.checked[c.id] ? 'full' : t.partial[c.id] ? 'partial' : 'none');
+      if (s.every(x => x === 'full')) { t.checked[node.id] = true; t.partial[node.id] = false; }
+      else if (s.every(x => x === 'none')) { t.checked[node.id] = false; t.partial[node.id] = false; }
+      else { t.checked[node.id] = false; t.partial[node.id] = true; }
+    });
+  }
+  function walkPost(nodes, fn) { nodes.forEach(n => { walkPost(n.children, fn); fn(n); }); }
+
+  /* === 通用搜索过滤 === */
+  function onTreeSearch(type, v) { TREES[type].kw = v.trim(); renderTree(type); }
+
+  /* === 选中节点名称统计（含父节点覆盖的子节点）=== */
+  function selectedNames(type, nodes, acc) {
+    nodes.forEach(n => { if (TREES[type].checked[n.id]) acc.push(n.name); selectedNames(type, n.children, acc); });
+    return acc;
+  }
+
+  /* === 覆盖用户数统计：选中节点（含父含子覆盖）的用户数汇总（CR-003 RT-06）=== */
+  function countCovered(type) {
+    const t = TREES[type];
+    let total = 0;
+    (function walk(nodes) {
+      nodes.forEach(n => {
+        if (t.checked[n.id]) { total += (n.count != null ? n.count : 0); return; } // 勾选父含子，直接累加该节点覆盖数
+        walk(n.children);
+      });
+    })(t.data);
+    return total;
+  }
+  function selectedTreeNodeCount(type) {
+    return selectedNames(type, TREES[type].data, []).length;
+  }
+  /* 更新已选汇总条 */
+  function updateCountSum(type) {
+    const el = document.getElementById(TREES[type].countSumId);
+    if (!el) return;
+    const n = selectedTreeNodeCount(type);
+    if (n === 0) { el.textContent = ''; return; }
+    el.textContent = '已选 ' + n + ' 个 · 覆盖 ' + countCovered(type) + ' 人';
+  }
+
+  /* === 接收范围三档互斥（PRD DEC-004）=== */
+  function onScopeChange(scope) {
+    currentScope = scope;
+    clearErr('scopeErr');
+    document.getElementById('scopeRole').classList.toggle('hidden', scope !== 'role');
+    document.getElementById('scopeOrg').classList.toggle('hidden', scope !== 'org');
+    clearEmptyErr('roleEmptyErr'); clearEmptyErr('orgEmptyErr');
+    // 切换时刷新已选汇总
+    if (scope === 'role') updateCountSum('role');
+    if (scope === 'org') updateCountSum('org');
+  }
+
+  /* === 提交发送：必填校验（PRD 4.6 字段；分类固定系统公告）=== */
+  function submitSend() {
+    let ok = true;
+    const titleInput = document.getElementById('msgTitle');
+    const bodyInput = document.getElementById('msgBody');
+    const scopeGroup = document.getElementById('scopeRadioGroup');
+    const title = titleInput.value.trim();
+    const body = bodyInput.value.trim();
+    if (!currentScope) { showErr('scopeErr'); scopeGroup.classList.add('is-error'); ok = false; }
+    if (!title) { showErr('titleErr'); titleInput.classList.add('is-error'); ok = false; }
+    if (!body) { showErr('bodyErr'); bodyInput.classList.add('is-error'); ok = false; }
+
+    // 范围选了具体档位但未勾选任一对象 → 提示无匹配用户
+    if (ok && currentScope !== 'all') {
+      const selected = selectedNames(currentScope, TREES[currentScope].data, []).length;
+      if (selected === 0) {
+        const errId = currentScope === 'role' ? 'roleEmptyErr' : 'orgEmptyErr';
+        const panelId = currentScope === 'role' ? 'scopeRole' : 'scopeOrg';
+        showErr(errId);
+        document.getElementById(panelId).classList.add('is-error');
+        ok = false;
+      }
+    }
+    if (!ok) {
+      // I5 UI 评审：聚焦第一个错误字段
+      if (!currentScope) { scopeGroup.querySelector('input').focus(); }
+      else if (!title) { titleInput.focus(); }
+      else if (!body) { bodyInput.focus(); }
+      return;
+    }
+
+    doSend();
+  }
+
+  function doSend() {
+    const scopeText = scopeLabel();
+    // I4 UI 评审：发送成功不自动跳转，按钮变成功态，避免打断连续发消息
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> 已发送';
+    showToast('消息已发送至 ' + scopeText + '，可在发送记录中查看');
+  }
+
+  function scopeLabel() {
+    if (currentScope === 'all') return '全体用户';
+    const names = selectedNames(currentScope, TREES[currentScope].data, []);
+    return (currentScope === 'role' ? '角色：' : '组织：') + names.join('、');
+  }
+
+  /* === 清空表单 === */
+  function resetForm() {
+    // I4 UI 评审：重置时恢复发送按钮为可发送态
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> 发送消息';
+    document.getElementById('msgTitle').value = '';
+    document.getElementById('msgBody').value = '';
+    document.querySelectorAll('input[name="scope"]').forEach(r => r.checked = false);
+    document.querySelectorAll('.scope-panel').forEach(p => p.classList.add('hidden'));
+    currentScope = null;
+    document.querySelectorAll('.text-error').forEach(e => e.classList.add('hidden'));
+    Object.keys(TREES).forEach(type => {
+      const t = TREES[type];
+      Object.keys(t.checked).forEach(k => { t.checked[k] = false; t.partial[k] = false; });
+      t.kw = '';
+      document.getElementById(t.searchId).value = '';
+      renderTree(type);
+    });
+    showToast('已清空表单');
+  }
+
+  function showErr(id) { document.getElementById(id).classList.remove('hidden'); }
+  /* I5 UI 评审：清错误文字的同时清除对应字段红框 */
+  function clearErr(id) {
+    document.getElementById(id).classList.add('hidden');
+    const map = { titleErr: 'msgTitle', bodyErr: 'msgBody', scopeErr: 'scopeRadioGroup' };
+    if (map[id]) { const el = document.getElementById(map[id]); if (el) el.classList.remove('is-error'); }
+  }
+  function clearEmptyErr(id) {
+    document.getElementById(id).classList.add('hidden');
+    const panelMap = { roleEmptyErr: 'scopeRole', orgEmptyErr: 'scopeOrg' };
+    if (panelMap[id]) { const el = document.getElementById(panelMap[id]); if (el) el.classList.remove('is-error'); }
+  }
+
+  function showToast(msg, duration) {
+    duration = duration || 2000;
+    var wrap = document.querySelector('.toast-wrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.className = 'toast-wrap';
+      wrap.setAttribute('role', 'status');
+      wrap.setAttribute('aria-live', 'polite');
+      document.body.appendChild(wrap);
+    }
+    var el = document.createElement('div');
+    el.className = 'toast-msg';
+    el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--ant-success);"></i>' + msg;
+    wrap.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add('show'); });
+    setTimeout(function () { el.classList.remove('show'); setTimeout(function () { el.remove(); }, 300); }, duration);
+  }
+
+  /* === 告警全体二次确认弹窗（CR-004 移除：手动发送固定系统公告，不再适用）=== */
+
+  /* === 本页样式 === */
+  const style = document.createElement('style');
+  style.textContent = `
+    .scope-panel { background:#fafafa; border:1px solid var(--ant-border-secondary); border-radius:8px; padding:12px 16px; margin-top:8px; }
+    .rich-toolbar { display:flex; gap:4px; margin-bottom:8px; border:1px solid var(--ant-border); border-bottom:none; border-radius:4px 4px 0 0; padding:6px 8px; background:#fff; }
+    .tool-btn { width:28px; height:28px; border:1px solid var(--ant-border); border-radius:4px; background:#fff; color:var(--ant-text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; }
+    .tool-btn:hover { color:var(--ant-primary); border-color:var(--ant-primary); }
+    /* 组织树组件 */
+    .org-search { position:relative; }
+    .org-search i { position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:12px; color:var(--ant-text-tertiary); }
+    .org-search .ant-input { padding-left:30px; }
+    .org-tree { max-height:240px; overflow-y:auto; border:1px solid var(--ant-border-secondary); border-radius:8px; padding:8px 4px; background:#fff; }
+    .org-list { list-style:none; margin:0; padding:0 0 0 0; }
+    .org-list .org-list { padding-left:22px; }
+    .org-node { display:flex; align-items:center; gap:6px; padding:3px 6px; border-radius:4px; }
+    .org-node:hover { background:#f5f5f5; }
+    .org-root-node { font-weight:600; }
+    .org-toggle { width:22px; height:22px; border:none; background:transparent; cursor:pointer; color:var(--ant-text-tertiary); display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
+    .org-toggle .fa-chevron-right { transition:transform 0.2s; }
+    .org-toggle.org-open .fa-chevron-right { transform:rotate(90deg); }
+    .org-toggle-placeholder { width:22px; flex-shrink:0; }
+    .count-sum { margin-top:8px; padding:6px 10px; background:var(--ant-primary-bg); color:var(--ant-primary); border-radius:4px; font-size:13px; font-weight:500; min-height:20px; }
+    /* I5 UI 评审：校验失败红框（输入框红边+外圈，范围/面板红圈，均不改变盒模型） */
+    .ant-input.is-error { border-color: var(--ant-error); box-shadow: 0 0 0 2px rgba(255,77,79,0.1); }
+    .scope-panel.is-error, .ant-radio-group.is-error { box-shadow: 0 0 0 1px var(--ant-error); border-radius: 4px; }
+  `;
+  document.head.appendChild(style);
+
+  /* 初始化：渲染组织树 + 角色树 */
+  renderTree('org');
+  renderTree('role');
+</script>
+</body>
+</html>
