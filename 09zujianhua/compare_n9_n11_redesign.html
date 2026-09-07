@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>研发实施对照全景 · 202606 轨迹功能 vs 2026-08 N9/N11 (功能树+数据库边界+API契约)</title>
+<style>
+  :root {
+    --bg-page: #f8fafc;
+    --bg-card: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --text-sub: #64748b;
+    --border-light: #e2e8f0;
+    --border-subtle: #f1f5f9;
+
+    /* 语义分类色 */
+    --keep-color: #10b981;
+    --keep-bg: #ecfdf5;
+    --keep-border: #a7f3d0;
+    --keep-text: #065f46;
+
+    --adj-color: #f59e0b;
+    --adj-bg: #fffbeb;
+    --adj-border: #fde68a;
+    --adj-text: #92400e;
+
+    --new-color: #2563eb;
+    --new-bg: #eff6ff;
+    --new-border: #bfdbfe;
+    --new-text: #1e40af;
+
+    --n9-color: #0284c7;
+    --n9-bg: #f0f9ff;
+    --n9-border: #bae6fd;
+    --n9-text: #0369a1;
+
+    --n11-color: #ea580c;
+    --n11-bg: #fff7ed;
+    --n11-border: #fed7aa;
+    --n11-text: #c2410c;
+
+    --danger-color: #ef4444;
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --danger-text: #991b1b;
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 顶部导航与 Header */
+  .top-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #172554 100%);
+    color: #ffffff;
+    padding: 36px 32px 30px;
+    border-bottom: 1px solid #334155;
+    position: relative;
+    overflow: hidden;
+  }
+  .top-header::after {
+    content: "";
+    position: absolute;
+    top: -100px;
+    right: -50px;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(37, 99, 235, 0) 70%);
+    pointer-events: none;
+  }
+  .header-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .badge-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .badge-blue { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3); }
+  .badge-date { background: rgba(255, 255, 255, 0.1); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.15); }
+  
+  .title-main {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .title-main span.n9 { color: #38bdf8; }
+  .title-main span.n11 { color: #fb923c; }
+
+  .subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+    max-width: 1060px;
+    line-height: 1.6;
+  }
+
+  /* 核心指标统计卡 */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  }
+  .stat-card.active {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4);
+  }
+  .stat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stat-count {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-desc {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  .stat-card.c-keep .stat-count { color: #34d399; }
+  .stat-card.c-adj .stat-count { color: #fbbf24; }
+  .stat-card.c-new .stat-count { color: #60a5fa; }
+  .stat-card.c-all .stat-count { color: #f8fafc; }
+
+  /* 主体内容容器 */
+  .main-wrapper {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 24px 24px 80px;
+  }
+
+  /* 交互控制栏 */
+  .controls-panel {
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 12px;
+    z-index: 40;
+  }
+  .view-tabs {
+    display: flex;
+    gap: 6px;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 8px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab-btn:hover { color: var(--text-main); }
+  .tab-btn.active {
+    background: #ffffff;
+    color: #0f172a;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .filter-select, .search-input {
+    font-size: 13px;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: var(--text-main);
+    background: #ffffff;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .filter-select:focus, .search-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  }
+  .search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .search-input { width: 240px; padding-left: 30px; }
+  .search-icon {
+    position: absolute;
+    left: 9px;
+    color: #94a3b8;
+    font-size: 13px;
+    pointer-events: none;
+  }
+
+  /* 通用卡片容器 */
+  .section-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  /* ------------------- 数据库边界与契约样式 ------------------- */
+  .arch-section-header {
+    padding: 16px 20px;
+    background: linear-gradient(90deg, #f8fafc 0%, #ffffff 100%);
+    border-bottom: 1px solid var(--border-light);
+    border-left: 5px solid #334155;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .arch-section-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .arch-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .boundary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .boundary-box {
+    border-radius: 10px;
+    padding: 18px 20px;
+    border: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .boundary-box.n9 { background: var(--n9-bg); border-color: var(--n9-border); }
+  .boundary-box.n11 { background: var(--n11-bg); border-color: var(--n11-border); }
+  
+  .b-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed;
+  }
+  .boundary-box.n9 .b-head { border-color: var(--n9-border); }
+  .boundary-box.n11 .b-head { border-color: var(--n11-border); }
+
+  .b-title {
+    font-size: 15px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .boundary-box.n9 .b-title { color: var(--n9-text); }
+  .boundary-box.n11 .b-title { color: var(--n11-text); }
+
+  .b-asset-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 13px;
+  }
+  .b-asset-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+  }
+  .b-asset-name {
+    font-weight: 700;
+    color: var(--text-main);
+    white-space: nowrap;
+    min-width: 140px;
+  }
+  .b-asset-desc {
+    color: var(--text-muted);
+    font-size: 12.5px;
+  }
+
+  /* API 契约与避坑红线 */
+  .api-contract-wrapper {
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    background: #fafbfc;
+    padding: 18px 20px;
+  }
+  .contract-header {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .api-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .api-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 14px 16px;
+    border: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .api-card.legal {
+    border-left: 4px solid var(--keep-color);
+    background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+  }
+  .api-card.illegal {
+    border-left: 4px solid var(--danger-color);
+    background: linear-gradient(180deg, #fef2f2 0%, #ffffff 100%);
+  }
+  .api-card-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .api-card.legal .api-card-title { color: #065f46; }
+  .api-card.illegal .api-card-title { color: #991b1b; }
+
+  .api-card-content {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .api-card-content b { color: var(--text-main); }
+  .api-card-content ul { padding-left: 18px; margin-top: 4px; }
+  .api-card-content li { margin-bottom: 4px; }
+
+  /* ------------------- 功能树表格样式 ------------------- */
+  .tree-matrix-view {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .module-header {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .module-header.m-n9 { background: linear-gradient(90deg, #f0f9ff 0%, #ffffff 100%); border-left: 5px solid #0284c7; }
+  .module-header.m-n11 { background: linear-gradient(90deg, #fff7ed 0%, #ffffff 100%); border-left: 5px solid #ea580c; }
+  .module-header.m-base { background: linear-gradient(90deg, #f8fafc 0%, #ffffff 100%); border-left: 5px solid #64748b; }
+
+  .module-title-wrap { display: flex; align-items: center; gap: 10px; }
+  .module-icon { font-size: 20px; }
+  .module-title { font-size: 16px; font-weight: 800; color: #0f172a; }
+  .module-subtitle { font-size: 13px; color: #64748b; font-weight: normal; margin-left: 6px; }
+
+  .tree-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+  }
+  .tree-table thead th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+  .tree-table tbody td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: top;
+    color: var(--text-main);
+    line-height: 1.55;
+  }
+  .tree-table tbody tr:hover td { background: #f8fafc; }
+
+  td.submodule-cell {
+    background: #fafbfc;
+    font-weight: 700;
+    color: #334155;
+    border-right: 1px solid var(--border-light);
+    width: 150px;
+    vertical-align: middle;
+  }
+  .submodule-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; }
+
+  .scope-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+  .tag-n9 { background: var(--n9-bg); color: var(--n9-color); border: 1px solid var(--n9-border); }
+  .tag-n11 { background: var(--n11-bg); color: var(--n11-color); border: 1px solid var(--n11-border); }
+  .tag-base { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+  .type-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .pill-keep { background: var(--keep-bg); color: var(--keep-text); border: 1px solid var(--keep-border); }
+  .pill-adj { background: var(--adj-bg); color: var(--adj-text); border: 1px solid var(--adj-border); }
+  .pill-new { background: var(--new-bg); color: var(--new-text); border: 1px solid var(--new-border); }
+
+  .text-old { color: #64748b; font-size: 12.5px; }
+  .text-new { color: #0f172a; font-size: 12.5px; font-weight: 600; }
+  .text-impact { color: #334155; font-size: 12.5px; }
+  .text-impact b { color: #0f172a; }
+
+  .code-token {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 11.5px;
+    background: #f1f5f9;
+    color: #0f172a;
+    padding: 1px 5px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+  }
+
+  /* ------------------- 看板视图 ------------------- */
+  .kanban-view {
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .kanban-col {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .kanban-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fafbfc;
+  }
+  .col-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .col-badge { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  .col-keep .kanban-header { border-top: 4px solid var(--keep-color); }
+  .col-keep .col-badge { background: var(--keep-bg); color: var(--keep-text); border: 1px solid var(--keep-border); }
+  .col-adj .kanban-header { border-top: 4px solid var(--adj-color); }
+  .col-adj .col-badge { background: var(--adj-bg); color: var(--adj-text); border: 1px solid var(--adj-border); }
+  .col-new .kanban-header { border-top: 4px solid var(--new-color); }
+  .col-new .col-badge { background: var(--new-bg); color: var(--new-text); border: 1px solid var(--new-border); }
+
+  .kanban-body {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #f8fafc;
+    min-height: 400px;
+  }
+  .item-card {
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 12px 14px;
+    box-shadow: var(--shadow-sm);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* ------------------- 落地计划视图 ------------------- */
+  .plan-view { display: none; flex-direction: column; gap: 16px; }
+  .plan-step {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    padding: 18px 20px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .step-num-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #0f172a;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-content { flex: 1; }
+  .step-title { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
+  .step-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+  @media (max-width: 1080px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .boundary-grid, .api-grid { grid-template-columns: 1fr; }
+    .kanban-view { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .controls-panel { flex-direction: column; align-items: stretch; }
+    .search-input { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部头部 ===== -->
+<header class="top-header">
+  <div class="header-container">
+    <div class="badge-row">
+      <span class="badge-pill badge-blue">🛠️ 研发实施指南 · 组件化改造全景</span>
+      <span class="badge-pill badge-date">📅 整理基准：2026-08-25</span>
+      <span class="badge-pill badge-date">📦 演进：2026-06 平台应用模块 ➔ 2026-08 1+N 独立组件</span>
+    </div>
+    <h1 class="title-main">
+      2026-06 轨迹相关功能 vs 2026-08 <span class="n9">N9 轨迹查询</span> / <span class="n11">N11 布控预警</span> 全景功能与架构对照
+    </h1>
+    <p class="subtitle">
+      包含 <b>功能树变更矩阵（一级 ➔ 二级 ➔ 功能点 ➔ 分类 ➔ 差异 ➔ 动作）</b>、<b>N9/N11 数据库资产物理边界</b> 以及 <b>跨组件 API 交互契约与避坑红线</b>，为研发提供清晰、防错的实施指引。
+    </p>
+
+    <!-- 顶部核心指标卡 -->
+    <div class="stats-grid">
+      <div class="stat-card c-all active" onclick="setQuickFilter('all')">
+        <div class="stat-card-header">
+          <span class="stat-label">📋 全量功能点</span>
+          <span class="stat-count">27</span>
+        </div>
+        <div class="stat-desc">跨 N9、N11 及底层支撑全量交付点</div>
+      </div>
+
+      <div class="stat-card c-keep" onclick="setQuickFilter('keep')">
+        <div class="stat-card-header">
+          <span class="stat-label">🟢 沿用不动</span>
+          <span class="stat-count">9</span>
+        </div>
+        <div class="stat-desc">核心交互、时空碰撞、推流能力零成本复用</div>
+      </div>
+
+      <div class="stat-card c-adj" onclick="setQuickFilter('adj')">
+        <div class="stat-card-header">
+          <span class="stat-label">🟡 存量调整</span>
+          <span class="stat-count">7</span>
+        </div>
+        <div class="stat-desc">重点：物理分库、删一键布控、终态自动归档</div>
+      </div>
+
+      <div class="stat-card c-new" onclick="setQuickFilter('new')">
+        <div class="stat-card-header">
+          <span class="stat-label">🔵 全新开发</span>
+          <span class="stat-count">11</span>
+        </div>
+        <div class="stat-desc">特征底库向量库、接入管理、配额独立阻断</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 主体内容区 ===== -->
+<main class="main-wrapper">
+
+  <!-- 交互控制栏 -->
+  <div class="controls-panel">
+    <!-- 视图切换 -->
+    <div class="view-tabs">
+      <button class="tab-btn active" onclick="switchView('tree-matrix')">
+        <span>🌳 功能树矩阵视图 (一级➔二级➔功能点)</span>
+      </button>
+      <button class="tab-btn" onclick="switchView('arch')">
+        <span>🏛️ 数据库物理边界与 API 契约</span>
+      </button>
+      <button class="tab-btn" onclick="switchView('kanban')">
+        <span>🗂️ 变更看板视图 (按不动/调整/新增)</span>
+      </button>
+      <button class="tab-btn" onclick="switchView('plan')">
+        <span>🚀 研发落地作战计划</span>
+      </button>
+    </div>
+
+    <!-- 筛选过滤器 -->
+    <div class="filter-group">
+      <select class="filter-select" id="type-filter" onchange="applyFilters()">
+        <option value="all">🏷️ 变更分类: 全部 (27)</option>
+        <option value="keep">🟢 沿用不动 (9)</option>
+        <option value="adj">🟡 存量调整 (7)</option>
+        <option value="new">🔵 全新开发 (11)</option>
+      </select>
+
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="search-input" placeholder="搜索功能点..." oninput="applyFilters()">
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 视图 1：功能树分级矩阵视图 ==================== -->
+  <div class="tree-matrix-view" id="view-tree-matrix">
+
+    <!-- 1. 一级功能：N9 轨迹查询组件 -->
+    <section class="section-card" data-module="n9">
+      <div class="module-header m-n9">
+        <div class="module-title-wrap">
+          <span class="module-icon">🔷</span>
+          <span class="module-title">一级功能：N9 轨迹查询组件 (找得到 · 事后回溯研判)</span>
+          <span class="module-subtitle">包含轨迹检索、时空分析、研判报告与分析接入</span>
+        </div>
+        <span class="scope-tag tag-n9">独立 SKU / 部署</span>
+      </div>
+
+      <table class="tree-table">
+        <thead>
+          <tr>
+            <th style="width: 140px;">二级功能</th>
+            <th style="width: 170px;">功能点</th>
+            <th style="width: 100px;">变更分类</th>
+            <th style="width: 250px;">6月旧实现 (Baseline)</th>
+            <th style="width: 270px;">8月新规划 (Target)</th>
+            <th>研发关键动作与技术影响</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 轨迹检索 -->
+          <tr data-type="keep">
+            <td class="submodule-cell" rowspan="3">
+              <div class="submodule-tag">🔍 轨迹检索</div>
+            </td>
+            <td><b>人/车多模态轨迹查询</b></td>
+            <td><span class="type-pill pill-keep">🟢 沿用不动</span></td>
+            <td class="text-old">以图/文搜人、以图/文/车牌搜车；人工确认；迭代缩圈检索；时间轴与抓拍详情。</td>
+            <td class="text-new">交互流程与视觉展现完全保持一致。</td>
+            <td class="text-impact">零开发成本，前后端业务链路与算法调用链直接沿用。</td>
+          </tr>
+          <tr data-type="new">
+            <td><b>跨组件选目标检索</b></td>
+            <td><span class="type-pill pill-new">🔵 全新开发</span></td>
+            <td class="text-old">无跨组件调用（同模块直接读本地表）。</td>
+            <td class="text-new">检索弹窗增加「从目标库选择」，调用 N11 公开 API 读名单图片发起检索。</td>
+            <td class="text-impact">N9 前端对接 N11 OpenAPI；做未装 N11 时的优雅隐藏降级。<b>严禁反向写库！</b></td>
+          </tr>
+          <tr data-type="new">
+            <td><b>特征索引 (检索底库)</b></td>
+            <td><span class="type-pill pill-new">🔵 全新开发</span></td>
+            <td class="text-old">无独立检索底库，借用目标库特征向量。</td>
+            <td class="text-new"><b>N9 私有数据底库</b>：独立的以图搜人/车算法向量索引库。</td>
+            <td class="text-impact">搭建 N9 独占的特征向量存储与检索服务，与业务名单库彻底解耦。</td>
+          </tr>
+
+          <!-- 轨迹分析与对比 -->
+          <tr data-type="keep">
+            <td class="submodule-cell" rowspan="3">
+              <div class="submodule-tag">📊 轨迹分析对比</div>
+            </td>
+            <td><b>多目标轨迹碰撞对比</b></td>
+            <td><span class="type-pill pill-keep">🟢 沿用不动</span></td>
+            <td class="text-old">2 目标轨迹叠加、5 分钟窗口接触判定、黄色闪烁圈与红色碰撞轨迹标注。</td>
+            <td class="text-new">时空碰撞计算模型与前端地图图层保持不变。</td>
+            <td class="text-impact">沿用现有碰撞算法与前端渲染组件。</td>
+          </tr>
+          <tr data-type="adj">
+            <td><b>取消轨迹一键布控</b></td>
+            <td><span class="type-pill pill-adj">🟡 存量调整</span></td>
+            <td class="text-old">轨迹结果详情页提供「一键加入布控」按钮，直接创建布控。</td>
+            <td class="text-new"><b>彻底取消一键布控</b>，不向 N11 目标库或布控库反向写入数据。</td>
+            <td class="text-impact"><b>N9 前端下线「加入布控」按钮</b>；废弃向 N11 导入目标的数据写入通道。</td>
+          </tr>
+          <tr data-type="new">
+            <td><b>录像可用性联动规则</b></td>
+            <td><span class="type-pill pill-new">🔵 全新开发</span></td>
+            <td class="text-old">未明确定义录像可用性与历史追溯规则。</td>
+            <td class="text-new">轨迹分析强依赖录像可用，数据<b>自开启时刻起产生，不回溯历史录像</b>。</td>
+            <td class="text-impact">开启轨迹分析前增加录像流探活与时间戳水位线控制校验。</td>
+          </tr>
+
+          <!-- 研判报告 -->
+          <tr data-type="keep">
+            <td class="submodule-cell">
+              <div class="submodule-tag">📑 研判报告</div>
+            </td>
+            <td><b>轨迹研判 PDF 导出</b></td>
+            <td><span class="type-pill pill-keep">🟢 沿用不动</span></td>
+            <td class="text-old">PDF 导出（包含地图截图 + 抓拍图片 + 时间线），单个文件 ≤ 50MB。</td>
+            <td class="text-new">严格归属 N9 组件独占，报告结构与导出格式保持不变。</td>
+            <td class="text-impact">保留在 N9 内部作为研判专属导出微服务。</td>
+          </tr>
+
+          <!-- 接入管理 -->
+          <tr data-type="new">
+            <td class="submodule-cell" rowspan="2">
+              <div class="submodule-tag">⚙️ 轨迹接入管理</div>
+            </td>
+            <td><b>轨迹分析接入管理 (P-013a)</b></td>
+            <td><span class="type-pill pill-new">🔵 全新开发</span></td>
+            <td class="text-old">无独立管理页面，属于全局统一设备配置。</td>
+            <td class="text-new">N9 内部独立管理页：轨迹分析设备开关、通道状态、权限 <span class="code-token">n9:analysis:admin</span>。</td>
+            <td class="text-impact">新增 P-013a 原型页；独立拆分 <span class="code-token">analysis_device_config</span> 表结构。</td>
+          </tr>
+          <tr data-type="new">
+            <td><b>轨迹配额计量与硬阻断</b></td>
+            <td><span class="type-pill pill-new">🔵 全新开发</span></td>
+            <td class="text-old">混合计量或无严格阻断。</td>
+            <td class="text-new">N9 轨迹分析路数配额独立计量、超额硬阻断。</td>
+            <td class="text-impact">开发 N9 独立 License 校验与原子路数计数器。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 2. 一级功能：N11 布控预警组件 -->
+    <section class="section-card" data-module="n11">
+      <div class="module-header m-n11">
+        <div class="module-title-wrap">
+          <span class="module-icon">🔶</span>
+          <span class="module-title">一级功能：N11 布控预警组件 (盯得住 · 事前防控预警)</span>
+          <span class="module-subtitle">包含目标库、布控任务、告警流转与比对接入</span>
+        </div>
+        <span class="scope-tag tag-n11">独立 SKU / 部署</span>
+      </div>
+
+      <table class="tree-table">
+        <thead>
+          <tr>
+            <th style="width: 140px;">二级功能</th>
+            <th style="width: 170px;">功能点</th>
+            <th style="width: 100px;">变更分类</th>
+            <th style="width: 250px;">6月旧实现 (Baseline)</th>
+            <th style="width: 270px;">8月新规划 (Target)</th>
+            <th>研发关键动作与技术影响</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 目标库管理 -->
+          <tr data-type="keep">
+            <td class="submodule-cell" rowspan="2">
+              <div class="submodule-tag">👥 目标库管理</div>
+            </td>
+            <td><b>目标库交互框架</b></td>
+            <td><span class="type-pill pill-keep">🟢 沿用不动</span></td>
+            <td class="text-old">卡片/列表双视图、人/车标签筛选、CRUD 交互。</td>
+            <td class="text-new">UI 交互形态与视图组件完全保持一致。</td>
+            <td class="text-impact">沿用前端基础框架（仅将 API 请求指向 N11 内部服务）。</td>
+          </tr>
+          <tr data-type="adj">
+            <td><b>目标库归属与生命周期</b></td>
+            <td><span class="type-pill pill-adj">🟡 存量调整</span></td>
+            <td class="text-old">N9 内置「布控任务快捷素材库」（简易收藏夹）。</td>
+            <td class="text-new"><b>迁至 N11 独占</b>，升级为系统级权威「重点目标名单库」。</td>
+            <td class="text-impact">执行数据表物理迁移至 N11；补齐生命周期（草稿/启用/停用/归档）、特征版本与重复合并。</td>
+          </tr>
+
+          <!-- 布控任务管理 -->
+          <tr data-type="keep">
+            <td class="submodule-cell" rowspan="4">
+              <div class="submodule-tag">🎯 布控任务管理</div>
+            </td>
+            <td><b>布控参数与生命周期</b></td>
+            <td><span class="type-pill pill-keep">🟢 沿用不动</span></td>
+            <td class="text-old">相似度阈值（0~100%）、最长 30 天、到期失效、暂停/恢复/删除。</td>
+            <td class="text-new">核心调度模型与状态流转保持不变。</td>
+            <td class="text-impact">沿用任务状态机与周期调度引擎。</td>
+          </tr>
+          <tr data-type="adj">
+            <td><b>布控创建方式收敛</b></td>
+            <td><span class="type-pill pill-adj">🟡 存量调整</span></td>
+            <td class="text-old">支持 3 种：快捷布控 / 轨迹一键布控 / 目标库布控。</td>
+            <td class="text-new">保留 2 种：快捷布控 / 目标库布控；<b>废弃轨迹一键布控</b>。</td>
+            <td class="text-impact">目标来源收敛为「手动创建/布控自动保存/告警命中导入」3 种。</td>
+          </tr>
+          <tr data-type="new">
+            <td><b>任务目标等级划分</b></td>
+            <td><span class="type-pill pill-new">🔵 全新开发</span></td>
+            <td class="text-old">无任务等级定义。</td>
+            <td class="text-new">布控任务创建支持选择<b>高 / 中 / 低危</b>等级。</td>
+            <td class="text-impact">布控任务表增加 <span class="code-token">target_level</span> 字段；为后续告警快照提供源数据。</td>
+          </tr>
+          <tr data-type="new">
+            <td><b>比对范围动态计算规则</b></td>
+            <td><span class="type-pill pill-new">🔵 全新开发</span></td>
+            <td class="text-old">未定义设备关闭与任务范围的联动交集。</td>
+            <td class="text-new">生效范围 = <b>目录设备 ∩ 已开启布控比对设备</b>；关闭设备动态剔除。</td>
+            <td class="text-impact">在布控下发与比对引擎中增加动态交集计算与设备变更事件监听。</td>
+          </tr>
+
+          <!-- 告警与处置闭环 -->
+          <tr data-type="keep">
+            <td class="submodule-cell" rowspan="4">
+              <div class="submodule-tag">🚨 告警预警闭环</div>
+            </td>
+            <td><b>实时推流与防风暴</b></td>
+            <td><span class="type-pill pill-keep">🟢 沿用不动</span></td>
+            <td class="text-old">WebSocket 实时推送、同目标 5 分钟去重防风暴、前后 15s 录像预览。</td>
+            <td class="text-new">推送管道、防风暴机制与录像预览时间线保持不变。</td>
+            <td class="text-impact">沿用 WebSocket 推送通道与录像截取逻辑。</td>
+          </tr>
+          <tr data-type="adj">
+            <td><b>告警判定与自动归档</b></td>
+            <td><span class="type-pill pill-adj">🟡 存量调整</span></td>
+            <td class="text-old">仅「已处理 / 忽略」，存在后续二次核查流程。</td>
+            <td class="text-new"><b>告警判定（属实/误报/重复）+ 处置方式 + 提交即归档（终态不可逆）</b>。</td>
+            <td class="text-impact">告警弹窗增加判定维度字段；状态机改造为提交即终态；<b>彻底删除独立二次归档流程</b>。</td>
+          </tr>
+          <tr data-type="new">
+            <td><b>告警多维复合筛选</b></td>
+            <td><span class="type-pill pill-new">🔵 全新开发</span></td>
+            <td class="text-old">基础时间与状态筛选。</td>
+            <td class="text-new">支持状态、告警级别、告警判定（属实/误报/重复）、任务、时间范围等复合查询。</td>
+            <td class="text-impact">告警表建立组合索引，扩充告警分页 API 查询参数。</td>
+          </tr>
+          <tr data-type="new">
+            <td><b>等级快照与分级通知</b></td>
+            <td><span class="type-pill pill-new">🔵 全新开发</span></td>
+            <td class="text-old">无等级区分与差异化提醒。</td>
+            <td class="text-new">告警快照任务等级并高亮着色、高危优先排序；通知渠道实现强提醒与普通提醒分级。</td>
+            <td class="text-impact">告警表写入任务等级快照；对接通知中心分级推送路由。</td>
+          </tr>
+
+          <!-- 接入管理 -->
+          <tr data-type="new">
+            <td class="submodule-cell" rowspan="2">
+              <div class="submodule-tag">⚙️ 布控接入管理</div>
+            </td>
+            <td><b>布控比对接入管理 (P-013b)</b></td>
+            <td><span class="type-pill pill-new">🔵 全新开发</span></td>
+            <td class="text-old">无独立管理页面。</td>
+            <td class="text-new">N11 内部管理页：布控比对开关、通道状态、权限 <span class="code-token">n11:analysis:admin</span>。</td>
+            <td class="text-impact">新增 P-013b 原型页；拆分独立比对设备配置表。</td>
+          </tr>
+          <tr data-type="new">
+            <td><b>布控配额计量与硬阻断</b></td>
+            <td><span class="type-pill pill-new">🔵 全新开发</span></td>
+            <td class="text-old">混合计量或无严格阻断。</td>
+            <td class="text-new">N11 布控比对路数配额独立计量、超额硬阻断。</td>
+            <td class="text-impact">开发 N11 独立 License 校验与原子路数计数器。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 3. 一级功能：底座依赖与系统支撑 -->
+    <section class="section-card" data-module="base">
+      <div class="module-header m-base">
+        <div class="module-title-wrap">
+          <span class="module-icon">🧱</span>
+          <span class="module-title">一级功能：底层公共与系统支撑 (底座依赖 · 算法适配 · 部署架构)</span>
+          <span class="module-subtitle">包含公共服务依赖、算法解耦、数据库与集群部署规格</span>
+        </div>
+        <span class="scope-tag tag-base">公共与支撑</span>
+      </div>
+
+      <table class="tree-table">
+        <thead>
+          <tr>
+            <th style="width: 140px;">二级功能</th>
+            <th style="width: 170px;">功能点</th>
+            <th style="width: 100px;">变更分类</th>
+            <th style="width: 250px;">6月旧实现 (Baseline)</th>
+            <th style="width: 270px;">8月新规划 (Target)</th>
+            <th>研发关键动作与技术影响</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 基础依赖 -->
+          <tr data-type="keep">
+            <td class="submodule-cell" rowspan="2">
+              <div class="submodule-tag">🔗 底座依赖集成</div>
+            </td>
+            <td><b>公共底座能力依赖</b></td>
+            <td><span class="type-pill pill-keep">🟢 沿用不动</span></td>
+            <td class="text-old">依赖 B4设备/B5B6媒体/B7权限/B8运维。</td>
+            <td class="text-new">底座依赖范围与集成协议保持完全一致。</td>
+            <td class="text-impact">保持原有 RPC / OpenAPI Client 调用，无接口变更。</td>
+          </tr>
+          <tr data-type="keep">
+            <td><b>视频播放组件复用</b></td>
+            <td><span class="type-pill pill-keep">🟢 沿用不动</span></td>
+            <td class="text-old">依赖底座媒体流网关。</td>
+            <td class="text-new">两组件各自在前端持有页面与播放器封装。</td>
+            <td class="text-impact">无跨组件 UI 依赖，各自独立集成。</td>
+          </tr>
+
+          <!-- 算法解耦 -->
+          <tr data-type="adj">
+            <td class="submodule-cell">
+              <div class="submodule-tag">🧠 算法与地图适配</div>
+            </td>
+            <td><b>外部依赖解耦</b></td>
+            <td><span class="type-pill pill-adj">🟡 存量调整</span></td>
+            <td class="text-old">强依赖外部统一 AI 平台与全局 GIS 服务。</td>
+            <td class="text-new"><b>内置专用适配器</b>，N7 算法 / N5 地图降级为可选协同。</td>
+            <td class="text-impact">重构算法适配层；未部署 N7/N5 时本组件依然可以独立闭环运行。</td>
+          </tr>
+
+          <!-- 存储与部署 -->
+          <tr data-type="adj">
+            <td class="submodule-cell" rowspan="3">
+              <div class="submodule-tag">🗄️ 存储与部署架构</div>
+            </td>
+            <td><b>产品微服务拆分</b></td>
+            <td><span class="type-pill pill-adj">🟡 存量调整</span></td>
+            <td class="text-old">平台应用层单体模块，单一打包发布入口。</td>
+            <td class="text-new"><b>N9 与 N11 拆分为两个独立微服务与工程包</b>。</td>
+            <td class="text-impact">代码仓库拆分，独立 CI/CD 构建与版本流水线。</td>
+          </tr>
+          <tr data-type="adj">
+            <td><b>Schema 物理分离</b></td>
+            <td><span class="type-pill pill-adj">🟡 存量调整</span></td>
+            <td class="text-old">所有数据混合存储在单一 DB Schema。</td>
+            <td class="text-new"><b>物理分库：</b>N11 承载目标/布控/告警；N9 承载底库/轨迹/报告。</td>
+            <td class="text-impact">拆分为两个独立库实例；<b>严禁跨库物理 Join</b>，数据交互走 OpenAPI。</td>
+          </tr>
+          <tr data-type="keep">
+            <td><b>集群部署规格标准</b></td>
+            <td><span class="type-pill pill-keep">🟢 沿用不动</span></td>
+            <td class="text-old">L3 计算集群型容器化部署。</td>
+            <td class="text-new">N9 与 N11 均为 L3 计算集群型。</td>
+            <td class="text-impact">Docker / K8s 交付规格基准保持一致。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </div>
+
+  <!-- ==================== 视图 2：数据库物理边界与 API 契约 ==================== -->
+  <div class="arch-view" id="view-arch">
+    <div class="section-card">
+      <div class="arch-section-header">
+        <div class="arch-section-title">
+          <span>🏛️ N9 与 N11 数据库资产物理边界清晰划分</span>
+        </div>
+        <span class="code-token">物理隔离 · 禁止跨库 Join</span>
+      </div>
+
+      <div class="arch-body">
+        <div class="boundary-grid">
+          <!-- N9 数据资产 -->
+          <div class="boundary-box n9">
+            <div class="b-head">
+              <div class="b-title">
+                <span>🔷 N9 轨迹查询组件（数据资产）</span>
+              </div>
+              <span class="scope-tag tag-n9">事后研判·找得到</span>
+            </div>
+            <ul class="b-asset-list">
+              <li class="b-asset-item">
+                <span class="b-asset-name">特征索引底库 (私有向量库)</span>
+                <span class="b-asset-desc">：以图搜人、以图搜车的算法特征向量库，严禁与目标库混淆。</span>
+              </li>
+              <li class="b-asset-item">
+                <span class="b-asset-name">历史轨迹数据</span>
+                <span class="b-asset-desc">：人员/车辆抓拍时空节点、移动轨迹序列。</span>
+              </li>
+              <li class="b-asset-item">
+                <span class="b-asset-name">检索任务与缓存</span>
+                <span class="b-asset-desc">：异步搜图任务、以文搜图中间结果。</span>
+              </li>
+              <li class="b-asset-item">
+                <span class="b-asset-name">研判分析报告</span>
+                <span class="b-asset-desc">：导出的轨迹碰撞 PDF 报告及元数据。</span>
+              </li>
+              <li class="b-asset-item">
+                <span class="b-asset-name">轨迹分析设备配置与配额</span>
+                <span class="b-asset-desc">：路数开关与配额占用计数。</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- N11 数据资产 -->
+          <div class="boundary-box n11">
+            <div class="b-head">
+              <div class="b-title">
+                <span>🔶 N11 布控预警组件（数据资产）</span>
+              </div>
+              <span class="scope-tag tag-n11">事前防控·盯得住</span>
+            </div>
+            <ul class="b-asset-list">
+              <li class="b-asset-item">
+                <span class="b-asset-name">重点目标权威名单库</span>
+                <span class="b-asset-desc">：人员/车辆权威白/黑名单、目标生命周期、特征版本。</span>
+              </li>
+              <li class="b-asset-item">
+                <span class="b-asset-name">布控任务配置</span>
+                <span class="b-asset-desc">：布控范围、布控时长、相似度阈值、目标等级。</span>
+              </li>
+              <li class="b-asset-item">
+                <span class="b-asset-name">实时命中与告警记录</span>
+                <span class="b-asset-desc">：抓拍比对命中记录、告警判定状态、处置结果。</span>
+              </li>
+              <li class="b-asset-item">
+                <span class="b-asset-name">已归档告警终态库</span>
+                <span class="b-asset-desc">：属实/误报/重复已结案历史归档。</span>
+              </li>
+              <li class="b-asset-item">
+                <span class="b-asset-name">布控比对设备配置与配额</span>
+                <span class="b-asset-desc">：比对路数开关与独立 License。</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 跨组件 API 交互契约规范 -->
+        <div class="api-contract-wrapper">
+          <div class="contract-header">
+            <span>🔗 跨组件 API 交互契约规范 (仅保留 1 条公开只读通信)</span>
+          </div>
+
+          <div class="api-grid">
+            <!-- 唯一合法交互 -->
+            <div class="api-card legal">
+              <div class="api-card-title">
+                <span>✅ 唯一合法交互：N9 检索选目标</span>
+              </div>
+              <div class="api-card-content">
+                <p><b>• 调用链路：</b> N9 检索页面 ➔ 调 N11 <span class="code-token">GET /api/v1/n11/targets</span> 接口读取目标名单及图片 ➔ N9 本地发起特征比对检索。</p>
+                <p style="margin-top: 6px;"><b>• 降级策略：</b> 环境未部署 N11 时，N9 前端自动隐藏「从目标库选择」入口，其他以图搜图能力 100% 正常可用。</p>
+              </div>
+            </div>
+
+            <!-- 废弃与禁止链路 -->
+            <div class="api-card illegal">
+              <div class="api-card-title">
+                <span>❌ 废弃与禁止链路 (研发避坑 3 大红线)</span>
+              </div>
+              <div class="api-card-content">
+                <ul>
+                  <li><b>1. 严禁 N9 轨迹结果一键布控：</b> 前端彻底删除该按钮，禁止向 N11 写入目标或任务。</li>
+                  <li><b>2. 严禁告警详情直接回看轨迹：</b> 告警与轨迹彻底解耦，不产生反向强绑定。</li>
+                  <li><b>3. 严禁数据库跨库 Join：</b> 两组件数据必须走 HTTP API 交互，严禁跨 DB 视图或 Join。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 视图 3：变更看板视图 ==================== -->
+  <div class="kanban-view" id="view-kanban">
+    <!-- Keep -->
+    <div class="kanban-col col-keep">
+      <div class="kanban-header">
+        <div class="col-title">🟢 沿用不动 (无需改动)</div>
+        <span class="col-badge">9 项</span>
+      </div>
+      <div class="kanban-body">
+        <div class="item-card"><span class="code-token">N9</span> <b>人/车轨迹核心交互</b>：以图/文搜人车、车牌精确查询、人工确认、地图时间轴。</div>
+        <div class="item-card"><span class="code-token">N9</span> <b>多目标轨迹碰撞对比</b>：2 目标叠加、5min 窗口接触判定、黄色闪烁圈。</div>
+        <div class="item-card"><span class="code-token">N9</span> <b>轨迹研判 PDF 导出</b>：截图+时间线导出（≤50MB），归属 N9 独占。</div>
+        <div class="item-card"><span class="code-token">N11</span> <b>目标库交互框架</b>：卡片/列表双视图、标签筛选、CRUD 基础视图。</div>
+        <div class="item-card"><span class="code-token">N11</span> <b>布控参数与生命周期</b>：相似度阈值、最长 30 天、暂停/恢复/失效流转。</div>
+        <div class="item-card"><span class="code-token">N11</span> <b>实时推流与防风暴</b>：WebSocket 实时推送、同目标 5min 去重、录像预览。</div>
+        <div class="item-card"><span class="code-token">公共</span> <b>底座基础服务依赖</b>：B4 设备/B5B6 媒体/B7 权限/B8 运维接口不变。</div>
+        <div class="item-card"><span class="code-token">公共</span> <b>视频播放组件复用</b>：依赖底座媒体流，两组件各自在前端独立持有。</div>
+        <div class="item-card"><span class="code-token">公共</span> <b>集群部署规格标准</b>：两组件均为 L3 计算集群型容器化部署。</div>
+      </div>
+    </div>
+
+    <!-- Adj -->
+    <div class="kanban-col col-adj">
+      <div class="kanban-header">
+        <div class="col-title">🟡 存量调整 (需重构)</div>
+        <span class="col-badge">7 项</span>
+      </div>
+      <div class="kanban-body">
+        <div class="item-card"><span class="code-token">架构</span> <b>产品微服务拆分</b>：平台单体模块 ➔ N9 与 N11 两个独立 SKU/部署/验收。</div>
+        <div class="item-card"><span class="code-token">N11</span> <b>目标库归属升级</b>：从 N9 临时素材库 ➔ 迁入 N11 升级为权威重点名单库。</div>
+        <div class="item-card"><span class="code-token">N9</span> <b>取消轨迹一键布控</b>：N9 轨迹结果页<b>彻底删除「加入布控」按钮</b>。</div>
+        <div class="item-card"><span class="code-token">N11</span> <b>布控创建方式收敛</b>：创建收敛为快捷布控/目标库布控 2 种，废弃轨迹一键布控；目标来源 3 种（手动创建/布控自动保存/告警命中导入）。</div>
+        <div class="item-card"><span class="code-token">N11</span> <b>告警判定与自动归档</b>：判定(属实/误报/重复)+处置+提交即不可逆归档，删二次核查。</div>
+        <div class="item-card"><span class="code-token">算法</span> <b>外部依赖解耦</b>：自带专用适配器，N7 算法 / N5 地图降级为可选协同。</div>
+        <div class="item-card"><span class="code-token">存储</span> <b>Schema 物理分离</b>：N11(目标/布控/告警) 与 N9(特征底库/轨迹/报告) 分库。</div>
+      </div>
+    </div>
+
+    <!-- New -->
+    <div class="kanban-col col-new">
+      <div class="kanban-header">
+        <div class="col-title">🔵 全新开发 (新增功能)</div>
+        <span class="col-badge">11 项</span>
+      </div>
+      <div class="kanban-body">
+        <div class="item-card"><span class="code-token">N9</span> <b>特征索引 (检索底库)</b>：N9 独占的以图搜人/车特征向量存储与检索服务。</div>
+        <div class="item-card"><span class="code-token">联动</span> <b>跨组件选目标检索</b>：N9 调 N11 目标库公开 API 获取目标照片发起检索。</div>
+        <div class="item-card"><span class="code-token">N9</span> <b>录像可用性联动规则</b>：轨迹分析强依赖录像可用，自开启时刻起产生不回溯。</div>
+        <div class="item-card"><span class="code-token">N9</span> <b>轨迹接入管理 (P-013a)</b>：N9 内部管理页，权限 <span class="code-token">n9:analysis:admin</span>。</div>
+        <div class="item-card"><span class="code-token">N9</span> <b>轨迹配额计量与硬阻断</b>：轨迹分析路数配额独立计量，超额硬阻断（独立 License + 原子计数器）。</div>
+        <div class="item-card"><span class="code-token">N11</span> <b>任务目标等级划分</b>：布控任务支持高/中/低危，为告警快照提供等级数据。</div>
+        <div class="item-card"><span class="code-token">N11</span> <b>比对范围动态规则</b>：生效范围 = 目录设备 ∩ 已开启比对设备。</div>
+        <div class="item-card"><span class="code-token">N11</span> <b>告警多维复合筛选</b>：状态/级别/判定/任务/时间多参数组合索引与查询。</div>
+        <div class="item-card"><span class="code-token">N11</span> <b>等级快照与分级通知</b>：告警快照任务等级并着色排序，强提醒/普通分级。</div>
+        <div class="item-card"><span class="code-token">N11</span> <b>布控比对接入管理 (P-013b)</b>：N11 内部管理页，权限 <span class="code-token">n11:analysis:admin</span>。</div>
+        <div class="item-card"><span class="code-token">N11</span> <b>布控配额计量与硬阻断</b>：布控比对路数配额独立计量，超额硬阻断（独立 License + 原子计数器）。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 视图 4：落地计划 ==================== -->
+  <div class="plan-view" id="view-plan">
+    <div class="plan-step">
+      <div class="step-num-badge">1</div>
+      <div class="step-content">
+        <div class="step-title">阶段一：数据层 Schema 物理拆分与历史迁移 (高优先级)</div>
+        <div class="step-desc">拆分 <span class="code-token">db_n9_trajectory</span> 与 <span class="code-token">db_n11_surveillance</span>；执行目标库数据迁移脚本至 N11；搭建 N9 独立特征向量底库。</div>
+      </div>
+    </div>
+    <div class="plan-step">
+      <div class="step-num-badge">2</div>
+      <div class="step-content">
+        <div class="step-title">阶段二：事件消息 Key 与 API 路由全局替换</div>
+        <div class="step-desc">全局替换 <span class="code-token">n9.target.*</span> 为 <span class="code-token">n11.target.*</span>；N11 暴露公开只读 API 供 N9 检索弹窗读取。</div>
+      </div>
+    </div>
+    <div class="plan-step">
+      <div class="step-num-badge">3</div>
+      <div class="step-content">
+        <div class="step-title">阶段三：前端交互收敛与状态机终态化</div>
+        <div class="step-desc">N9 轨迹结果页彻底移除「加入布控」按钮；N11 告警弹窗改造为判定即终态归档，删除二次归档流程。</div>
+      </div>
+    </div>
+    <div class="plan-step">
+      <div class="step-num-badge">4</div>
+      <div class="step-content">
+        <div class="step-title">阶段四：新增管理能力与配额硬阻断建设</div>
+        <div class="step-desc">开发 P-013a/b 内部接入管理页与权限点；上线布控动态交集算法与独立 License 计量硬阻断逻辑。</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  let currentCategory = 'all';
+
+  function switchView(viewName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    document.getElementById('view-tree-matrix').style.display = (viewName === 'tree-matrix') ? 'flex' : 'none';
+    document.getElementById('view-arch').style.display = (viewName === 'arch') ? 'block' : 'none';
+    document.getElementById('view-kanban').style.display = (viewName === 'kanban') ? 'grid' : 'none';
+    document.getElementById('view-plan').style.display = (viewName === 'plan') ? 'flex' : 'none';
+  }
+
+  function setQuickFilter(cat) {
+    currentCategory = cat;
+    document.getElementById('type-filter').value = cat;
+    document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active'));
+    if (cat === 'all') document.querySelector('.c-all').classList.add('active');
+    if (cat === 'keep') document.querySelector('.c-keep').classList.add('active');
+    if (cat === 'adj') document.querySelector('.c-adj').classList.add('active');
+    if (cat === 'new') document.querySelector('.c-new').classList.add('active');
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const selectedType = document.getElementById('type-filter').value;
+    const searchVal = document.getElementById('search-input').value.toLowerCase().trim();
+
+    // 1. 过滤树形表格行
+    const rows = document.querySelectorAll('.tree-table tbody tr');
+    rows.forEach(row => {
+      const rowType = row.getAttribute('data-type');
+      const rowText = row.innerText.toLowerCase();
+
+      const matchType = (selectedType === 'all' || rowType === selectedType);
+      const matchSearch = (!searchVal || rowText.includes(searchVal));
+
+      if (matchType && matchSearch) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    // 2. 控制模块显隐
+    document.querySelectorAll('.section-card[data-module]').forEach(sec => {
+      const visibleRows = sec.querySelectorAll('.tree-table tbody tr:not([style*="display: none"])');
+      sec.style.display = (visibleRows.length > 0) ? 'block' : 'none';
+    });
+  }
+</script>
+
+</body>
+</html>
